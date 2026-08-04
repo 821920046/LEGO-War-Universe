@@ -1,0 +1,3516 @@
+{
+  "schemaVersion": "3.2",
+  "project": {
+    "name": "LEGO War Universe",
+    "code": "LWU",
+    "bibleVersion": "2.1",
+    "target": "Google Flow (Veo 3), 8-second cinematic shots, long-form war-film series",
+    "updated": "2026-08-04"
+  },
+  "styleBlock": {
+    "id": "STYLE-LWU",
+    "name": "LWU Master Style",
+    "lines": [
+      "Ultra realistic LEGO stop motion",
+      "photorealistic LEGO plastic with real brick textures and subtle mold seams",
+      "authentic LEGO minifigure and brick construction",
+      "cinematic lighting, movie quality, shot on virtual 35mm anamorphic",
+      "shallow depth of field, natural motion blur",
+      "8K detail, 24fps cinematic motion",
+      "16:9 aspect ratio",
+      "Google Flow optimized, Veo optimized",
+      "all solid objects are built from LEGO bricks: terrain plates, buildings, vehicles, weapons, props and debris, with visible studs, tubes and mold seams",
+      "consistent LEGO minifigure scale across the entire scene",
+      "weather, water and combat effects are photorealistic real-world elements, not made of bricks",
+      "photoreal rain, snow, fog, mist, clouds, ocean water, rivers and splashes with real fluid simulation",
+      "photoreal fire, gun smoke, cordite haze, sparks, embers, shockwaves, dust and mushroom clouds with volumetric lighting",
+      "real physical interaction between effects and bricks: wet glossy plastic, snow settling on studs, smoke wrapping around the models",
+      "practical-effects look of a high-end LEGO stop motion film shot on a real set"
+    ]
+  },
+  "defaultColorGrade": "CLR-001",
+  "negative": {
+    "id": "NEG-LWU",
+    "name": "LWU Universal Negative Prompt",
+    "lines": [
+      "no extra characters",
+      "no duplicated vehicles",
+      "no melting or warped LEGO bricks",
+      "no broken anatomy",
+      "no unrealistic proportions",
+      "no blurry or smeared textures",
+      "no floating objects",
+      "no incorrect military markings",
+      "no cartoon exaggeration",
+      "no on-screen text, no subtitles, no captions, no watermark, no logos",
+      "maintain consistent LEGO brick scale",
+      "maintain consistent lighting",
+      "maintain consistent character appearance",
+      "no mixing WWII-era equipment into modern scenes",
+      "no anachronistic uniforms or weapons for the selected series",
+      "no plastic-looking or brick-built water, rain, snow, fog, smoke or fire",
+      "no blocky pixelated explosions, no cartoon puff effects",
+      "do not turn solid props, vehicles or terrain into non-LEGO real-world materials"
+    ]
+  },
+  "variantPresets": [
+    {
+      "id": "clean",
+      "name": "Clean / Factory-fresh",
+      "line": "factory-fresh clean plastic, crisp decals, no wear"
+    },
+    {
+      "id": "weathered",
+      "name": "Weathered (default)",
+      "line": "weathered plastic with dust and grime wash, light wear"
+    },
+    {
+      "id": "damaged",
+      "name": "Battle-damaged",
+      "line": "battle-damaged, scorch marks, chipped bricks, a few missing pieces"
+    },
+    {
+      "id": "destroyed",
+      "name": "Destroyed wreck",
+      "line": "destroyed wreck, blackened and burned, scattered bricks, thin smoke"
+    }
+  ],
+  "characterVariantPresets": [
+    {
+      "id": "standard",
+      "name": "Standard",
+      "line": "clean uniform, alert posture"
+    },
+    {
+      "id": "battle-worn",
+      "name": "Battle-worn",
+      "line": "dusty battle-worn uniform, sweat and dirt on face, tired determined expression"
+    },
+    {
+      "id": "night-ops",
+      "name": "Night Ops",
+      "line": "night operations loadout, night vision goggles mounted, IR strobe, subdued markings"
+    },
+    {
+      "id": "urban-cqb",
+      "name": "Urban CQB",
+      "line": "urban close quarters loadout, plate carrier with breaching gear, knee pads, short barrel weapon"
+    }
+  ],
+  "rhythmTemplates": [
+    {
+      "id": "trailer",
+      "name": "Trailer / 预告片节奏",
+      "beats": [
+        {
+          "phase": "opening",
+          "ratio": 0.1
+        },
+        {
+          "phase": "buildup",
+          "ratio": 0.2
+        },
+        {
+          "phase": "climax",
+          "ratio": 0.5
+        },
+        {
+          "phase": "resolution",
+          "ratio": 0.2
+        }
+      ]
+    },
+    {
+      "id": "documentary",
+      "name": "Documentary / 纪录片节奏",
+      "beats": [
+        {
+          "phase": "context",
+          "ratio": 0.25
+        },
+        {
+          "phase": "event",
+          "ratio": 0.4
+        },
+        {
+          "phase": "aftermath",
+          "ratio": 0.2
+        },
+        {
+          "phase": "reflection",
+          "ratio": 0.15
+        }
+      ]
+    },
+    {
+      "id": "epic",
+      "name": "Epic / 史诗节奏",
+      "beats": [
+        {
+          "phase": "slow-build",
+          "ratio": 0.3
+        },
+        {
+          "phase": "rising",
+          "ratio": 0.3
+        },
+        {
+          "phase": "climax",
+          "ratio": 0.3
+        },
+        {
+          "phase": "denouement",
+          "ratio": 0.1
+        }
+      ]
+    }
+  ],
+  "characters": [
+    {
+      "id": "CHR-001",
+      "legacyId": "A001 / Character 001",
+      "name": "Coalition Soldier Alpha",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "unit": "Infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "tan PASGT helmet",
+        "desert tactical vest",
+        "desert (chocolate-chip) camouflage uniform",
+        "light skin, brown eyebrows, serious facial expression, black sunglasses",
+        "equipment: M16A2 rifle, backpack, radio, canteen",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-002",
+      "legacyId": "Character 002",
+      "name": "Abrams Tank Crew",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "unit": "Armor",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "tan CVC combat vehicle crewman helmet with attached microphone",
+        "olive-tan nomex coveralls torso print",
+        "light skin, brown eyebrows, focused expression",
+        "equipment: intercom cord, holstered M9 pistol",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-003",
+      "legacyId": "Character 003",
+      "name": "Apache Pilot",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "unit": "Aviation",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "green flight helmet with IHADSS monocle over right eye",
+        "olive-green flight suit torso print with survival vest",
+        "light skin, brown eyebrows, calm confident expression",
+        "equipment: flight gloves, kneeboard",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-004",
+      "legacyId": "Character 004",
+      "name": "Iraqi Commander",
+      "series": "Gulf War",
+      "faction": "Opposing Force",
+      "unit": "Command",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive-green peaked officer cap",
+        "olive-green officer uniform torso print with rank insignia",
+        "medium skin, black eyebrows, black moustache, stern expression",
+        "equipment: binoculars, holstered pistol, map case",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-005",
+      "name": "Carrier Deck Crew (Yellow Shirt)",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "unit": "Navy",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "yellow flight-deck jersey and yellow float coat torso print",
+        "green cranial helmet with ear protection and goggles",
+        "light skin, neutral focused expression",
+        "equipment: light wands, radio",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-006",
+      "name": "Coalition Field Officer",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "unit": "Command",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "tan patrol cap",
+        "desert camouflage uniform torso print with subdued rank",
+        "light skin, brown eyebrows, determined expression",
+        "equipment: map case, radio handset, holstered M9 pistol",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-007",
+      "name": "Insurgent Fighter",
+      "series": "Iraq War",
+      "faction": "Opposing Force",
+      "unit": "Irregular",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark headscarf and plain civilian jacket torso print",
+        "medium skin, black eyebrows, black beard, intense expression",
+        "equipment: AK-47 rifle, chest pouch",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-101",
+      "name": "US Infantry (WWII)",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive-green M1 steel helmet",
+        "olive-drab field jacket torso print with webbing",
+        "light skin, brown eyebrows, gritty expression",
+        "equipment: M1 Garand rifle, backpack, canteen",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-102",
+      "name": "Wehrmacht Soldier",
+      "series": "WWII",
+      "faction": "Axis",
+      "unit": "Infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "gray Stahlhelm steel helmet",
+        "field-gray tunic torso print with belt",
+        "light skin, brown eyebrows, stern expression",
+        "equipment: bolt-action rifle, ammo pouches",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-103",
+      "name": "US Paratrooper",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Airborne",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive M2 paratrooper helmet with net and chin cup",
+        "reinforced jump jacket torso print with musette bag",
+        "light skin, brown eyebrows, focused expression",
+        "equipment: M1 carbine, folding stock, grenades",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-201",
+      "name": "US Naval Aviator (WWII)",
+      "series": "Pacific",
+      "faction": "Allies",
+      "unit": "Naval Aviation",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "brown leather flight helmet and goggles",
+        "khaki flight suit torso print with life vest",
+        "light skin, brown eyebrows, confident grin",
+        "equipment: flight gloves, chart board",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-301",
+      "name": "NATO Tank Commander (Cold War)",
+      "series": "Cold War",
+      "faction": "NATO",
+      "unit": "Armor",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "green CVC helmet with headset",
+        "woodland-camo nomex coveralls torso print",
+        "light skin, brown eyebrows, focused expression",
+        "equipment: map case, holstered pistol",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-401",
+      "name": "Special Forces Operator",
+      "series": "Modern",
+      "faction": "Coalition",
+      "unit": "Special Forces",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "lines": [
+        "LEGO minifigure, modern special forces operator",
+        "Ops-Core style ballistic helmet with counterweight and IR strobe",
+        "night vision goggles flipped up on helmet mount",
+        "multicam plate carrier with magazine pouches, radio and hydration tube",
+        "knee pads, tactical gloves, modern combat boots",
+        "beard, tan skin, focused expression, comms headset",
+        "equipment: HK416 carbine with suppressor, red dot sight, weapon light",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-402",
+      "name": "UAS Drone Operator",
+      "series": "Modern",
+      "faction": "Coalition",
+      "unit": "Aviation / UAS",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "lines": [
+        "LEGO minifigure, modern drone operator",
+        "baseball cap and headset, no helmet",
+        "olive flight suit with unit patches",
+        "holding a rugged drone controller with dual antennas and screen",
+        "calm concentrated expression, glasses reflecting screen glow",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-403",
+      "name": "JTAC Forward Air Controller",
+      "series": "Modern",
+      "faction": "Coalition",
+      "unit": "JTAC",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "lines": [
+        "LEGO minifigure, joint terminal attack controller",
+        "modern combat helmet with IR marker, radio handset raised to mouth",
+        "multicam uniform, plate carrier with antenna sprouting from radio pack",
+        "laser target designator on tripod beside him",
+        "binoculars, map tablet, determined expression",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-404",
+      "name": "Combat Medic",
+      "series": "Modern",
+      "faction": "Coalition",
+      "unit": "Medical",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "lines": [
+        "LEGO minifigure, modern combat medic",
+        "combat helmet with subdued red cross marking",
+        "multicam uniform, medical aid bag with tourniquets and IV pouches",
+        "blue nitrile gloves, urgent focused expression",
+        "equipment: M4A1 carbine slung across back",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-405",
+      "name": "Sniper Team Marksman",
+      "series": "Modern",
+      "faction": "Coalition",
+      "unit": "Recon / Sniper",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "lines": [
+        "LEGO minifigure, modern sniper in ghillie suit",
+        "brick-built ghillie texture with tan and green fringe elements",
+        "prone shooting posture, spotting scope beside",
+        "equipment: bolt-action precision rifle with long suppressor and bipod",
+        "face paint, steady calm expression",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-406",
+      "name": "Female Recon Operator",
+      "series": "Modern",
+      "faction": "Coalition",
+      "unit": "Reconnaissance",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "lines": [
+        "LEGO minifigure, modern female reconnaissance operator",
+        "modern combat helmet, hair tied back beneath",
+        "multicam plate carrier, lightweight recon loadout",
+        "tactical gloves, compact carbine with holographic sight",
+        "alert determined expression, comms earpiece",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-407",
+      "name": "PMC Contractor",
+      "series": "Modern",
+      "faction": "Private Contractor",
+      "unit": "PMC",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "lines": [
+        "LEGO minifigure, private military contractor",
+        "low-profile bump helmet or ball cap, wraparound sunglasses",
+        "grey and black plate carrier over civilian-style tactical shirt",
+        "beard, chest rig with radio, no national insignia",
+        "equipment: short-barrel rifle, sidearm on thigh holster",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-408",
+      "name": "EOD Technician",
+      "series": "Modern",
+      "faction": "Coalition",
+      "unit": "EOD",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "lines": [
+        "LEGO minifigure, explosive ordnance disposal technician",
+        "heavy brick-built EOD blast suit with thick collar and visor helmet",
+        "green protective panels, cautious deliberate posture",
+        "holding disposal tools, small tracked EOD robot beside",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-409",
+      "name": "Infantry Squad Leader",
+      "series": "Modern",
+      "faction": "Coalition",
+      "unit": "Infantry",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "lines": [
+        "LEGO minifigure, modern infantry squad leader",
+        "modern combat helmet with mount and cover, communication headset",
+        "multicam uniform and plate carrier, sergeant rank patch",
+        "arm raised giving hand signal, commanding expression",
+        "equipment: M4A1 carbine with grenade launcher",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-410",
+      "name": "CBRN Specialist",
+      "series": "Modern",
+      "faction": "Coalition",
+      "unit": "CBRN",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "lines": [
+        "LEGO minifigure, chemical biological warfare specialist",
+        "full protective suit in olive grey, hooded",
+        "gas mask with round filter canister and clear lens",
+        "rubber gloves and boots, carrying detection device",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-411",
+      "name": "Electronic Warfare Specialist",
+      "series": "Modern",
+      "faction": "Coalition",
+      "unit": "EW / Cyber",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "lines": [
+        "LEGO minifigure, electronic warfare specialist",
+        "headset over patrol cap, no helmet",
+        "olive uniform, laptop on ruggedised case",
+        "portable jammer antenna array beside",
+        "screen glow on face, analytical expression",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-412",
+      "name": "MANPADS Gunner",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "unit": "Air Defense",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "lines": [
+        "LEGO minifigure, shoulder-launched air defense gunner",
+        "olive drab fatigues, simple helmet, scarf",
+        "shouldering a FIM-92 Stinger style launch tube, aiming upward",
+        "tense concentrated expression",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    }
+  ],
+  "vehicles": [
+    {
+      "id": "VEH-001",
+      "legacyId": "A002 / Vehicle 001",
+      "class": "ground",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "M1A1 Abrams",
+      "lines": [
+        "LEGO M1A1 Abrams main battle tank",
+        "dark tan bricks",
+        "realistic LEGO stickers and decals",
+        "rotating turret, 120mm main gun",
+        "rubber LEGO tracks",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-002",
+      "legacyId": "A003",
+      "class": "ground",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "M2 Bradley IFV",
+      "lines": [
+        "LEGO M2 Bradley infantry fighting vehicle",
+        "desert tan bricks",
+        "two-tone turret with 25mm chain gun and TOW launcher",
+        "rubber LEGO tracks",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-003",
+      "legacyId": "A011 / Vehicle 002",
+      "class": "ground",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "M270 MLRS",
+      "lines": [
+        "LEGO M270 MLRS multiple rocket launcher",
+        "olive-green bricks",
+        "same launcher box, same road wheels and tracks",
+        "realistic proportions, high detail",
+        "consistent scale, consistent markings, same brick construction"
+      ]
+    },
+    {
+      "id": "VEH-004",
+      "legacyId": "A010",
+      "class": "ground",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "Patriot Missile Battery",
+      "lines": [
+        "LEGO MIM-104 Patriot missile launcher on trailer",
+        "olive-green and tan bricks",
+        "angled launch canister box, hydraulic supports",
+        "realistic proportions, high detail",
+        "consistent scale, consistent markings, same brick construction"
+      ]
+    },
+    {
+      "id": "VEH-005",
+      "class": "ground",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "Supply Truck (HEMTT)",
+      "lines": [
+        "LEGO HEMTT heavy supply truck",
+        "desert tan bricks",
+        "canvas-covered cargo bed, eight wheels",
+        "realistic proportions, high detail",
+        "consistent scale, same brick construction"
+      ]
+    },
+    {
+      "id": "VEH-101",
+      "class": "ground",
+      "series": "WWII",
+      "faction": "Allies",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "M4 Sherman",
+      "lines": [
+        "LEGO M4 Sherman medium tank",
+        "olive-drab bricks",
+        "cast rounded turret, 75mm gun, white star decals",
+        "rubber LEGO tracks",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-102",
+      "class": "ground",
+      "series": "WWII",
+      "faction": "Axis",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "Tiger I",
+      "lines": [
+        "LEGO Tiger I heavy tank",
+        "dark yellow and gray bricks",
+        "boxy turret, long 88mm gun, interlocking road wheels",
+        "rubber LEGO tracks",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-103",
+      "class": "ground",
+      "series": "WWII",
+      "faction": "Allies",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "LCVP Higgins Boat",
+      "lines": [
+        "LEGO LCVP Higgins landing craft",
+        "gray-green bricks, wooden hull texture",
+        "drop-down bow ramp, packed with minifigure soldiers",
+        "consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-301",
+      "class": "ground",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "T-72",
+      "lines": [
+        "LEGO T-72 main battle tank",
+        "olive-green bricks",
+        "low dome turret, 125mm gun, side skirts",
+        "rubber LEGO tracks",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-302",
+      "class": "ground",
+      "series": "Cold War",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "Leopard 2",
+      "lines": [
+        "LEGO Leopard 2 main battle tank",
+        "NATO green and black camo bricks",
+        "angular wedge turret, 120mm gun",
+        "rubber LEGO tracks",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-001",
+      "legacyId": "A006 / Vehicle 004",
+      "class": "aircraft",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "F-15 Eagle",
+      "lines": [
+        "LEGO F-15 Eagle fighter jet",
+        "light gray bricks, weathered panel lines",
+        "transparent cockpit canopy",
+        "same missile loadout, same decals, same twin tail wings",
+        "consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "AIR-002",
+      "legacyId": "A007",
+      "class": "aircraft",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "F-16 Falcon",
+      "lines": [
+        "LEGO F-16 Fighting Falcon",
+        "light gray bricks, weathered panel lines",
+        "bubble transparent canopy, single tail fin",
+        "same missile and bomb loadout, same decals",
+        "consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "AIR-003",
+      "legacyId": "A008",
+      "class": "aircraft",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "A-10 Warthog",
+      "lines": [
+        "LEGO A-10 Thunderbolt II",
+        "dark gray and green bricks, weathered plastic",
+        "twin rear engines, straight wings, nose GAU-8 cannon",
+        "same ordnance loadout, same decals",
+        "consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "AIR-004",
+      "legacyId": "A004",
+      "class": "helicopter",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "AH-64 Apache",
+      "lines": [
+        "LEGO AH-64 Apache attack helicopter",
+        "dark olive-green bricks, weathered plastic",
+        "nose sensor turret, stub wings with Hellfire missiles and rocket pods",
+        "tandem cockpit, four-blade main rotor",
+        "consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "AIR-005",
+      "legacyId": "A005",
+      "class": "helicopter",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "UH-60 Black Hawk",
+      "lines": [
+        "LEGO UH-60 Black Hawk utility helicopter",
+        "dark olive-green bricks, weathered plastic",
+        "twin engines, four-blade main rotor, open side doors",
+        "consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "AIR-006",
+      "legacyId": "A009",
+      "class": "aircraft",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "B-52 Stratofortress",
+      "lines": [
+        "LEGO B-52 heavy bomber",
+        "dark gray bricks, weathered plastic",
+        "eight engines on swept wings, long fuselage",
+        "same bomb loadout, same decals",
+        "consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "AIR-101",
+      "class": "aircraft",
+      "series": "WWII",
+      "faction": "Allies",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "P-51 Mustang",
+      "lines": [
+        "LEGO P-51 Mustang fighter",
+        "silver bricks with invasion stripes",
+        "bubble canopy, four-blade propeller",
+        "same decals, consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "AIR-102",
+      "class": "aircraft",
+      "series": "WWII",
+      "faction": "Allies",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "B-17 Flying Fortress",
+      "lines": [
+        "LEGO B-17 Flying Fortress heavy bomber",
+        "olive-drab and gray bricks",
+        "four propellers, gun turrets, long wings",
+        "same decals, consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "AIR-201",
+      "class": "aircraft",
+      "series": "Pacific",
+      "faction": "Allies",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "F4U Corsair",
+      "lines": [
+        "LEGO F4U Corsair carrier fighter",
+        "dark blue bricks, gull wings",
+        "bubble canopy, folding wingtips",
+        "same decals, consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "AIR-202",
+      "class": "aircraft",
+      "series": "Pacific",
+      "faction": "Axis",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "A6M Zero",
+      "lines": [
+        "LEGO A6M Zero carrier fighter",
+        "light gray-green bricks with red roundels",
+        "bubble canopy, single propeller",
+        "same decals, consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "AIR-301",
+      "class": "aircraft",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "MiG-29 Fulcrum",
+      "lines": [
+        "LEGO MiG-29 Fulcrum fighter",
+        "blue-gray camo bricks",
+        "twin tail fins, transparent canopy",
+        "same missile loadout, consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "AIR-302",
+      "class": "aircraft",
+      "series": "Cold War",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "F-14 Tomcat",
+      "lines": [
+        "LEGO F-14 Tomcat carrier fighter",
+        "light gray bricks, swing wings",
+        "twin tail fins, tandem canopy",
+        "same missile loadout, consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "SHP-001",
+      "legacyId": "A012",
+      "class": "ship",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "Nimitz-class Aircraft Carrier",
+      "lines": [
+        "LEGO Nimitz-class aircraft carrier",
+        "gray LEGO bricks, weathered plastic",
+        "white runway numbers, same island tower, same radar array",
+        "same angled-deck markings, catapults, arrestor wires",
+        "consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "SHP-002",
+      "legacyId": "A013",
+      "class": "ship",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "Ticonderoga-class Cruiser",
+      "lines": [
+        "LEGO Ticonderoga-class guided-missile cruiser",
+        "haze-gray LEGO bricks, weathered plastic",
+        "boxy superstructure with SPY-1 radar panels, vertical launch cells forward and aft",
+        "consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "SHP-003",
+      "legacyId": "A014",
+      "class": "ship",
+      "series": "Gulf War",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "Arleigh Burke-class Destroyer",
+      "lines": [
+        "LEGO Arleigh Burke-class guided-missile destroyer",
+        "haze-gray LEGO bricks, weathered plastic",
+        "low stealthy superstructure, SPY-1 panels, forward and aft VLS cells, single 5-inch gun",
+        "consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "SHP-201",
+      "class": "ship",
+      "series": "Pacific",
+      "faction": "Allies",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "Essex-class Carrier (WWII)",
+      "lines": [
+        "LEGO Essex-class aircraft carrier",
+        "navy-gray bricks, wooden flight deck texture",
+        "island tower, deck-edge guns, parked propeller aircraft",
+        "consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "SHP-202",
+      "class": "ship",
+      "series": "Pacific",
+      "faction": "Axis",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial"
+      ],
+      "name": "Yamato Battleship",
+      "lines": [
+        "LEGO Yamato-class battleship",
+        "gray bricks, massive triple main gun turrets",
+        "pagoda mast superstructure, teak deck texture",
+        "consistent scale, high detail, same brick construction"
+      ]
+    },
+    {
+      "id": "VEH-401",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "M1A2 SEPv3 Abrams",
+      "lines": [
+        "LEGO M1A2 SEPv3 Abrams main battle tank",
+        "modern desert tan bricks with slat armour and reactive armour tiles",
+        "remote weapon station on turret roof, commander's independent thermal viewer",
+        "120mm smoothbore gun, rubber LEGO tracks, stowage baskets",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-402",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "Stryker ICV",
+      "lines": [
+        "LEGO Stryker eight-wheeled infantry carrier",
+        "angular slat cage armour, remote weapon station with .50 cal",
+        "olive drab bricks, large rubber tyres, rear ramp",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-403",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "JLTV Tactical Vehicle",
+      "lines": [
+        "LEGO Joint Light Tactical Vehicle",
+        "modern armoured 4x4, high ground clearance, tan bricks",
+        "roof turret ring with machine gun, antenna whips, run-flat tyres",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-404",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "Cougar MRAP",
+      "lines": [
+        "LEGO Cougar MRAP mine-resistant vehicle",
+        "V-shaped hull, heavy armoured windows, tan bricks",
+        "roof gunner cupola, jamming antennas",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-405",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "M142 HIMARS",
+      "lines": [
+        "LEGO M142 HIMARS rocket artillery truck",
+        "six-pack rocket launcher pod raised on rotating mount",
+        "armoured cab, olive drab bricks, heavy tyres",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-406",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "Leopard 2A7",
+      "lines": [
+        "LEGO Leopard 2A7 main battle tank",
+        "NATO green and grey camouflage bricks, wedge turret armour",
+        "120mm gun, side skirts, rubber LEGO tracks",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-407",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "T-90M Main Battle Tank",
+      "lines": [
+        "LEGO T-90M main battle tank",
+        "green bricks with Relikt explosive reactive armour blocks",
+        "low rounded turret, cage armour over engine deck, 125mm gun",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-408",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "M2A4 Bradley IFV",
+      "lines": [
+        "LEGO M2A4 Bradley infantry fighting vehicle",
+        "25mm chain gun turret, TOW missile launcher box on side",
+        "olive drab bricks, rubber LEGO tracks, rear troop ramp",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-409",
+      "class": "ugv",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "Robotic Combat Vehicle (UGV)",
+      "lines": [
+        "LEGO unmanned ground combat robot, small tracked chassis",
+        "sensor mast with camera cluster, remote weapon station",
+        "grey and olive bricks, no crew hatch, compact profile",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-410",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "Bushmaster Protected Vehicle",
+      "lines": [
+        "LEGO Bushmaster protected mobility vehicle",
+        "tall boxy armoured body, tan bricks, bar armour",
+        "roof hatch gunner position, spare tyre on rear",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-401",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "F-35A Lightning II",
+      "lines": [
+        "LEGO F-35A Lightning II stealth fighter",
+        "faceted stealth fuselage in grey bricks, low-visibility grey markings",
+        "internal weapons bay doors, single engine nozzle, canopy with pilot",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-402",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "F-22 Raptor",
+      "lines": [
+        "LEGO F-22 Raptor air superiority fighter",
+        "twin canted tails, thrust vectoring nozzles, grey stealth bricks",
+        "sharp chined nose, low-visibility national markings",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-403",
+      "class": "drone",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "MQ-9 Reaper UAV",
+      "lines": [
+        "LEGO MQ-9 Reaper unmanned aerial vehicle",
+        "long slender wings, bulbous sensor nose, V-tail, rear pusher propeller",
+        "light grey bricks, Hellfire missiles under wing pylons",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-404",
+      "class": "drone",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "Bayraktar TB2 UAV",
+      "lines": [
+        "LEGO TB2 combat drone, slim white fuselage",
+        "inverted V-tail, high straight wings, rear propeller",
+        "small guided munitions on underwing rails",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-405",
+      "class": "helicopter",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "V-22 Osprey",
+      "lines": [
+        "LEGO V-22 Osprey tiltrotor aircraft",
+        "two large rotating nacelles with three-blade proprotors",
+        "grey bricks, rear loading ramp, boxy fuselage",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-406",
+      "class": "helicopter",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "CH-47F Chinook",
+      "lines": [
+        "LEGO CH-47F Chinook tandem-rotor heavy helicopter",
+        "two large rotor assemblies front and rear, long green fuselage",
+        "rear ramp open, door gunner position, sponsons on sides",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-407",
+      "class": "helicopter",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "AH-64E Apache Guardian",
+      "lines": [
+        "LEGO AH-64E Apache Guardian attack helicopter",
+        "mast-mounted radar dome above rotor, chin sensor turret",
+        "30mm chain gun, Hellfire missiles and rocket pods on stub wings",
+        "dark olive bricks, tandem cockpit",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-408",
+      "class": "helicopter",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "UH-60M Black Hawk",
+      "lines": [
+        "LEGO UH-60M Black Hawk utility helicopter",
+        "dark grey bricks, four-blade main rotor, sliding side doors open",
+        "door gunners with miniguns, fast rope coiled at door",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-409",
+      "class": "drone",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "FPV Attack Drone",
+      "lines": [
+        "LEGO first-person-view attack quadcopter, tiny frame",
+        "four propellers, exposed wiring, camera on nose, shaped charge strapped underneath",
+        "improvised look, black and grey small bricks",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-410",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "Su-57 Felon",
+      "lines": [
+        "LEGO Su-57 stealth fighter",
+        "blended fuselage, twin engines with serrated nozzles",
+        "dark blue-grey splinter camouflage bricks",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-411",
+      "class": "drone",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "Recon Quadcopter",
+      "lines": [
+        "LEGO small reconnaissance quadcopter drone",
+        "four rotor arms, gimbal camera underneath, folding legs",
+        "matte black bricks, hovering at eye level",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-401",
+      "class": "ship",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "Zumwalt-class Destroyer",
+      "lines": [
+        "LEGO Zumwalt-class stealth destroyer",
+        "angular tumblehome hull, faceted deckhouse, grey bricks",
+        "vertical launch cells, advanced gun system forward",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-402",
+      "class": "ship",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "Virginia-class Submarine",
+      "lines": [
+        "LEGO Virginia-class attack submarine surfacing",
+        "smooth black cylindrical hull, sail with photonics masts",
+        "water breaking over deck",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-403",
+      "class": "ship",
+      "series": "Modern",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (Modern series)"
+      ],
+      "name": "Littoral Combat Ship",
+      "lines": [
+        "LEGO littoral combat ship, sleek trimaran hull",
+        "grey and white bricks, helicopter flight deck aft",
+        "57mm gun forward, fast wake",
+        "realistic LEGO stickers and decals",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    }
+  ],
+  "weapons": [
+    {
+      "id": "WPN-001",
+      "legacyId": "A015",
+      "name": "Tomahawk Cruise Missile",
+      "referenceImage": "",
+      "version": "1.0",
+      "lines": [
+        "LEGO Tomahawk cruise missile",
+        "off-white body with pop-out wings and tail fins",
+        "orange exhaust on launch, high detail"
+      ]
+    },
+    {
+      "id": "WPN-002",
+      "name": "AGM-114 Hellfire Missile",
+      "referenceImage": "",
+      "version": "1.0",
+      "lines": [
+        "LEGO Hellfire missile",
+        "slim dark-olive body, four fins, white smoke trail on launch"
+      ]
+    },
+    {
+      "id": "WPN-003",
+      "name": "MLRS Rocket Salvo",
+      "referenceImage": "",
+      "version": "1.0",
+      "lines": [
+        "LEGO MLRS rockets",
+        "multiple rockets with bright orange ignition and thick white smoke plumes"
+      ]
+    },
+    {
+      "id": "WPN-401",
+      "name": "M4A1 Carbine",
+      "lines": [
+        "LEGO M4A1 carbine, black bricks, collapsible stock, red dot sight, weapon light, 30-round magazine"
+      ],
+      "series": "Modern",
+      "version": "1.0"
+    },
+    {
+      "id": "WPN-402",
+      "name": "HK416 with Suppressor",
+      "lines": [
+        "LEGO HK416 assault rifle, black, long suppressor, holographic sight, angled foregrip"
+      ],
+      "series": "Modern",
+      "version": "1.0"
+    },
+    {
+      "id": "WPN-403",
+      "name": "FGM-148 Javelin",
+      "lines": [
+        "LEGO Javelin anti-tank missile launcher, tan command launch unit, thick tube, fired from shoulder with soft-launch smoke puff"
+      ],
+      "series": "Modern",
+      "version": "1.0"
+    },
+    {
+      "id": "WPN-404",
+      "name": "NLAW Anti-tank Launcher",
+      "lines": [
+        "LEGO NLAW disposable anti-tank launcher, olive green tube, simple optic"
+      ],
+      "series": "Modern",
+      "version": "1.0"
+    },
+    {
+      "id": "WPN-405",
+      "name": "FIM-92 Stinger",
+      "lines": [
+        "LEGO Stinger man-portable air defense missile, olive launch tube with gripstock and antenna"
+      ],
+      "series": "Modern",
+      "version": "1.0"
+    },
+    {
+      "id": "WPN-406",
+      "name": "RPG-7",
+      "lines": [
+        "LEGO RPG-7 rocket propelled grenade launcher, wooden-look grip, conical warhead"
+      ],
+      "series": "Modern",
+      "version": "1.0"
+    },
+    {
+      "id": "WPN-407",
+      "name": "Switchblade Loitering Munition",
+      "lines": [
+        "LEGO loitering munition, tube-launched, pop-out swept wings, small propeller, olive body"
+      ],
+      "series": "Modern",
+      "version": "1.0"
+    },
+    {
+      "id": "WPN-408",
+      "name": "GBU-31 JDAM",
+      "lines": [
+        "LEGO JDAM guided bomb, grey body, tail guidance kit with fins, mounted on aircraft pylon"
+      ],
+      "series": "Modern",
+      "version": "1.0"
+    },
+    {
+      "id": "WPN-409",
+      "name": "M240 Machine Gun",
+      "lines": [
+        "LEGO M240 belt-fed machine gun on bipod, black bricks, ammunition belt feeding from box"
+      ],
+      "series": "Modern",
+      "version": "1.0"
+    },
+    {
+      "id": "WPN-410",
+      "name": "60mm Mortar",
+      "lines": [
+        "LEGO 60mm mortar tube on baseplate with bipod, crew loading round from muzzle"
+      ],
+      "series": "Modern",
+      "version": "1.0"
+    }
+  ],
+  "props": [
+    {
+      "id": "PRP-001",
+      "name": "Sandbag Wall",
+      "lines": [
+        "LEGO sandbag wall, stacked tan sandbag bricks"
+      ]
+    },
+    {
+      "id": "PRP-002",
+      "name": "Fuel Drums",
+      "lines": [
+        "LEGO fuel drums, olive and rust barrels"
+      ]
+    },
+    {
+      "id": "PRP-003",
+      "name": "Field Tent",
+      "lines": [
+        "LEGO field tent, tan canvas texture over brick frame"
+      ]
+    },
+    {
+      "id": "PRP-004",
+      "name": "Radar Array",
+      "lines": [
+        "LEGO rotating radar dish on a brick base"
+      ]
+    },
+    {
+      "id": "PRP-005",
+      "name": "Roadblock",
+      "lines": [
+        "LEGO roadblock, concrete barriers and barbed wire"
+      ]
+    },
+    {
+      "id": "PRP-006",
+      "name": "Ammo Crates",
+      "lines": [
+        "LEGO ammo crates, stacked olive wooden boxes"
+      ]
+    },
+    {
+      "id": "PRP-007",
+      "name": "Comms Antenna",
+      "lines": [
+        "LEGO communications antenna mast with cables"
+      ]
+    },
+    {
+      "id": "PRP-008",
+      "name": "Medical Tent",
+      "lines": [
+        "LEGO medical tent with red cross marking"
+      ]
+    },
+    {
+      "id": "PRP-009",
+      "name": "Desert Debris",
+      "lines": [
+        "LEGO desert debris, scattered rubble and rocks"
+      ]
+    },
+    {
+      "id": "PRP-010",
+      "name": "Sand Dune",
+      "lines": [
+        "LEGO sand dune, sculpted tan slope bricks"
+      ]
+    },
+    {
+      "id": "PRP-401",
+      "name": "Drone Ground Control Station",
+      "lines": [
+        "LEGO drone ground control station, ruggedised cases with screens, antenna mast, folding table under camo net"
+      ]
+    },
+    {
+      "id": "PRP-402",
+      "name": "Satellite Uplink Terminal",
+      "lines": [
+        "LEGO portable satellite dish terminal on tripod, white dish, cable run to case"
+      ]
+    },
+    {
+      "id": "PRP-403",
+      "name": "HESCO Barrier Wall",
+      "lines": [
+        "LEGO HESCO gabion barrier wall, tan mesh-and-fabric cubes filled with sand, stacked in a line"
+      ]
+    },
+    {
+      "id": "PRP-404",
+      "name": "Concrete Jersey Barrier",
+      "lines": [
+        "LEGO concrete jersey barriers, light grey bricks, some with spray-painted unit markings"
+      ]
+    },
+    {
+      "id": "PRP-405",
+      "name": "Roadside IED",
+      "lines": [
+        "LEGO improvised explosive device, artillery shell wired to a hidden trigger box, partially buried in roadside rubble"
+      ]
+    },
+    {
+      "id": "PRP-406",
+      "name": "Night Vision Goggles",
+      "lines": [
+        "LEGO quad-tube night vision goggles on helmet mount, green glowing lenses"
+      ]
+    },
+    {
+      "id": "PRP-407",
+      "name": "ATAK Tablet",
+      "lines": [
+        "LEGO rugged tactical tablet showing glowing blue map display, chest-mounted"
+      ]
+    },
+    {
+      "id": "PRP-408",
+      "name": "Camouflage Netting",
+      "lines": [
+        "LEGO camouflage netting draped over a position, tan and green fabric-look elements breaking up outline"
+      ]
+    },
+    {
+      "id": "PRP-409",
+      "name": "Checkpoint Guard Post",
+      "lines": [
+        "LEGO checkpoint guard post, small brick-built booth, boom barrier, warning signage, sandbag emplacement"
+      ]
+    },
+    {
+      "id": "PRP-410",
+      "name": "Ammunition Supply Pallet",
+      "lines": [
+        "LEGO stacked ammunition crates and fuel cans on a wooden pallet, strapped down"
+      ]
+    }
+  ],
+  "fx": [
+    {
+      "id": "FX-001",
+      "legacyId": "FX001",
+      "name": "Small Explosion",
+      "lines": [
+        "photorealistic small explosion, real orange fireball and black smoke, volumetric blast",
+        "LEGO bricks and plates blown outward as solid debris"
+      ]
+    },
+    {
+      "id": "FX-002",
+      "legacyId": "FX002",
+      "name": "Tank Explosion",
+      "lines": [
+        "photorealistic large fireball with rolling black smoke column and heat distortion",
+        "turret blown off, LEGO bricks scattering as real physical debris"
+      ]
+    },
+    {
+      "id": "FX-003",
+      "legacyId": "FX003",
+      "name": "Rocket Explosion",
+      "lines": [
+        "multiple photoreal explosions, visible shockwave rings, real dust and smoke clouds",
+        "LEGO debris thrown through the air"
+      ]
+    },
+    {
+      "id": "FX-004",
+      "legacyId": "FX004",
+      "name": "Missile Trail",
+      "lines": [
+        "photoreal white smoke trail, real orange exhaust plume, heat blur"
+      ]
+    },
+    {
+      "id": "FX-005",
+      "name": "Muzzle Flash",
+      "lines": [
+        "photoreal bright muzzle flash, real smoke puff, ejected shell casing"
+      ]
+    },
+    {
+      "id": "FX-006",
+      "name": "Dust Cloud",
+      "lines": [
+        "photoreal rolling dust cloud kicked up from the ground, drifting real sand particles"
+      ]
+    },
+    {
+      "id": "FX-007",
+      "name": "Sea Spray",
+      "lines": [
+        "sea spray and foam, water splashing off the hull"
+      ]
+    },
+    {
+      "id": "FX-008",
+      "name": "Tracer Rounds",
+      "lines": [
+        "streaking orange tracer rounds cutting through the air"
+      ]
+    },
+    {
+      "id": "FX-401",
+      "name": "Thermal Drone POV",
+      "lines": [
+        "thermal imaging look, white-hot figures and engines glowing against cool dark background, crosshair reticle and telemetry-free clean overlay, slight sensor noise"
+      ]
+    },
+    {
+      "id": "FX-402",
+      "name": "Tracer Fire",
+      "lines": [
+        "photoreal tracer fire streaking through the air, real light trails and glow"
+      ]
+    },
+    {
+      "id": "FX-403",
+      "name": "HIMARS Launch Plume",
+      "lines": [
+        "photoreal HIMARS launch plume, real fire, backblast and thick smoke cloud"
+      ]
+    },
+    {
+      "id": "FX-404",
+      "name": "Drone Swarm",
+      "lines": [
+        "swarm of small drones filling the sky, many tiny silhouettes, buzzing formation, motion blur on rotors"
+      ]
+    },
+    {
+      "id": "FX-405",
+      "name": "Laser Designator Beam",
+      "lines": [
+        "photoreal laser designator beam cutting through real haze and dust"
+      ]
+    },
+    {
+      "id": "FX-406",
+      "name": "Suppressed Muzzle Flash",
+      "lines": [
+        "photoreal suppressed muzzle flash, thin real smoke wisp"
+      ]
+    },
+    {
+      "id": "FX-407",
+      "name": "Rotor Brownout",
+      "lines": [
+        "photoreal rotor brownout, real swirling dust and grit storm around the aircraft"
+      ]
+    },
+    {
+      "id": "FX-408",
+      "name": "Secondary Detonation",
+      "lines": [
+        "photoreal secondary detonation, real ammunition cook-off, bright fireballs"
+      ]
+    },
+    {
+      "id": "FX-409",
+      "name": "Smoke Screen",
+      "lines": [
+        "photoreal smoke screen, dense real smoke rolling across the ground"
+      ]
+    },
+    {
+      "id": "FX-410",
+      "name": "Electronic Jamming Glitch",
+      "lines": [
+        "digital interference on the image, brief scan lines and signal glitch artifacts, screens flickering"
+      ]
+    },
+    {
+      "id": "FX-501",
+      "name": "Heavy Rain",
+      "lines": [
+        "photorealistic heavy rainfall, real raindrops streaking through the air",
+        "wet glossy brick surfaces, water running off plates, splashing puddles and ripples"
+      ]
+    },
+    {
+      "id": "FX-502",
+      "name": "Snowfall and Blizzard",
+      "lines": [
+        "photorealistic falling snow, real snowflakes drifting and swirling in the wind",
+        "soft real snow settling on studs and brick edges, breath vapour in the cold air"
+      ]
+    },
+    {
+      "id": "FX-503",
+      "name": "Dense Fog",
+      "lines": [
+        "photorealistic dense fog and low mist, real volumetric haze",
+        "visibility falling off with depth, god rays cutting through the fog"
+      ]
+    },
+    {
+      "id": "FX-504",
+      "name": "Thunderstorm Lightning",
+      "lines": [
+        "photorealistic thunderstorm, real lightning flashes lighting the scene from above",
+        "heavy rain sheets, dark storm clouds, brief high-contrast strobe lighting"
+      ]
+    },
+    {
+      "id": "FX-505",
+      "name": "Sandstorm",
+      "lines": [
+        "photorealistic sandstorm, real dense airborne dust wall",
+        "grit streaming past the camera, orange filtered light, near zero visibility"
+      ]
+    },
+    {
+      "id": "FX-506",
+      "name": "Mushroom Cloud",
+      "lines": [
+        "photorealistic mushroom cloud rising from a massive explosion",
+        "real rolling fire core, condensation ring, churning smoke stem and dust base surge"
+      ]
+    },
+    {
+      "id": "FX-507",
+      "name": "Battlefield Gun Smoke",
+      "lines": [
+        "photorealistic battlefield gun smoke and cordite haze drifting low over the ground",
+        "real layered smoke catching the light, thin blue haze in the air"
+      ]
+    },
+    {
+      "id": "FX-508",
+      "name": "Spark Shower",
+      "lines": [
+        "photorealistic shower of real molten sparks from metal impacts and ricochets",
+        "glowing embers bouncing and dying out on the ground"
+      ]
+    },
+    {
+      "id": "FX-509",
+      "name": "Water Splash and Wake",
+      "lines": [
+        "photorealistic water splashes, real spray, foam and wake",
+        "true fluid simulation with droplets, mist and surface ripples"
+      ]
+    },
+    {
+      "id": "FX-510",
+      "name": "Deep Sea Underwater",
+      "lines": [
+        "photorealistic deep sea water, real caustics, suspended particles and light shafts from above",
+        "dark blue-green depth falloff, rising air bubbles"
+      ]
+    },
+    {
+      "id": "FX-511",
+      "name": "Mud and Wet Ground Spray",
+      "lines": [
+        "photorealistic mud, real wet earth splatter thrown by tracks and boots",
+        "standing water in ruts, glossy wet brick surfaces"
+      ]
+    },
+    {
+      "id": "FX-512",
+      "name": "Burning Wreck Fire",
+      "lines": [
+        "photorealistic fire, real flames licking over a wrecked model with rising black smoke",
+        "orange firelight flickering on the surrounding bricks, heat shimmer"
+      ]
+    }
+  ],
+  "environments": [
+    {
+      "id": "ENV-001",
+      "series": "Gulf War",
+      "name": "Middle East Desert",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "Middle East desert, fine yellow sand, small dunes",
+        "clear sky, heat haze, long shadows, drifting dust, cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-002",
+      "series": "Gulf War",
+      "name": "Persian Gulf",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "deep blue ocean of the Persian Gulf, calm rolling waves",
+        "golden sunset reflection, carrier battle group on the horizon, clear horizon"
+      ]
+    },
+    {
+      "id": "ENV-003",
+      "series": "Gulf War",
+      "name": "Coalition Airbase",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "desert airbase, concrete runway, hardened aircraft shelters",
+        "fuel trucks, maintenance crew, hangars, heat haze over tarmac"
+      ]
+    },
+    {
+      "id": "ENV-004",
+      "series": "Gulf War",
+      "name": "Carrier Flight Deck",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "aircraft carrier flight deck, gray non-skid deck with white markings and catapults",
+        "parked aircraft, deck crew, island tower, open sea beyond the edge"
+      ]
+    },
+    {
+      "id": "ENV-005",
+      "series": "Gulf War",
+      "name": "Forward Operating Base",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "desert forward operating base, sandbag walls, tents, antennas, parked vehicles",
+        "dust in the air, cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-006",
+      "series": "Gulf War",
+      "name": "Burning Oil Fields",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "Kuwaiti oil fields, towering black smoke columns from burning wells",
+        "orange fire glow, darkened smoky sky, oily haze"
+      ]
+    },
+    {
+      "id": "ENV-007",
+      "series": "Gulf War",
+      "name": "Desert Highway",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "long desert highway, cracked asphalt, sand drifting across the road",
+        "distant dunes, clear sky, heat haze"
+      ]
+    },
+    {
+      "id": "ENV-101",
+      "series": "WWII",
+      "name": "Normandy Beach",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "Normandy invasion beach, wet gray sand, steel beach obstacles and hedgehogs",
+        "overcast sky, sea foam, smoke, gritty cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-102",
+      "series": "WWII",
+      "name": "Bocage Countryside",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "Norman bocage countryside, tall hedgerows, green fields, dirt lanes",
+        "soft overcast light, cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-103",
+      "series": "WWII",
+      "name": "Ruined European Town",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "ruined European town, shattered brick buildings, rubble-strewn streets",
+        "smoke, dust, cold overcast light"
+      ]
+    },
+    {
+      "id": "ENV-201",
+      "series": "Pacific",
+      "name": "Pacific Ocean",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "vast Pacific Ocean, deep blue swells, bright tropical sky",
+        "scattered clouds, glittering sun reflection"
+      ]
+    },
+    {
+      "id": "ENV-202",
+      "series": "Pacific",
+      "name": "Island Beachhead",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "Pacific island beachhead, white coral sand, palm trees, landing craft",
+        "bright harsh sun, smoke from the tree line"
+      ]
+    },
+    {
+      "id": "ENV-203",
+      "series": "Pacific",
+      "name": "Jungle",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "dense tropical jungle, thick green foliage, mud, dappled light",
+        "humid haze, cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-301",
+      "series": "Cold War",
+      "name": "European Plain",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "open European plain, rolling green fields, distant tree lines",
+        "gray overcast sky, cold flat light"
+      ]
+    },
+    {
+      "id": "ENV-302",
+      "series": "Cold War",
+      "name": "Fulda Gap",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "Fulda Gap terrain, wooded hills and valleys, muddy tank trails",
+        "low fog, cold overcast light"
+      ]
+    },
+    {
+      "id": "ENV-303",
+      "series": "Cold War",
+      "name": "Snowy Front",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "snowy winter front, deep snow, bare trees, frozen ground",
+        "pale cold light, drifting snow"
+      ]
+    },
+    {
+      "id": "ENV-401",
+      "series": "Modern",
+      "name": "Modern Urban Combat Street",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "contemporary city street built entirely from LEGO bricks",
+        "modern apartment blocks with glass balconies, shop fronts with shutters",
+        "burnt-out civilian cars, rubble piles, dangling power cables",
+        "scattered brick debris on asphalt baseplate",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-402",
+      "series": "Modern",
+      "name": "War-torn Modern City Block",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "heavily damaged modern city block, brick-built collapsed concrete slabs",
+        "shell-holed apartment towers with exposed rebar made from grey bars",
+        "burnt vehicles, crater in the road, drifting smoke and paper debris",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-403",
+      "series": "Modern",
+      "name": "Forward Operating Base",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "modern forward operating base built from LEGO bricks",
+        "HESCO barrier perimeter, guard towers, antenna masts and satellite dishes",
+        "tents and containerised housing, helipad marked on the ground, floodlight poles",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-404",
+      "series": "Modern",
+      "name": "Drone Operations Center",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "interior command center built from LEGO bricks",
+        "wall of glowing screens showing map and drone feeds, rows of consoles",
+        "dim blue ambient light, operators seated, cable runs overhead",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-405",
+      "series": "Modern",
+      "name": "Modern Airbase Flight Line",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "modern airbase flight line built from LEGO bricks",
+        "concrete apron with painted markings, hardened aircraft shelters",
+        "ground support equipment, fuel trucks, control tower in the distance",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-406",
+      "series": "Modern",
+      "name": "Metro Station Interior",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "underground metro station built from LEGO bricks",
+        "tiled platform walls, tracks, stationary train carriage, emergency lighting",
+        "civilians sheltering with bags along the wall",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-407",
+      "series": "Modern",
+      "name": "Industrial Port",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "modern container port built from LEGO bricks",
+        "stacked shipping containers in bright colours, gantry cranes, dockside bollards",
+        "grey water, moored vessel, overcast sky",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-408",
+      "series": "Modern",
+      "name": "Mountain Observation Outpost",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "high mountain outpost built from LEGO bricks",
+        "rocky grey terrain, sandbag and HESCO fighting positions, camo netting",
+        "thin cold air, distant snow-capped peaks, wind-blown dust",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-409",
+      "series": "Modern",
+      "name": "Desert Highway Convoy Route",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "long desert highway built from LEGO bricks",
+        "cracked asphalt strip through open sand, roadside wreckage and burnt hulks",
+        "heat haze, telegraph poles receding to the horizon",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-410",
+      "series": "Modern",
+      "name": "Apartment Interior CQB",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "cramped modern apartment interior built from LEGO bricks",
+        "peeling wallpaper, overturned furniture, shattered window with light shafts",
+        "dust hanging in the air, narrow hallway and doorways for close quarters combat",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-411",
+      "series": "Modern",
+      "name": "Border Checkpoint",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "modern border checkpoint built from LEGO bricks",
+        "boom barriers, concrete blast walls, inspection booth and floodlights",
+        "queue of civilian vehicles, warning signage",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-412",
+      "series": "Modern",
+      "name": "Snowy Eastern European Field",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "open snow-covered field built from LEGO bricks",
+        "white plates and slopes forming frozen ground, bare tree line, treadmarks in snow",
+        "grey overcast sky, breath vapour, drifting snowfall",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-501",
+      "series": "Modern",
+      "name": "Stormy Ocean Surface",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "open ocean under a storm, photorealistic deep sea water with real rolling swells, whitecaps and spray",
+        "brick-built warship cutting through the waves, driving rain and dark clouds",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-502",
+      "series": "Modern",
+      "name": "Deep Sea Underwater",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "underwater deep sea, photorealistic dark blue water with real light shafts, caustics and drifting particles",
+        "brick-built submarine gliding through the depths, rising bubble trails",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-503",
+      "series": "Modern",
+      "name": "River Crossing",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "wide river with photorealistic flowing water, real current, ripples and foam at the banks",
+        "brick-built pontoon bridge and muddy banks, vehicles fording the crossing",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-504",
+      "series": "Modern",
+      "name": "Lake Shore at Dawn",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "calm lake with photorealistic mirror-like water and real morning mist over the surface",
+        "brick-built shoreline, reeds and boat dock, soft dawn light",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-505",
+      "series": "Modern",
+      "name": "Rainy Night City Street",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "modern city street at night in heavy photoreal rain, real puddles and neon reflections on wet asphalt",
+        "brick-built buildings, shopfronts and parked vehicles, rain streaks in the headlights",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-506",
+      "series": "Modern",
+      "name": "Foggy Pine Forest",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "pine forest under photorealistic dense fog, real volumetric mist between the trunks",
+        "brick-built trees and forest floor, damp muted colours, visibility fading with depth",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-507",
+      "series": "Modern",
+      "name": "Flooded Marshland",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "flooded marshland with photorealistic standing water, real reflections and slow ripples",
+        "brick-built reeds, sunken wreckage and mud banks, low grey sky",
+        "cinematic atmosphere"
+      ]
+    },
+    {
+      "id": "ENV-508",
+      "series": "Modern",
+      "name": "Blizzard Mountain Pass",
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "high mountain pass in a photorealistic blizzard, real driving snow and whiteout wind",
+        "brick-built rock faces and snow plates, drifted snow burying equipment",
+        "cinematic atmosphere"
+      ]
+    }
+  ],
+  "cameras": [
+    {
+      "id": "CAM-001",
+      "legacyId": "CAM001",
+      "name": "Opening Drone",
+      "lines": [
+        "high-altitude drone shot, slow push-in, 24mm lens, very cinematic, stable smooth movement"
+      ]
+    },
+    {
+      "id": "CAM-002",
+      "legacyId": "CAM002",
+      "name": "Ground Tracking",
+      "lines": [
+        "ground-level tracking shot, parallel movement alongside the subject, 50mm lens, dust in the foreground"
+      ]
+    },
+    {
+      "id": "CAM-003",
+      "legacyId": "CAM003",
+      "name": "Jet Follow",
+      "lines": [
+        "chase camera behind the aircraft, long lens, fast tracking, natural motion blur"
+      ]
+    },
+    {
+      "id": "CAM-004",
+      "legacyId": "CAM004",
+      "name": "Explosion Close-up",
+      "lines": [
+        "85mm close-up, slight slow motion, debris flying past lens, explosion fills the frame"
+      ]
+    },
+    {
+      "id": "CAM-005",
+      "legacyId": "CAM005",
+      "name": "POV Cockpit",
+      "lines": [
+        "first-person cockpit POV, canopy frame and HUD in view, subtle handheld shake"
+      ]
+    },
+    {
+      "id": "CAM-006",
+      "legacyId": "CAM006",
+      "name": "Orbit Shot",
+      "lines": [
+        "slow 360 orbit around the subject, steady gimbal movement, 40mm lens"
+      ]
+    },
+    {
+      "id": "CAM-007",
+      "name": "Overhead Top-Down",
+      "lines": [
+        "straight overhead top-down shot, slow descent, map-like composition"
+      ]
+    },
+    {
+      "id": "CAM-008",
+      "name": "Low-Angle Hero",
+      "lines": [
+        "low-angle hero shot looking up at the subject, 35mm lens, imposing heroic framing"
+      ]
+    },
+    {
+      "id": "CAM-009",
+      "name": "Deck-Level Launch",
+      "lines": [
+        "low deck-level shot, steam and heat haze foreground, wide 28mm lens"
+      ]
+    },
+    {
+      "id": "CAM-010",
+      "name": "Handheld Combat",
+      "lines": [
+        "handheld shoulder camera, reactive shake, whip movement, embedded war-correspondent feel"
+      ]
+    },
+    {
+      "id": "CAM-401",
+      "name": "FPV Drone Chase",
+      "lines": [
+        "aggressive FPV racing drone chase shot, fast low pursuit weaving past obstacles, wide 14mm lens, high speed, slight fisheye"
+      ]
+    },
+    {
+      "id": "CAM-402",
+      "name": "Thermal Optic View",
+      "lines": [
+        "locked thermal optic view, subtle digital zoom steps, crosshair centred, minimal camera shake"
+      ]
+    },
+    {
+      "id": "CAM-403",
+      "name": "Night Vision POV",
+      "lines": [
+        "first person night vision goggle view, circular vignette, slight head movement, grainy image intensifier look"
+      ]
+    },
+    {
+      "id": "CAM-404",
+      "name": "Helmet Cam",
+      "lines": [
+        "helmet-mounted camera, handheld shaky first person perspective, wide lens, rapid turns, weapon visible in frame"
+      ]
+    },
+    {
+      "id": "CAM-405",
+      "name": "Satellite Top-Down",
+      "lines": [
+        "straight top-down satellite surveillance view, very high altitude, slow drift, orthographic feel"
+      ]
+    },
+    {
+      "id": "CAM-406",
+      "name": "Drone Orbit",
+      "lines": [
+        "smooth drone orbit circling the subject at medium altitude, steady gimbal, 35mm lens, cinematic parallax"
+      ]
+    }
+  ],
+  "lighting": [
+    {
+      "id": "LGT-001",
+      "legacyId": "L001",
+      "name": "Golden Hour",
+      "lines": [
+        "warm golden sunlight, long shadows, orange highlights, blue sky"
+      ]
+    },
+    {
+      "id": "LGT-002",
+      "legacyId": "L002",
+      "name": "Desert Noon",
+      "lines": [
+        "harsh overhead sunlight, strong contrast, heat haze, bright sand"
+      ]
+    },
+    {
+      "id": "LGT-003",
+      "legacyId": "L003",
+      "name": "Night Combat",
+      "lines": [
+        "cool moonlight, explosion lighting flashes, streaking tracer rounds, drifting smoke"
+      ]
+    },
+    {
+      "id": "LGT-004",
+      "name": "Storm Lighting",
+      "lines": [
+        "overcast stormy sky, diffuse cold light, occasional lightning flash"
+      ]
+    },
+    {
+      "id": "LGT-005",
+      "name": "Explosion Lighting",
+      "lines": [
+        "strong orange flash from explosions, flickering firelight, deep contrasting shadows"
+      ]
+    },
+    {
+      "id": "LGT-006",
+      "name": "Emergency Red",
+      "lines": [
+        "red emergency lighting, pulsing alarm glow, deep shadows"
+      ]
+    },
+    {
+      "id": "LGT-007",
+      "name": "Command Center Blue",
+      "lines": [
+        "cool blue command-center lighting, glowing screens, low ambient fill"
+      ]
+    },
+    {
+      "id": "LGT-008",
+      "name": "Dawn Haze",
+      "lines": [
+        "soft pre-dawn blue light, low fog and haze, gentle cool ambience"
+      ]
+    },
+    {
+      "id": "LGT-401",
+      "name": "Night Vision Green",
+      "lines": [
+        "monochrome green night vision illumination, glowing highlights, deep black shadows, visible sensor grain"
+      ]
+    },
+    {
+      "id": "LGT-402",
+      "name": "Thermal White-Hot",
+      "lines": [
+        "thermal white-hot palette, hot engines and bodies glowing bright white, cold background near black"
+      ]
+    },
+    {
+      "id": "LGT-403",
+      "name": "Urban Sodium Night",
+      "lines": [
+        "night city lighting, orange sodium street lamps, cold blue moonlight fill, wet reflective asphalt"
+      ]
+    },
+    {
+      "id": "LGT-404",
+      "name": "Flare-lit Night",
+      "lines": [
+        "illumination flare hanging overhead, harsh swinging shadows, smoky orange-white glow, high contrast"
+      ]
+    },
+    {
+      "id": "LGT-405",
+      "name": "Overcast Grey",
+      "lines": [
+        "flat grey overcast daylight, soft shadowless light, desaturated cold atmosphere"
+      ]
+    }
+  ],
+  "colorGrades": [
+    {
+      "id": "CLR-001",
+      "name": "Hollywood Blockbuster",
+      "lines": [
+        "high contrast, warm highlights, cool shadows, Kodak film look, cinematic grading"
+      ]
+    },
+    {
+      "id": "CLR-002",
+      "name": "Saving Private Ryan",
+      "lines": [
+        "desaturated bleach-bypass, muted greens and tans, gritty documentary look"
+      ]
+    },
+    {
+      "id": "CLR-003",
+      "name": "Top Gun Maverick",
+      "lines": [
+        "clean vivid, deep blue skies, warm skin tones, crisp modern blockbuster"
+      ]
+    },
+    {
+      "id": "CLR-004",
+      "name": "Black Hawk Down",
+      "lines": [
+        "warm dusty, golden-tan cast, crushed shadows, harsh gritty realism"
+      ]
+    },
+    {
+      "id": "CLR-005",
+      "name": "Band of Brothers",
+      "lines": [
+        "cool overcast, muted palette, soft contrast, classic war-drama look"
+      ]
+    }
+  ],
+  "audio": [
+    {
+      "id": "AUD-001",
+      "name": "Tank Engine",
+      "lines": [
+        "deep diesel tank engine rumble and clanking tracks"
+      ]
+    },
+    {
+      "id": "AUD-002",
+      "name": "Jet Engine",
+      "lines": [
+        "roaring jet engine and afterburner"
+      ]
+    },
+    {
+      "id": "AUD-003",
+      "name": "Helicopter Rotor",
+      "lines": [
+        "heavy rhythmic helicopter rotor thump"
+      ]
+    },
+    {
+      "id": "AUD-004",
+      "name": "Missile Launch",
+      "lines": [
+        "sharp missile launch whoosh with ignition roar"
+      ]
+    },
+    {
+      "id": "AUD-005",
+      "name": "Explosion",
+      "lines": [
+        "powerful explosion boom with debris patter"
+      ]
+    },
+    {
+      "id": "AUD-006",
+      "name": "Desert Wind",
+      "lines": [
+        "low desert wind and drifting sand"
+      ]
+    },
+    {
+      "id": "AUD-007",
+      "name": "Radio Chatter",
+      "lines": [
+        "crackling military radio chatter"
+      ]
+    },
+    {
+      "id": "AUD-008",
+      "name": "Footsteps",
+      "lines": [
+        "boots crunching on sand and gravel"
+      ]
+    },
+    {
+      "id": "AUD-009",
+      "name": "Metal Clanking",
+      "lines": [
+        "metallic clanking of equipment and hatches"
+      ]
+    },
+    {
+      "id": "AUD-010",
+      "name": "Ocean & Deck",
+      "lines": [
+        "ocean swell, wind, and carrier deck steam hiss"
+      ]
+    },
+    {
+      "id": "AUD-011",
+      "name": "Orchestral Score",
+      "lines": [
+        "swelling epic orchestral military score"
+      ]
+    },
+    {
+      "id": "AUD-012",
+      "name": "Tense Drone",
+      "lines": [
+        "tense low droning suspense score"
+      ]
+    },
+    {
+      "id": "AUD-401",
+      "name": "Drone Buzz",
+      "lines": [
+        "high pitched electric drone rotor buzz, rising and falling as it manoeuvres"
+      ]
+    },
+    {
+      "id": "AUD-402",
+      "name": "HIMARS Launch",
+      "lines": [
+        "thunderous rocket artillery launch, roaring ripple of salvo, crackling echo"
+      ]
+    },
+    {
+      "id": "AUD-403",
+      "name": "Suppressed Gunfire",
+      "lines": [
+        "muffled suppressed rifle fire, mechanical bolt clatter, brass casings tinkling on concrete"
+      ]
+    },
+    {
+      "id": "AUD-404",
+      "name": "Modern Radio Chatter",
+      "lines": [
+        "clipped tactical radio chatter with squelch bursts and digital encryption tones"
+      ]
+    },
+    {
+      "id": "AUD-405",
+      "name": "Jet Flyby",
+      "lines": [
+        "fast jet afterburner roar building then tearing overhead into a receding howl"
+      ]
+    },
+    {
+      "id": "AUD-406",
+      "name": "Heavy Rotor Wash",
+      "lines": [
+        "heavy tandem-rotor helicopter thumping, deep rhythmic wash, wind buffeting"
+      ]
+    },
+    {
+      "id": "AUD-407",
+      "name": "Missile Launch",
+      "lines": [
+        "anti-tank missile soft-launch pop then main motor ignition roar and hiss"
+      ]
+    },
+    {
+      "id": "AUD-408",
+      "name": "Urban Firefight Ambience",
+      "lines": [
+        "layered urban firefight, distant and near automatic fire, shouted commands, ricochets echoing between buildings"
+      ]
+    },
+    {
+      "id": "AUD-409",
+      "name": "Missile Warning Alarm",
+      "lines": [
+        "cockpit missile warning tone, urgent repeating electronic alarm"
+      ]
+    },
+    {
+      "id": "AUD-410",
+      "name": "Tactical Gear Movement",
+      "lines": [
+        "boots on rubble, gear and webbing rustle, magazine seated with a click"
+      ]
+    },
+    {
+      "id": "AUD-501",
+      "name": "Heavy Rain Ambience",
+      "lines": [
+        "heavy rain drumming on metal and concrete, water running and dripping"
+      ]
+    },
+    {
+      "id": "AUD-502",
+      "name": "Thunder",
+      "lines": [
+        "deep rolling thunder cracking overhead"
+      ]
+    },
+    {
+      "id": "AUD-503",
+      "name": "Blizzard Wind",
+      "lines": [
+        "howling wind and driving snow, muffled surroundings"
+      ]
+    },
+    {
+      "id": "AUD-504",
+      "name": "Ocean and River Water",
+      "lines": [
+        "waves crashing against the hull, running water and spray"
+      ]
+    }
+  ],
+  "motions": {
+    "tank": [
+      "idle",
+      "start engine",
+      "accelerate",
+      "drive straight",
+      "turn left",
+      "turn right",
+      "stop",
+      "reverse",
+      "fire main cannon",
+      "reload",
+      "turret rotate",
+      "machine gun fire"
+    ],
+    "aircraft": [
+      "taxi",
+      "catapult launch",
+      "takeoff",
+      "bank left",
+      "bank right",
+      "dive",
+      "missile launch",
+      "bomb drop",
+      "flare release",
+      "landing",
+      "afterburner ignites",
+      "landing gear retracts"
+    ],
+    "helicopter": [
+      "hover",
+      "ascend",
+      "bank left",
+      "bank right",
+      "strafe",
+      "fire hellfire",
+      "rocket salvo",
+      "flare release",
+      "land"
+    ],
+    "ship": [
+      "cruise",
+      "turn to port",
+      "turn to starboard",
+      "missile launch",
+      "radar rotate",
+      "launch aircraft",
+      "drop anchor"
+    ],
+    "mlrs": [
+      "launcher raises",
+      "rocket ignites",
+      "rocket salvo fires",
+      "smoke plume rises",
+      "recoil",
+      "reload"
+    ],
+    "soldier": [
+      "walk",
+      "run",
+      "crouch",
+      "aim",
+      "reload",
+      "fire",
+      "take cover",
+      "signal",
+      "observe",
+      "carry wounded",
+      "stack on door",
+      "breach and clear",
+      "bound between cover",
+      "call in air support on radio",
+      "scan with night vision",
+      "shoulder anti-tank launcher",
+      "launch hand-held drone",
+      "apply tourniquet",
+      "signal advance"
+    ],
+    "drone": [
+      "hover",
+      "ascend rapidly",
+      "descend to eye level",
+      "orbit target",
+      "dive at target",
+      "weave between buildings",
+      "skim low over rubble",
+      "snap turn toward target",
+      "lock on and track",
+      "release munition",
+      "terminal dive",
+      "lose signal and tumble"
+    ],
+    "ugv": [
+      "roll forward",
+      "pivot in place",
+      "raise sensor mast",
+      "traverse weapon station",
+      "climb over rubble",
+      "halt and scan",
+      "reverse out of cover"
+    ]
+  }
+}

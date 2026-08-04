@@ -1,0 +1,17 @@
+# LEGO War Universe - AI Enhance Backend
+name = "lwu-ai"
+main = "worker.js"
+compatibility_date = "2025-01-01"
+
+[vars]
+# gemini or openai
+PROVIDER = "gemini"
+# Gemini: gemini-2.0-flash / OpenAI: gpt-4o-mini
+MODEL = "gemini-2.0-flash"
+# Only needed for OpenAI-compatible relays
+# OPENAI_BASE_URL = "https://api.openai.com/v1"
+
+# Secrets - never put them here, use the CLI:
+#   wrangler secret put GEMINI_API_KEY
+#   wrangler secret put OPENAI_API_KEY
+#   wrangler secret put ACCESS_TOKEN

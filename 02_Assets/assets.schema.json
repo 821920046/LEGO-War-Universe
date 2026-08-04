@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "LWU Asset Database",
+  "type": "object",
+  "required": ["schemaVersion", "project", "styleBlock", "negative", "characters", "vehicles", "environments", "cameras", "lighting", "colorGrades", "audio", "motions"],
+  "properties": {
+    "schemaVersion": { "type": "string" },
+    "project": {
+      "type": "object",
+      "required": ["name", "code"],
+      "properties": {
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "bibleVersion": { "type": "string" },
+        "target": { "type": "string" },
+        "updated": { "type": "string" }
+      }
+    },
+    "styleBlock": { "$ref": "#/definitions/block" },
+    "negative": { "$ref": "#/definitions/block" },
+    "defaultColorGrade": { "type": "string" },
+    "variantPresets": { "type": "array", "items": { "$ref": "#/definitions/variantPreset" } },
+    "characterVariantPresets": { "type": "array", "items": { "$ref": "#/definitions/variantPreset" } },
+    "rhythmTemplates": { "type": "array", "items": { "$ref": "#/definitions/rhythmTemplate" } },
+    "characters": { "type": "array", "items": { "$ref": "#/definitions/character" } },
+    "vehicles": { "type": "array", "items": { "$ref": "#/definitions/vehicle" } },
+    "weapons": { "type": "array", "items": { "$ref": "#/definitions/asset" } },
+    "props": { "type": "array", "items": { "$ref": "#/definitions/asset" } },
+    "fx": { "type": "array", "items": { "$ref": "#/definitions/asset" } },
+    "environments": { "type": "array", "items": { "$ref": "#/definitions/asset" } },
+    "cameras": { "type": "array", "items": { "$ref": "#/definitions/asset" } },
+    "lighting": { "type": "array", "items": { "$ref": "#/definitions/asset" } },
+    "colorGrades": { "type": "array", "items": { "$ref": "#/definitions/asset" } },
+    "audio": { "type": "array", "items": { "$ref": "#/definitions/asset" } },
+    "motions": { "type": "object" }
+  },
+  "definitions": {
+    "block": {
+      "type": "object",
+      "required": ["id", "lines"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "lines": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+      }
+    },
+    "asset": {
+      "type": "object",
+      "required": ["id", "name", "lines"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[A-Z]{2,5}-[0-9]{3}$" },
+        "legacyId": { "type": "string" },
+        "name": { "type": "string" },
+        "series": { "type": "string" },
+        "referenceImage": { "type": "string" },
+        "version": { "type": "string" },
+        "lines": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+      }
+    },
+    "character": {
+      "allOf": [{ "$ref": "#/definitions/asset" }],
+      "properties": {
+        "faction": { "type": "string" },
+        "unit": { "type": "string" },
+        "variants": { "type": "array", "items": { "type": "string" } },
+        "changelog": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "vehicle": {
+      "allOf": [{ "$ref": "#/definitions/asset" }],
+      "required": ["id", "name", "class", "lines"],
+      "properties": {
+        "class": { "type": "string", "enum": ["ground", "aircraft", "helicopter", "ship", "drone", "ugv"] },
+        "faction": { "type": "string" },
+        "variants": { "type": "array", "items": { "type": "string" } },
+        "changelog": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "variantPreset": {
+      "type": "object",
+      "required": ["id", "line"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "line": { "type": "string" }
+      }
+    },
+    "rhythmTemplate": {
+      "type": "object",
+      "required": ["id", "beats"],
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "beats": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["phase", "ratio"],
+            "properties": {
+              "phase": { "type": "string" },
+              "ratio": { "type": "number" }
+            }
+          }
+        }
+      }
+    }
+  }
+}
