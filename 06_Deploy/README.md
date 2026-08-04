@@ -130,3 +130,77 @@ Cloudflare Pages Functions 免费版每天有充足的调用额度，个人使�
 ## 五、不想用 AI？
 
 什么都不用做。不勾选启用开关，页面就完全跑在本地匹配上，功能完整、不联网、不花钱。
+
+---
+
+# 多大模型配置（V3.1）
+
+> 推荐部署方式仍为 **Cloudflare Pages + `functions/api/compose.js`**（无需单独建 Worker，无需在网页里填地址）。
+> 本目录下的 `worker.js` 是早期独立 Worker 方案，保留作备选，**不含多模型轮询**。
+
+## 一、最简单的做法：有几个 Key 就填几个
+
+在 **Pages 项目 → Settings → Environment variables** 里，把你手上有的 Key 都添上（类型选 **Secret**），然后 **Redeploy**：
+
+```
+GEMINI_API_KEY      = AIza...
+DEEPSEEK_API_KEY    = sk-...
+QWEN_API_KEY        = sk-...
+```
+
+系统会自动组成模型链，按下面的默认优先级排序；哪个挂了就自动用下一个，而且每次请求轮流从不同起点开始（轮询）。
+
+| 优先级 | provider | Key 环境变量 | 默认模型 |
+|---|---|---|---|
+| 1 | `gemini` | `GEMINI_API_KEY` | `gemini-2.0-flash` |
+| 2 | `deepseek` | `DEEPSEEK_API_KEY` | `deepseek-chat` |
+| 3 | `openai` | `OPENAI_API_KEY` | `gpt-4o-mini` |
+| 4 | `qwen` | `QWEN_API_KEY` | `qwen-plus` |
+| 5 | `zhipu` | `ZHIPU_API_KEY` | `glm-4-flash` |
+| 6 | `moonshot` | `MOONSHOT_API_KEY` | `moonshot-v1-8k` |
+| 7 | `groq` | `GROQ_API_KEY` | `llama-3.3-70b-versatile` |
+| 8 | `siliconflow` | `SILICONFLOW_API_KEY` | `Qwen/Qwen2.5-72B-Instruct` |
+| 9 | `openrouter` | `OPENROUTER_API_KEY` | `google/gemini-2.0-flash-001` |
+| 10 | `custom` | `CUSTOM_API_KEY` + `CUSTOM_BASE_URL` + `CUSTOM_MODEL` | — |
+
+## 二、想自己定顺序：用 `MODELS`
+
+```
+MODELS = gemini:gemini-2.0-flash, deepseek:deepseek-chat, gemini:gemini-1.5-flash, openai:gpt-4o-mini
+```
+
+- 逗号、分号、换行都可以当分隔符。
+- 写法是 `provider` 或 `provider:模型名`；不写模型名就用上表默认值。
+- **同一厂商可以出现多次**，用来做“贵模型挂了就降级到便宜模型”。
+- 设了 `MODELS` 就不再自动发现，完全听你的。链里缺 Key 的项会被自动跳过并在自检接口里告诉你原因。
+
+## 三、微调项
+
+| 变量 | 作用 |
+|---|---|
+| `<PROVIDER>_MODEL` | 覆盖某厂商模型名，如 `DEEPSEEK_MODEL=deepseek-reasoner` |
+| `<PROVIDER>_BASE_URL` | 覆盖接口地址（走代理/中转），如 `OPENAI_BASE_URL=https://你的代理/v1` |
+| `TIMEOUT_MS` | 单个模型超时毫秒，默认 `45000`，超时即切下一个 |
+| `ROTATE` | 设为 `off` 则关闭轮询，永远从第一个开始（严格优先级） |
+| `ACCESS_TOKEN` | 设了之后调用必须带 `Authorization: Bearer <token>` |
+| `PROVIDER` / `MODEL` | 旧版单模型配置，仍支持，会被放在链最前面 |
+
+## 四、自检
+
+浏览器访问 `https://你的域名/api/compose`（GET），应该返回：
+
+```json
+{
+  "ok": true,
+  "version": "3.1",
+  "modelCount": 3,
+  "chain": ["gemini:gemini-2.0-flash", "deepseek:deepseek-chat", "qwen:qwen-plus"],
+  "skipped": [{ "provider": "openai", "reason": "missing OPENAI_API_KEY" }],
+  "rotation": "round-robin",
+  "timeoutMs": 45000
+}
+```
+
+- `ok:false` / `modelCount:0` → 一个 Key 都没生效，检查变量名拼写并**重新 Redeploy**（添加环境变量后必须重部署才生效）。
+- `skipped` 里会直接写明每个被跳过的厂商缺什么。
+- 正常生成时，网页结果区会显示本次实际用的模型名，以及跳过了几个失败模型。
