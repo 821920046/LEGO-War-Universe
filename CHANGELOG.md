@@ -284,3 +284,18 @@
 
 - 引擎层（本地智能匹配、AI 导演、多模型故障转移、资产库、提示词装配）**未改动**，53 个引擎依赖的元素 ID 全部保留并通过校验；5 个视图与导航项一一对应；JS 语法校验通过。
 - 页面标题与侧栏均显示 **V4.0 + 构建时间戳 + 资产数**，可随时确认浏览器加载的是否为最新构建。
+
+## V4.1 — 全免费模型链预设
+
+- 新增一键免费预设：环境变量 `MODELS=free`（别名 `free-only` / `免费`）即展开为内置的 10 档免费模型链：
+  Gemini 2.0 Flash / Flash-Lite → Groq Llama 3.3 70B / 3.1 8B → 智谱 GLM-4-Flash → 硝基流动 Qwen2.5-7B → OpenRouter 的 DeepSeek V3 / Gemini 2.0 Flash Exp / Llama 3.3 70B / Qwen2.5 72B（均为 `:free` 版）。
+- 未配置密钥的档位自动跳过，因此只配 1 个密钥也能跑；配多个则自动故障转移 + 轮询分摊免费额度。
+- 已确认 `MODELS` 按**第一个冒号**切分，因此 OpenRouter 带 `:free` 后缀与带 `/` 的模型名可正常解析。
+- 自检接口 `GET /api/compose` 版本号 → 4.1；运维页说明同步更新。
+
+## V4.2 — 免费模型链收敛为 Gemini / Groq / OpenRouter
+
+- `MODELS=free` 现展开为 **11 档**，仅使用这三个免费账号：Gemini（2.0 Flash / 2.0 Flash-Lite / 1.5 Flash）→ Groq（Llama 3.3 70B / 3.1 8B / Gemma2 9B）→ OpenRouter（DeepSeek V3、Gemini 2.0 Flash Exp、Llama 3.3 70B、Qwen2.5 72B、Mistral Small，均 `:free`）。
+- 自动发现顺序 `AUTO_ORDER` 同步收敛为 gemini → groq → openrouter → custom，即使不填 `MODELS` 也不会误触付费厂商。
+- 移除了智谱、硝基流动等其他渠道（仍可通过手写 `MODELS` 启用）。
+- 自检接口版本号 → 4.2；运维页说明同步更新。

@@ -67,15 +67,29 @@ const PROVIDERS = {
 // default auto-chain order when MODELS is not set
 const AUTO_ORDER = [
 	"gemini",
-	"deepseek",
-	"openai",
-	"qwen",
-	"zhipu",
-	"moonshot",
 	"groq",
-	"siliconflow",
 	"openrouter",
 	"custom",
+];
+
+/* Free-tier only chain. Activated with MODELS=free (alias: free-only / 免费).
+   Every entry below has a no-cost tier; entries whose key is absent are skipped
+   automatically, so you may configure only the ones you have. */
+const FREE_CHAIN = [
+	// --- Google AI Studio free tier ---
+	"gemini:gemini-2.0-flash",
+	"gemini:gemini-2.0-flash-lite",
+	"gemini:gemini-1.5-flash",
+	// --- Groq free tier (fastest) ---
+	"groq:llama-3.3-70b-versatile",
+	"groq:llama-3.1-8b-instant",
+	"groq:gemma2-9b-it",
+	// --- OpenRouter :free models (one key, many models) ---
+	"openrouter:deepseek/deepseek-chat-v3-0324:free",
+	"openrouter:google/gemini-2.0-flash-exp:free",
+	"openrouter:meta-llama/llama-3.3-70b-instruct:free",
+	"openrouter:qwen/qwen-2.5-72b-instruct:free",
+	"openrouter:mistralai/mistral-small-3.2-24b-instruct:free",
 ];
 
 function upper(name) {
@@ -116,7 +130,8 @@ function buildChain(env) {
 	if (env.PROVIDER) add(makeEntry(env, env.PROVIDER, env.MODEL));
 
 	// 2. explicit chain
-	const spec = String(env.MODELS || "").trim();
+	let spec = String(env.MODELS || "").trim();
+	if (/^(free|free-only|freetier|free_tier|免费)$/i.test(spec)) spec = FREE_CHAIN.join(",");
 	if (spec) {
 		spec
 			.split(/[,\n;]+/)
@@ -404,7 +419,7 @@ export async function onRequest(context) {
 		return json({
 			ok: built.chain.length > 0,
 			service: "LWU AI compose",
-			version: "3.1",
+			version: "4.2",
 			modes: ["shot", "film"],
 			modelCount: built.chain.length,
 			chain: built.chain.map((e) => e.provider + ":" + e.model),

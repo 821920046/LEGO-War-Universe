@@ -455,10 +455,11 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--soft2);padding:1p
           <summary>如何启用 AI 导演（多模型自动故障转移）</summary>
           <div class="small" style="line-height:1.9;margin-top:8px">
             1. 进入 Cloudflare Pages 项目 → <b>Settings → Environment variables</b>。<br>
-            2. 添加任意一个或多个密钥（类型选 <b>Secret</b>）：<code>GEMINI_API_KEY</code>、<code>DEEPSEEK_API_KEY</code>、<code>OPENAI_API_KEY</code>、<code>QWEN_API_KEY</code>、<code>ZHIPU_API_KEY</code>、<code>MOONSHOT_API_KEY</code>、<code>GROQ_API_KEY</code>、<code>SILICONFLOW_API_KEY</code>、<code>OPENROUTER_API_KEY</code>。<br>
+            2. 添加下面任意一个或多个密钥（类型选 <b>Secret</b>）：<code>GEMINI_API_KEY</code>、<code>GROQ_API_KEY</code>、<code>OPENROUTER_API_KEY</code>（这三家均有永久免费额度，无需绑卡）。<br>
             3. 点 <b>Redeploy</b> 重新部署（环境变量必须重部署才生效）。<br>
             4. 回到本页点「重新检测」，状态变为绿色即可。<br>
-            5. 想自定义顺序可加 <code>MODELS</code>，例如 <code>gemini:gemini-2.0-flash, deepseek:deepseek-chat, openai:gpt-4o-mini</code>；一个模型失败会自动换下一个，并按请求轮询分摊额度。
+            5. 想自定义顺序可加 <code>MODELS</code>，例如 <code>gemini:gemini-2.0-flash, groq:llama-3.3-70b-versatile, openrouter:deepseek/deepseek-chat-v3-0324:free</code>；一个模型失败会自动换下一个，并按请求轮询分摊额度。<br>
+            6. <b>全免费方案（推荐）</b>：只需设置 <code>MODELS</code> = <code>free</code>，即启用内置的 <b>11 档免费模型链</b>，全部来自 <b>Gemini、Groq、OpenRouter</b> 三个免费账号：Gemini 2.0 Flash / Flash-Lite / 1.5 Flash → Groq Llama 3.3 70B / 3.1 8B / Gemma2 9B → OpenRouter 的 DeepSeek V3、Gemini 2.0 Flash Exp、Llama 3.3 70B、Qwen2.5 72B、Mistral Small（均为 <code>:free</code> 版）。没配的密钥会自动跳过，配 1 个就能跑，配 3 个最抗限流，全程零费用。
           </div>
         </details>
       </div>
