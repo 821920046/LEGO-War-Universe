@@ -57,44 +57,52 @@
     {
       "id": "clean",
       "name": "Clean / Factory-fresh",
-      "line": "factory-fresh clean plastic, crisp decals, no wear"
+      "line": "factory-fresh clean plastic, crisp decals, no wear",
+      "nameZh": "全新 / 出厂状态"
     },
     {
       "id": "weathered",
       "name": "Weathered (default)",
-      "line": "weathered plastic with dust and grime wash, light wear"
+      "line": "weathered plastic with dust and grime wash, light wear",
+      "nameZh": "风化做旧（默认）"
     },
     {
       "id": "damaged",
       "name": "Battle-damaged",
-      "line": "battle-damaged, scorch marks, chipped bricks, a few missing pieces"
+      "line": "battle-damaged, scorch marks, chipped bricks, a few missing pieces",
+      "nameZh": "战损"
     },
     {
       "id": "destroyed",
       "name": "Destroyed wreck",
-      "line": "destroyed wreck, blackened and burned, scattered bricks, thin smoke"
+      "line": "destroyed wreck, blackened and burned, scattered bricks, thin smoke",
+      "nameZh": "摧毁残骸"
     }
   ],
   "characterVariantPresets": [
     {
       "id": "standard",
       "name": "Standard",
-      "line": "clean uniform, alert posture"
+      "line": "clean uniform, alert posture",
+      "nameZh": "标准"
     },
     {
       "id": "battle-worn",
       "name": "Battle-worn",
-      "line": "dusty battle-worn uniform, sweat and dirt on face, tired determined expression"
+      "line": "dusty battle-worn uniform, sweat and dirt on face, tired determined expression",
+      "nameZh": "久经战斗"
     },
     {
       "id": "night-ops",
       "name": "Night Ops",
-      "line": "night operations loadout, night vision goggles mounted, IR strobe, subdued markings"
+      "line": "night operations loadout, night vision goggles mounted, IR strobe, subdued markings",
+      "nameZh": "夜战装束"
     },
     {
       "id": "urban-cqb",
       "name": "Urban CQB",
-      "line": "urban close quarters loadout, plate carrier with breaching gear, knee pads, short barrel weapon"
+      "line": "urban close quarters loadout, plate carrier with breaching gear, knee pads, short barrel weapon",
+      "nameZh": "城市近战装束"
     }
   ],
   "rhythmTemplates": [
@@ -191,7 +199,8 @@
         "equipment: M16A2 rifle, backpack, radio, canteen",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "联军士兵（甲）"
     },
     {
       "id": "CHR-002",
@@ -217,7 +226,8 @@
         "equipment: intercom cord, holstered M9 pistol",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "艾布拉姆斯坑克乘员"
     },
     {
       "id": "CHR-003",
@@ -243,7 +253,8 @@
         "equipment: flight gloves, kneeboard",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "阿帕奇飞行员"
     },
     {
       "id": "CHR-004",
@@ -269,7 +280,8 @@
         "equipment: binoculars, holstered pistol, map case",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "伊拉克指挥官"
     },
     {
       "id": "CHR-005",
@@ -294,7 +306,8 @@
         "equipment: light wands, radio",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "航母甲板人员（黄衫）"
     },
     {
       "id": "CHR-006",
@@ -319,7 +332,8 @@
         "equipment: map case, radio handset, holstered M9 pistol",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "联军前线军官"
     },
     {
       "id": "CHR-007",
@@ -343,7 +357,8 @@
         "equipment: AK-47 rifle, chest pouch",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "武装分子"
     },
     {
       "id": "CHR-101",
@@ -368,7 +383,8 @@
         "equipment: M1 Garand rifle, backpack, canteen",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "美军步兵（二战）"
     },
     {
       "id": "CHR-102",
@@ -393,7 +409,8 @@
         "equipment: bolt-action rifle, ammo pouches",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "德军士兵"
     },
     {
       "id": "CHR-103",
@@ -418,7 +435,8 @@
         "equipment: M1 carbine, folding stock, grenades",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "美军伞兵"
     },
     {
       "id": "CHR-201",
@@ -443,7 +461,8 @@
         "equipment: flight gloves, chart board",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "美军海军飞行员（二战）"
     },
     {
       "id": "CHR-301",
@@ -468,7 +487,8 @@
         "equipment: map case, holstered pistol",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "北约坑克指挥官（冷战）"
     },
     {
       "id": "CHR-401",
@@ -496,7 +516,8 @@
         "equipment: HK416 carbine with suppressor, red dot sight, weapon light",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "特种部队队员"
     },
     {
       "id": "CHR-402",
@@ -522,7 +543,8 @@
         "calm concentrated expression, glasses reflecting screen glow",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "无人机操作员"
     },
     {
       "id": "CHR-403",
@@ -548,7 +570,8 @@
         "binoculars, map tablet, determined expression",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "前进空中引导员（JTAC）"
     },
     {
       "id": "CHR-404",
@@ -574,7 +597,8 @@
         "equipment: M4A1 carbine slung across back",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "战地医护兵"
     },
     {
       "id": "CHR-405",
@@ -600,7 +624,8 @@
         "face paint, steady calm expression",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "狙击手"
     },
     {
       "id": "CHR-406",
@@ -626,7 +651,8 @@
         "alert determined expression, comms earpiece",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "女性侦察队员"
     },
     {
       "id": "CHR-407",
@@ -652,7 +678,8 @@
         "equipment: short-barrel rifle, sidearm on thigh holster",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "私人军事承包商"
     },
     {
       "id": "CHR-408",
@@ -677,7 +704,8 @@
         "holding disposal tools, small tracked EOD robot beside",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "拆弹技术员（EOD）"
     },
     {
       "id": "CHR-409",
@@ -703,7 +731,8 @@
         "equipment: M4A1 carbine with grenade launcher",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "步兵班长"
     },
     {
       "id": "CHR-410",
@@ -728,7 +757,8 @@
         "rubber gloves and boots, carrying detection device",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "核生化防护专家"
     },
     {
       "id": "CHR-411",
@@ -754,7 +784,8 @@
         "screen glow on face, analytical expression",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "电子战专家"
     },
     {
       "id": "CHR-412",
@@ -779,7 +810,8 @@
         "tense concentrated expression",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
+      ],
+      "nameZh": "便携防空导弹射手"
     }
   ],
   "vehicles": [
@@ -808,7 +840,8 @@
         "rotating turret, 120mm main gun",
         "rubber LEGO tracks",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "M1A1 艾布拉姆斯主战坑克"
     },
     {
       "id": "VEH-002",
@@ -834,7 +867,8 @@
         "two-tone turret with 25mm chain gun and TOW launcher",
         "rubber LEGO tracks",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "M2 布拉德利步战车"
     },
     {
       "id": "VEH-003",
@@ -860,7 +894,8 @@
         "same launcher box, same road wheels and tracks",
         "realistic proportions, high detail",
         "consistent scale, consistent markings, same brick construction"
-      ]
+      ],
+      "nameZh": "M270 多管火箭炮"
     },
     {
       "id": "VEH-004",
@@ -886,7 +921,8 @@
         "angled launch canister box, hydraulic supports",
         "realistic proportions, high detail",
         "consistent scale, consistent markings, same brick construction"
-      ]
+      ],
+      "nameZh": "爱国者导弹连"
     },
     {
       "id": "VEH-005",
@@ -911,7 +947,8 @@
         "canvas-covered cargo bed, eight wheels",
         "realistic proportions, high detail",
         "consistent scale, same brick construction"
-      ]
+      ],
+      "nameZh": "重型补给卡车（HEMTT）"
     },
     {
       "id": "VEH-101",
@@ -936,7 +973,8 @@
         "cast rounded turret, 75mm gun, white star decals",
         "rubber LEGO tracks",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "M4 谢尔曼坑克"
     },
     {
       "id": "VEH-102",
@@ -961,7 +999,8 @@
         "boxy turret, long 88mm gun, interlocking road wheels",
         "rubber LEGO tracks",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "虎式坑克"
     },
     {
       "id": "VEH-103",
@@ -985,7 +1024,8 @@
         "gray-green bricks, wooden hull texture",
         "drop-down bow ramp, packed with minifigure soldiers",
         "consistent scale, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "希金斯登陆艇（LCVP）"
     },
     {
       "id": "VEH-301",
@@ -1010,7 +1050,8 @@
         "low dome turret, 125mm gun, side skirts",
         "rubber LEGO tracks",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "T-72 坑克"
     },
     {
       "id": "VEH-302",
@@ -1035,7 +1076,8 @@
         "angular wedge turret, 120mm gun",
         "rubber LEGO tracks",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "莹2 坑克"
     },
     {
       "id": "AIR-001",
@@ -1060,7 +1102,8 @@
         "transparent cockpit canopy",
         "same missile loadout, same decals, same twin tail wings",
         "consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "F-15 鹰式战斗机"
     },
     {
       "id": "AIR-002",
@@ -1085,7 +1128,8 @@
         "bubble transparent canopy, single tail fin",
         "same missile and bomb loadout, same decals",
         "consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "F-16 战隼战斗机"
     },
     {
       "id": "AIR-003",
@@ -1110,7 +1154,8 @@
         "twin rear engines, straight wings, nose GAU-8 cannon",
         "same ordnance loadout, same decals",
         "consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "A-10 疣猪攻击机"
     },
     {
       "id": "AIR-004",
@@ -1135,7 +1180,8 @@
         "nose sensor turret, stub wings with Hellfire missiles and rocket pods",
         "tandem cockpit, four-blade main rotor",
         "consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "AH-64 阿帕奇武装直升机"
     },
     {
       "id": "AIR-005",
@@ -1159,7 +1205,8 @@
         "dark olive-green bricks, weathered plastic",
         "twin engines, four-blade main rotor, open side doors",
         "consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "UH-60 黑鹰直升机"
     },
     {
       "id": "AIR-006",
@@ -1184,7 +1231,8 @@
         "eight engines on swept wings, long fuselage",
         "same bomb loadout, same decals",
         "consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "B-52 同温层堡垒轰炸机"
     },
     {
       "id": "AIR-101",
@@ -1207,7 +1255,8 @@
         "silver bricks with invasion stripes",
         "bubble canopy, four-blade propeller",
         "same decals, consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "P-51 野马战斗机"
     },
     {
       "id": "AIR-102",
@@ -1230,7 +1279,8 @@
         "olive-drab and gray bricks",
         "four propellers, gun turrets, long wings",
         "same decals, consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "B-17 空中堡垒轰炸机"
     },
     {
       "id": "AIR-201",
@@ -1253,7 +1303,8 @@
         "dark blue bricks, gull wings",
         "bubble canopy, folding wingtips",
         "same decals, consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "F4U 海盗战斗机"
     },
     {
       "id": "AIR-202",
@@ -1276,7 +1327,8 @@
         "light gray-green bricks with red roundels",
         "bubble canopy, single propeller",
         "same decals, consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "A6M 零式战斗机"
     },
     {
       "id": "AIR-301",
@@ -1299,7 +1351,8 @@
         "blue-gray camo bricks",
         "twin tail fins, transparent canopy",
         "same missile loadout, consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "米格-29 战斗机"
     },
     {
       "id": "AIR-302",
@@ -1322,7 +1375,8 @@
         "light gray bricks, swing wings",
         "twin tail fins, tandem canopy",
         "same missile loadout, consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "F-14 雄猫战斗机"
     },
     {
       "id": "SHP-001",
@@ -1347,7 +1401,8 @@
         "white runway numbers, same island tower, same radar array",
         "same angled-deck markings, catapults, arrestor wires",
         "consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "尼米兹级航空母舰"
     },
     {
       "id": "SHP-002",
@@ -1371,7 +1426,8 @@
         "haze-gray LEGO bricks, weathered plastic",
         "boxy superstructure with SPY-1 radar panels, vertical launch cells forward and aft",
         "consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "提康德罗加级巡洋舰"
     },
     {
       "id": "SHP-003",
@@ -1395,7 +1451,8 @@
         "haze-gray LEGO bricks, weathered plastic",
         "low stealthy superstructure, SPY-1 panels, forward and aft VLS cells, single 5-inch gun",
         "consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "阿利·伯克级驱逐舰"
     },
     {
       "id": "SHP-201",
@@ -1418,7 +1475,8 @@
         "navy-gray bricks, wooden flight deck texture",
         "island tower, deck-edge guns, parked propeller aircraft",
         "consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "埃塞克斯级航母（二战）"
     },
     {
       "id": "SHP-202",
@@ -1441,7 +1499,8 @@
         "gray bricks, massive triple main gun turrets",
         "pagoda mast superstructure, teak deck texture",
         "consistent scale, high detail, same brick construction"
-      ]
+      ],
+      "nameZh": "大和号战列舰"
     },
     {
       "id": "VEH-401",
@@ -1467,7 +1526,8 @@
         "120mm smoothbore gun, rubber LEGO tracks, stowage baskets",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "M1A2 SEPv3 艾布拉姆斯坑克"
     },
     {
       "id": "VEH-402",
@@ -1492,7 +1552,8 @@
         "olive drab bricks, large rubber tyres, rear ramp",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "斯特赖克步战车"
     },
     {
       "id": "VEH-403",
@@ -1517,7 +1578,8 @@
         "roof turret ring with machine gun, antenna whips, run-flat tyres",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "JLTV 战术车"
     },
     {
       "id": "VEH-404",
@@ -1542,7 +1604,8 @@
         "roof gunner cupola, jamming antennas",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "美洲狮防雷反伏击车（MRAP）"
     },
     {
       "id": "VEH-405",
@@ -1567,7 +1630,8 @@
         "armoured cab, olive drab bricks, heavy tyres",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "M142 海马斯火箭炮"
     },
     {
       "id": "VEH-406",
@@ -1592,7 +1656,8 @@
         "120mm gun, side skirts, rubber LEGO tracks",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "莹2A7 坑克"
     },
     {
       "id": "VEH-407",
@@ -1617,7 +1682,8 @@
         "low rounded turret, cage armour over engine deck, 125mm gun",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "T-90M 主战坑克"
     },
     {
       "id": "VEH-408",
@@ -1642,7 +1708,8 @@
         "olive drab bricks, rubber LEGO tracks, rear troop ramp",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "M2A4 布拉德利步战车"
     },
     {
       "id": "VEH-409",
@@ -1667,7 +1734,8 @@
         "grey and olive bricks, no crew hatch, compact profile",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "无人战斗车（UGV）"
     },
     {
       "id": "VEH-410",
@@ -1692,7 +1760,8 @@
         "roof hatch gunner position, spare tyre on rear",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "丛林猛兽防护车"
     },
     {
       "id": "AIR-401",
@@ -1717,7 +1786,8 @@
         "internal weapons bay doors, single engine nozzle, canopy with pilot",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "F-35A 闪电II 战斗机"
     },
     {
       "id": "AIR-402",
@@ -1742,7 +1812,8 @@
         "sharp chined nose, low-visibility national markings",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "F-22 猛禽战斗机"
     },
     {
       "id": "AIR-403",
@@ -1767,7 +1838,8 @@
         "light grey bricks, Hellfire missiles under wing pylons",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "MQ-9 死神无人机"
     },
     {
       "id": "AIR-404",
@@ -1792,7 +1864,8 @@
         "small guided munitions on underwing rails",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "TB2 察打一体无人机"
     },
     {
       "id": "AIR-405",
@@ -1817,7 +1890,8 @@
         "grey bricks, rear loading ramp, boxy fuselage",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "V-22 鱼鹰候转旋翼机"
     },
     {
       "id": "AIR-406",
@@ -1842,7 +1916,8 @@
         "rear ramp open, door gunner position, sponsons on sides",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "CH-47F 支奴干直升机"
     },
     {
       "id": "AIR-407",
@@ -1868,7 +1943,8 @@
         "dark olive bricks, tandem cockpit",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "AH-64E 阿帕奇守护者"
     },
     {
       "id": "AIR-408",
@@ -1893,7 +1969,8 @@
         "door gunners with miniguns, fast rope coiled at door",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "UH-60M 黑鹰直升机"
     },
     {
       "id": "AIR-409",
@@ -1918,7 +1995,8 @@
         "improvised look, black and grey small bricks",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "FPV 攻击无人机"
     },
     {
       "id": "AIR-410",
@@ -1943,7 +2021,8 @@
         "dark blue-grey splinter camouflage bricks",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "苏-57 战斗机"
     },
     {
       "id": "AIR-411",
@@ -1968,7 +2047,8 @@
         "matte black bricks, hovering at eye level",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "侦察四旋翼无人机"
     },
     {
       "id": "SHP-401",
@@ -1993,7 +2073,8 @@
         "vertical launch cells, advanced gun system forward",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "朱姆沃尔特级驱逐舰"
     },
     {
       "id": "SHP-402",
@@ -2018,7 +2099,8 @@
         "water breaking over deck",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "弗吉尼亚级潜艇"
     },
     {
       "id": "SHP-403",
@@ -2043,7 +2125,8 @@
         "57mm gun forward, fast wake",
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
-      ]
+      ],
+      "nameZh": "滨海战斗舰"
     }
   ],
   "weapons": [
@@ -2057,7 +2140,8 @@
         "LEGO Tomahawk cruise missile",
         "off-white body with pop-out wings and tail fins",
         "orange exhaust on launch, high detail"
-      ]
+      ],
+      "nameZh": "战斧巡航导弹"
     },
     {
       "id": "WPN-002",
@@ -2067,7 +2151,8 @@
       "lines": [
         "LEGO Hellfire missile",
         "slim dark-olive body, four fins, white smoke trail on launch"
-      ]
+      ],
+      "nameZh": "AGM-114 地狱火导弹"
     },
     {
       "id": "WPN-003",
@@ -2077,7 +2162,8 @@
       "lines": [
         "LEGO MLRS rockets",
         "multiple rockets with bright orange ignition and thick white smoke plumes"
-      ]
+      ],
+      "nameZh": "多管火箭齐射"
     },
     {
       "id": "WPN-401",
@@ -2086,7 +2172,8 @@
         "LEGO M4A1 carbine, black bricks, collapsible stock, red dot sight, weapon light, 30-round magazine"
       ],
       "series": "Modern",
-      "version": "1.0"
+      "version": "1.0",
+      "nameZh": "M4A1 卡宾枪"
     },
     {
       "id": "WPN-402",
@@ -2095,7 +2182,8 @@
         "LEGO HK416 assault rifle, black, long suppressor, holographic sight, angled foregrip"
       ],
       "series": "Modern",
-      "version": "1.0"
+      "version": "1.0",
+      "nameZh": "HK416（带消音器）"
     },
     {
       "id": "WPN-403",
@@ -2104,7 +2192,8 @@
         "LEGO Javelin anti-tank missile launcher, tan command launch unit, thick tube, fired from shoulder with soft-launch smoke puff"
       ],
       "series": "Modern",
-      "version": "1.0"
+      "version": "1.0",
+      "nameZh": "FGM-148 标枪反坑克导弹"
     },
     {
       "id": "WPN-404",
@@ -2113,7 +2202,8 @@
         "LEGO NLAW disposable anti-tank launcher, olive green tube, simple optic"
       ],
       "series": "Modern",
-      "version": "1.0"
+      "version": "1.0",
+      "nameZh": "NLAW 反坑克导弹"
     },
     {
       "id": "WPN-405",
@@ -2122,7 +2212,8 @@
         "LEGO Stinger man-portable air defense missile, olive launch tube with gripstock and antenna"
       ],
       "series": "Modern",
-      "version": "1.0"
+      "version": "1.0",
+      "nameZh": "FIM-92 毒刺防空导弹"
     },
     {
       "id": "WPN-406",
@@ -2131,7 +2222,8 @@
         "LEGO RPG-7 rocket propelled grenade launcher, wooden-look grip, conical warhead"
       ],
       "series": "Modern",
-      "version": "1.0"
+      "version": "1.0",
+      "nameZh": "RPG-7 火箭筒"
     },
     {
       "id": "WPN-407",
@@ -2140,7 +2232,8 @@
         "LEGO loitering munition, tube-launched, pop-out swept wings, small propeller, olive body"
       ],
       "series": "Modern",
-      "version": "1.0"
+      "version": "1.0",
+      "nameZh": "弹簧刀巡飞弹"
     },
     {
       "id": "WPN-408",
@@ -2149,7 +2242,8 @@
         "LEGO JDAM guided bomb, grey body, tail guidance kit with fins, mounted on aircraft pylon"
       ],
       "series": "Modern",
-      "version": "1.0"
+      "version": "1.0",
+      "nameZh": "GBU-31 联合直接攻击弹药"
     },
     {
       "id": "WPN-409",
@@ -2158,7 +2252,8 @@
         "LEGO M240 belt-fed machine gun on bipod, black bricks, ammunition belt feeding from box"
       ],
       "series": "Modern",
-      "version": "1.0"
+      "version": "1.0",
+      "nameZh": "M240 通用机枪"
     },
     {
       "id": "WPN-410",
@@ -2167,7 +2262,8 @@
         "LEGO 60mm mortar tube on baseplate with bipod, crew loading round from muzzle"
       ],
       "series": "Modern",
-      "version": "1.0"
+      "version": "1.0",
+      "nameZh": "60毫米迫击炮"
     }
   ],
   "props": [
@@ -2176,140 +2272,160 @@
       "name": "Sandbag Wall",
       "lines": [
         "LEGO sandbag wall, stacked tan sandbag bricks"
-      ]
+      ],
+      "nameZh": "沙袋墙"
     },
     {
       "id": "PRP-002",
       "name": "Fuel Drums",
       "lines": [
         "LEGO fuel drums, olive and rust barrels"
-      ]
+      ],
+      "nameZh": "燃油桶"
     },
     {
       "id": "PRP-003",
       "name": "Field Tent",
       "lines": [
         "LEGO field tent, tan canvas texture over brick frame"
-      ]
+      ],
+      "nameZh": "野战帐篷"
     },
     {
       "id": "PRP-004",
       "name": "Radar Array",
       "lines": [
         "LEGO rotating radar dish on a brick base"
-      ]
+      ],
+      "nameZh": "雷达阵列"
     },
     {
       "id": "PRP-005",
       "name": "Roadblock",
       "lines": [
         "LEGO roadblock, concrete barriers and barbed wire"
-      ]
+      ],
+      "nameZh": "路障"
     },
     {
       "id": "PRP-006",
       "name": "Ammo Crates",
       "lines": [
         "LEGO ammo crates, stacked olive wooden boxes"
-      ]
+      ],
+      "nameZh": "弹药箱"
     },
     {
       "id": "PRP-007",
       "name": "Comms Antenna",
       "lines": [
         "LEGO communications antenna mast with cables"
-      ]
+      ],
+      "nameZh": "通信天线"
     },
     {
       "id": "PRP-008",
       "name": "Medical Tent",
       "lines": [
         "LEGO medical tent with red cross marking"
-      ]
+      ],
+      "nameZh": "医疗帐篷"
     },
     {
       "id": "PRP-009",
       "name": "Desert Debris",
       "lines": [
         "LEGO desert debris, scattered rubble and rocks"
-      ]
+      ],
+      "nameZh": "沙漠残骸"
     },
     {
       "id": "PRP-010",
       "name": "Sand Dune",
       "lines": [
         "LEGO sand dune, sculpted tan slope bricks"
-      ]
+      ],
+      "nameZh": "沙丘"
     },
     {
       "id": "PRP-401",
       "name": "Drone Ground Control Station",
       "lines": [
         "LEGO drone ground control station, ruggedised cases with screens, antenna mast, folding table under camo net"
-      ]
+      ],
+      "nameZh": "无人机地面站"
     },
     {
       "id": "PRP-402",
       "name": "Satellite Uplink Terminal",
       "lines": [
         "LEGO portable satellite dish terminal on tripod, white dish, cable run to case"
-      ]
+      ],
+      "nameZh": "卫星上行终端"
     },
     {
       "id": "PRP-403",
       "name": "HESCO Barrier Wall",
       "lines": [
         "LEGO HESCO gabion barrier wall, tan mesh-and-fabric cubes filled with sand, stacked in a line"
-      ]
+      ],
+      "nameZh": "HESCO 防爆墙"
     },
     {
       "id": "PRP-404",
       "name": "Concrete Jersey Barrier",
       "lines": [
         "LEGO concrete jersey barriers, light grey bricks, some with spray-painted unit markings"
-      ]
+      ],
+      "nameZh": "混凝土隔离墩"
     },
     {
       "id": "PRP-405",
       "name": "Roadside IED",
       "lines": [
         "LEGO improvised explosive device, artillery shell wired to a hidden trigger box, partially buried in roadside rubble"
-      ]
+      ],
+      "nameZh": "路边简易爆炸装置"
     },
     {
       "id": "PRP-406",
       "name": "Night Vision Goggles",
       "lines": [
         "LEGO quad-tube night vision goggles on helmet mount, green glowing lenses"
-      ]
+      ],
+      "nameZh": "夜视仪"
     },
     {
       "id": "PRP-407",
       "name": "ATAK Tablet",
       "lines": [
         "LEGO rugged tactical tablet showing glowing blue map display, chest-mounted"
-      ]
+      ],
+      "nameZh": "ATAK 战术平板"
     },
     {
       "id": "PRP-408",
       "name": "Camouflage Netting",
       "lines": [
         "LEGO camouflage netting draped over a position, tan and green fabric-look elements breaking up outline"
-      ]
+      ],
+      "nameZh": "伪装网"
     },
     {
       "id": "PRP-409",
       "name": "Checkpoint Guard Post",
       "lines": [
         "LEGO checkpoint guard post, small brick-built booth, boom barrier, warning signage, sandbag emplacement"
-      ]
+      ],
+      "nameZh": "检查站岗亭"
     },
     {
       "id": "PRP-410",
       "name": "Ammunition Supply Pallet",
       "lines": [
         "LEGO stacked ammunition crates and fuel cans on a wooden pallet, strapped down"
-      ]
+      ],
+      "nameZh": "弹药补给托盘"
     }
   ],
   "fx": [
@@ -2320,7 +2436,8 @@
       "lines": [
         "photorealistic small explosion, real orange fireball and black smoke, volumetric blast",
         "LEGO bricks and plates blown outward as solid debris"
-      ]
+      ],
+      "nameZh": "小型爆炸"
     },
     {
       "id": "FX-002",
@@ -2329,7 +2446,8 @@
       "lines": [
         "photorealistic large fireball with rolling black smoke column and heat distortion",
         "turret blown off, LEGO bricks scattering as real physical debris"
-      ]
+      ],
+      "nameZh": "坑克爆炸"
     },
     {
       "id": "FX-003",
@@ -2338,7 +2456,8 @@
       "lines": [
         "multiple photoreal explosions, visible shockwave rings, real dust and smoke clouds",
         "LEGO debris thrown through the air"
-      ]
+      ],
+      "nameZh": "火箭弹爆炸"
     },
     {
       "id": "FX-004",
@@ -2346,105 +2465,120 @@
       "name": "Missile Trail",
       "lines": [
         "photoreal white smoke trail, real orange exhaust plume, heat blur"
-      ]
+      ],
+      "nameZh": "导弹尾迹"
     },
     {
       "id": "FX-005",
       "name": "Muzzle Flash",
       "lines": [
         "photoreal bright muzzle flash, real smoke puff, ejected shell casing"
-      ]
+      ],
+      "nameZh": "枪口焰"
     },
     {
       "id": "FX-006",
       "name": "Dust Cloud",
       "lines": [
         "photoreal rolling dust cloud kicked up from the ground, drifting real sand particles"
-      ]
+      ],
+      "nameZh": "扬尘"
     },
     {
       "id": "FX-007",
       "name": "Sea Spray",
       "lines": [
         "sea spray and foam, water splashing off the hull"
-      ]
+      ],
+      "nameZh": "海浪飞沫"
     },
     {
       "id": "FX-008",
       "name": "Tracer Rounds",
       "lines": [
         "streaking orange tracer rounds cutting through the air"
-      ]
+      ],
+      "nameZh": "曳光弹"
     },
     {
       "id": "FX-401",
       "name": "Thermal Drone POV",
       "lines": [
         "thermal imaging look, white-hot figures and engines glowing against cool dark background, crosshair reticle and telemetry-free clean overlay, slight sensor noise"
-      ]
+      ],
+      "nameZh": "热成像无人机视角"
     },
     {
       "id": "FX-402",
       "name": "Tracer Fire",
       "lines": [
         "photoreal tracer fire streaking through the air, real light trails and glow"
-      ]
+      ],
+      "nameZh": "曳光弹射击"
     },
     {
       "id": "FX-403",
       "name": "HIMARS Launch Plume",
       "lines": [
         "photoreal HIMARS launch plume, real fire, backblast and thick smoke cloud"
-      ]
+      ],
+      "nameZh": "海马斯发射尾烟"
     },
     {
       "id": "FX-404",
       "name": "Drone Swarm",
       "lines": [
         "swarm of small drones filling the sky, many tiny silhouettes, buzzing formation, motion blur on rotors"
-      ]
+      ],
+      "nameZh": "无人机蜂群"
     },
     {
       "id": "FX-405",
       "name": "Laser Designator Beam",
       "lines": [
         "photoreal laser designator beam cutting through real haze and dust"
-      ]
+      ],
+      "nameZh": "激光指示光束"
     },
     {
       "id": "FX-406",
       "name": "Suppressed Muzzle Flash",
       "lines": [
         "photoreal suppressed muzzle flash, thin real smoke wisp"
-      ]
+      ],
+      "nameZh": "消音枪口焰"
     },
     {
       "id": "FX-407",
       "name": "Rotor Brownout",
       "lines": [
         "photoreal rotor brownout, real swirling dust and grit storm around the aircraft"
-      ]
+      ],
+      "nameZh": "旋翼扬尘"
     },
     {
       "id": "FX-408",
       "name": "Secondary Detonation",
       "lines": [
         "photoreal secondary detonation, real ammunition cook-off, bright fireballs"
-      ]
+      ],
+      "nameZh": "二次殉爆"
     },
     {
       "id": "FX-409",
       "name": "Smoke Screen",
       "lines": [
         "photoreal smoke screen, dense real smoke rolling across the ground"
-      ]
+      ],
+      "nameZh": "烟幕"
     },
     {
       "id": "FX-410",
       "name": "Electronic Jamming Glitch",
       "lines": [
         "digital interference on the image, brief scan lines and signal glitch artifacts, screens flickering"
-      ]
+      ],
+      "nameZh": "电子干扰噪波"
     },
     {
       "id": "FX-501",
@@ -2452,7 +2586,8 @@
       "lines": [
         "photorealistic heavy rainfall, real raindrops streaking through the air",
         "wet glossy brick surfaces, water running off plates, splashing puddles and ripples"
-      ]
+      ],
+      "nameZh": "暴雨"
     },
     {
       "id": "FX-502",
@@ -2460,7 +2595,8 @@
       "lines": [
         "photorealistic falling snow, real snowflakes drifting and swirling in the wind",
         "soft real snow settling on studs and brick edges, breath vapour in the cold air"
-      ]
+      ],
+      "nameZh": "降雪与暴风雪"
     },
     {
       "id": "FX-503",
@@ -2468,7 +2604,8 @@
       "lines": [
         "photorealistic dense fog and low mist, real volumetric haze",
         "visibility falling off with depth, god rays cutting through the fog"
-      ]
+      ],
+      "nameZh": "浓雾"
     },
     {
       "id": "FX-504",
@@ -2476,7 +2613,8 @@
       "lines": [
         "photorealistic thunderstorm, real lightning flashes lighting the scene from above",
         "heavy rain sheets, dark storm clouds, brief high-contrast strobe lighting"
-      ]
+      ],
+      "nameZh": "雷暴闪电"
     },
     {
       "id": "FX-505",
@@ -2484,7 +2622,8 @@
       "lines": [
         "photorealistic sandstorm, real dense airborne dust wall",
         "grit streaming past the camera, orange filtered light, near zero visibility"
-      ]
+      ],
+      "nameZh": "沙尘暴"
     },
     {
       "id": "FX-506",
@@ -2492,7 +2631,8 @@
       "lines": [
         "photorealistic mushroom cloud rising from a massive explosion",
         "real rolling fire core, condensation ring, churning smoke stem and dust base surge"
-      ]
+      ],
+      "nameZh": "蘑菇云"
     },
     {
       "id": "FX-507",
@@ -2500,7 +2640,8 @@
       "lines": [
         "photorealistic battlefield gun smoke and cordite haze drifting low over the ground",
         "real layered smoke catching the light, thin blue haze in the air"
-      ]
+      ],
+      "nameZh": "战场硅烟"
     },
     {
       "id": "FX-508",
@@ -2508,7 +2649,8 @@
       "lines": [
         "photorealistic shower of real molten sparks from metal impacts and ricochets",
         "glowing embers bouncing and dying out on the ground"
-      ]
+      ],
+      "nameZh": "火花四溅"
     },
     {
       "id": "FX-509",
@@ -2516,7 +2658,8 @@
       "lines": [
         "photorealistic water splashes, real spray, foam and wake",
         "true fluid simulation with droplets, mist and surface ripples"
-      ]
+      ],
+      "nameZh": "水花与尾迹"
     },
     {
       "id": "FX-510",
@@ -2524,7 +2667,8 @@
       "lines": [
         "photorealistic deep sea water, real caustics, suspended particles and light shafts from above",
         "dark blue-green depth falloff, rising air bubbles"
-      ]
+      ],
+      "nameZh": "深海水下"
     },
     {
       "id": "FX-511",
@@ -2532,7 +2676,8 @@
       "lines": [
         "photorealistic mud, real wet earth splatter thrown by tracks and boots",
         "standing water in ruts, glossy wet brick surfaces"
-      ]
+      ],
+      "nameZh": "泥水飞溅"
     },
     {
       "id": "FX-512",
@@ -2540,7 +2685,8 @@
       "lines": [
         "photorealistic fire, real flames licking over a wrecked model with rising black smoke",
         "orange firelight flickering on the surrounding bricks, heat shimmer"
-      ]
+      ],
+      "nameZh": "残骸燃烧火焰"
     }
   ],
   "environments": [
@@ -2553,7 +2699,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "Middle East desert, fine yellow sand, small dunes",
         "clear sky, heat haze, long shadows, drifting dust, cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "中东沙漠"
     },
     {
       "id": "ENV-002",
@@ -2564,7 +2711,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "deep blue ocean of the Persian Gulf, calm rolling waves",
         "golden sunset reflection, carrier battle group on the horizon, clear horizon"
-      ]
+      ],
+      "nameZh": "波斯湾"
     },
     {
       "id": "ENV-003",
@@ -2575,7 +2723,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "desert airbase, concrete runway, hardened aircraft shelters",
         "fuel trucks, maintenance crew, hangars, heat haze over tarmac"
-      ]
+      ],
+      "nameZh": "联军空军基地"
     },
     {
       "id": "ENV-004",
@@ -2586,7 +2735,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "aircraft carrier flight deck, gray non-skid deck with white markings and catapults",
         "parked aircraft, deck crew, island tower, open sea beyond the edge"
-      ]
+      ],
+      "nameZh": "航母飞行甲板"
     },
     {
       "id": "ENV-005",
@@ -2597,7 +2747,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "desert forward operating base, sandbag walls, tents, antennas, parked vehicles",
         "dust in the air, cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "前进作战基地"
     },
     {
       "id": "ENV-006",
@@ -2608,7 +2759,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "Kuwaiti oil fields, towering black smoke columns from burning wells",
         "orange fire glow, darkened smoky sky, oily haze"
-      ]
+      ],
+      "nameZh": "燃烧的油田"
     },
     {
       "id": "ENV-007",
@@ -2619,7 +2771,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "long desert highway, cracked asphalt, sand drifting across the road",
         "distant dunes, clear sky, heat haze"
-      ]
+      ],
+      "nameZh": "沙漠公路"
     },
     {
       "id": "ENV-101",
@@ -2630,7 +2783,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "Normandy invasion beach, wet gray sand, steel beach obstacles and hedgehogs",
         "overcast sky, sea foam, smoke, gritty cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "诺曼底海滩"
     },
     {
       "id": "ENV-102",
@@ -2641,7 +2795,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "Norman bocage countryside, tall hedgerows, green fields, dirt lanes",
         "soft overcast light, cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "灌木篱墙乡野"
     },
     {
       "id": "ENV-103",
@@ -2652,7 +2807,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "ruined European town, shattered brick buildings, rubble-strewn streets",
         "smoke, dust, cold overcast light"
-      ]
+      ],
+      "nameZh": "废墟中的欧洲小镇"
     },
     {
       "id": "ENV-201",
@@ -2663,7 +2819,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "vast Pacific Ocean, deep blue swells, bright tropical sky",
         "scattered clouds, glittering sun reflection"
-      ]
+      ],
+      "nameZh": "太平洋"
     },
     {
       "id": "ENV-202",
@@ -2674,7 +2831,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "Pacific island beachhead, white coral sand, palm trees, landing craft",
         "bright harsh sun, smoke from the tree line"
-      ]
+      ],
+      "nameZh": "岛屿滩头"
     },
     {
       "id": "ENV-203",
@@ -2685,7 +2843,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "dense tropical jungle, thick green foliage, mud, dappled light",
         "humid haze, cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "丛林"
     },
     {
       "id": "ENV-301",
@@ -2696,7 +2855,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "open European plain, rolling green fields, distant tree lines",
         "gray overcast sky, cold flat light"
-      ]
+      ],
+      "nameZh": "欧洲平原"
     },
     {
       "id": "ENV-302",
@@ -2707,7 +2867,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "Fulda Gap terrain, wooded hills and valleys, muddy tank trails",
         "low fog, cold overcast light"
-      ]
+      ],
+      "nameZh": "富尔达缺口"
     },
     {
       "id": "ENV-303",
@@ -2718,7 +2879,8 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "snowy winter front, deep snow, bare trees, frozen ground",
         "pale cold light, drifting snow"
-      ]
+      ],
+      "nameZh": "雪地前线"
     },
     {
       "id": "ENV-401",
@@ -2732,7 +2894,8 @@
         "burnt-out civilian cars, rubble piles, dangling power cables",
         "scattered brick debris on asphalt baseplate",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "现代城市巷战街道"
     },
     {
       "id": "ENV-402",
@@ -2745,7 +2908,8 @@
         "shell-holed apartment towers with exposed rebar made from grey bars",
         "burnt vehicles, crater in the road, drifting smoke and paper debris",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "战火中的现代街区"
     },
     {
       "id": "ENV-403",
@@ -2758,7 +2922,8 @@
         "HESCO barrier perimeter, guard towers, antenna masts and satellite dishes",
         "tents and containerised housing, helipad marked on the ground, floodlight poles",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "前进作战基地"
     },
     {
       "id": "ENV-404",
@@ -2771,7 +2936,8 @@
         "wall of glowing screens showing map and drone feeds, rows of consoles",
         "dim blue ambient light, operators seated, cable runs overhead",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "无人机作战中心"
     },
     {
       "id": "ENV-405",
@@ -2784,7 +2950,8 @@
         "concrete apron with painted markings, hardened aircraft shelters",
         "ground support equipment, fuel trucks, control tower in the distance",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "现代空军基地停机坪"
     },
     {
       "id": "ENV-406",
@@ -2797,7 +2964,8 @@
         "tiled platform walls, tracks, stationary train carriage, emergency lighting",
         "civilians sheltering with bags along the wall",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "地铁站内部"
     },
     {
       "id": "ENV-407",
@@ -2810,7 +2978,8 @@
         "stacked shipping containers in bright colours, gantry cranes, dockside bollards",
         "grey water, moored vessel, overcast sky",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "工业港口"
     },
     {
       "id": "ENV-408",
@@ -2823,7 +2992,8 @@
         "rocky grey terrain, sandbag and HESCO fighting positions, camo netting",
         "thin cold air, distant snow-capped peaks, wind-blown dust",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "山地观察哨所"
     },
     {
       "id": "ENV-409",
@@ -2836,7 +3006,8 @@
         "cracked asphalt strip through open sand, roadside wreckage and burnt hulks",
         "heat haze, telegraph poles receding to the horizon",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "沙漠公路车队路线"
     },
     {
       "id": "ENV-410",
@@ -2849,7 +3020,8 @@
         "peeling wallpaper, overturned furniture, shattered window with light shafts",
         "dust hanging in the air, narrow hallway and doorways for close quarters combat",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "公寓室内近距作战"
     },
     {
       "id": "ENV-411",
@@ -2862,7 +3034,8 @@
         "boom barriers, concrete blast walls, inspection booth and floodlights",
         "queue of civilian vehicles, warning signage",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "边境检查站"
     },
     {
       "id": "ENV-412",
@@ -2875,7 +3048,8 @@
         "white plates and slopes forming frozen ground, bare tree line, treadmarks in snow",
         "grey overcast sky, breath vapour, drifting snowfall",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "东欧雪原"
     },
     {
       "id": "ENV-501",
@@ -2887,7 +3061,8 @@
         "open ocean under a storm, photorealistic deep sea water with real rolling swells, whitecaps and spray",
         "brick-built warship cutting through the waves, driving rain and dark clouds",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "暴风海面"
     },
     {
       "id": "ENV-502",
@@ -2899,7 +3074,8 @@
         "underwater deep sea, photorealistic dark blue water with real light shafts, caustics and drifting particles",
         "brick-built submarine gliding through the depths, rising bubble trails",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "深海水下"
     },
     {
       "id": "ENV-503",
@@ -2911,7 +3087,8 @@
         "wide river with photorealistic flowing water, real current, ripples and foam at the banks",
         "brick-built pontoon bridge and muddy banks, vehicles fording the crossing",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "渡河点"
     },
     {
       "id": "ENV-504",
@@ -2923,7 +3100,8 @@
         "calm lake with photorealistic mirror-like water and real morning mist over the surface",
         "brick-built shoreline, reeds and boat dock, soft dawn light",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "黎明湖畔"
     },
     {
       "id": "ENV-505",
@@ -2935,7 +3113,8 @@
         "modern city street at night in heavy photoreal rain, real puddles and neon reflections on wet asphalt",
         "brick-built buildings, shopfronts and parked vehicles, rain streaks in the headlights",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "雨夜城市街道"
     },
     {
       "id": "ENV-506",
@@ -2947,7 +3126,8 @@
         "pine forest under photorealistic dense fog, real volumetric mist between the trunks",
         "brick-built trees and forest floor, damp muted colours, visibility fading with depth",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "雾中松林"
     },
     {
       "id": "ENV-507",
@@ -2959,7 +3139,8 @@
         "flooded marshland with photorealistic standing water, real reflections and slow ripples",
         "brick-built reeds, sunken wreckage and mud banks, low grey sky",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "泛滥的沼泽地"
     },
     {
       "id": "ENV-508",
@@ -2971,7 +3152,8 @@
         "high mountain pass in a photorealistic blizzard, real driving snow and whiteout wind",
         "brick-built rock faces and snow plates, drifted snow burying equipment",
         "cinematic atmosphere"
-      ]
+      ],
+      "nameZh": "暴风雪山口"
     }
   ],
   "cameras": [
@@ -2981,7 +3163,8 @@
       "name": "Opening Drone",
       "lines": [
         "high-altitude drone shot, slow push-in, 24mm lens, very cinematic, stable smooth movement"
-      ]
+      ],
+      "nameZh": "开场航拍"
     },
     {
       "id": "CAM-002",
@@ -2989,7 +3172,8 @@
       "name": "Ground Tracking",
       "lines": [
         "ground-level tracking shot, parallel movement alongside the subject, 50mm lens, dust in the foreground"
-      ]
+      ],
+      "nameZh": "地面跟拍"
     },
     {
       "id": "CAM-003",
@@ -2997,7 +3181,8 @@
       "name": "Jet Follow",
       "lines": [
         "chase camera behind the aircraft, long lens, fast tracking, natural motion blur"
-      ]
+      ],
+      "nameZh": "战机跟随"
     },
     {
       "id": "CAM-004",
@@ -3005,7 +3190,8 @@
       "name": "Explosion Close-up",
       "lines": [
         "85mm close-up, slight slow motion, debris flying past lens, explosion fills the frame"
-      ]
+      ],
+      "nameZh": "爆炸特写"
     },
     {
       "id": "CAM-005",
@@ -3013,7 +3199,8 @@
       "name": "POV Cockpit",
       "lines": [
         "first-person cockpit POV, canopy frame and HUD in view, subtle handheld shake"
-      ]
+      ],
+      "nameZh": "座舱主视角"
     },
     {
       "id": "CAM-006",
@@ -3021,77 +3208,88 @@
       "name": "Orbit Shot",
       "lines": [
         "slow 360 orbit around the subject, steady gimbal movement, 40mm lens"
-      ]
+      ],
+      "nameZh": "环绕镜头"
     },
     {
       "id": "CAM-007",
       "name": "Overhead Top-Down",
       "lines": [
         "straight overhead top-down shot, slow descent, map-like composition"
-      ]
+      ],
+      "nameZh": "俯视顶拍"
     },
     {
       "id": "CAM-008",
       "name": "Low-Angle Hero",
       "lines": [
         "low-angle hero shot looking up at the subject, 35mm lens, imposing heroic framing"
-      ]
+      ],
+      "nameZh": "低角度英雄镜头"
     },
     {
       "id": "CAM-009",
       "name": "Deck-Level Launch",
       "lines": [
         "low deck-level shot, steam and heat haze foreground, wide 28mm lens"
-      ]
+      ],
+      "nameZh": "甲板平视起飞"
     },
     {
       "id": "CAM-010",
       "name": "Handheld Combat",
       "lines": [
         "handheld shoulder camera, reactive shake, whip movement, embedded war-correspondent feel"
-      ]
+      ],
+      "nameZh": "手持战斗镜头"
     },
     {
       "id": "CAM-401",
       "name": "FPV Drone Chase",
       "lines": [
         "aggressive FPV racing drone chase shot, fast low pursuit weaving past obstacles, wide 14mm lens, high speed, slight fisheye"
-      ]
+      ],
+      "nameZh": "FPV 无人机追拍"
     },
     {
       "id": "CAM-402",
       "name": "Thermal Optic View",
       "lines": [
         "locked thermal optic view, subtle digital zoom steps, crosshair centred, minimal camera shake"
-      ]
+      ],
+      "nameZh": "热成像矄准视角"
     },
     {
       "id": "CAM-403",
       "name": "Night Vision POV",
       "lines": [
         "first person night vision goggle view, circular vignette, slight head movement, grainy image intensifier look"
-      ]
+      ],
+      "nameZh": "夜视主视角"
     },
     {
       "id": "CAM-404",
       "name": "Helmet Cam",
       "lines": [
         "helmet-mounted camera, handheld shaky first person perspective, wide lens, rapid turns, weapon visible in frame"
-      ]
+      ],
+      "nameZh": "头盔摄像机"
     },
     {
       "id": "CAM-405",
       "name": "Satellite Top-Down",
       "lines": [
         "straight top-down satellite surveillance view, very high altitude, slow drift, orthographic feel"
-      ]
+      ],
+      "nameZh": "卫星俯拍"
     },
     {
       "id": "CAM-406",
       "name": "Drone Orbit",
       "lines": [
         "smooth drone orbit circling the subject at medium altitude, steady gimbal, 35mm lens, cinematic parallax"
-      ]
+      ],
+      "nameZh": "无人机环绕"
     }
   ],
   "lighting": [
@@ -3101,7 +3299,8 @@
       "name": "Golden Hour",
       "lines": [
         "warm golden sunlight, long shadows, orange highlights, blue sky"
-      ]
+      ],
+      "nameZh": "黄金时刻"
     },
     {
       "id": "LGT-002",
@@ -3109,7 +3308,8 @@
       "name": "Desert Noon",
       "lines": [
         "harsh overhead sunlight, strong contrast, heat haze, bright sand"
-      ]
+      ],
+      "nameZh": "沙漠正午"
     },
     {
       "id": "LGT-003",
@@ -3117,77 +3317,88 @@
       "name": "Night Combat",
       "lines": [
         "cool moonlight, explosion lighting flashes, streaking tracer rounds, drifting smoke"
-      ]
+      ],
+      "nameZh": "夜战照明"
     },
     {
       "id": "LGT-004",
       "name": "Storm Lighting",
       "lines": [
         "overcast stormy sky, diffuse cold light, occasional lightning flash"
-      ]
+      ],
+      "nameZh": "暴风雨光线"
     },
     {
       "id": "LGT-005",
       "name": "Explosion Lighting",
       "lines": [
         "strong orange flash from explosions, flickering firelight, deep contrasting shadows"
-      ]
+      ],
+      "nameZh": "爆炸火光"
     },
     {
       "id": "LGT-006",
       "name": "Emergency Red",
       "lines": [
         "red emergency lighting, pulsing alarm glow, deep shadows"
-      ]
+      ],
+      "nameZh": "应急红光"
     },
     {
       "id": "LGT-007",
       "name": "Command Center Blue",
       "lines": [
         "cool blue command-center lighting, glowing screens, low ambient fill"
-      ]
+      ],
+      "nameZh": "指挥中心蓝光"
     },
     {
       "id": "LGT-008",
       "name": "Dawn Haze",
       "lines": [
         "soft pre-dawn blue light, low fog and haze, gentle cool ambience"
-      ]
+      ],
+      "nameZh": "黎明薄雾光"
     },
     {
       "id": "LGT-401",
       "name": "Night Vision Green",
       "lines": [
         "monochrome green night vision illumination, glowing highlights, deep black shadows, visible sensor grain"
-      ]
+      ],
+      "nameZh": "夜视绿光"
     },
     {
       "id": "LGT-402",
       "name": "Thermal White-Hot",
       "lines": [
         "thermal white-hot palette, hot engines and bodies glowing bright white, cold background near black"
-      ]
+      ],
+      "nameZh": "热成像白热"
     },
     {
       "id": "LGT-403",
       "name": "Urban Sodium Night",
       "lines": [
         "night city lighting, orange sodium street lamps, cold blue moonlight fill, wet reflective asphalt"
-      ]
+      ],
+      "nameZh": "城市钠灯夜景"
     },
     {
       "id": "LGT-404",
       "name": "Flare-lit Night",
       "lines": [
         "illumination flare hanging overhead, harsh swinging shadows, smoky orange-white glow, high contrast"
-      ]
+      ],
+      "nameZh": "照明弹照亮的夜晚"
     },
     {
       "id": "LGT-405",
       "name": "Overcast Grey",
       "lines": [
         "flat grey overcast daylight, soft shadowless light, desaturated cold atmosphere"
-      ]
+      ],
+      "nameZh": "阴天灰调"
     }
   ],
   "colorGrades": [
@@ -3196,35 +3407,40 @@
       "name": "Hollywood Blockbuster",
       "lines": [
         "high contrast, warm highlights, cool shadows, Kodak film look, cinematic grading"
-      ]
+      ],
+      "nameZh": "好莱坞大片"
     },
     {
       "id": "CLR-002",
       "name": "Saving Private Ryan",
       "lines": [
         "desaturated bleach-bypass, muted greens and tans, gritty documentary look"
-      ]
+      ],
+      "nameZh": "《拯救大兵瑞恩》"
     },
     {
       "id": "CLR-003",
       "name": "Top Gun Maverick",
       "lines": [
         "clean vivid, deep blue skies, warm skin tones, crisp modern blockbuster"
-      ]
+      ],
+      "nameZh": "《壮志凌云：独行侠》"
     },
     {
       "id": "CLR-004",
       "name": "Black Hawk Down",
       "lines": [
         "warm dusty, golden-tan cast, crushed shadows, harsh gritty realism"
-      ]
+      ],
+      "nameZh": "《黑鹰坠落》"
     },
     {
       "id": "CLR-005",
       "name": "Band of Brothers",
       "lines": [
         "cool overcast, muted palette, soft contrast, classic war-drama look"
-      ]
+      ],
+      "nameZh": "《兄弟连》"
     }
   ],
   "audio": [
@@ -3233,182 +3449,208 @@
       "name": "Tank Engine",
       "lines": [
         "deep diesel tank engine rumble and clanking tracks"
-      ]
+      ],
+      "nameZh": "坑克引擎声"
     },
     {
       "id": "AUD-002",
       "name": "Jet Engine",
       "lines": [
         "roaring jet engine and afterburner"
-      ]
+      ],
+      "nameZh": "喷气引擎声"
     },
     {
       "id": "AUD-003",
       "name": "Helicopter Rotor",
       "lines": [
         "heavy rhythmic helicopter rotor thump"
-      ]
+      ],
+      "nameZh": "直升机旋翼声"
     },
     {
       "id": "AUD-004",
       "name": "Missile Launch",
       "lines": [
         "sharp missile launch whoosh with ignition roar"
-      ]
+      ],
+      "nameZh": "导弹发射声"
     },
     {
       "id": "AUD-005",
       "name": "Explosion",
       "lines": [
         "powerful explosion boom with debris patter"
-      ]
+      ],
+      "nameZh": "爆炸声"
     },
     {
       "id": "AUD-006",
       "name": "Desert Wind",
       "lines": [
         "low desert wind and drifting sand"
-      ]
+      ],
+      "nameZh": "沙漠风声"
     },
     {
       "id": "AUD-007",
       "name": "Radio Chatter",
       "lines": [
         "crackling military radio chatter"
-      ]
+      ],
+      "nameZh": "无线电通话"
     },
     {
       "id": "AUD-008",
       "name": "Footsteps",
       "lines": [
         "boots crunching on sand and gravel"
-      ]
+      ],
+      "nameZh": "脚步声"
     },
     {
       "id": "AUD-009",
       "name": "Metal Clanking",
       "lines": [
         "metallic clanking of equipment and hatches"
-      ]
+      ],
+      "nameZh": "金属撞击声"
     },
     {
       "id": "AUD-010",
       "name": "Ocean & Deck",
       "lines": [
         "ocean swell, wind, and carrier deck steam hiss"
-      ]
+      ],
+      "nameZh": "海浪与甲板声"
     },
     {
       "id": "AUD-011",
       "name": "Orchestral Score",
       "lines": [
         "swelling epic orchestral military score"
-      ]
+      ],
+      "nameZh": "管弦配乐"
     },
     {
       "id": "AUD-012",
       "name": "Tense Drone",
       "lines": [
         "tense low droning suspense score"
-      ]
+      ],
+      "nameZh": "紧张低鸣音"
     },
     {
       "id": "AUD-401",
       "name": "Drone Buzz",
       "lines": [
         "high pitched electric drone rotor buzz, rising and falling as it manoeuvres"
-      ]
+      ],
+      "nameZh": "无人机嗡鸣"
     },
     {
       "id": "AUD-402",
       "name": "HIMARS Launch",
       "lines": [
         "thunderous rocket artillery launch, roaring ripple of salvo, crackling echo"
-      ]
+      ],
+      "nameZh": "海马斯发射声"
     },
     {
       "id": "AUD-403",
       "name": "Suppressed Gunfire",
       "lines": [
         "muffled suppressed rifle fire, mechanical bolt clatter, brass casings tinkling on concrete"
-      ]
+      ],
+      "nameZh": "消音枪声"
     },
     {
       "id": "AUD-404",
       "name": "Modern Radio Chatter",
       "lines": [
         "clipped tactical radio chatter with squelch bursts and digital encryption tones"
-      ]
+      ],
+      "nameZh": "现代无线电通话"
     },
     {
       "id": "AUD-405",
       "name": "Jet Flyby",
       "lines": [
         "fast jet afterburner roar building then tearing overhead into a receding howl"
-      ]
+      ],
+      "nameZh": "战机掠过声"
     },
     {
       "id": "AUD-406",
       "name": "Heavy Rotor Wash",
       "lines": [
         "heavy tandem-rotor helicopter thumping, deep rhythmic wash, wind buffeting"
-      ]
+      ],
+      "nameZh": "沉重旋翼下洗声"
     },
     {
       "id": "AUD-407",
       "name": "Missile Launch",
       "lines": [
         "anti-tank missile soft-launch pop then main motor ignition roar and hiss"
-      ]
+      ],
+      "nameZh": "导弹发射声"
     },
     {
       "id": "AUD-408",
       "name": "Urban Firefight Ambience",
       "lines": [
         "layered urban firefight, distant and near automatic fire, shouted commands, ricochets echoing between buildings"
-      ]
+      ],
+      "nameZh": "城市交火环境声"
     },
     {
       "id": "AUD-409",
       "name": "Missile Warning Alarm",
       "lines": [
         "cockpit missile warning tone, urgent repeating electronic alarm"
-      ]
+      ],
+      "nameZh": "导弹告警声"
     },
     {
       "id": "AUD-410",
       "name": "Tactical Gear Movement",
       "lines": [
         "boots on rubble, gear and webbing rustle, magazine seated with a click"
-      ]
+      ],
+      "nameZh": "战术装具摩擦声"
     },
     {
       "id": "AUD-501",
       "name": "Heavy Rain Ambience",
       "lines": [
         "heavy rain drumming on metal and concrete, water running and dripping"
-      ]
+      ],
+      "nameZh": "暴雨环境声"
     },
     {
       "id": "AUD-502",
       "name": "Thunder",
       "lines": [
         "deep rolling thunder cracking overhead"
-      ]
+      ],
+      "nameZh": "雷声"
     },
     {
       "id": "AUD-503",
       "name": "Blizzard Wind",
       "lines": [
         "howling wind and driving snow, muffled surroundings"
-      ]
+      ],
+      "nameZh": "暴风雪风声"
     },
     {
       "id": "AUD-504",
       "name": "Ocean and River Water",
       "lines": [
         "waves crashing against the hull, running water and spray"
-      ]
+      ],
+      "nameZh": "海水与河流声"
     }
   ],
   "motions": {
@@ -3512,5 +3754,101 @@
       "halt and scan",
       "reverse out of cover"
     ]
+  },
+  "motionLabelsZh": {
+    "idle": "怡速",
+    "start engine": "启动引擎",
+    "accelerate": "加速",
+    "drive straight": "直线行驶",
+    "turn left": "左转",
+    "turn right": "右转",
+    "stop": "停车",
+    "reverse": "倒车",
+    "fire main cannon": "主炮开火",
+    "reload": "装填/换弹",
+    "turret rotate": "炮塔旋转",
+    "machine gun fire": "机枪射击",
+    "taxi": "滑行",
+    "catapult launch": "弹射起飞",
+    "takeoff": "起飞",
+    "bank left": "向左侧倾",
+    "bank right": "向右侧倾",
+    "dive": "俯冲",
+    "missile launch": "发射导弹",
+    "bomb drop": "投弹",
+    "flare release": "释放热焰弹",
+    "landing": "着陆",
+    "afterburner ignites": "加力燃烧",
+    "landing gear retracts": "收起起落架",
+    "hover": "悬停",
+    "ascend": "爬升",
+    "strafe": "扫射",
+    "fire hellfire": "发射地狱火导弹",
+    "rocket salvo": "火箭齐射",
+    "land": "降落",
+    "cruise": "巡航",
+    "turn to port": "左转向",
+    "turn to starboard": "右转向",
+    "radar rotate": "雷达旋转",
+    "launch aircraft": "舰载机起飞",
+    "drop anchor": "招锚",
+    "launcher raises": "发射架升起",
+    "rocket ignites": "火箭点火",
+    "rocket salvo fires": "火箭齐射发射",
+    "smoke plume rises": "尾烟升起",
+    "recoil": "后坐",
+    "walk": "行走",
+    "run": "奔跑",
+    "crouch": "蹲伏",
+    "aim": "矄准",
+    "fire": "射击",
+    "take cover": "寻找掩护",
+    "signal": "打手势",
+    "observe": "观察",
+    "carry wounded": "搬运伤员",
+    "stack on door": "门口列队",
+    "breach and clear": "破门清扫",
+    "bound between cover": "掩体间跃进",
+    "call in air support on radio": "无线电呼叫空中支援",
+    "scan with night vision": "夜视搜索",
+    "shoulder anti-tank launcher": "肩扈反坑克筒",
+    "launch hand-held drone": "放飞手持无人机",
+    "apply tourniquet": "上止血带",
+    "signal advance": "示意推进",
+    "ascend rapidly": "快速爬升",
+    "descend to eye level": "下降至视平线",
+    "orbit target": "环绕目标",
+    "dive at target": "俯冲目标",
+    "weave between buildings": "楼宇间穿梭",
+    "skim low over rubble": "贴地掃过废墟",
+    "snap turn toward target": "急转朝向目标",
+    "lock on and track": "锁定并跟踪",
+    "release munition": "投放弹药",
+    "terminal dive": "末段俯冲",
+    "lose signal and tumble": "失联翻滚",
+    "roll forward": "向前行进",
+    "pivot in place": "原地转向",
+    "raise sensor mast": "升起传感器桓杆",
+    "traverse weapon station": "武器站转向",
+    "climb over rubble": "越过废墟",
+    "halt and scan": "停车扫描",
+    "reverse out of cover": "倒车退出掩护"
+  },
+  "seriesLabelsZh": {
+    "Cold War": "冷战",
+    "Gulf War": "海湾战争",
+    "Iraq War": "伊拉克战争",
+    "Modern": "现代",
+    "Pacific": "太平洋战场",
+    "WWII": "二战"
+  },
+  "factionLabelsZh": {
+    "Allies": "同盟国",
+    "Axis": "轴心国",
+    "Coalition": "联军",
+    "NATO": "北约",
+    "Opposing Force": "假想敌",
+    "Private Contractor": "私营承包商",
+    "Warsaw Pact": "华约"
   }
 }

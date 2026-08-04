@@ -123,3 +123,14 @@
 ### Note
 - 独立 Worker（<code>06_Deploy/worker.js</code> + <code>wrangler.toml</code>）作为备选方案保留；默认推荐用 Pages Function，无需单独 <code>wrangler deploy</code>。
 - 自检：部署后访问 <code>你的域名/api/compose</code> 应返回 <code>{"ok":true,…}</code>。
+
+
+## V2.7 — 界面全中文（资产/动作/特效/变体等显示名）
+
+### Changed
+- 为全部 234 个资产新增 <code>nameZh</code> 中文显示名（角色 / 载具 / 武器 / 道具 / 特效 / 场景 / 镜头 / 灯光 / 音频 / 色彩）。
+- 主体芯片、已选列表、场景/镜头/灯光/色彩下拉框、动作芯片、特效/音频芯片、变体下拉框、资产参考表、系列/阵营筛选器均改为显示中文。
+- 新增 <code>motionLabelsZh</code>（动作）、<code>seriesLabelsZh</code>（系列）、<code>factionLabelsZh</code>（阵营）三个中文映射表。
+
+### 关键说明
+- <b>只改显示，不改提示词</b>：最终生成、复制到 Flow 的提示词仍为英文（Flow 对英文词效果最佳），仅网页 UI 显示为中文。
