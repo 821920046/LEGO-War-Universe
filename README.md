@@ -1,4 +1,4 @@
-# LEGO War Universe (LWU) — Google Flow Production Bible V2.0
+#  LEGO War Universe (LWU) — Google Flow Production Bible V2.0
 
 > 一套面向 **Google Flow (Veo 3)** 的电影工业级长片制作体系。
 > 目标不是写一次性 Prompt，而是建立可长期使用的 **资产管线 + 提示词组装系统**，让几十甚至几百个 8 秒镜头保持人物、装备、风格的一致性。
