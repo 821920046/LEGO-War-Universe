@@ -75,11 +75,21 @@ summary{cursor:pointer;font-weight:600;font-size:13px}
 <div class="wrap">
   <span class="badge">● LEGO War Universe · Production Bible V2.3 · Google Flow (Veo 3)</span>
   <h1>LWU Prompt Composer <span class="small">V2.3</span></h1>
-  <p class="sub">按电影工业资产管线自动组装 Google Flow 提示词。选择系列 → 资产 → 损耗状态 → 一键生成风格统一、角色一致、可直接粘贴进 Flow 的 8 秒镜头 Prompt，并支持分片管理、连续性检查、时间轴与工程导入导出。</p>
+  <p class="sub">输入一句中文主题，一键生成可直接粘贴进 Google Flow 的乐高战争视频提示词。每段 8 秒，风格统一、角色一致。</p>
   <div id="dataStatus" class="src"></div>
 
+  <div class="card" style="margin-bottom:18px;border-left:4px solid #2783DE">
+    <h2 style="margin-top:0">👋 新手必读 · 3 步搞定</h2>
+    <ol style="margin:8px 0 0;padding-left:22px;line-height:1.9">
+      <li><b>写主题</b>：在下面「① 输入主题」框里用中文描述你想要的画面，例如「阿帕奇直升机夜袭沙漠里的坤克纵队」。</li>
+      <li><b>点生成</b>：点击蓝色的「🎬 一键生成提示词」按钮，系统自动配好角色 / 载具 / 场景 / 特效。</li>
+      <li><b>复制用</b>：在右侧「③ 生成结果」里点「📋 复制提示词」，粘贴进 Google Flow 就能出片。</li>
+    </ol>
+    <p class="hint" style="margin-top:10px">中间的「② 手动微调」是给进阶用户调细节用的，<b>新手可以完全跳过</b>。</p>
+  </div>
+
   <div class="card" style="margin-bottom:18px">
-    <h2>0 · 主题一键生成 (Theme → Prompt)</h2>
+    <h2>① 输入主题，一键生成提示词</h2>
     <label>输入你想要的乐高战争视频主题（中文或英文均可）</label>
     <textarea id="themeInput" placeholder="例如：阿帕奇武装直升机夜袭沙漠中的伊拉克坦克纵队，爆炸火光四起"></textarea>
     <p class="hint">系统会自动从资产库匹配角色 / 载具 / 环境 / 镜头 / 灯光 / 特效 / 音频，并直接生成右侧 Flow 提示词。匹配结果会填入下方各项，可微调后重新生成。快捷键：Ctrl/⌘ + Enter。</p>
@@ -100,77 +110,78 @@ summary{cursor:pointer;font-weight:600;font-size:13px}
   <div class="grid">
     <!-- LEFT -->
     <div class="card">
-      <h2>1 · 镜头设定 (Shot Setup)</h2>
+      <h2>② 手动微调（进阶可选，新手可跳过）</h2>
+      <p class="hint">上面一键生成后，结果会自动填到这里；想换某个角色或特效时，在下面改一改再重新生成即可。</p>
       <div class="row">
-        <div><label>镜头编号 Shot ID</label><input type="text" id="sid"></div>
-        <div><label>所属影片 Movie</label><input type="text" id="movie" list="movieList" placeholder="Gulf War"><datalist id="movieList"></datalist></div>
+        <div><label>镜头编号</label><input type="text" id="sid"></div>
+        <div><label>所属影片</label><input type="text" id="movie" list="movieList" placeholder="例如：海湾战争"><datalist id="movieList"></datalist></div>
       </div>
       <div class="row">
-        <div><label>系列筛选 Series</label><select id="seriesFilter"></select></div>
-        <div><label>阵营筛选 Faction</label><select id="factionFilter"></select></div>
+        <div><label>年代系列</label><select id="seriesFilter"></select></div>
+        <div><label>阵营</label><select id="factionFilter"></select></div>
       </div>
-      <label>镜头标题 / 核心动作（一句话）*</label>
-      <textarea id="title" placeholder="例如：F/A-18 从航母弹射起飞，低空掠海 / An F-15 catapult-launches from the carrier and skims low over the sea"></textarea>
+      <label>这个镜头的核心动作（一句话）*</label>
+      <textarea id="title" placeholder="例如：F/A-18 从航母弹射起飞，低空掠海"></textarea>
       <p class="hint">一个镜头只表达一个核心动作。可用中文，生成时会作为动作描述融入英文 Prompt。</p>
 
-      <label>主体资产 Subjects（角色 + 载具，可多选）</label>
+      <label>主体（角色 + 载具，可多选）</label>
       <div class="chips" id="subjectChips"></div>
       <div id="selectedSubjects"></div>
 
       <div class="row">
-        <div><label>场景 Environment</label><select id="env"></select></div>
-        <div><label>镜头 Camera</label><select id="cam"></select></div>
+        <div><label>场景</label><select id="env"></select></div>
+        <div><label>镜头运镜</label><select id="cam"></select></div>
       </div>
       <div class="row">
-        <div><label>灯光 Lighting</label><select id="lgt"></select></div>
-        <div><label>色彩 Color</label><select id="clr"></select></div>
+        <div><label>灯光</label><select id="lgt"></select></div>
+        <div><label>色彩风格</label><select id="clr"></select></div>
       </div>
 
-      <label>动作 Motion（按主体类型自动过滤，可多选）</label>
+      <label>动作（根据主体自动过滤，可多选）</label>
       <div class="chips" id="motionChips"></div>
 
-      <label>特效 FX（可多选）</label>
+      <label>特效（可多选）</label>
       <div class="chips" id="fxChips"></div>
 
-      <label>音频 Audio（可多选，Veo 3 原生生成）</label>
+      <label>音频（可多选，Veo 3 自动生成）</label>
       <div class="chips" id="audioChips"></div>
 
       <div class="row">
-        <div><label>画幅 Aspect</label><select id="ratio"><option>16:9</option><option>9:16</option><option>2.39:1</option></select></div>
-        <div><label>台词 Dialogue（可选，简短）</label><input type="text" id="dlg" placeholder='soldier shouts "move, move!"'></div>
+        <div><label>画幅比例</label><select id="ratio"><option>16:9</option><option>9:16</option><option>2.39:1</option></select></div>
+        <div><label>台词（可选，简短）</label><input type="text" id="dlg" placeholder='例如：士兵大喊“上！上！”'></div>
       </div>
       <div class="kv" style="margin-top:12px">
         <label style="margin:0"><input type="checkbox" id="cont"> 与上一镜头动作接力（Continuation）</label>
         <label style="margin:0"><input type="checkbox" id="neg" checked> 附加统一负面约束（Negative）</label>
       </div>
 
-      <button class="btn primary" id="gen">⚡ 生成 Flow 提示词</button>
+      <button class="btn primary" id="gen">⚡ 重新生成提示词</button>
     </div>
 
     <!-- RIGHT -->
     <div class="card">
-      <h2>2 · 组装结果（复制到 Flow）</h2>
+      <h2>③ 生成结果（复制到 Flow）</h2>
       <div class="tabs">
-        <div class="tab on" data-lang="en">English Prompt</div>
-        <div class="tab" data-lang="zh">中文对照预览</div>
+        <div class="tab on" data-lang="en">英文提示词（粘进 Flow）</div>
+        <div class="tab" data-lang="zh">中文对照（看懂用）</div>
       </div>
-      <div class="out placeholder" id="output">← 在左侧设定镜头并点击「生成 Flow 提示词」，结果会显示在这里。</div>
+      <div class="out placeholder" id="output">点上方「🎬 一键生成提示词」后，可直接粘贴进 Flow 的英文提示词会显示在这里。</div>
       <div id="ingredients"></div>
       <div class="btns">
-        <button class="btn" id="copy">复制 Prompt</button>
+        <button class="btn primary" id="copy">📋 复制提示词</button>
         <button class="btn" id="add">＋ 加入清单</button>
-        <button class="btn" id="parseBtn">⇄ 从 Prompt 反解析</button>
+        <button class="btn" id="parseBtn">⇄ 从提示词反推资产</button>
       </div>
 
       <details>
-        <summary>⇄ 粘贴一段 Prompt 反推资产（Import）</summary>
+        <summary>⇄ 粘贴一段提示词，反推里面用了哪些资产</summary>
         <textarea id="parseIn" placeholder="把之前生成的 Prompt 粘贴到这里，点上方「从 Prompt 反解析」即可自动勾选其中的资产编号。"></textarea>
       </details>
 
       <h2 style="margin-top:20px">镜头清单 · 影片：<span id="curMovie">—</span></h2>
       <div class="btns">
-        <button class="btn" id="expTxt">导出 Prompt .txt</button>
-        <button class="btn" id="expMd">导出 Shot_List.md</button>
+        <button class="btn" id="expTxt">导出提示词 .txt</button>
+        <button class="btn" id="expMd">导出分镜表 .md</button>
         <button class="btn" id="expProj">导出工程 .json</button>
         <button class="btn" id="impProj">导入工程 .json</button>
         <button class="btn" id="clearMovie">清空本片</button>
@@ -178,10 +189,10 @@ summary{cursor:pointer;font-weight:600;font-size:13px}
       </div>
       <div id="shotList"><p class="small">还没有镜头。生成后点「＋ 加入清单」即可累积成完整分镜。</p></div>
 
-      <h2 style="margin-top:20px">连续性检查 (Continuity)</h2>
+      <h2 style="margin-top:20px">连续性检查</h2>
       <div id="continuity"><p class="small">加入 2 个以上镜头后，这里会提示环境/灯光/色彩跳变与跳轴风险。</p></div>
 
-      <h2 style="margin-top:20px">时间轴 (Timeline)</h2>
+      <h2 style="margin-top:20px">时间轴</h2>
       <div class="row" style="margin-bottom:8px">
         <div><label style="margin:0">节奏模板</label><select id="rhythm"></select></div>
       </div>
@@ -190,7 +201,7 @@ summary{cursor:pointer;font-weight:600;font-size:13px}
   </div>
 
   <details>
-    <summary>📚 资产参考表（Asset Reference）</summary>
+    <summary>📚 资产参考表（全部可用素材清单）</summary>
     <div class="refwrap"><table class="ref" id="refTable"></table></div>
   </details>
   <details>
@@ -381,8 +392,8 @@ function parsePrompt(){
 
 /* ---------- reference table ---------- */
 function renderRefTable(){
-  var groups=[["Characters",D.characters],["Vehicles",D.vehicles],["Weapons",D.weapons||[]],["FX",D.fx],["Environments",D.environments],["Cameras",D.cameras],["Lighting",D.lighting],["Color",D.colorGrades],["Audio",D.audio]];
-  var h="<tr><th>类别</th><th>ID</th><th>名称</th><th>系列/阵营</th><th>Legacy</th></tr>";
+  var groups=[["角色",D.characters],["载具",D.vehicles],["武器",D.weapons||[]],["特效",D.fx],["场景",D.environments],["镜头",D.cameras],["灯光",D.lighting],["色彩",D.colorGrades],["音频",D.audio]];
+  var h="<tr><th>类别</th><th>编号</th><th>名称</th><th>年代/阵营</th><th>旧编号</th></tr>";
   groups.forEach(function(g){g[1].forEach(function(a){h+="<tr><td>"+g[0]+"</td><td>"+a.id+"</td><td>"+a.name+"</td><td>"+((a.series||"")+(a.faction?" / "+a.faction:""))+"</td><td>"+(a.legacyId||"")+"</td></tr>";});});
   $("refTable").innerHTML=h;
 }

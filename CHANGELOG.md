@@ -93,3 +93,33 @@
 ### Changed
 - 页面「AI 增强」面板文案更新：从“需自建后端”改为“后端代码已附带”，并明确警告不要在前端填写模型原始密钥。
 - 页面标题版本号统一为 V2.3。
+
+
+## V2.5 — 界面全面中文化 + 新手引导
+
+### Changed
+- 顶部新增「👋 新手必读 · 3 步搞定」引导卡片：写主题 → 一键生成 → 复制到 Flow，明确告诉新手从哪开始。
+- 三个核心区改用 ①②③ 编号：① 输入主题、② 手动微调（标注「进阶可选，新手可跳过」）、③ 生成结果。
+- 去除界面上所有多余英文术语：Shot ID / Series / Faction / Environment / Camera / Lighting / Aspect / Dialogue / English Prompt / Continuity / Timeline / Asset Reference 等标签全部改为纯中文。
+- 表单示例、台词占位符改为中文示例。
+- 结果区两个标签页改为「英文提示词（粘进 Flow）」「中文对照（看懂用）」，并把「复制提示词」按钮改为主色高亮，更醒目。
+- 资产参考表分类名与表头全部中文化（角色/载具/武器/特效/场景/镜头/灯光/色彩/音频；编号/名称/年代·阵营/旧编号）。
+
+### Note
+- 仅改动界面文案与引导结构，资产库、匹配逻辑、提示词模板均未改动，行为与 V2.3 一致。
+
+
+## V2.6 — AI 增强改为 Pages 环境变量驱动（前端零配置）
+
+### Changed
+- AI 增强后端新增 Cloudflare Pages Function：<code>functions/api/compose.js</code>，同源路由 <code>/api/compose</code>。
+- 前端移除「后端 Endpoint」和「访问口令」两个输入框（及其 localStorage 存储），<code>aiCompose()</code> 改为固定请求同源 <code>/api/compose</code>。
+- AI 增强面板改为只保留一个「启用 AI 增强」开关，并说明密钥 / 提供商 / 模型统一在 Pages 项目的 Environment variables 里配置。
+
+### Env vars (在 Cloudflare Pages 项目设置)
+- <code>GEMINI_API_KEY</code>（Secret，必填）、<code>PROVIDER</code>（默认 gemini）、<code>MODEL</code>（可选）。
+- <code>OPENAI_API_KEY</code> / <code>OPENAI_BASE_URL</code>（仅 PROVIDER=openai）、<code>ACCESS_TOKEN</code>（可选）。
+
+### Note
+- 独立 Worker（<code>06_Deploy/worker.js</code> + <code>wrangler.toml</code>）作为备选方案保留；默认推荐用 Pages Function，无需单独 <code>wrangler deploy</code>。
+- 自检：部署后访问 <code>你的域名/api/compose</code> 应返回 <code>{"ok":true,…}</code>。
