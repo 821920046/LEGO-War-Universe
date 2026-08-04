@@ -69,152 +69,226 @@ summary{cursor:pointer;font-weight:600;font-size:13px}
 .small{font-size:12px;color:var(--muted)}
 .kv{display:flex;gap:8px;font-size:12px;color:var(--muted);margin-top:4px;flex-wrap:wrap}
 .src{font-size:11px;color:var(--muted);margin-top:6px}
+
+/* ===== V2.9 UI refresh ===== */
+body{background:#F7F7F6}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 70px}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:20px 0 14px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px}
+.logo{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;background:linear-gradient(135deg,#2783DE,#1f6bc0);color:#fff;font-weight:800;font-size:13px;letter-spacing:.5px;flex:none}
+.bt{font-size:17px;font-weight:700;color:var(--text);line-height:1.3}
+.bs{font-size:12px;color:var(--muted);margin-top:3px}
+.navtabs{position:sticky;top:0;z-index:30;display:flex;gap:6px;background:rgba(247,247,246,.94);backdrop-filter:blur(10px);padding:9px 0 11px;border-bottom:1px solid var(--border);margin-bottom:22px;overflow-x:auto}
+.navtab{border:1px solid transparent;background:transparent;color:var(--muted);font-size:13.5px;font-weight:600;padding:8px 15px;border-radius:10px;cursor:pointer;white-space:nowrap;font-family:inherit}
+.navtab:hover{background:var(--soft2);color:var(--text)}
+.navtab.on{background:#fff;color:#1f6bc0;border-color:var(--border);box-shadow:0 1px 2px rgba(0,0,0,.05)}
+.view{display:none}
+.view.on{display:block}
+.card{border:1px solid var(--border);border-radius:14px;background:#fff;padding:20px 22px;box-shadow:0 1px 2px rgba(0,0,0,.04);margin-bottom:18px}
+.card h2{font-size:15px;margin:0 0 14px}
+.cardhead{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.cardhead h2{margin:0}
+.hero{border-top:3px solid #2783DE}
+.frow{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:4px}
+@media(max-width:820px){.frow{grid-template-columns:1fr}.grid{grid-template-columns:1fr}}
+.presets{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin:14px 0 2px}
+.pill{border:1px solid var(--border);background:var(--soft);border-radius:999px;padding:6px 13px;font-size:12.5px;cursor:pointer;color:var(--text);font-family:inherit}
+.pill:hover{background:#fff;border-color:#2783DE;color:#1f6bc0}
+.btn.big{width:100%;padding:14px;font-size:14.5px;margin-top:16px}
+.fshot{border:1px solid var(--border);border-left:3px solid #C9C8C5;border-radius:11px;padding:13px 15px;margin-bottom:10px;background:var(--soft)}
+.fshot.t-establish{border-left-color:#7FA8D4}
+.fshot.t-build{border-left-color:#E0A33C}
+.fshot.t-climax{border-left-color:#C0392B}
+.fshot.t-resolve{border-left-color:#2E7D46}
+.fh{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.fh .sid{font-family:ui-monospace,Menlo,monospace;font-size:11.5px;font-weight:700;background:var(--text);color:#fff;padding:2px 7px;border-radius:5px}
+.fh .tc{font-family:ui-monospace,Menlo,monospace;font-size:12px;color:var(--muted)}
+.fh .bg{font-size:11.5px;color:#1f6bc0;background:#EAF3FC;border-radius:999px;padding:2px 10px}
+.fmeta{font-size:12px;color:var(--muted);margin:7px 0 8px;line-height:1.6}
+.fp{white-space:pre-wrap;word-break:break-word;font-size:11.5px;line-height:1.7;background:#fff;border:1px solid var(--border);border-radius:8px;padding:11px;margin:0;max-height:160px;overflow:auto;font-family:ui-monospace,Menlo,monospace;color:#3A3A38}
+.btn.cp{margin-top:9px;font-size:12px;padding:6px 13px}
+#filmMeta{background:var(--soft2);border-radius:10px;padding:12px 14px;line-height:1.85;margin-bottom:14px;font-size:12.5px}
+.tipline{font-size:12.5px;color:var(--muted);background:var(--soft);border-radius:9px;padding:10px 12px;line-height:1.7;margin:0 0 14px}
 </style>
 </head>
 <body>
 <div class="wrap">
-  <span class="badge">● LEGO War Universe · Production Bible V2.3 · Google Flow (Veo 3)</span>
-  <h1>LWU Prompt Composer <span class="small">V2.3</span></h1>
-  <p class="sub">输入一句中文主题，一键生成可直接粘贴进 Google Flow 的乐高战争视频提示词。每段 8 秒，风格统一、角色一致。</p>
-  <div id="dataStatus" class="src"></div>
-
-  <div class="card" style="margin-bottom:18px;border-left:4px solid #2783DE">
-    <h2 style="margin-top:0">👋 新手必读 · 3 步搞定</h2>
-    <ol style="margin:8px 0 0;padding-left:22px;line-height:1.9">
-      <li><b>写主题</b>：在下面「① 输入主题」框里用中文描述你想要的画面，例如「阿帕奇直升机夜袭沙漠里的坤克纵队」。</li>
-      <li><b>点生成</b>：点击蓝色的「🎬 一键生成提示词」按钮，系统自动配好角色 / 载具 / 场景 / 特效。</li>
-      <li><b>复制用</b>：在右侧「③ 生成结果」里点「📋 复制提示词」，粘贴进 Google Flow 就能出片。</li>
-    </ol>
-    <p class="hint" style="margin-top:10px">中间的「② 手动微调」是给进阶用户调细节用的，<b>新手可以完全跳过</b>。</p>
-  </div>
-
-  <div class="card" style="margin-bottom:18px">
-    <h2>① 输入主题，一键生成提示词</h2>
-    <label>输入你想要的乐高战争视频主题（中文或英文均可）</label>
-    <textarea id="themeInput" placeholder="例如：阿帕奇武装直升机夜袭沙漠中的伊拉克坦克纵队，爆炸火光四起"></textarea>
-    <p class="hint">系统会自动从资产库匹配角色 / 载具 / 环境 / 镜头 / 灯光 / 特效 / 音频，并直接生成右侧 Flow 提示词。匹配结果会填入下方各项，可微调后重新生成。快捷键：Ctrl/⌘ + Enter。</p>
-    <button class="btn primary" id="autoBtn" style="margin-top:10px">🎬 一键生成提示词</button>
-    <div id="autoReport"></div>
-    <details>
-      <summary>⚙ AI 增强（可选，后端代码已附带）</summary>
-      <p class="small" style="margin-top:8px">默认使用<b>本地智能匹配</b>（免费、离线、无需配置），已能覆盖绝大多数主题。若主题偏抽象 / 叙事 / 电影比喻（如“像《黑鹰坠落》那种感觉”），可启用 AI 增强：由大模型理解主题并挑选资产，最终提示词仍由本页用 Production Bible 模板组装，风格不会跑偏；调用失败自动回退本地匹配。<br><b>后端代码已附在 <code>06_Deploy/worker.js</code></b>（Cloudflare Worker，支持 Gemini / OpenAI），按 <code>06_Deploy/README.md</code> 执行 <code>wrangler deploy</code> 即可，约 3 分钟。</p>
-      <label style="margin:0"><input type="checkbox" id="aiEnable"> 启用 AI 增强</label>
-      <label>后端 Endpoint（POST JSON）</label>
-      <input type="text" id="aiEndpoint" placeholder="https://lwu-ai.你的子域.workers.dev">
-      <label>访问口令 ACCESS_TOKEN（可选，仅存于本地浏览器；切勿填写 Gemini / OpenAI 原始密钥）</label>
-      <input type="text" id="aiKey" placeholder="仅当 Worker 设了 ACCESS_TOKEN 时需要">
-      <p class="small">接口约定：请求 {theme, assets:[{id,name,series,faction}]}；返回 {selectedIds:[...], action:"..."} 或 {prompt:"...", promptZh?:"..."}。</p>
-    </details>
-  </div>
-
-  <div class="grid">
-    <!-- LEFT -->
-    <div class="card">
-      <h2>② 手动微调（进阶可选，新手可跳过）</h2>
-      <p class="hint">上面一键生成后，结果会自动填到这里；想换某个角色或特效时，在下面改一改再重新生成即可。</p>
-      <div class="row">
-        <div><label>镜头编号</label><input type="text" id="sid"></div>
-        <div><label>所属影片</label><input type="text" id="movie" list="movieList" placeholder="例如：海湾战争"><datalist id="movieList"></datalist></div>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">LWU</span>
+      <div>
+        <div class="bt">乐高战争宇宙 · 提示词工作台</div>
+        <div class="bs">Google Flow (Veo 3) · 每镜 8 秒 · Production Bible V2.9</div>
       </div>
-      <div class="row">
-        <div><label>年代系列</label><select id="seriesFilter"></select></div>
-        <div><label>阵营</label><select id="factionFilter"></select></div>
+    </div>
+    <div id="dataStatus" class="src"></div>
+  </header>
+
+  <nav class="navtabs">
+    <button class="navtab on" data-view="film">🎬 整片生成</button>
+    <button class="navtab" data-view="single">✂️ 单镜头微调</button>
+    <button class="navtab" data-view="list">📋 分镜清单</button>
+    <button class="navtab" data-view="lib">📚 资产库</button>
+  </nav>
+
+  <section class="view on" data-view="film">
+    <div class="card hero">
+      <h2>一句主题 + 一个时长 → 整片分镜提示词</h2>
+      <p class="tipline">Google Flow 单次只能生成 <b>8 秒</b>。想要 3 分钟的片子，就需要 <b>23 个连贯的 8 秒镜头</b>。你只要在下面填主题和总时长，系统会自动拆成带起承转合的分镜，逐个生成提示词（角色、场景、色彩全程锁定不跑风），你在 Flow 里按序生成后用剪辑软件拼接即可。</p>
+      <label>视频主题</label>
+      <textarea id="themeInput" placeholder="例如：阿帕奇武装直升机夜袭沙漠中的坦克纵队，爆炸火光四起"></textarea>
+      <div class="frow">
+        <div>
+          <label>成片总时长（秒）</label>
+          <input type="number" id="filmDur" value="60" min="8" max="1200" step="8">
+        </div>
+        <div>
+          <label>叙事节奏</label>
+          <select id="filmRhythm"></select>
+        </div>
+        <div>
+          <label>画幅比例（全片统一）</label>
+          <select id="ratio"><option>16:9</option><option>9:16</option><option>2.39:1</option></select>
+        </div>
       </div>
-      <label>这个镜头的核心动作（一句话）*</label>
-      <textarea id="title" placeholder="例如：F/A-18 从航母弹射起飞，低空掠海"></textarea>
-      <p class="hint">一个镜头只表达一个核心动作。可用中文，生成时会作为动作描述融入英文 Prompt。</p>
-
-      <label>主体（角色 + 载具，可多选）</label>
-      <div class="chips" id="subjectChips"></div>
-      <div id="selectedSubjects"></div>
-
-      <div class="row">
-        <div><label>场景</label><select id="env"></select></div>
-        <div><label>镜头运镜</label><select id="cam"></select></div>
+      <div class="presets">
+        <span class="small">快捷时长：</span>
+        <button class="pill" data-sec="32">32 秒</button>
+        <button class="pill" data-sec="60">1 分钟</button>
+        <button class="pill" data-sec="120">2 分钟</button>
+        <button class="pill" data-sec="180">3 分钟</button>
+        <button class="pill" data-sec="300">5 分钟</button>
+        <button class="pill" data-sec="600">10 分钟</button>
       </div>
-      <div class="row">
-        <div><label>灯光</label><select id="lgt"></select></div>
-        <div><label>色彩风格</label><select id="clr"></select></div>
-      </div>
-
-      <label>动作（根据主体自动过滤，可多选）</label>
-      <div class="chips" id="motionChips"></div>
-
-      <label>特效（可多选）</label>
-      <div class="chips" id="fxChips"></div>
-
-      <label>音频（可多选，Veo 3 自动生成）</label>
-      <div class="chips" id="audioChips"></div>
-
-      <div class="row">
-        <div><label>画幅比例</label><select id="ratio"><option>16:9</option><option>9:16</option><option>2.39:1</option></select></div>
-        <div><label>台词（可选，简短）</label><input type="text" id="dlg" placeholder='例如：士兵大喊“上！上！”'></div>
-      </div>
-      <div class="kv" style="margin-top:12px">
-        <label style="margin:0"><input type="checkbox" id="cont"> 与上一镜头动作接力（Continuation）</label>
-        <label style="margin:0"><input type="checkbox" id="neg" checked> 附加统一负面约束（Negative）</label>
-      </div>
-
-      <button class="btn primary" id="gen">⚡ 重新生成提示词</button>
+      <button class="btn primary big" id="filmBtn">🎬 生成整片分镜（自动切成 8 秒镜头）</button>
+      <div id="filmReport"></div>
+      <details>
+        <summary>⚙ AI 增强（可选）</summary>
+        <p class="small" style="margin-top:8px">默认使用<b>本地智能匹配</b>（免费、离线、无需配置）。若主题偏抽象 / 叙事 / 电影比喻，可勾选下方开关启用 AI 增强（作用于「单镜头微调」的自动匹配）。<br><b>无需在此填写任何地址或密钥。</b>AI 后端已随站点部署为 <code>functions/api/compose.js</code>（同源 <code>/api/compose</code>）。只需在 Cloudflare Pages → Settings → Environment variables 里配置 <code>GEMINI_API_KEY</code>（Secret）、<code>PROVIDER</code>、<code>MODEL</code>、<code>ACCESS_TOKEN</code>（可选），保存后重新部署即可。</p>
+        <label style="margin:0"><input type="checkbox" id="aiEnable"> 启用 AI 增强</label>
+      </details>
     </div>
 
-    <!-- RIGHT -->
     <div class="card">
-      <h2>③ 生成结果（复制到 Flow）</h2>
-      <div class="tabs">
-        <div class="tab on" data-lang="en">英文提示词（粘进 Flow）</div>
-        <div class="tab" data-lang="zh">中文对照（看懂用）</div>
+      <div class="cardhead">
+        <h2>分镜提示词（按顺序复制到 Flow）</h2>
+        <div class="btns" style="margin:0">
+          <button class="btn primary" id="filmCopyAll">📋 复制全部</button>
+          <button class="btn" id="filmExpTxt">导出 .txt</button>
+          <button class="btn" id="filmExpMd">导出 .md</button>
+        </div>
       </div>
-      <div class="out placeholder" id="output">点上方「🎬 一键生成提示词」后，可直接粘贴进 Flow 的英文提示词会显示在这里。</div>
-      <div id="ingredients"></div>
-      <div class="btns">
-        <button class="btn primary" id="copy">📋 复制提示词</button>
-        <button class="btn" id="add">＋ 加入清单</button>
-        <button class="btn" id="parseBtn">⇄ 从提示词反推资产</button>
+      <div id="filmMeta" class="small" style="display:none"></div>
+      <div id="filmShots"><p class="small">还没有分镜。在上面填好主题与时长，点「生成整片分镜」即可。</p></div>
+    </div>
+  </section>
+
+  <section class="view" data-view="single">
+    <div class="grid">
+      <div class="card">
+        <h2>单镜头参数</h2>
+        <p class="tipline">只想打磨某一个镜头时用这里。点「按主题自动匹配」会用上一页的主题自动填好所有选项。</p>
+        <button class="btn" id="autoBtn">⚡ 按主题自动匹配</button>
+        <div id="autoReport"></div>
+        <div class="row" style="margin-top:14px">
+          <div><label>镜头编号</label><input type="text" id="sid"></div>
+          <div><label>所属影片</label><input type="text" id="movie" list="movieList" placeholder="例如：海湾战争"><datalist id="movieList"></datalist></div>
+        </div>
+        <div class="row">
+          <div><label>年代系列</label><select id="seriesFilter"></select></div>
+          <div><label>阵营</label><select id="factionFilter"></select></div>
+        </div>
+        <label>这个镜头的核心动作（一句话）*</label>
+        <textarea id="title" placeholder="例如：F/A-18 从航母弹射起飞，低空掠海"></textarea>
+        <label>主体（角色 + 载具，可多选）</label>
+        <div class="chips" id="subjectChips"></div>
+        <div id="selectedSubjects"></div>
+        <div class="row">
+          <div><label>场景</label><select id="env"></select></div>
+          <div><label>镜头运镜</label><select id="cam"></select></div>
+        </div>
+        <div class="row">
+          <div><label>灯光</label><select id="lgt"></select></div>
+          <div><label>色彩风格</label><select id="clr"></select></div>
+        </div>
+        <label>动作（根据主体自动过滤，可多选）</label>
+        <div class="chips" id="motionChips"></div>
+        <label>特效（可多选）</label>
+        <div class="chips" id="fxChips"></div>
+        <label>音频（可多选，Veo 3 自动生成）</label>
+        <div class="chips" id="audioChips"></div>
+        <label>台词（可选，简短）</label>
+        <input type="text" id="dlg" placeholder='例如：士兵大喊“上！上！”'>
+        <div class="kv" style="margin-top:12px">
+          <label style="margin:0"><input type="checkbox" id="cont"> 与上一镜头动作接力</label>
+          <label style="margin:0"><input type="checkbox" id="neg" checked> 附加统一负面约束</label>
+        </div>
+        <button class="btn primary" id="gen">⚡ 生成这个镜头的提示词</button>
       </div>
 
-      <details>
-        <summary>⇄ 粘贴一段提示词，反推里面用了哪些资产</summary>
-        <textarea id="parseIn" placeholder="把之前生成的 Prompt 粘贴到这里，点上方「从 Prompt 反解析」即可自动勾选其中的资产编号。"></textarea>
-      </details>
-
-      <h2 style="margin-top:20px">镜头清单 · 影片：<span id="curMovie">—</span></h2>
-      <div class="btns">
-        <button class="btn" id="expTxt">导出提示词 .txt</button>
-        <button class="btn" id="expMd">导出分镜表 .md</button>
-        <button class="btn" id="expProj">导出工程 .json</button>
-        <button class="btn" id="impProj">导入工程 .json</button>
-        <button class="btn" id="clearMovie">清空本片</button>
-        <input type="file" id="impFile" accept="application/json" style="display:none">
+      <div class="card">
+        <h2>生成结果</h2>
+        <div class="tabs">
+          <div class="tab on" data-lang="en">英文提示词（粘进 Flow）</div>
+          <div class="tab" data-lang="zh">中文对照</div>
+        </div>
+        <div class="out placeholder" id="output">生成后的英文提示词会显示在这里。</div>
+        <div id="ingredients"></div>
+        <div class="btns">
+          <button class="btn primary" id="copy">📋 复制提示词</button>
+          <button class="btn" id="add">＋ 加入清单</button>
+          <button class="btn" id="parseBtn">⇄ 从提示词反推资产</button>
+        </div>
+        <details>
+          <summary>⇄ 粘贴一段提示词，反推里面用了哪些资产</summary>
+          <textarea id="parseIn" placeholder="把之前生成的 Prompt 粘到这里，点上方按钮即可自动勾选其中的资产编号。"></textarea>
+        </details>
       </div>
-      <div id="shotList"><p class="small">还没有镜头。生成后点「＋ 加入清单」即可累积成完整分镜。</p></div>
+    </div>
+  </section>
 
-      <h2 style="margin-top:20px">连续性检查</h2>
+  <section class="view" data-view="list">
+    <div class="card">
+      <div class="cardhead">
+        <h2>分镜清单 · 影片：<span id="curMovie">—</span></h2>
+        <div class="btns" style="margin:0">
+          <button class="btn" id="expTxt">导出提示词 .txt</button>
+          <button class="btn" id="expMd">导出分镜表 .md</button>
+          <button class="btn" id="expProj">导出工程 .json</button>
+          <button class="btn" id="impProj">导入工程 .json</button>
+          <button class="btn" id="clearMovie">清空本片</button>
+          <input type="file" id="impFile" accept="application/json" style="display:none">
+        </div>
+      </div>
+      <div id="shotList"><p class="small">还没有镜头。生成整片分镜后会自动存到这里。</p></div>
+    </div>
+    <div class="card">
+      <h2>连续性检查</h2>
       <div id="continuity"><p class="small">加入 2 个以上镜头后，这里会提示环境/灯光/色彩跳变与跳轴风险。</p></div>
-
-      <h2 style="margin-top:20px">时间轴</h2>
-      <div class="row" style="margin-bottom:8px">
-        <div><label style="margin:0">节奏模板</label><select id="rhythm"></select></div>
-      </div>
+    </div>
+    <div class="card">
+      <div class="cardhead"><h2>时间轴</h2><div><label style="margin:0;display:inline-block">节奏模板</label> <select id="rhythm" style="width:auto;display:inline-block"></select></div></div>
       <div id="timeline" class="tl"><p class="small">每个镜头 8 秒，按加入顺序排列。</p></div>
     </div>
-  </div>
+  </section>
 
-  <details>
-    <summary>📚 资产参考表（全部可用素材清单）</summary>
-    <div class="refwrap"><table class="ref" id="refTable"></table></div>
-  </details>
-  <details>
-    <summary>🎬 Google Flow 8 秒镜头规范（速查）</summary>
-    <div class="small" style="margin-top:8px">
-      • 一个镜头 = 一个核心动作；不要把多件大事塞进 8 秒。<br>
-      • 每个镜头引用同一套资产（Style + 角色 + 载具 + 环境），保证跨镜头一致性。<br>
-      • 镜头衔接：勾选「动作接力」让下一镜头从上一动作的结果开始。<br>
-      • 一致性锁定：对反复出场的角色/英雄载具，建议在 Flow 里用 Ingredients 上传参考图（见生成结果下方提示）。<br>
-      • 提示词结构：镜头运动 → 主体 → 动作 → 场景 → 灯光 → 风格 → 色彩 → 音频（→ 台词），约 100~150 词。<br>
-      • 正向描述，避免 now/then/continues 等时间词；英文效果最佳；台词用引号且简短。
+  <section class="view" data-view="lib">
+    <div class="card">
+      <h2>📚 资产参考表（全部可用素材）</h2>
+      <div class="refwrap"><table class="ref" id="refTable"></table></div>
     </div>
-  </details>
+    <div class="card">
+      <h2>🎬 Google Flow 8 秒镜头规范（速查）</h2>
+      <div class="small" style="line-height:1.9">
+        • 一个镜头 = 一个核心动作；不要把多件大事塞进 8 秒。<br>
+        • 每个镜头引用同一套资产（风格 + 角色 + 载具 + 环境），保证跳镜头一致性。<br>
+        • 镜头衔接：勾选「动作接力」让下一镜头从上一动作的结果开始。<br>
+        • 一致性锁定：对反复出场的角色/英雄载具，建议在 Flow 里用 Ingredients 上传参考图。<br>
+        • 提示词结构：运镜 → 主体 → 动作 → 场景 → 灯光 → 风格 → 色彩 → 音频（→ 台词），约 100~150 词。<br>
+        • 正向描述，避免 now/then/continues 等时间词；英文效果最佳；台词用引号且简短。
+      </div>
+    </div>
+  </section>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -567,7 +641,7 @@ function bestOne(list,exp,era){var best=null,bs=0;(list||[]).forEach(function(a)
 function allMatch(list,exp){return (list||[]).map(function(a){return {a:a,s:scoreAsset(a,exp)};}).filter(function(x){return x.s>0;}).sort(function(p,q){return q.s-p.s;});}
 function matchSubjects(exp,era,person){return allSubjects().map(function(a){return {a:a,s:scoreSubject(a,exp,era,person)};}).filter(function(x){return x.s>0;}).sort(function(p,q){return q.s-p.s;});}
 
-function autoCompose(){var theme=$("themeInput").value.trim();if(!theme){toast("请先输入视频主题");return;}if($("aiEnable")&&$("aiEnable").checked&&($("aiEndpoint").value||"").trim()){aiCompose(theme);return;}localCompose(theme);}
+function autoCompose(){var theme=$("themeInput").value.trim();if(!theme){toast("请先输入视频主题");return;}if($("aiEnable")&&$("aiEnable").checked){aiCompose(theme);return;}localCompose(theme);}
 
 function localCompose(theme){
   if(!IDF)buildIdf();
@@ -607,8 +681,8 @@ function autoReport(subs,env,cam,lgt,era){
 
 /* ---- Route B: optional AI backend ---- */
 var AICFG="lwu_ai_cfg";
-function loadAiCfg(){try{var c=JSON.parse(localStorage.getItem(AICFG));if(c){$("aiEnable").checked=!!c.enable;$("aiEndpoint").value=c.endpoint||"";$("aiKey").value=c.key||"";}}catch(e){}}
-function saveAiCfg(){localStorage.setItem(AICFG,JSON.stringify({enable:$("aiEnable").checked,endpoint:$("aiEndpoint").value.trim(),key:$("aiKey").value.trim()}));}
+function loadAiCfg(){try{var c=JSON.parse(localStorage.getItem(AICFG));if(c){$("aiEnable").checked=!!c.enable;}}catch(e){}}
+function saveAiCfg(){localStorage.setItem(AICFG,JSON.stringify({enable:$("aiEnable").checked}));}
 function applyIds(ids){
   state.subjects=[];sel.fx=[];sel.audio=[];sel.motions=[];
   ids.forEach(function(id){
@@ -623,20 +697,183 @@ function applyIds(ids){
   renderSubjectChips();renderSelectedSubjects();renderMotionChips();renderMultiChips("fxChips",D.fx,sel.fx);renderMultiChips("audioChips",D.audio,sel.audio);
 }
 function aiCompose(theme){
-  var ep=$("aiEndpoint").value.trim();var key=$("aiKey").value.trim();saveAiCfg();
+  saveAiCfg();
   $("autoReport").innerHTML="<div class='msg warn'>正在调用 AI 增强…（失败会自动回退本地匹配）</div>";
   var idx=allSubjects().concat(D.environments,D.cameras,D.lighting,D.fx,D.audio).map(function(a){return {id:a.id,name:a.name,series:a.series||"",faction:a.faction||""};});
   var ctrl=new AbortController();var to=setTimeout(function(){ctrl.abort();},20000);
-  var h={"Content-Type":"application/json"};if(key)h["Authorization"]="Bearer "+key;
-  fetch(ep,{method:"POST",headers:h,body:JSON.stringify({theme:theme,assets:idx}),signal:ctrl.signal}).then(function(r){clearTimeout(to);if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(function(res){
+  var h={"Content-Type":"application/json"};
+  fetch("/api/compose",{method:"POST",headers:h,body:JSON.stringify({theme:theme,assets:idx}),signal:ctrl.signal}).then(function(r){clearTimeout(to);if(!r.ok)throw new Error("HTTP "+r.status);return r.json();}).then(function(res){
     if(res.prompt){lastEn=res.prompt;lastZh=res.promptZh||("（AI 生成，主题："+theme+"）");$("title").value=res.action||theme;showLang(lastLang);$("autoReport").innerHTML="<div class='msg ok'>✓ AI 已直接生成 Prompt。</div>";return;}
     var ids=res.selectedIds||res.ids||[];applyIds(ids);$("title").value=res.action||theme;generate();
     $("autoReport").innerHTML="<div class='msg ok'>✓ AI 已选择 "+ids.length+" 个资产并生成 Prompt。</div>";
   }).catch(function(e){clearTimeout(to);$("autoReport").innerHTML="<div class='msg err'>AI 调用失败（"+e.message+"），已回退到本地智能匹配。</div>";localCompose(theme);});
 }
-function initAuto(){loadAiCfg();$("autoBtn").onclick=autoCompose;$("aiEnable").onchange=saveAiCfg;$("aiEndpoint").onchange=saveAiCfg;$("aiKey").onchange=saveAiCfg;$("themeInput").addEventListener("keydown",function(e){if((e.metaKey||e.ctrlKey)&&e.key==="Enter"){autoCompose();}});}
+function initAuto(){loadAiCfg();$("autoBtn").onclick=autoCompose;$("aiEnable").onchange=saveAiCfg;$("themeInput").addEventListener("keydown",function(e){if((e.metaKey||e.ctrlKey)&&e.key==="Enter"){autoCompose();}});}
 
-loadData().then(function(j){D=j;S=loadProject();boot();initAuto();}).catch(function(e){$("dataStatus").textContent="加载失败："+e;});
+
+/* ================= Film / storyboard engine (V2.9) ================= */
+var FILM=[];
+function fesc(t){return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+function fmtT(s){var m=Math.floor(s/60),x=s%60;return (m<10?"0":"")+m+":"+(x<10?"0":"")+x;}
+function tierOfPhase(p){p=(p||"").toLowerCase();
+  if(/open|context|slow|setup/.test(p))return "establish";
+  if(/build|rising|event/.test(p))return "build";
+  if(/climax/.test(p))return "climax";
+  return "resolve";}
+var CAM_T={establish:["CAM-001","CAM-007","CAM-405","CAM-406","CAM-008"],build:["CAM-002","CAM-008","CAM-006","CAM-003","CAM-403"],climax:["CAM-004","CAM-010","CAM-401","CAM-005","CAM-404","CAM-002"],resolve:["CAM-006","CAM-001","CAM-007","CAM-402"]};
+var FX_T={establish:["FX-006","FX-507"],build:["FX-005","FX-402","FX-409","FX-006"],climax:["FX-002","FX-001","FX-003","FX-508","FX-512","FX-506"],resolve:["FX-512","FX-507","FX-503"]};
+var LGT_T={establish:["LGT-008","LGT-001","LGT-405"],build:["LGT-002","LGT-001","LGT-405"],climax:["LGT-005","LGT-003","LGT-404"],resolve:["LGT-001","LGT-008","LGT-405"]};
+var WEATHER_FX=["FX-501","FX-502","FX-503","FX-504","FX-505","FX-510","FX-511"];
+var MOT_T={establish:["idle","observe","cruise","hover","taxi","drive straight","walk","halt and scan","crouch"],
+  build:["accelerate","aim","run","bank left","turn right","orbit target","scan with night vision","raise sensor mast","turn to port","ascend","bound between cover"],
+  climax:["fire main cannon","missile launch","fire hellfire","rocket salvo fires","rocket salvo","machine gun fire","fire","dive at target","terminal dive","breach and clear","bomb drop","strafe","release munition"],
+  resolve:["stop","land","landing","observe","take cover","carry wounded","halt and scan","reload","drop anchor"]};
+var ACT_T={
+  establish:["wide establishing shot of {S} holding position in the {E}, no contact yet, dust drifting through the frame",
+    "{S} waits in overwatch, sensors sweeping the empty horizon of the {E}",
+    "slow reveal of {S} staged in the {E}, crews running final checks before the push"],
+  build:["{S} advances into a firing position, weapon traversing toward the threat",
+    "{S} pushes forward through the {E}, target being called out over the radio",
+    "{S} accelerates into the assault lane, formation tightening as tension builds"],
+  climax:["{S} opens fire, muzzle blast tearing through the smoke as debris flies past the lens",
+    "{S} lands a direct hit, fireball erupting and armour plates blowing outward",
+    "{S} presses the attack at close range, shockwave rolling across the {E}"],
+  resolve:["smoke drifts over burning wreckage as {S} moves slowly through the aftermath",
+    "{S} stands down in the ruined {E}, embers falling, silence after the firefight",
+    "final wide shot of {S} silhouetted against the smoke column rising over the {E}"]};
+var ACT_ZH={establish:"\u5f00\u573a\u94fa\u57ab",build:"\u63a8\u8fdb\u5347\u7ea7",climax:"\u9ad8\u6f6e\u4ea4\u706b",resolve:"\u6536\u5c3e\u4f59\u97f5"};
+var ACT_TZH={
+  establish:["\u5927\u5168\u666f\u4ea4\u4ee3\uff1a{S} \u5728{E}\u5f85\u673a\uff0c\u5c18\u571f\u98d8\u6d6e\uff0c\u5c1a\u672a\u4ea4\u706b",
+    "{S} \u8b66\u6212\u76d1\u89c6\uff0c\u4f20\u611f\u5668\u626b\u8fc7{E}\u7684\u7a7a\u65f7\u5730\u5e73\u7ebf",
+    "\u7f13\u6162\u63ed\u793a {S} \u5728{E}\u5c31\u4f4d\uff0c\u4e58\u5458\u505a\u51fa\u53d1\u524d\u6700\u540e\u68c0\u67e5"],
+  build:["{S} \u63a8\u8fdb\u81f3\u5c04\u51fb\u4f4d\u7f6e\uff0c\u6b66\u5668\u8f6c\u5411\u76ee\u6807",
+    "{S} \u7a7f\u8fc7{E}\u5411\u524d\u63a8\u8fdb\uff0c\u65e0\u7ebf\u7535\u91cc\u62a5\u51fa\u76ee\u6807",
+    "{S} \u52a0\u901f\u8fdb\u5165\u7a81\u51fb\u8def\u7ebf\uff0c\u961f\u5f62\u6536\u7d27\uff0c\u5f20\u529b\u7d2f\u79ef"],
+  climax:["{S} \u5f00\u706b\uff0c\u70ae\u53e3\u7130\u6495\u5f00\u786d\u70df\uff0c\u788e\u7247\u63a0\u8fc7\u955c\u5934",
+    "{S} \u76f4\u63a5\u547d\u4e2d\uff0c\u706b\u7403\u817e\u8d77\uff0c\u88c5\u7532\u7247\u5411\u5916\u70b8\u98de",
+    "{S} \u8fd1\u8ddd\u731b\u6512\uff0c\u51b2\u51fb\u6ce2\u6a2a\u6389{E}"],
+  resolve:["\u786d\u70df\u98d8\u8fc7\u71c3\u70e7\u7684\u6b8b\u9ab8\uff0c{S} \u7f13\u7f13\u7a7f\u8fc7\u6218\u540e\u73b0\u573a",
+    "{S} \u5728\u5e9f\u589f\u822c\u7684{E}\u505c\u4e0b\uff0c\u4f59\u70ec\u98d8\u843d\uff0c\u4ea4\u706b\u540e\u7684\u5bc2\u9759",
+    "\u6700\u540e\u4e00\u4e2a\u5927\u5168\u666f\uff1a{S} \u5251\u5f71\u7acb\u4e8e{E}\u5347\u8d77\u7684\u70df\u67f1\u524d"]};
+function fpick(arr,i){return arr[i%arr.length];}
+function defVar(a){return (a.variants&&a.variants.length)?(a.variants.indexOf("weathered")>=0?"weathered":a.variants[0]):"";}
+function firstExist(ids,pool){for(var i=0;i<ids.length;i++){var a=byId(pool,ids[i]);if(a)return a;}return pool[0]||null;}
+function pickCam(t,i){var ids=CAM_T[t]||[];for(var k=0;k<ids.length;k++){var c=byId(D.cameras,ids[(i+k)%ids.length]);if(c)return c;}return D.cameras[0];}
+function groupsFor(subs){var g={};subs.forEach(function(su){var a=byId(allSubjects(),su.id);if(!a)return;if(D.characters.indexOf(a)>=0){g.soldier=1;}else{var c=a.class;if(c==="ground"){g.tank=1;if(/MLRS|HIMARS/i.test(a.name))g.mlrs=1;}else if(c==="aircraft")g.aircraft=1;else if(c==="helicopter")g.helicopter=1;else if(c==="ship")g.ship=1;else if(c==="drone")g.drone=1;else if(c==="ugv")g.ugv=1;}});return Object.keys(g);}
+function motionsFor(subs,tier,i){var avail=[];groupsFor(subs).forEach(function(gk){(D.motions[gk]||[]).forEach(function(m){if(avail.indexOf(m)<0)avail.push(m);});});
+  var hit=[];(MOT_T[tier]||[]).forEach(function(m){if(avail.indexOf(m)>=0)hit.push(m);});
+  if(!hit.length)hit=avail;if(!hit.length)return [];
+  return [hit[i%hit.length]];}
+
+function buildFilm(){
+  var theme=$("themeInput").value.trim();
+  if(!theme){toast("\u8bf7\u5148\u8f93\u5165\u89c6\u9891\u4e3b\u9898");return;}
+  if(!IDF)buildIdf();
+  var secs=parseInt($("filmDur").value,10);if(!secs||secs<8)secs=8;if(secs>1200)secs=1200;
+  var n=Math.max(1,Math.round(secs/8));if(n>150)n=150;
+  var exp=expandTheme(theme);var era=inferSeries(exp);var person=wantsPerson(exp);
+  var pool=matchSubjects(exp,era,person);
+  if(!pool.length){$("filmReport").innerHTML="<div class='msg warn'>\u672a\u80fd\u4ece\u4e3b\u9898\u8bc6\u522b\u51fa\u4e3b\u4f53\u8d44\u4ea7\u3002\u8bf7\u6362\u4e2a\u66f4\u5177\u4f53\u7684\u5199\u6cd5\uff08\u5305\u542b \u963f\u5e15\u5947 / \u5766\u514b / \u822a\u6bcd / \u58eb\u5175 / \u65e0\u4eba\u673a \u7b49\u5173\u952e\u8bcd\uff09\u3002</div>";return;}
+  var cast=pool.slice(0,4).map(function(x){return x.a;});
+  var env=bestOne(D.environments,exp,era)||byId(D.environments,"ENV-001")||D.environments[0];
+  var clr=bestOne(D.colorGrades,exp,"")||byId(D.colorGrades,D.defaultColorGrade)||D.colorGrades[0];
+  var themeFx=allMatch(D.fx,exp).map(function(x){return x.a.id;});
+  var weather=themeFx.filter(function(id){return WEATHER_FX.indexOf(id)>=0;}).slice(0,2);
+  var themeAud=allMatch(D.audio,exp).map(function(x){return x.a.id;}).slice(0,2);
+  var rt=byId(D.rhythmTemplates,$("filmRhythm").value)||D.rhythmTemplates[0];
+  var beats=rt.beats||[{phase:"climax",ratio:1}];
+  var counts=[],tot=0;
+  beats.forEach(function(b){var c=Math.max(1,Math.round(n*(b.ratio||0)));counts.push(c);tot+=c;});
+  var guard=0;
+  while(tot>n&&guard++<5000){for(var q=counts.length-1;q>=0&&tot>n;q--){if(counts[q]>1){counts[q]--;tot--;}}if(counts.reduce(function(a,b){return a+(b>1?1:0);},0)===0)break;}
+  guard=0;while(tot<n&&guard++<5000){counts[counts.length-1]++;tot++;}
+  var ratio=$("ratio").value;
+  var movie=theme.length>18?theme.slice(0,18)+"\u2026":theme;
+  var shots=[];var idx=0;
+  for(var b=0;b<beats.length;b++){
+    var tier=tierOfPhase(beats[b].phase);
+    for(var k=0;k<counts[b];k++){
+      var lead=cast[idx%cast.length];
+      var subs=[{id:lead.id,variant:defVar(lead)}];
+      if(cast.length>1&&(tier==="climax"||k%2===1)){var sec=cast[(idx+1)%cast.length];if(sec.id!==lead.id)subs.push({id:sec.id,variant:defVar(sec)});}
+      if(tier==="resolve"){subs=subs.map(function(s){var a=byId(allSubjects(),s.id);var v=s.variant;if(a&&a.variants&&a.variants.indexOf("damaged")>=0)v="damaged";return {id:s.id,variant:v};});}
+      var cam=pickCam(tier,idx);
+      var lgt=firstExist(LGT_T[tier]||[],D.lighting);
+      var fx=[];var tf=FX_T[tier]||[];
+      if(tf.length){var f1=byId(D.fx,tf[idx%tf.length]);if(f1)fx.push(f1.id);}
+      weather.forEach(function(w){if(fx.indexOf(w)<0)fx.push(w);});
+      if(tier==="climax"){themeFx.forEach(function(id){if(fx.length<3&&fx.indexOf(id)<0&&WEATHER_FX.indexOf(id)<0)fx.push(id);});}
+      var names=subs.map(function(s){var a=byId(allSubjects(),s.id);return a?a.name:"";}).filter(Boolean).join(" and ");
+      var namesZh=subs.map(function(s){var a=byId(allSubjects(),s.id);return a?(a.nameZh||a.name):"";}).filter(Boolean).join(" + ");
+      var envN=env?env.name:"battlefield";
+      var envZ=env?(env.nameZh||env.name):"\u6218\u573a";
+      var title=fpick(ACT_T[tier],idx).replace(/\{S\}/g,names).replace(/\{E\}/g,envN);
+      var titleZh=fpick(ACT_TZH[tier],idx).replace(/\{S\}/g,namesZh).replace(/\{E\}/g,envZ);
+      var shot={sid:"S"+String(idx+1).padStart(3,"0"),movie:movie,title:title,
+        subjects:subs,env:env?env.id:"",cam:cam?cam.id:"",lgt:lgt?lgt.id:"",clr:clr?clr.id:"",
+        motions:motionsFor(subs,tier,idx),fx:fx,audio:themeAud.slice(0,2),ratio:ratio,dlg:"",
+        cont:k>0,neg:true};
+      shot.prompt=assemble(shot);shot.promptZh=assembleZh(shot);
+      shot.tier=tier;shot.phaseZh=ACT_ZH[tier];shot.titleZh=titleZh;shot.start=idx*8;
+      shots.push(shot);idx++;
+    }
+  }
+  FILM=shots;
+  S.movies[movie]=shots.slice();S.current=movie;
+  if($("movie"))$("movie").value=movie;
+  saveProject();
+  renderFilm(theme,secs,n,era,env,clr,rt);
+  try{renderAll();}catch(e){}
+}
+
+function renderFilm(theme,secs,n,era,env,clr,rt){
+  var total=n*8;
+  var m="\u4e3b\u9898\uff1a<b>"+fesc(theme)+"</b>\u3000\u5171 <b>"+n+"</b> \u4e2a\u955c\u5934 \u00d7 8 \u79d2 = <b>"+total+" \u79d2</b>\uff08"+fmtT(total)+"\uff09";
+  if(total!==secs)m+="\u3000<span style='color:#B5820A'>\u5df2\u6309 8 \u79d2\u5bf9\u9f50\uff08\u4f60\u8f93\u5165 "+secs+" \u79d2\uff09</span>";
+  m+="<br>\u8282\u594f\uff1a"+fesc(rt.name)+"\u3000\u7cfb\u5217\uff1a"+(((D.seriesLabelsZh||{})[era])||era||"\u901a\u7528")+"\u3000\u573a\u666f\u9501\u5b9a\uff1a"+(env?(env.nameZh||env.name):"-")+"\u3000\u8272\u5f69\u9501\u5b9a\uff1a"+(clr?(clr.nameZh||clr.name):"-");
+  var mv=$("filmMeta");mv.style.display="";mv.innerHTML=m;
+  var box=$("filmShots");box.innerHTML="";
+  FILM.forEach(function(s){
+    var d=document.createElement("div");d.className="fshot t-"+s.tier;
+    var cam=byId(D.cameras,s.cam),lgt=byId(D.lighting,s.lgt);
+    d.innerHTML="<div class='fh'><span class='sid'>"+s.sid+"</span><span class='tc'>"+fmtT(s.start)+" \u2013 "+fmtT(s.start+8)+"</span><span class='bg'>"+s.phaseZh+"</span></div>"+
+      "<div class='fmeta'><b>"+fesc(s.titleZh)+"</b><br>"+(cam?(cam.nameZh||cam.name):"-")+" \u00b7 "+(lgt?(lgt.nameZh||lgt.name):"-")+((D.motionLabelsZh&&s.motions&&s.motions.length)?(" \u00b7 "+(D.motionLabelsZh[s.motions[0]]||s.motions[0])):"")+"</div>"+
+      "<pre class='fp'>"+fesc(s.prompt)+"</pre>";
+    var b=document.createElement("button");b.className="btn cp";b.textContent="\ud83d\udccb \u590d\u5236\u8fd9\u4e00\u955c";
+    b.onclick=function(){navigator.clipboard.writeText(s.prompt);toast("\u5df2\u590d\u5236 "+s.sid);};
+    d.appendChild(b);box.appendChild(d);
+  });
+  $("filmReport").innerHTML="<div class='msg ok'>\u2713 \u5df2\u751f\u6210 "+n+" \u4e2a\u955c\u5934\uff08\u5171 "+fmtT(total)+"\uff09\uff0c\u5e76\u81ea\u52a8\u5b58\u5165\u300c\u5206\u955c\u6e05\u5355\u300d\u3002\u5728 Flow \u91cc\u6309 S001\u2192S"+String(n).padStart(3,"0")+" \u9010\u4e2a\u751f\u6210\uff0c\u518d\u7528\u526a\u8f91\u8f6f\u4ef6\u62fc\u63a5\u5373\u53ef\u3002</div>";
+}
+
+function filmText(){return FILM.map(function(s){return "===== "+s.sid+"  "+fmtT(s.start)+"-"+fmtT(s.start+8)+"  "+s.phaseZh+" =====\n"+s.prompt;}).join("\n\n");}
+function filmMd(){var L=["# LWU \u6574\u7247\u5206\u955c\u8868","","| \u955c\u5934 | \u65f6\u95f4\u7801 | \u9636\u6bb5 | \u4e2d\u6587\u52a8\u4f5c | \u4e3b\u4f53 |","|---|---|---|---|---|"];
+  FILM.forEach(function(s){var subs=s.subjects.map(function(x){return x.id;}).join(" ");L.push("| "+s.sid+" | "+fmtT(s.start)+"-"+fmtT(s.start+8)+" | "+s.phaseZh+" | "+String(s.titleZh).replace(/\|/g," ")+" | "+subs+" |");});
+  L.push("");L.push("## \u63d0\u793a\u8bcd");FILM.forEach(function(s){L.push("");L.push("### "+s.sid+"  "+fmtT(s.start)+"-"+fmtT(s.start+8));L.push("");L.push("```");L.push(s.prompt);L.push("```");});
+  return L.join("\n");}
+function filmDl(name,txt){var b=new Blob([txt],{type:"text/plain;charset=utf-8"});var u=URL.createObjectURL(b);var a=document.createElement("a");a.href=u;a.download=name;a.click();setTimeout(function(){URL.revokeObjectURL(u);},1000);}
+
+function initFilm(){
+  var rs=$("filmRhythm");rs.innerHTML="";
+  (D.rhythmTemplates||[]).forEach(function(t){var o=document.createElement("option");o.value=t.id;o.textContent=t.name;rs.appendChild(o);});
+  $("filmBtn").onclick=buildFilm;
+  Array.prototype.forEach.call(document.querySelectorAll(".pill[data-sec]"),function(p){p.onclick=function(){$("filmDur").value=this.getAttribute("data-sec");};});
+  $("filmCopyAll").onclick=function(){if(!FILM.length){toast("\u8bf7\u5148\u751f\u6210\u5206\u955c");return;}navigator.clipboard.writeText(filmText());toast("\u5df2\u590d\u5236\u5168\u90e8 "+FILM.length+" \u6761\u63d0\u793a\u8bcd");};
+  $("filmExpTxt").onclick=function(){if(!FILM.length){toast("\u8bf7\u5148\u751f\u6210\u5206\u955c");return;}filmDl("LWU_film_prompts.txt",filmText());};
+  $("filmExpMd").onclick=function(){if(!FILM.length){toast("\u8bf7\u5148\u751f\u6210\u5206\u955c");return;}filmDl("LWU_film_shotlist.md",filmMd());};
+  $("themeInput").addEventListener("keydown",function(e){if((e.metaKey||e.ctrlKey)&&e.key==="Enter"){buildFilm();}});
+}
+function initTabs(){
+  Array.prototype.forEach.call(document.querySelectorAll(".navtab"),function(t){
+    t.onclick=function(){
+      var v=t.getAttribute("data-view");
+      Array.prototype.forEach.call(document.querySelectorAll(".navtab"),function(x){x.classList.toggle("on",x===t);});
+      Array.prototype.forEach.call(document.querySelectorAll(".view"),function(s){s.classList.toggle("on",s.getAttribute("data-view")===v);});
+      window.scrollTo({top:0,behavior:"smooth"});
+    };});
+}
+
+loadData().then(function(j){D=j;S=loadProject();boot();initAuto();initFilm();initTabs();}).catch(function(e){$("dataStatus").textContent="加载失败："+e;});
 </script>
 </body>
 </html>
