@@ -212,9 +212,12 @@ function buildFilmMsg(payload, assets) {
 		"ALLOWED MOTION PHRASES (copy verbatim):",
 		JSON.stringify(payload.motions || []),
 		"",
-		"AVAILABLE ASSETS (JSON, fields: id, kind, name, nameZh, series, faction, tag):",
+		"AVAILABLE ASSETS (JSON, fields: id=asset id, k=kind, name=English name, zh=Chinese name, s=series/era, f=faction):",
 		JSON.stringify(assets),
 		"",
+		payload.total && payload.total > payload.shots
+			? "NOTE: your " + payload.shots + " beats will be evenly stretched to " + payload.total + " eight-second shots, so make every beat a clearly distinct story step."
+			: "",
 		"Return exactly " + payload.shots + " shots.",
 	].join("\n");
 }
@@ -239,13 +242,15 @@ function timeoutSignal(ms) {
 	return c.signal;
 }
 
-async function callGemini(entry, system, userMsg, maxTokens, ms) {
+async function callGemini(entry, system, userMsg, maxTokens, ms, plain) {
 	const url =
 		(entry.base || "https://generativelanguage.googleapis.com/v1beta") +
 		"/models/" +
 		entry.model +
 		":generateContent?key=" +
 		encodeURIComponent(entry.key);
+	const cfg = { temperature: 0.5, maxOutputTokens: maxTokens || 4096 };
+	if (!plain) cfg.responseMimeType = "application/json";
 	const r = await fetch(url, {
 		method: "POST",
 		headers: { "Content-Type": "application/json" },
@@ -253,36 +258,33 @@ async function callGemini(entry, system, userMsg, maxTokens, ms) {
 		body: JSON.stringify({
 			systemInstruction: { parts: [{ text: system }] },
 			contents: [{ role: "user", parts: [{ text: userMsg }] }],
-			generationConfig: {
-				temperature: 0.5,
-				maxOutputTokens: maxTokens || 8192,
-				responseMimeType: "application/json",
-			},
+			generationConfig: cfg,
 		}),
 	});
 	if (!r.ok) throw new Error("HTTP " + r.status + " " + (await r.text()).slice(0, 200));
 	const data = await r.json();
 	const cand = (data.candidates || [])[0] || {};
 	const text = cand.content ? (cand.content.parts || []).map((p) => p.text || "").join("") : "";
-	if (!text) throw new Error("empty response");
+	if (!text) throw new Error("empty response" + (cand.finishReason ? " (" + cand.finishReason + ")" : ""));
 	return extractJson(text);
 }
 
-async function callOpenAI(entry, system, userMsg, maxTokens, ms) {
+async function callOpenAI(entry, system, userMsg, maxTokens, ms, plain) {
+	const body = {
+		model: entry.model,
+		temperature: 0.5,
+		max_tokens: maxTokens || 4096,
+		messages: [
+			{ role: "system", content: system },
+			{ role: "user", content: userMsg },
+		],
+	};
+	if (!plain) body.response_format = { type: "json_object" };
 	const r = await fetch(entry.base.replace(/\/+$/, "") + "/chat/completions", {
 		method: "POST",
 		headers: { "Content-Type": "application/json", Authorization: "Bearer " + entry.key },
 		signal: timeoutSignal(ms),
-		body: JSON.stringify({
-			model: entry.model,
-			temperature: 0.5,
-			max_tokens: maxTokens || 8192,
-			response_format: { type: "json_object" },
-			messages: [
-				{ role: "system", content: system },
-				{ role: "user", content: userMsg },
-			],
-		}),
+		body: JSON.stringify(body),
 	});
 	if (!r.ok) throw new Error("HTTP " + r.status + " " + (await r.text()).slice(0, 200));
 	const data = await r.json();
@@ -292,10 +294,21 @@ async function callOpenAI(entry, system, userMsg, maxTokens, ms) {
 	return extractJson(text);
 }
 
-function callOne(entry, system, userMsg, maxTokens, ms) {
-	return entry.kind === "gemini"
-		? callGemini(entry, system, userMsg, maxTokens, ms)
-		: callOpenAI(entry, system, userMsg, maxTokens, ms);
+/* Some free-tier models reject JSON mode outright; retry once in plain mode. */
+const JSON_MODE_ERR = /response_format|json_object|json_schema|responseMimeType|response mime|json mode|not support|unsupported/i;
+
+async function callOne(entry, system, userMsg, maxTokens, ms) {
+	const run = (plain) =>
+		entry.kind === "gemini"
+			? callGemini(entry, system, userMsg, maxTokens, ms, plain)
+			: callOpenAI(entry, system, userMsg, maxTokens, ms, plain);
+	try {
+		return await run(false);
+	} catch (e) {
+		const m = String((e && e.message) || e);
+		if (/HTTP 4\d\d/.test(m) && JSON_MODE_ERR.test(m)) return await run(true);
+		throw e;
+	}
 }
 
 /**
@@ -320,10 +333,21 @@ async function runChain(env, system, userMsg, maxTokens, validate) {
 		throw err;
 	}
 
-	const ms = Math.max(5000, Math.min(120000, parseInt(env.TIMEOUT_MS, 10) || 45000));
+	// Cloudflare kills a Pages Function that runs too long (the browser then sees
+	// a bare HTTP 502). So the whole failover walk lives inside one hard budget.
+	const perMs = Math.max(5000, Math.min(30000, parseInt(env.TIMEOUT_MS, 10) || 14000));
+	const totalMs = Math.max(8000, Math.min(28000, parseInt(env.DEADLINE_MS, 10) || 24000));
+	const maxTry = Math.max(1, Math.min(order.length, parseInt(env.MAX_ATTEMPTS, 10) || 4));
+	const deadline = Date.now() + totalMs;
 
-	for (let i = 0; i < order.length; i++) {
+	for (let i = 0; i < order.length && i < maxTry; i++) {
 		const entry = order[i];
+		const left = deadline - Date.now();
+		if (left < 4000) {
+			attempts.push({ provider: entry.provider, model: entry.model, error: "skipped: time budget exhausted" });
+			break;
+		}
+		const ms = Math.min(perMs, left);
 		try {
 			const raw = await callOne(entry, system, userMsg, maxTokens, ms);
 			const out = validate ? validate(raw) : raw;
@@ -345,17 +369,54 @@ async function runChain(env, system, userMsg, maxTokens, validate) {
 
 	const last = attempts[attempts.length - 1] || {};
 	const err = new Error(
-		"All " + order.length + " model(s) failed. Last: " + (last.provider || "?") + "/" + (last.model || "?") + " - " + (last.error || "unknown")
+		"尝试了 " + attempts.length + "/" + order.length + " 个模型全部失败。最后一个：" + (last.provider || "?") + "/" + (last.model || "?") + " - " + (last.error || "unknown")
 	);
 	err.attempts = attempts;
 	throw err;
+}
+
+/* ---------------- payload shaping ---------------- */
+
+/**
+ * Free models choke on a 100 KB asset dump: they time out, hit rate limits, or
+ * truncate their JSON. Keep the library recognisable but small.
+ */
+function compactAssets(list) {
+	const cut = (v, n) => String(v == null ? "" : v).slice(0, n);
+	const out = [];
+	for (const a of list) {
+		if (!a || !a.id) continue;
+		const o = { id: a.id, name: cut(a.name || a.nameZh, 46) };
+		if (a.kind) o.k = cut(a.kind, 14);
+		if (a.nameZh && a.nameZh !== a.name) o.zh = cut(a.nameZh, 24);
+		if (a.series) o.s = cut(a.series, 18);
+		if (a.faction) o.f = cut(a.faction, 20);
+		out.push(o);
+	}
+	return out;
+}
+
+/** Stretch a short beat plan into the exact number of 8-second shots. */
+function expandShots(beats, total) {
+	const out = [];
+	for (let i = 0; i < total; i++) {
+		const src = beats[Math.min(beats.length - 1, Math.floor((i * beats.length) / total))];
+		out.push(
+			Object.assign({}, src, {
+				subjects: (src.subjects || []).slice(),
+				fx: (src.fx || []).slice(),
+				audio: (src.audio || []).slice(),
+			})
+		);
+	}
+	return out;
 }
 
 /* ---------------- validation ---------------- */
 
 const PHASES = ["establish", "build", "climax", "resolve"];
 
-function sanitizeFilm(out, known, wanted) {
+function sanitizeFilm(out, known, ask, wanted) {
 	const ok = (id) => typeof id === "string" && known.has(id);
 	const pickArr = (arr, limit) => (Array.isArray(arr) ? arr : []).filter(ok).slice(0, limit);
 
@@ -382,11 +443,13 @@ function sanitizeFilm(out, known, wanted) {
 	const hasSubject = shots.some((s) => s.subjects.length > 0);
 	if (!shots.length || !hasSubject) throw new Error("no usable shots / no valid asset ids");
 
-	// keep exactly `wanted` shots: truncate, or extend by repeating the tail
-	if (shots.length > wanted) shots = shots.slice(0, wanted);
-	while (shots.length < wanted) {
+	// keep exactly `ask` beats, then stretch them to the requested shot count
+	if (shots.length > ask) shots = shots.slice(0, ask);
+	while (shots.length < ask) {
 		shots.push(Object.assign({}, shots[shots.length - 1], { phase: "climax" }));
 	}
+	const total = Math.max(ask, parseInt(wanted, 10) || ask);
+	if (total > shots.length) shots = expandShots(shots, total);
 
 	return {
 		env: ok(out.env) ? out.env : "",
@@ -416,16 +479,52 @@ export async function onRequest(context) {
 
 	if (request.method === "GET") {
 		const built = buildChain(env);
+
+		// /api/compose?probe=1 pings every model in the chain with a tiny prompt
+		// and reports exactly which keys/models actually work.
+		if (new URL(request.url).searchParams.get("probe")) {
+			const probe = [];
+			const t0 = Date.now();
+			for (const e of built.chain) {
+				const label = e.provider + ":" + e.model;
+				if (Date.now() - t0 > 20000) {
+					probe.push({ model: label, ok: false, error: "skipped: probe time budget" });
+					continue;
+				}
+				const s = Date.now();
+				try {
+					await callOne(e, "Reply with strict JSON only.", 'Return {"ok":1}', 64, 8000);
+					probe.push({ model: label, ok: true, ms: Date.now() - s });
+				} catch (err) {
+					probe.push({
+						model: label,
+						ok: false,
+						ms: Date.now() - s,
+						error: String((err && err.message) || err).slice(0, 180),
+					});
+				}
+			}
+			return json({
+				ok: probe.some((x) => x.ok),
+				version: "4.3",
+				mode: "probe",
+				usable: probe.filter((x) => x.ok).length,
+				total: probe.length,
+				probe: probe,
+			});
+		}
 		return json({
 			ok: built.chain.length > 0,
 			service: "LWU AI compose",
-			version: "4.2",
+			version: "4.3",
 			modes: ["shot", "film"],
 			modelCount: built.chain.length,
 			chain: built.chain.map((e) => e.provider + ":" + e.model),
 			skipped: built.skipped,
 			rotation: String(env.ROTATE || "").toLowerCase() === "off" ? "off" : "round-robin",
-			timeoutMs: Math.max(5000, Math.min(120000, parseInt(env.TIMEOUT_MS, 10) || 45000)),
+			timeoutMs: Math.max(5000, Math.min(30000, parseInt(env.TIMEOUT_MS, 10) || 14000)),
+			deadlineMs: Math.max(8000, Math.min(28000, parseInt(env.DEADLINE_MS, 10) || 24000)),
+			maxAttempts: Math.max(1, Math.min(built.chain.length || 1, parseInt(env.MAX_ATTEMPTS, 10) || 4)),
 			tokenRequired: !!env.ACCESS_TOKEN,
 			hint: built.chain.length
 				? "Ready. Requests fail over down the chain in order."
@@ -448,7 +547,9 @@ export async function onRequest(context) {
 	}
 
 	const theme = String((payload && payload.theme) || "").slice(0, 500);
-	const assets = Array.isArray(payload && payload.assets) ? payload.assets.slice(0, 700) : [];
+	const assets = compactAssets(
+		Array.isArray(payload && payload.assets) ? payload.assets.slice(0, 700) : []
+	);
 	if (!theme) return json({ error: "Missing theme" }, 400);
 	if (!assets.length) return json({ error: "Missing assets" }, 400);
 
@@ -463,10 +564,14 @@ export async function onRequest(context) {
 				seconds: Math.max(8, Math.min(1200, parseInt(payload.seconds, 10) || wanted * 8)),
 				shots: wanted,
 				rhythm: String(payload.rhythm || "").slice(0, 60),
-				motions: Array.isArray(payload.motions) ? payload.motions.slice(0, 200) : [],
+				motions: Array.isArray(payload.motions) ? payload.motions.slice(0, 120) : [],
 			};
-			const run = await runChain(env, FILM_SYSTEM, buildFilmMsg(body, assets), 8192, (raw) =>
-				sanitizeFilm(raw || {}, known, wanted)
+			// A free model cannot emit 30+ shots of valid JSON inside the time
+			// budget, so ask for a compact beat plan and stretch it server-side.
+			const ask = Math.max(1, Math.min(12, wanted));
+			const askBody = Object.assign({}, body, { shots: ask, total: wanted });
+			const run = await runChain(env, FILM_SYSTEM, buildFilmMsg(askBody, assets), 4096, (raw) =>
+				sanitizeFilm(raw || {}, known, ask, wanted)
 			);
 			return json(
 				Object.assign({}, run.result, {
@@ -490,6 +595,8 @@ export async function onRequest(context) {
 			})
 		);
 	} catch (e) {
-		return json({ error: String((e && e.message) || e), attempts: (e && e.attempts) || [] }, 502);
+		// Answer 200 with ok:false so the browser always gets a readable reason.
+		// A real HTTP 502 now always means the platform itself cut us off.
+		return json({ ok: false, error: String((e && e.message) || e), attempts: (e && e.attempts) || [] }, 200);
 	}
 }
