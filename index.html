@@ -1214,75 +1214,152 @@ function initTabs(){
   });
 }
 
-/* ================= 完整 IIFE 交互自检系统（已修复 D/S 初始化） ================= */
-(function(){
-  var VT={film:["整片生成","一句主题 + 叙事剧本模板 → 全片因果连贯 8 秒分镜提示词"],
-          single:["单镜头微调","逐项调参，打磨某一个 8 秒镜头"],
-          list:["分镜清单","当前影片的全部镜头、连续性检查与时间轴"],
-          lib:["资产库","全部可用角色、载具、场景、特效与音效"],
-          ops:["运维与备份","AI 模型状态、数据备份与快捷操作"]};
-          
-  function setAi(cls,short,html){
-    var s=$("aiStatus");
-    if(s) s.innerHTML='<span class="dot '+cls+'"></span><span>'+short+"</span>";
-    if($("aiInfo")) $("aiInfo").innerHTML=html;
-  }
+var VT={film:["整片生成","一句主题 + 叙事剧本模板 → 全片因果连贯 8 秒分镜提示词"],
+        single:["单镜头微调","逐项调参，打磨某一个 8 秒镜头"],
+        list:["分镜清单","当前影片的全部镜头、连续性检查与时间轴"],
+        lib:["资产库","全部可用角色、载具、场景、特效与音效"],
+        ops:["运维与备份","AI 模型状态、数据备份与快捷操作"]};
+        
+function setAi(cls,short,html){
+  var s=$("aiStatus");
+  if(s) s.innerHTML='<span class="dot '+cls+'"></span><span>'+short+"</span>";
+  if($("aiInfo")) $("aiInfo").innerHTML=html;
+}
+
+// AI 模型检测：带手动超时兜底，确保 3 秒内必有结果
+function probeAi(){
+  setAi("","正在检测模型…","正在检测…");
+  var done = false; // 防止 fetch 和 fallback 同时触发
   
-  // AI 模型检测：带手动超时兜底，确保 3 秒内必有结果
-  function probeAi(){
-    setAi("","正在检测模型…","正在检测…");
-    var done = false; // 防止 fetch 和 fallback 同时触发
-    
-    // 手动 3 秒超时兜底：无论 fetch 发生什么，3 秒后必须有结果
-    var fallbackTimer = setTimeout(function(){
+  // 手动 3 秒超时兜底：无论 fetch 发生什么，3 秒后必须有结果
+  var fallbackTimer = setTimeout(function(){
+    if(done) return;
+    done = true;
+    setAi("no","本地模式（内置智能引擎）",
+      "<div class='msg warn'>AI 后端检测超时（纯静态 / 本地打开属正常现象）。<b>本地智能引擎已就绪</b>，无需联网即可一键生成全部分镜提示词。</div>");
+  }, 3000);
+  
+  try {
+    fetch("api/compose",{method:"GET"}).then(function(r){return r.json();}).then(function(j){
       if(done) return;
-      done = true;
-      setAi("no","本地模式（内置智能引擎）",
-        "<div class='msg warn'>AI 后端检测超时（纯静态 / 本地打开属正常现象）。<b>本地智能引擎已就绪</b>，无需联网即可一键生成全部分镜提示词。</div>");
-    }, 3000);
-    
-    try {
-      fetch("api/compose",{method:"GET"}).then(function(r){return r.json();}).then(function(j){
-        if(done) return;
-        done = true; clearTimeout(fallbackTimer);
-        if(j&&j.ok&&j.modelCount){
-          setAi("ok","已就绪 · "+j.modelCount+" 个模型",
-            "<div class='msg ok'>AI 导演已就绪，共 "+j.modelCount+" 个模型，自动故障转移（"+(j.rotation==="off"?"严格优先级":"轮询分摊")+"）。</div>"+
-            "<div style='margin-top:8px'><b>模型链：</b><br>"+(j.chain||[]).map(function(c,i){ return (i+1)+". <code>"+c+"</code>";}).join("<br>")+"</div>");
-        }else{
-          setAi("no","未配置云端 Key（用本地智能引擎）",
-            "<div class='msg warn'>云端未配置模型 Key。当前正在使用<b>离线本地智能引擎</b>，生成功能完全正常且零费用。</div>");
-        }
-      }).catch(function(){
-        if(done) return;
-        done = true; clearTimeout(fallbackTimer);
-        setAi("no","本地模式（内置智能引擎）",
-          "<div class='msg warn'>未检测到 <code>/api/compose</code> 后端接口（纯静态/本地打开属正常现象）。<b>本地智能引擎已就绪</b>，无需联网即可一键生成。</div>");
-      });
-    } catch(e) {
-      // fetch 本身抛出同步异常（极端情况：file:// 协议下某些浏览器）
+      done = true; clearTimeout(fallbackTimer);
+      if(j&&j.ok&&j.modelCount){
+        setAi("ok","已就绪 · "+j.modelCount+" 个模型",
+          "<div class='msg ok'>AI 导演已就绪，共 "+j.modelCount+" 个模型，自动故障转移（"+(j.rotation==="off"?"严格优先级":"轮询分摊")+"）。</div>"+
+          "<div style='margin-top:8px'><b>模型链：</b><br>"+(j.chain||[]).map(function(c,i){ return (i+1)+". <code>"+c+"</code>";}).join("<br>")+"</div>");
+      }else{
+        setAi("no","未配置云端 Key（用本地智能引擎）",
+          "<div class='msg warn'>云端未配置模型 Key。当前正在使用<b>离线本地智能引擎</b>，生成功能完全正常且零费用。</div>");
+      }
+    }).catch(function(){
       if(done) return;
       done = true; clearTimeout(fallbackTimer);
       setAi("no","本地模式（内置智能引擎）",
-        "<div class='msg warn'>当前为本地/静态模式。<b>本地智能引擎已就绪</b>，无需联网即可一键生成。</div>");
-    }
-  }
-
-  function initLib(){
-    var t=$("refTable");if(!t)return;
-    var q=(($("libSearch")||{}).value||"").trim().toLowerCase();
-    var cat=(($("libCat")||{}).value||"");
-    var shown=0,total=0;
-    t.querySelectorAll("tbody tr").forEach(function(r){
-      total++;
-      var first=r.querySelector("td"),c=first?first.textContent.trim():"";
-      var ok=(!q||r.textContent.toLowerCase().indexOf(q)>=0)&&(!cat||c===cat);
-      r.style.display=ok?"":"none";if(ok)shown++;
+        "<div class='msg warn'>未检测到 <code>/api/compose</code> 后端接口（纯静态/本地打开属正常现象）。<b>本地智能引擎已就绪</b>，无需联网即可一键生成。</div>");
     });
-    txt($("libCount"),q||cat?(shown+" / "+total+" 条"):(total+" 条资产"));
+  } catch(e) {
+    if(done) return;
+    done = true; clearTimeout(fallbackTimer);
+    setAi("no","本地模式（内置智能引擎）",
+      "<div class='msg warn'>当前为本地/静态模式。<b>本地智能引擎已就绪</b>，无需联网即可一键生成。</div>");
   }
+}
 
-  // 绑定语言 Tab 切换
+function initLib(){
+  var t=$("refTable");if(!t)return;
+  var q=(($("libSearch")||{}).value||"").trim().toLowerCase();
+  var cat=(($("libCat")||{}).value||"");
+  var shown=0,total=0;
+  t.querySelectorAll("tbody tr").forEach(function(r){
+    total++;
+    var first=r.querySelector("td"),c=first?first.textContent.trim():"";
+    var ok=(!q||r.textContent.toLowerCase().indexOf(q)>=0)&&(!cat||c===cat);
+    r.style.display=ok?"":"none";if(ok)shown++;
+  });
+  txt($("libCount"),q||cat?(shown+" / "+total+" 条"):(total+" 条资产"));
+}
+
+// 多影片管理逻辑
+function updateMovieSelect(){
+  var sel = $("movieSel"); if(!sel) return;
+  sel.innerHTML = "";
+  var p = loadProject();
+  var keys = Object.keys(p.movies || {});
+  if(!keys.length){
+    p.movies = {"海湾战争": []};
+    p.current = "海湾战争";
+    saveProject();
+    keys = ["海湾战争"];
+  }
+  keys.forEach(function(k){
+    var opt = document.createElement("option");
+    opt.value = k; opt.textContent = k;
+    if(k === p.current) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function downloadFile(filename, content, type){
+  var blob = new Blob([content], {type: type || "text/plain;charset=utf-8"});
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function exportTxt(){
+  var shots = curShots();
+  if(!shots.length){ toast("当前影片暂无分镜"); return; }
+  var text = shots.map(function(s, i){ return "=== Shot " + s.sid + " ===\n" + s.prompt; }).join("\n\n");
+  downloadFile(curMovieName() + "_分镜提示词.txt", text);
+  toast("导出 .txt 成功");
+}
+
+function exportMd(){
+  var shots = curShots();
+  if(!shots.length){ toast("当前影片暂无分镜"); return; }
+  var md = "# 乐高战争宇宙分镜表 — " + curMovieName() + "\n\n";
+  shots.forEach(function(s){
+    md += "## " + s.sid + " (" + (s.start||0) + "s - " + ((s.start||0)+8) + "s)\n";
+    md += "**动作**：" + (s.titleZh||s.title) + "\n\n";
+    md += "```\n" + s.prompt + "\n```\n\n";
+  });
+  downloadFile(curMovieName() + "_分镜表.md", md, "text/markdown;charset=utf-8");
+  toast("导出 .md 成功");
+}
+
+function exportJson(){
+  var data = JSON.stringify(S, null, 2);
+  downloadFile("LWU_Project_Backup.json", data, "application/json");
+  toast("导出工程 .json 成功");
+}
+
+function importJsonFile(file){
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      var p = JSON.parse(e.target.result);
+      if(p && p.movies){
+        S = p;
+        saveProject();
+        updateMovieSelect();
+        renderAll();
+        storeInfo();
+        toast("工程导入成功！");
+      } else {
+        toast("无效的工程 JSON 文件");
+      }
+    } catch(err){
+      toast("JSON 文件解析失败");
+    }
+  };
+  reader.readAsText(file);
+}
+
+// 统一绑定的 UI 初始化事件
+function bindEvents(){
+  // 语言 Tab
   document.querySelectorAll(".tabs .tab").forEach(function(t){
     t.addEventListener("click", function(){
       var lang = t.getAttribute("data-lang");
@@ -1290,40 +1367,7 @@ function initTabs(){
     });
   });
 
-  // 反推资产功能 (parseBtn)
-  if($("parseBtn")) $("parseBtn").addEventListener("click", function(){
-    var text = ($("parseIn")||{}).value || "";
-    if(!text){ toast("请先在框内粘贴 Prompt"); return; }
-    var matches = text.match(/(CHR|VEH|AIR|ENV|CAM|LGT|CLR|FX|AUD)-\d{3,4}/g);
-    if(!matches || !matches.length){ toast("未识别到任何标准的资产编号"); return; }
-    
-    var unique = Array.from(new Set(matches));
-    unique.forEach(function(id){
-      var a = byId(allSubjects(), id);
-      if(a && !byId2(state.subjects, id)){
-        toggleSubject(id);
-      }
-    });
-    toast("已成功反推并选中 " + unique.length + " 项资产");
-  });
-
-  // 自动匹配单镜头参数 (autoBtn)
-  if($("autoBtn")) $("autoBtn").addEventListener("click", function(){
-    var theme = ($("themeInput")||{}).value || "";
-    if(!theme){ toast("请先在「整片生成」面板填入视频主题"); return; }
-    
-    var sub = allSubjects()[Math.floor(Math.random() * Math.min(5, allSubjects().length))];
-    if(sub && !byId2(state.subjects, sub.id)) toggleSubject(sub.id);
-    
-    if(D.environments && D.environments.length) $("env").value = D.environments[0].id;
-    if(D.cameras && D.cameras.length) $("cam").value = D.cameras[0].id;
-    if(D.lighting && D.lighting.length) $("lgt").value = D.lighting[0].id;
-    
-    $("title").value = theme + " — " + (sub ? (sub.nameZh||sub.name) : "") + "在战场上快速机动";
-    toast("已根据主题自动配置最佳参数");
-  });
-
-  // 绑定导航标签标题切换
+  // 导航栏 Tab 标题
   document.querySelectorAll(".navtab").forEach(function(b){
     b.addEventListener("click",function(){
       var v=VT[b.getAttribute("data-view")];
@@ -1331,7 +1375,7 @@ function initTabs(){
     });
   });
 
-  // 绑定主题模板按钮
+  // 主题模板
   document.querySelectorAll("[data-theme]").forEach(function(p){
     p.addEventListener("click",function(){
       var t=$("themeInput");if(!t)return;
@@ -1339,7 +1383,7 @@ function initTabs(){
     });
   });
 
-  // 绑定快捷时长按钮
+  // 快捷时长
   document.querySelectorAll("[data-sec]").forEach(function(p){
     p.addEventListener("click",function(){
       var dur=$("filmDur");if(!dur)return;
@@ -1347,37 +1391,35 @@ function initTabs(){
     });
   });
 
+  if($("parseBtn")) $("parseBtn").addEventListener("click", function(){
+    var text = ($("parseIn")||{}).value || "";
+    if(!text){ toast("请先在框内粘贴 Prompt"); return; }
+    var matches = text.match(/(CHR|VEH|AIR|ENV|CAM|LGT|CLR|FX|AUD)-\d{3,4}/g);
+    if(!matches || !matches.length){ toast("未识别到任何标准的资产编号"); return; }
+    var unique = Array.from(new Set(matches));
+    unique.forEach(function(id){
+      var a = byId(allSubjects(), id);
+      if(a && !byId2(state.subjects, id)) toggleSubject(id);
+    });
+    toast("已成功反推并选中 " + unique.length + " 项资产");
+  });
+
+  if($("autoBtn")) $("autoBtn").addEventListener("click", function(){
+    var theme = ($("themeInput")||{}).value || "";
+    if(!theme){ toast("请先在「整片生成」面板填入视频主题"); return; }
+    var sub = allSubjects()[Math.floor(Math.random() * Math.min(5, allSubjects().length))];
+    if(sub && !byId2(state.subjects, sub.id)) toggleSubject(sub.id);
+    if(D.environments && D.environments.length) $("env").value = D.environments[0].id;
+    if(D.cameras && D.cameras.length) $("cam").value = D.cameras[0].id;
+    if(D.lighting && D.lighting.length) $("lgt").value = D.lighting[0].id;
+    $("title").value = theme + " — " + (sub ? (sub.nameZh||sub.name) : "") + "在战场上快速机动";
+    toast("已根据主题自动配置最佳参数");
+  });
+
   if($("aiCheck")) $("aiCheck").addEventListener("click",probeAi);
   if($("libSearch")) $("libSearch").addEventListener("input",initLib);
   if($("libCat")) $("libCat").addEventListener("change",initLib);
   if($("libClear")) $("libClear").addEventListener("click",function(){ if($("libSearch"))$("libSearch").value=""; if($("libCat"))$("libCat").value=""; initLib(); });
-
-  // 快捷键
-  document.addEventListener("keydown",function(e){
-    if((e.ctrlKey||e.metaKey)&&e.key==="Enter"&&document.activeElement===$("themeInput")){
-      e.preventDefault();if($("filmBtn"))$("filmBtn").click();
-    }
-  });
-
-  // 多影片管理逻辑
-  function updateMovieSelect(){
-    var sel = $("movieSel"); if(!sel) return;
-    sel.innerHTML = "";
-    var p = loadProject();
-    var keys = Object.keys(p.movies || {});
-    if(!keys.length){
-      p.movies = {"海湾战争": []};
-      p.current = "海湾战争";
-      saveProject();
-      keys = ["海湾战争"];
-    }
-    keys.forEach(function(k){
-      var opt = document.createElement("option");
-      opt.value = k; opt.textContent = k;
-      if(k === p.current) opt.selected = true;
-      sel.appendChild(opt);
-    });
-  }
 
   if($("movieSel")) $("movieSel").addEventListener("change", function(){
     S.current = this.value;
@@ -1437,72 +1479,12 @@ function initTabs(){
     toast("已删除影片");
   });
 
-  // 导出 txt / md / json
-  function downloadFile(filename, content, type){
-    var blob = new Blob([content], {type: type || "text/plain;charset=utf-8"});
-    var a = document.createElement("a");
-    a.href = URL.createObjectURL(blob);
-    a.download = filename;
-    a.click();
-    URL.revokeObjectURL(a.href);
-  }
-
-  function exportTxt(){
-    var shots = curShots();
-    if(!shots.length){ toast("当前影片暂无分镜"); return; }
-    var text = shots.map(function(s, i){ return "=== Shot " + s.sid + " ===\n" + s.prompt; }).join("\n\n");
-    downloadFile(curMovieName() + "_分镜提示词.txt", text);
-    toast("导出 .txt 成功");
-  }
-
-  function exportMd(){
-    var shots = curShots();
-    if(!shots.length){ toast("当前影片暂无分镜"); return; }
-    var md = "# 乐高战争宇宙分镜表 — " + curMovieName() + "\n\n";
-    shots.forEach(function(s){
-      md += "## " + s.sid + " (" + (s.start||0) + "s - " + ((s.start||0)+8) + "s)\n";
-      md += "**动作**：" + (s.titleZh||s.title) + "\n\n";
-      md += "```\n" + s.prompt + "\n```\n\n";
-    });
-    downloadFile(curMovieName() + "_分镜表.md", md, "text/markdown;charset=utf-8");
-    toast("导出 .md 成功");
-  }
-
-  function exportJson(){
-    var data = JSON.stringify(S, null, 2);
-    downloadFile("LWU_Project_Backup.json", data, "application/json");
-    toast("导出工程 .json 成功");
-  }
-
   if($("filmExpTxt")) $("filmExpTxt").onclick = exportTxt;
   if($("expTxt")) $("expTxt").onclick = exportTxt;
   if($("filmExpMd")) $("filmExpMd").onclick = exportMd;
   if($("expMd")) $("expMd").onclick = exportMd;
   if($("expProj")) $("expProj").onclick = exportJson;
   if($("opsExp")) $("opsExp").onclick = exportJson;
-
-  // 导入与重置
-  function importJsonFile(file){
-    var reader = new FileReader();
-    reader.onload = function(e){
-      try {
-        var p = JSON.parse(e.target.result);
-        if(p && p.movies){
-          S = p;
-          saveProject();
-          updateMovieSelect();
-          renderAll();
-          storeInfo();
-          toast("工程导入成功！");
-        } else {
-          toast("无效的工程 JSON 文件");
-        }
-      } catch(err){
-        toast("JSON 文件解析失败");
-      }
-    };
-    reader.readAsText(file);
-  }
 
   if($("impProj")) $("impProj").onclick = function(){ $("impFile").click(); };
   if($("opsImp")) $("opsImp").onclick = function(){ $("impFile").click(); };
@@ -1529,37 +1511,45 @@ function initTabs(){
     toast("全部数据已重置");
   };
 
-  // ★ 核心初始化入口
-  S = loadProject();
-  updateMovieSelect();
-  
-  loadData().then(function(data){
-    D = data;
-    console.log("[LWU] 资产库加载完成，共 " + (D.characters.length + D.vehicles.length) + " 项资产");
+  document.addEventListener("keydown",function(e){
+    if((e.ctrlKey||e.metaKey)&&e.key==="Enter"&&document.activeElement===$("themeInput")){
+      e.preventDefault();if($("filmBtn"))$("filmBtn").click();
+    }
+  });
+}
+
+// ★ 顶层启动链：数据加载 -> 初始化 DOM -> 绑定事件 -> 检测 AI
+S = loadProject();
+updateMovieSelect();
+bindEvents();
+
+loadData().then(function(data){
+  D = data;
+  console.log("[LWU] 资产库加载完成，共 " + (D.characters.length + D.vehicles.length) + " 项资产");
+  fillLibCat();
+  renderRefTable();
+  boot();
+  initFilm();
+  initTabs();
+  storeInfo();
+  updateHeaderStats();
+}).catch(function(err){
+  console.error("[LWU] 资产库加载失败：", err);
+  try {
+    D = JSON.parse($("lwu-data").textContent);
     fillLibCat();
     renderRefTable();
     boot();
     initFilm();
     initTabs();
-    storeInfo();
     updateHeaderStats();
-  }).catch(function(err){
-    console.error("[LWU] 资产库加载失败：", err);
-    try {
-      D = JSON.parse($("lwu-data").textContent);
-      fillLibCat();
-      renderRefTable();
-      boot();
-      initFilm();
-      initTabs();
-      updateHeaderStats();
-    } catch(e2) {
-      console.error("[LWU] 内嵌数据解析失败：", e2);
-    }
-  });
-  
-  probeAi();
-})();
+  } catch(e2) {
+    console.error("[LWU] 内嵌数据解析失败：", e2);
+  }
+});
+
+probeAi();
+
 
 </script>
 </body>
