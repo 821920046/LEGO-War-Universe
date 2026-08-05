@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>乐高战争宇宙 · 提示词工作台 V5.5 Master Edition</title>
+<title>乐高战争宇宙 · 提示词工作台 V6.0 Story Edition</title>
 <style>
 :root {
   --bg: #090D16;
@@ -48,24 +48,13 @@ body {
 /* ============ App Shell ============ */
 .app { display: grid; grid-template-columns: 240px minmax(0, 1fr); min-height: 100vh; }
 .side {
-  background: var(--nav);
-  color: var(--navink);
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 20px 14px;
-  position: sticky;
-  top: 0;
-  height: 100vh;
-  overflow-y: auto;
-  border-right: 1px solid var(--line);
+  background: var(--nav); color: var(--navink); display: flex; flex-direction: column; gap: 4px; padding: 20px 14px;
+  position: sticky; top: 0; height: 100vh; overflow-y: auto; border-right: 1px solid var(--line);
 }
 .side .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; padding: 0 4px; }
 .logo {
-  width: 40px; height: 40px; flex: none; border-radius: 10px;
-  display: inline-flex; align-items: center; justify-content: center;
-  background: linear-gradient(135deg, #3B82F6, #1D4ED8);
-  color: #fff; font-weight: 800; font-size: 13px; letter-spacing: 0.5px;
+  width: 40px; height: 40px; flex: none; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center;
+  background: linear-gradient(135deg, #3B82F6, #1D4ED8); color: #fff; font-weight: 800; font-size: 13px; letter-spacing: 0.5px;
   box-shadow: 0 0 15px rgba(59, 130, 246, 0.4);
 }
 .bt { font-size: 14.5px; font-weight: 700; color: #F9FAFB; line-height: 1.25; }
@@ -129,7 +118,7 @@ body {
 .cardhead { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
 .cardhead h2 { margin: 0; }
 .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-.frow { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.frow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
 .row { display: flex; gap: 14px; }
 .row > div { flex: 1; min-width: 0; }
 
@@ -139,9 +128,7 @@ input[type=text], input[type=number], textarea, select {
   width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px;
   background: #030712; color: #F9FAFB; font-size: 13px; font-family: inherit; transition: all 0.15s ease;
 }
-input:focus, textarea:focus, select:focus {
-  outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accentglow);
-}
+input:focus, textarea:focus, select:focus { outline: 0; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accentglow); }
 textarea { resize: vertical; min-height: 75px; line-height: 1.6; }
 .hint, .small { font-size: 12px; color: var(--muted); }
 .tipline {
@@ -151,7 +138,7 @@ textarea { resize: vertical; min-height: 75px; line-height: 1.6; }
 .kv { display: flex; gap: 16px; font-size: 12.5px; color: var(--muted); margin-top: 8px; flex-wrap: wrap; }
 .kv label { margin: 0; font-weight: 500; cursor: pointer; }
 
-/* Buttons */
+/* Buttons & Pills */
 .btn {
   border: 1px solid var(--line); background: var(--panel2); color: #F3F4F6; border-radius: 9px; padding: 9px 16px;
   font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit; transition: all 0.15s ease;
@@ -224,6 +211,17 @@ textarea { resize: vertical; min-height: 75px; line-height: 1.6; }
 .msg.err { background: var(--errbg); color: var(--err); border-color: rgba(239, 68, 68, 0.3); }
 .msg.ok { background: var(--okbg); color: var(--ok); border-color: rgba(16, 185, 129, 0.3); }
 
+/* Story & Cause-Effect Badges */
+.story-tag {
+  display: inline-flex; align-items: center; gap: 4px; padding: 3px 10px; border-radius: 6px; font-size: 11px; font-weight: 700;
+  background: rgba(168, 85, 247, 0.15); color: #C084FC; border: 1px solid rgba(168, 85, 247, 0.3); margin-top: 6px;
+}
+.causal-line {
+  font-size: 11.5px; color: #9CA3AF; background: #030712; border: 1px solid var(--line); border-left: 3px solid #8B5CF6;
+  padding: 8px 12px; border-radius: 8px; margin: 8px 0; line-height: 1.5;
+}
+.causal-line b { color: #C084FC; }
+
 /* Film Shot Cards */
 .shot { border: 1px solid var(--line); border-radius: 11px; background: var(--panel2); padding: 12px 14px; margin-top: 10px; }
 .shot .h { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
@@ -247,7 +245,7 @@ textarea { resize: vertical; min-height: 75px; line-height: 1.6; }
 .fh .sid { font-family: var(--mono); font-size: 11px; font-weight: 800; background: var(--nav); color: #fff; padding: 3px 8px; border-radius: 6px; }
 .fh .tc { font-family: var(--mono); font-size: 11.5px; color: var(--muted); font-weight: 600; }
 .fh .bg { font-size: 11px; color: var(--accent2); background: var(--accentsoft); border-radius: 999px; padding: 3px 11px; font-weight: 700; }
-.fmeta { font-size: 12px; color: var(--muted); margin: 8px 0 10px; line-height: 1.65; }
+.fmeta { font-size: 12px; color: var(--muted); margin: 8px 0 6px; line-height: 1.65; }
 .fmeta b { color: #F3F4F6; }
 .fp {
   white-space: pre-wrap; word-break: break-word; font-size: 11.5px; line-height: 1.8; background: #030712; color: #D1D5DB;
@@ -287,7 +285,7 @@ code { font-family: var(--mono); font-size: 11.5px; background: #030712; padding
 .empty { text-align: center; padding: 40px 16px; color: var(--muted); }
 .empty .big2 { font-size: 32px; margin-bottom: 10px; opacity: 0.6; }
 
-@media (max-width: 1024px) { .grid, .frow { grid-template-columns: 1fr; } }
+@media (max-width: 1024px) { .grid, .frow { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 860px) {
   .app { grid-template-columns: 1fr; }
   .side { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 10px; padding: 12px 16px; }
@@ -307,7 +305,7 @@ code { font-family: var(--mono); font-size: 11.5px; background: #030712; padding
       <span class="logo">LWU</span>
       <div>
         <div class="bt">乐高战争宇宙</div>
-        <div class="bs">Production Bible <b>V5.5</b><br>构建 2026-08-05 22:20 · 资产 392</div>
+        <div class="bs">Production Bible <b>V6.0</b><br>构建 2026-08-05 22:30 · 资产 392</div>
       </div>
     </div>
 
@@ -350,7 +348,7 @@ code { font-family: var(--mono); font-size: 11.5px; background: #030712; padding
     <header class="mhead">
       <div>
         <h1 id="viewTitle">整片生成</h1>
-        <div class="mh-sub" id="viewSub">一句主题 + 一个时长 → 全片 8 秒分镜提示词</div>
+        <div class="mh-sub" id="viewSub">一句主题 + 叙事剧本模板 → 全片因果连贯 8 秒分镜提示词</div>
       </div>
       <div class="stats">
         <div class="stat"><b id="statShots">0</b><span>镜头</span></div>
@@ -363,8 +361,8 @@ code { font-family: var(--mono); font-size: 11.5px; background: #030712; padding
 
     <section class="view on" data-view="film">
       <div class="card hero">
-        <h2>🎬 一句主题 + 一个时长 → 整片分镜提示词</h2>
-        <p class="tipline">Google Flow 单次只能生成 <b>8 秒</b>。3 分钟的片子 = <b>23 个连贯的 8 秒镜头</b>。填好主题与总时长，系统自动拆成带起承转合的分镜，全片锁定同一角色、场景与色调，你在 Flow 里按 S001→S0NN 顺序生成后拼接即可。</p>
+        <h2>🎬 电影级智能叙事分镜编排</h2>
+        <p class="tipline">解决视频拼接散乱的核心：引入<b>电影因果链 (Cause & Effect Chain)</b>！每个 8 秒镜头的动作必然成为下一镜头的起因。配合 5 大经典战争电影叙事剧本，全片起承转合自然完整。</p>
         <label>视频主题</label>
         <textarea id="themeInput" placeholder="例如：阿帕奇武装直升机夜袭沙漠中的坦克纵队，爆炸火光四起"></textarea>
         <div class="presets">
@@ -384,11 +382,21 @@ code { font-family: var(--mono); font-size: 11.5px; background: #030712; padding
             <input type="number" id="filmDur" value="60" min="8" max="1200" step="8">
           </div>
           <div>
+            <label>📖 电影叙事剧本 (Story Archetype)</label>
+            <select id="storyArchetype">
+              <option value="raid">突袭与反击 (Raid & Counter)</option>
+              <option value="rescue">绝地营救 (Desperate Rescue)</option>
+              <option value="convoy">护送与突破 (Convoy Ambush)</option>
+              <option value="cqb">设施攻坚 (CQB Breach)</option>
+              <option value="epic">史诗战役 (Epic Battle)</option>
+            </select>
+          </div>
+          <div>
             <label>叙事节奏</label>
             <select id="filmRhythm"></select>
           </div>
           <div>
-            <label>画幅比例（全片统一）</label>
+            <label>画幅比例</label>
             <select id="ratio"><option>16:9</option><option>9:16</option><option>2.39:1</option></select>
           </div>
         </div>
@@ -401,7 +409,7 @@ code { font-family: var(--mono); font-size: 11.5px; background: #030712; padding
           <button class="pill" data-sec="300">5 分钟</button>
           <button class="pill" data-sec="600">10 分钟</button>
         </div>
-        <button class="btn primary big" id="filmBtn">🎬 生成整片分镜（自动切成 8 秒镜头）</button>
+        <button class="btn primary big" id="filmBtn">🎬 生成完整叙事分镜（带因果链逻辑）</button>
         <div class="small" style="margin-top:8px">快捷键：在主题框里按 <code>Ctrl</code> + <code>Enter</code> 直接生成</div>
         <div id="filmReport"></div>
       </div>
@@ -420,7 +428,7 @@ code { font-family: var(--mono); font-size: 11.5px; background: #030712; padding
           <div class="pt">0 / 0 已在 Flow 生成</div>
         </div>
         <div id="filmMeta" class="small" style="display:none"></div>
-        <div id="filmShots"><div class="empty"><div class="big2">🎬</div>还没有分镜。在上面填好主题与时长，点「生成整片分镜」即可。</div></div>
+        <div id="filmShots"><div class="empty"><div class="big2">🎬</div>还没有分镜。在上面填好主题与时长，点「生成完整叙事分镜」即可。</div></div>
       </div>
     </section>
 
@@ -727,11 +735,11 @@ function renderMultiChips(elId,items,store){
 
 function linesOf(a){return a?a.lines.join(", "):"";}
 
-/* ================= 物理锚定与极致提示词组装引擎 (assemble V5.5) ================= */
+/* ================= 物理锚定与极致提示词组装引擎 (assemble V6.0) ================= */
 function assemble(shot){
   var blocks = [];
   
-  // 1. 物理运镜与镜头指令 (Camera & Optics Directive)
+  // 1. 物理运镜与镜头指令 (Camera Directive)
   var cam = byId(D.cameras, shot.cam);
   var camText = cam ? linesOf(cam) : "Cinematic 35mm wide lens, low angle steady-cam motion";
   blocks.push("Camera Directive: " + camText + ", shutter angle 180°, natural motion blur, shallow depth of field (f/2.0), 24fps.");
@@ -994,62 +1002,55 @@ function boot(){
   $("add").onclick=addShot;
 }
 
-/* ================= 扩充核心动作模板库 (ACT_T V5.5) ================= */
-var ACT_T={
-  establish:[
-    "wide panoramic establishing view of {S} maintaining tactical holding position in the {E}, gentle dust drifting through the static lens",
-    "{S} holds overwatch under quiet skies, optical sensors sweeping across the vast open terrain of the {E}",
-    "slow dramatic reveal of {S} stationed within the {E}, crews preparing equipment before the operation commences",
-    "atmospheric long shot showing {S} looming silently in the center of the {E}, calm before combat"
-  ],
-  build:[
-    "{S} moves forward into an aggressive firing position in the {E}, weapon systems traversing toward target coordinates",
-    "{S} advances steadily through the tactical lanes of the {E}, radio chatter echoing as formation tightens",
-    "{S} accelerates rapidly across the rugged terrain of {E}, high-speed momentum building as tension rises",
-    "{S} maneuvers tightly behind cover in the {E}, weapon raised in alert battle-ready posture"
-  ],
-  climax:[
-    "{S} unleashes a devastating assault, muzzle blast tearing through heavy smoke while brick debris flies past the lens",
-    "{S} scores a direct explosive hit in the {E}, giant fireball erupting as shockwave reverberates across the scene",
-    "{S} engages at close range with intense firing, smoke and embers swirling violently around the models",
-    "{S} delivers relentless heavy fire, armor plating glowing under flash illumination amidst total combat chaos"
-  ],
-  resolve:[
-    "smoke drifts slowly over burning wrecks as {S} navigates cautiously through the quiet aftermath in the {E}",
-    "{S} halts in the ruined setting of {E}, embers settling gently around as battle silence descends",
-    "final wide silhouetted shot of {S} standing firm against towering smoke rising over the quiet {E}",
-    "{S} stands victorious amid scattered brick debris in the {E}, soft twilight light filtering through fading haze"
-  ]
-};
+/* ================= 电影级叙事剧本与因果链编排引擎 (Story Engine V6.0) ================= */
 
-var ACT_TZH={
-  establish:[
-    "全景大广角：{S} 在 {E} 保持战术待命姿态，微尘飘过静止镜头",
-    "{S} 在高处警戒监视，光学传感器扫过 {E} 的空旷地平线",
-    "缓慢推镜头揭示：{S} 在 {E} 集结就位，人员进行行动前最后检查",
-    "氛围感长镜头：{S} 伫立于 {E} 中心，暴风雨前的寂静"
-  ],
-  build:[
-    "{S} 推进至开火姿态，武器系统转向 {E} 目标方位",
-    "{S} 稳步穿过 {E} 战术通道，无线电交谈声中队列收紧",
-    "{S} 在 {E} 高速推进，张力随着快速移动急剧上升",
-    "{S} 在 {E} 掩体后紧急战术机动，举枪保持高度戒备"
-  ],
-  climax:[
-    "{S} 猛烈开火，炮口焰撕裂浓烟，碎片掠过镜头",
-    "{S} 在 {E} 直接命中目标，巨大火球腾起，冲击波横扫战场",
-    "{S} 近距离激烈交火，硝烟与火花在模型四周狂乱飞舞",
-    "{S} 倾泻火力，装甲在闪光中显现，全场进入高潮"
-  ],
-  resolve:[
-    "浓烟从残骸上飘过，{S} 缓缓穿过 {E} 战后现场",
-    "{S} 在 {E} 废墟中停下，余烬飘落，战场恢复寂静",
-    "剪影大全景：{S} 伫立于 {E} 升起的烟柱前",
-    "{S} 伫立在 {E} 散落的碎片中，暮光穿透渐隐的烟雾"
-  ]
+var STORY_ARCHETYPES = {
+  raid: {
+    name: "突袭与反击 (Raid & Counter)",
+    chain: [
+      { tier: "establish", cause: "高空无人机光学侦察发现敌方阵地隐蔽据点", action: "wide shot of {S} maintaining silent overwatch in the {E}", actionZh: "大景交待：{S} 在 {E} 保持隐蔽侦察与监控" },
+      { tier: "build", cause: "侦察确认目标后，攻击机群/突击车队接到开火指令突入", action: "{S} advances aggressively into firing coordinates across the {E}", actionZh: "推进阶段：{S} 快速突入 {E} 预定开火阵地" },
+      { tier: "climax", cause: "突入后遭遇强力阻击，双方展开全面交火与爆破", action: "{S} unleashes heavy firing assault, muzzle blasts and brick debris flying past the lens", actionZh: "高潮阶段：{S} 猛烈开火，炮口焰撕裂战场，碎片飞舞" },
+      { tier: "resolve", cause: "清除敌方主要火点后，部队打扫战场并警戒撤离", action: "smoke drifts slowly over destroyed targets as {S} secures the area in the {E}", actionZh: "收尾阶段：浓烟飘过残骸，{S} 完成扫荡并控制 {E}" }
+    ]
+  },
+  rescue: {
+    name: "绝地营救 (Desperate Rescue)",
+    chain: [
+      { tier: "establish", cause: "收到敌后落难飞行员求救信号，搜救直升机群紧急升空", action: "{S} flies low through hostile air corridor toward the {E}", actionZh: "开场阶段：{S} 低空穿越敌占区向 {E} 搜救点进发" },
+      { tier: "build", cause: "搜救小队抵达坠机区域，降落并建立外围防线", action: "{S} touches down under cover fire, rescue team deploying rapidly into the {E}", actionZh: "推进阶段：{S} 在掩护下降落，搜救人员迅速突入 {E}" },
+      { tier: "climax", cause: "敌方援军围攻搜救点，搜救兵在猛烈交火中抢救伤员登机", action: "{S} provides suppressing fire while stretcher team drags casualty under explosive mortar fire", actionZh: "高潮阶段：{S} 猛烈火力压制，担架队在炮火中后送伤员" },
+      { tier: "resolve", cause: "伤员成功登机，直升机拔地而起发射干扰弹避开追击", action: "{S} ascends vertically releasing flares into the twilight air above the ruined {E}", actionZh: "收尾阶段：{S} 释放干扰弹紧急升空，脱离 {E} 战场" }
+    ]
+  },
+  convoy: {
+    name: "护送与突破 (Convoy Ambush)",
+    chain: [
+      { tier: "establish", cause: "装甲车队按计划沿危险公路开进，执行补给/护送任务", action: "{S} drives in tight tactical formation along the dusty road of the {E}", actionZh: "开场阶段：{S} 组成战术车队在 {E} 公路上行进" },
+      { tier: "build", cause: "领航车遭遇路边炸弹伏击，车队被迫停下下车建立防御", action: "explosion rocks the convoy as {S} halts and soldiers dismount into firing positions", actionZh: "推进阶段：伏击爆发，{S} 紧急停车，步兵下车建立环形防线" },
+      { tier: "climax", cause: "遭遇两侧高地敌军交叉火力，呼叫重型火炮/空中支援破局", action: "{S} returns overwhelming counter-fire, heavy cannon shells tearing up hostile positions", actionZh: "高潮阶段：{S} 集中重火力猛烈反击，压制两侧敌方火点" },
+      { tier: "resolve", cause: "击退伏击敌军，车队拖拽受损车辆突破封锁线", action: "damaged vehicles are towed as {S} resumes movement through smoke drifting over {E}", actionZh: "收尾阶段：{S} 拖拽战损车辆，在烟幕掩护下强行突破" }
+    ]
+  },
+  cqb: {
+    name: "设施攻坚 (CQB Breach)",
+    chain: [
+      { tier: "establish", cause: "特战小队隐蔽接近敌方强固建筑物外围", action: "{S} moves silently along the outer wall of the target structure in the {E}", actionZh: "开场阶段：{S} 沿 {E} 目标建筑外墙隐蔽摸进" },
+      { tier: "build", cause: "安放爆破炸药引爆防爆门，小队鱼贯突入室内", action: "breaching charge blows the door inward as {S} stacks and floods into the rooms", actionZh: "推进阶段：定向爆破炸开大门，{S} 紧密战术队形破门突入" },
+      { tier: "climax", cause: "室内遭遇顽抗，在狭窄走廊展开极近距离枪战", action: "{S} engages targets at point-blank range, flashbangs detonate and smoke fills corridor", actionZh: "高潮阶段：{S} 在走廊展开近距离激战，闪光弹爆裂" },
+      { tier: "resolve", cause: "清剿所有房间，控制目标并向指挥中心报告安全", action: "{S} signals all clear, standing guard inside the secured interior of {E}", actionZh: "收尾阶段：{S} 完成房间清剿，在 {E} 室内打出安全信号" }
+    ]
+  },
+  epic: {
+    name: "史诗战役 (Epic Battle)",
+    chain: [
+      { tier: "establish", cause: "主力兵团战前集结，两军在地平线两侧对峙", action: "massive army of {S} assembled across the vast expanse of the {E}", actionZh: "开场阶段：{S} 大军在 {E} 旷野上列阵对峙" },
+      { tier: "build", cause: "号角响起，装甲与步兵方阵启动全线压上", action: "{S} moves forward in synchronized battalion wave across the field of {E}", actionZh: "推进阶段：{S} 组成波次方阵向敌阵全线压上" },
+      { tier: "climax", cause: "两军主力正面轰然相撞，炮火与硝烟遮天蔽日", action: "{S} collides in full battle clash, main cannons firing simultaneously under barrage", actionZh: "高潮阶段：{S} 正面轰然交火，万炮齐发，战场陷入白热化" },
+      { tier: "resolve", cause: "硝烟渐散，幸存部队在残骸遍布的战役遗址上沉思", action: "sunlight strikes through clearing smoke as {S} holds the battlefield of {E}", actionZh: "收尾阶段：阳光穿透渐散的硝烟，{S} 伫立在战后残骸之上" }
+    ]
+  }
 };
-
-function fpick(arr,i){return arr[i%arr.length];}
 
 function buildFilmLocal(theme,secs,n){
   var cast=allSubjects().slice(0, 3);
@@ -1057,84 +1058,94 @@ function buildFilmLocal(theme,secs,n){
   var clr=D.colorGrades[0];
   var movie=theme.length>18?theme.slice(0,18)+"…":theme;
   var shots=[];
-  var tiers=["establish","build","climax","resolve"];
+  
+  var archKey = $("storyArchetype") ? $("storyArchetype").value : "raid";
+  var archetype = STORY_ARCHETYPES[archKey] || STORY_ARCHETYPES.raid;
+  var chain = archetype.chain;
   
   for(var i=0; i<n; i++){
-    var tier=tiers[Math.min(i, 3)];
-    var lead=cast[i%cast.length];
-    var subs=[{id:lead.id,variant:"weathered"}];
-    var cam=D.cameras[i%D.cameras.length]||D.cameras[0];
-    var lgt=D.lighting[i%D.lighting.length]||D.lighting[0];
+    var beat = chain[i % chain.length];
+    var tier = beat.tier;
+    var lead = cast[i % cast.length];
+    var subs = [{id:lead.id, variant:"weathered"}];
+    var cam = D.cameras[i % D.cameras.length] || D.cameras[0];
+    var lgt = D.lighting[i % D.lighting.length] || D.lighting[0];
     
-    var names=lead.name;
-    var namesZh=lead.nameZh||lead.name;
-    var envN=env?env.name:"battlefield";
-    var envZ=env?(env.nameZh||env.name):"战场";
+    var names = lead.name;
+    var namesZh = lead.nameZh || lead.name;
+    var envN = env ? env.name : "battlefield";
+    var envZ = env ? (env.nameZh || env.name) : "战场";
     
-    var title=fpick(ACT_T[tier],i).replace(/\{S\}/g,names).replace(/\{E\}/g,envN);
-    var titleZh=fpick(ACT_TZH[tier],i).replace(/\{S\}/g,namesZh).replace(/\{E\}/g,envZ);
+    var title = beat.action.replace(/\{S\}/g, names).replace(/\{E\}/g, envN);
+    var titleZh = beat.actionZh.replace(/\{S\}/g, namesZh).replace(/\{E\}/g, envZ);
+    var causeText = beat.cause;
     
-    var shot={
-      sid:"S"+String(i+1).padStart(3,"0"),movie:movie,title:title,
-      subjects:subs,env:env?env.id:"",cam:cam?cam.id:"",lgt:lgt?lgt.id:"",clr:clr?clr.id:"",
-      motions:[],fx:D.fx.slice(0,1).map(function(x){return x.id;}),audio:D.audio.slice(0,1).map(function(x){return x.id;}),
-      ratio:$("ratio").value,dlg:"",cont:i>0,neg:true
+    var shot = {
+      sid: "S" + String(i + 1).padStart(3, "0"), movie: movie, title: title,
+      subjects: subs, env: env ? env.id : "", cam: cam ? cam.id : "", lgt: lgt ? lgt.id : "", clr: clr ? clr.id : "",
+      motions: [], fx: D.fx.slice(0, 1).map(function(x){ return x.id; }), audio: D.audio.slice(0, 1).map(function(x){ return x.id; }),
+      ratio: $("ratio").value, dlg: "", cont: i > 0, neg: true,
+      cause: causeText, archetype: archetype.name
     };
-    shot.prompt=assemble(shot);shot.promptZh=assembleZh(shot);
-    shot.tier=tier;shot.phaseZh=tier;shot.titleZh=titleZh;shot.start=i*8;
+    shot.prompt = assemble(shot); shot.promptZh = assembleZh(shot);
+    shot.tier = tier; shot.phaseZh = tier; shot.titleZh = titleZh; shot.start = i * 8;
     shots.push(shot);
   }
   
-  FILM=shots;
-  S.movies[movie]=shots.slice();S.current=movie;
+  FILM = shots;
+  S.movies[movie] = shots.slice(); S.current = movie;
   saveProject();
-  renderFilm(theme,secs,n,env,clr);
-  try{renderAll();}catch(e){}
+  renderFilm(theme, secs, n, env, clr, archetype.name);
+  try{ renderAll(); } catch(e){}
 }
 
 var FILM=[];
-function renderFilm(theme,secs,n,env,clr){
-  var total=n*8;
-  var mv=$("filmMeta");mv.style.display="";
-  mv.innerHTML="主题：<b>"+theme+"</b>｜共 <b>"+n+"</b> 个镜头 × 8 秒 = <b>"+total+" 秒</b>";
-  var box=$("filmShots");box.innerHTML="";
+function renderFilm(theme,secs,n,env,clr,storyName){
+  var total = n * 8;
+  var mv = $("filmMeta"); mv.style.display = "";
+  mv.innerHTML = "主题：<b>" + theme + "</b>｜剧本：<b>" + (storyName||"突袭与反击") + "</b>｜共 <b>" + n + "</b> 个镜头 × 8 秒 = <b>" + total + " 秒</b>";
+  var box = $("filmShots"); box.innerHTML = "";
   
   FILM.forEach(function(s){
-    var d=document.createElement("div");d.className="fshot t-"+s.tier;
-    d.innerHTML="<div class='fh'><span class='sid'>"+s.sid+"</span><span class='tc'>"+s.start+"s - "+(s.start+8)+"s</span><span class='bg'>"+s.tier+"</span></div>"+
-      "<div class='fmeta'><b>"+s.titleZh+"</b></div>"+
-      "<pre class='fp'>"+s.prompt+"</pre>";
-    var b=document.createElement("button");b.className="btn cp";b.textContent="📋 复制提示词";
-    b.onclick=function(){navigator.clipboard.writeText(s.prompt);toast("已复制 "+s.sid);};
-    d.appendChild(b);box.appendChild(d);
+    var d = document.createElement("div"); d.className = "fshot t-" + s.tier;
+    
+    var causeHtml = s.cause ? "<div class='causal-line'><b>因果链触发 (Cause & Effect):</b> " + s.cause + "</div>" : "";
+    
+    d.innerHTML = "<div class='fh'><span class='sid'>" + s.sid + "</span><span class='tc'>" + s.start + "s - " + (s.start+8) + "s</span><span class='bg'>" + s.tier + "</span><span class='story-tag'>📖 " + (s.archetype||"叙事分镜") + "</span></div>" +
+      causeHtml +
+      "<div class='fmeta'><b>" + s.titleZh + "</b></div>" +
+      "<pre class='fp'>" + s.prompt + "</pre>";
+    var b = document.createElement("button"); b.className = "btn cp"; b.textContent = "📋 复制提示词";
+    b.onclick = function(){ navigator.clipboard.writeText(s.prompt); toast("已复制 " + s.sid); };
+    d.appendChild(b); box.appendChild(d);
   });
 }
 
 function initFilm(){
-  $("filmBtn").onclick=function(){
-    var t=$("themeInput").value.trim();
-    var sec=parseInt($("filmDur").value,10)||60;
-    var n=Math.max(1,Math.round(sec/8));
-    buildFilmLocal(t||"沙漠突击队攻势",sec,n);
+  $("filmBtn").onclick = function(){
+    var t = $("themeInput").value.trim();
+    var sec = parseInt($("filmDur").value, 10) || 60;
+    var n = Math.max(1, Math.round(sec / 8));
+    buildFilmLocal(t || "沙漠突击队攻势", sec, n);
   };
-  $("filmCopyAll").onclick=function(){
-    if(!FILM.length){toast("请先生成");return;}
-    var txt=FILM.map(function(s){return s.prompt;}).join("\n\n");
-    navigator.clipboard.writeText(txt);toast("已复制全部提示词");
+  $("filmCopyAll").onclick = function(){
+    if(!FILM.length){ toast("请先生成"); return; }
+    var txt = FILM.map(function(s){ return s.prompt; }).join("\n\n");
+    navigator.clipboard.writeText(txt); toast("已复制全部提示词");
   };
 }
 
 function initTabs(){
   document.querySelectorAll(".navtab").forEach(function(t){
-    t.onclick=function(){
-      var v=t.getAttribute("data-view");
-      document.querySelectorAll(".navtab").forEach(function(x){x.classList.toggle("on",x===t);});
-      document.querySelectorAll(".view").forEach(function(s){s.classList.toggle("on",s.getAttribute("data-view")===v);});
+    t.onclick = function(){
+      var v = t.getAttribute("data-view");
+      document.querySelectorAll(".navtab").forEach(function(x){ x.classList.toggle("on", x === t); });
+      document.querySelectorAll(".view").forEach(function(s){ s.classList.toggle("on", s.getAttribute("data-view") === v); });
     };
   });
 }
 
-loadData().then(function(j){D=j;S=loadProject();boot();initFilm();initTabs();}).catch(function(e){console.error(e);});
+loadData().then(function(j){ D = j; S = loadProject(); boot(); initFilm(); initTabs(); }).catch(function(e){ console.error(e); });
 
 </script>
 </body>
