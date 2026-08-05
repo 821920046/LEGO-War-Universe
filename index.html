@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>乐高战争宇宙 · 提示词工作台 V4.3</title>
+<title>乐高战争宇宙 · 提示词工作台 V4.5</title>
 <style>
 :root{
   --bg:#EEF0F4;--panel:#FFFFFF;--panel2:#F7F8FA;--ink:#1B1D21;--muted:#6B7280;--line:#E1E4E9;
@@ -214,7 +214,7 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--soft2);padding:1p
       <span class="logo">LWU</span>
       <div>
         <div class="bt">乐高战争宇宙</div>
-        <div class="bs">Production Bible <b>V4.3</b><br>构建 2026-08-05 12:31 · 资产 392</div>
+        <div class="bs">Production Bible <b>V4.5</b><br>构建 2026-08-05 12:49 · 资产 392</div>
       </div>
     </div>
 
@@ -461,7 +461,11 @@ code{font-family:var(--mono);font-size:11.5px;background:var(--soft2);padding:1p
             5. 想自定义顺序可加 <code>MODELS</code>，例如 <code>gemini:gemini-2.0-flash, groq:llama-3.3-70b-versatile, openrouter:deepseek/deepseek-chat-v3-0324:free</code>；一个模型失败会自动换下一个，并按请求轮询分摊额度。<br>
             6. <b>全免费方案（推荐）</b>：只需设置 <code>MODELS</code> = <code>free</code>，即启用内置的 <b>11 档免费模型链</b>，全部来自 <b>Gemini、Groq、OpenRouter</b> 三个免费账号：Gemini 2.0 Flash / Flash-Lite / 1.5 Flash → Groq Llama 3.3 70B / 3.1 8B / Gemma2 9B → OpenRouter 的 DeepSeek V3、Gemini 2.0 Flash Exp、Llama 3.3 70B、Qwen2.5 72B、Mistral Small（均为 <code>:free</code> 版）。没配的密钥会自动跳过，配 1 个就能跑，配 3 个最抗限流，全程零费用。<br>
             7. <b>体检（排错神器）</b>：部署后在浏览器直接打开 <code>你的域名/api/compose?probe=1</code>，它会逐个真实调用链上的每个模型，返回 <code>ok:true/false</code> 与失败原因（密钥无效 / 限流 429 / 模型名不存在 / 超时），一眼看出到底是哪一家出了问题。<br>
-            8. 如遇 <b>502</b>：说明 AI 函数被平台中断。V4.3 已内置 24 秒总预算 + 最多 4 次故障转移，正常不会再出现；若仍出现可加 <code>DEADLINE_MS</code>=<code>18000</code>、<code>MAX_ATTEMPTS</code>=<code>3</code> 进一步收紧。
+            8. 如遇 <b>502</b>：说明 AI 函数被平台中断。V4.3 已内置 24 秒总预算 + 最多 4 次故障转移，正常不会再出现；若仍出现可加 <code>DEADLINE_MS</code>=<code>18000</code>、<code>MAX_ATTEMPTS</code>=<code>3</code> 进一步收紧。<br>
+            9. <b>413 Request too large</b>：Groq 免费档每分钟只允许 6000 tokens。V4.4 已改为按供应商动态压缩提示词（Groq 直接用小号资产表，其他家遇 413 自动逐级缩小重试），不需你做任何配置。<br>
+            10. <b>429 quota exceeded</b>：该家当日/当前免费额度已用尽（Gemini 免费档每分钟、每日都有上限）。等额度重置，或把三家密钥都配上——链上任何一家可用就能成功。<br>
+            11. <b>账号池（多个免费账号轮询，推荐）</b>：同一供应商可以放多个免费账号的密钥，额度相当于叠加。两种写法（可混用）：<br>&nbsp;&nbsp;① <code>OPENROUTER_API_KEYS</code> = <code>sk-or-a, sk-or-b, sk-or-c</code>（逗号/换行分隔，一个变量装全部）<br>&nbsp;&nbsp;② <code>OPENROUTER_API_KEY_1</code>、<code>OPENROUTER_API_KEY_2</code>…最多 <code>_12</code>（一个变量一个账号）<br>&nbsp;&nbsp;每次请求从不同账号起步（轮询）；某个账号返回 429/401/402 时，<b>立即用同一模型换下一个账号重试</b>，而不是跳到下一个模型。密钥会自动去重。<br>&nbsp;&nbsp;同样适用于其他家：<code>GEMINI_API_KEYS</code>、<code>GROQ_API_KEY_1</code> 等。可选 <code>KEY_TRIES</code>=<code>3</code> 限制单模型最多消耗几个账号。<br>
+            12. <b>账号体检</b>：打开 <code>你的域名/api/compose?probe=keys</code>，逐个真实测试池内每个密钥，返回密钥后四位、是否可用与失败原因，一眼看出哪个账号失效。
           </div>
         </details>
       </div>
@@ -1371,6 +1375,9 @@ loadData().then(function(j){D=j;S=loadProject();boot();initAuto();initFilm();ini
         setAi("ok","已就绪 · "+j.modelCount+" 个模型",
           "<div class='msg ok'>AI 导演已就绪，共 "+j.modelCount+" 个模型，按顺序自动故障转移（"+
           (j.rotation==="off"?"严格优先级":"轮询分摊")+"，单模型超时 "+(j.timeoutMs/1000)+" 秒）。</div>"+
+          (function(){var p=j.keyPools||{};var ks=Object.keys(p);if(!ks.length)return "";
+            var tot=0;ks.forEach(function(k){tot+=p[k];});
+            return "<div style='margin-top:8px'><b>账号池：</b>共 "+tot+" 个密钥——"+ks.map(function(k){return k+" × "+p[k];}).join("，")+"（每次请求轮流起点，遇 429 自动换另一个账号）</div>";})()+
           "<div style='margin-top:8px'><b>模型链：</b><br>"+(j.chain||[]).map(function(c,i){
             return (i+1)+". <code>"+c+"</code>";}).join("<br>")+"</div>"+
           ((j.skipped&&j.skipped.length)?"<div style='margin-top:8px'><b>已跳过：</b><br>"+j.skipped.map(function(s){

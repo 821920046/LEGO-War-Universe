@@ -27,6 +27,14 @@
  * Per provider overrides:  <PROVIDER>_MODEL , <PROVIDER>_BASE_URL
  *   e.g. DEEPSEEK_MODEL=deepseek-reasoner , OPENAI_BASE_URL=https://my-proxy/v1
  *
+ * KEY POOL (many free accounts per provider):
+ *   OPENROUTER_API_KEYS  = sk-or-a, sk-or-b, sk-or-c      (comma / newline separated)
+ *   OPENROUTER_API_KEY_1 = sk-or-a   OPENROUTER_API_KEY_2 = sk-or-b   ... up to _12
+ *   Works for every provider (GEMINI_API_KEYS, GROQ_API_KEY_1, ...). Keys are
+ *   de-duplicated, the starting account rotates per request, and a 429/401/402
+ *   on one account instantly retries the SAME model with the NEXT account.
+ *   KEY_TRIES = 3  -> cap how many accounts one model may burn per request
+ *
  * Other options:
  *   ROTATE       = off   -> always start at the first model (strict priority)
  *   TIMEOUT_MS   = 45000 -> per-model timeout in milliseconds
@@ -96,18 +104,42 @@ function upper(name) {
 	return String(name).toUpperCase().replace(/[^A-Z0-9]/g, "_");
 }
 
+/**
+ * Key pool. One provider may hold MANY free accounts; all sources below are
+ * read and de-duplicated, so several free OpenRouter accounts act as one big
+ * pooled quota:
+ *   <PROVIDER>_API_KEYS         several keys separated by , ; space or newline
+ *   <PROVIDER>_API_KEY          single key (legacy, still works)
+ *   <PROVIDER>_API_KEY_1 .. _12 one key per variable
+ */
+function keysFor(env, name, def) {
+	const U = upper(name);
+	const raw = [];
+	const pool = env[U + "_API_KEYS"] || env[U + "_KEYS"] || "";
+	if (pool) String(pool).split(/[\s,;]+/).forEach((k) => raw.push(k));
+	raw.push(env[def.keyVar] || "");
+	for (let i = 1; i <= 12; i++) raw.push(env[def.keyVar + "_" + i] || env[U + "_API_KEY" + i] || "");
+	const out = [];
+	raw.forEach((k) => {
+		const v = String(k || "").trim();
+		if (v && out.indexOf(v) < 0) out.push(v);
+	});
+	return out;
+}
+
 function makeEntry(env, providerName, modelOverride) {
 	const name = String(providerName || "").trim().toLowerCase();
 	const def = PROVIDERS[name];
 	if (!def) return { skip: "unknown provider", provider: name, model: modelOverride || "" };
 	const U = upper(name);
-	const key = env[def.keyVar] || "";
+	const keys = keysFor(env, name, def);
+	const key = keys[0] || "";
 	const base = env[U + "_BASE_URL"] || (name === "openai" ? env.OPENAI_BASE_URL || def.base : def.base);
 	const model = String(modelOverride || env[U + "_MODEL"] || def.model || "").trim();
 	if (!key) return { skip: "missing " + def.keyVar, provider: name, model: model };
 	if (def.kind === "openai" && !base) return { skip: "missing " + U + "_BASE_URL", provider: name, model: model };
 	if (!model) return { skip: "missing " + U + "_MODEL", provider: name, model: "" };
-	return { provider: name, kind: def.kind, key: key, base: base, model: model };
+	return { provider: name, kind: def.kind, key: key, keys: keys, base: base, model: model };
 }
 
 function buildChain(env) {
@@ -165,6 +197,18 @@ function rotate(chain, env) {
 	return chain.slice(start).concat(chain.slice(0, start));
 }
 
+/* Per-provider key cursor, so several free accounts share the load evenly. */
+const KEY_RR = {};
+
+function keyStart(provider, n) {
+	if (n < 2) return 0;
+	KEY_RR[provider] = ((KEY_RR[provider] || 0) + 1) % n;
+	return KEY_RR[provider];
+}
+
+/* Errors that mean "this ACCOUNT is done for now" -> switch to the next key. */
+const KEY_EXHAUSTED = /HTTP 429|HTTP 401|HTTP 402|HTTP 403|quota|rate.?limit|too many requests|insufficient|credit|unauthorized|invalid.{0,12}key|permission/i;
+
 /* ---------------- system prompts ---------------- */
 
 const SHOT_SYSTEM = [
@@ -198,28 +242,37 @@ const FILM_SYSTEM = [
 	'{"env":"ENV-xxx","clr":"CLR-xxx","weather":["FX-xxx"],"note":"one short Chinese sentence about the approach","shots":[{"phase":"establish","subjects":["CHR-xxx","VEH-xxx"],"cam":"CAM-xxx","lgt":"LGT-xxx","fx":["FX-xxx"],"audio":["AUD-xxx"],"motion":"...","action":"...","actionZh":"..."}]}',
 ].join("\n");
 
-function buildShotMsg(theme, assets) {
-	return ["THEME: " + theme, "", "AVAILABLE ASSETS (JSON):", JSON.stringify(assets)].join("\n");
+function buildShotMsg(theme, assetText) {
+	return [
+		"THEME: " + theme,
+		"",
+		"AVAILABLE ASSETS (one per line: id|name|nameZh|series|faction):",
+		assetText,
+	].join("\n");
 }
 
-function buildFilmMsg(payload, assets) {
-	return [
+function buildFilmMsg(payload, assetText, motions) {
+	const lines = [
 		"THEME: " + payload.theme,
 		"TOTAL DURATION: " + payload.seconds + " seconds",
 		"NUMBER OF SHOTS REQUIRED: " + payload.shots + " (each exactly 8 seconds)",
 		"RHYTHM TEMPLATE: " + (payload.rhythm || "trailer"),
-		"",
-		"ALLOWED MOTION PHRASES (copy verbatim):",
-		JSON.stringify(payload.motions || []),
-		"",
-		"AVAILABLE ASSETS (JSON, fields: id=asset id, k=kind, name=English name, zh=Chinese name, s=series/era, f=faction):",
-		JSON.stringify(assets),
-		"",
-		payload.total && payload.total > payload.shots
-			? "NOTE: your " + payload.shots + " beats will be evenly stretched to " + payload.total + " eight-second shots, so make every beat a clearly distinct story step."
-			: "",
-		"Return exactly " + payload.shots + " shots.",
-	].join("\n");
+	];
+	if (motions && motions.length) {
+		lines.push("", "ALLOWED MOTION PHRASES (copy verbatim, or omit the field):", motions.join(" / "));
+	}
+	lines.push("", "AVAILABLE ASSETS (one per line: id|name|nameZh|series|faction):", assetText, "");
+	if (payload.total && payload.total > payload.shots) {
+		lines.push(
+			"NOTE: your " +
+				payload.shots +
+				" beats will be evenly stretched to " +
+				payload.total +
+				" eight-second shots, so make every beat a clearly distinct story step."
+		);
+	}
+	lines.push("Return exactly " + payload.shots + " shots.");
+	return lines.join("\n");
 }
 
 /* ---------------- model calls ---------------- */
@@ -294,6 +347,11 @@ async function callOpenAI(entry, system, userMsg, maxTokens, ms, plain) {
 	return extractJson(text);
 }
 
+/* Free tiers are token-metered (Groq allows only 6000 tokens/minute), so the
+   prompt is built at three sizes and shrunk on demand. */
+const NEXT_LEVEL = { full: "lite", lite: "min", min: "" };
+const TOO_BIG = /HTTP 413|too large|context length|maximum context|tokens per minute|too many tokens|reduce the length|rate_limit_exceeded/i;
+
 /* Some free-tier models reject JSON mode outright; retry once in plain mode. */
 const JSON_MODE_ERR = /response_format|json_object|json_schema|responseMimeType|response mime|json mode|not support|unsupported/i;
 
@@ -316,7 +374,7 @@ async function callOne(entry, system, userMsg, maxTokens, ms) {
  * next model. `validate` may throw to reject a semantically bad answer, which
  * also triggers failover to the next model.
  */
-async function runChain(env, system, userMsg, maxTokens, validate) {
+async function runChain(env, system, makeMsg, maxTokens, validate) {
 	const built = buildChain(env);
 	const order = rotate(built.chain, env);
 	const attempts = [];
@@ -335,35 +393,75 @@ async function runChain(env, system, userMsg, maxTokens, validate) {
 
 	// Cloudflare kills a Pages Function that runs too long (the browser then sees
 	// a bare HTTP 502). So the whole failover walk lives inside one hard budget.
-	const perMs = Math.max(5000, Math.min(30000, parseInt(env.TIMEOUT_MS, 10) || 14000));
+	const perMs = Math.max(5000, Math.min(30000, parseInt(env.TIMEOUT_MS, 10) || 12000));
 	const totalMs = Math.max(8000, Math.min(28000, parseInt(env.DEADLINE_MS, 10) || 24000));
-	const maxTry = Math.max(1, Math.min(order.length, parseInt(env.MAX_ATTEMPTS, 10) || 4));
+	const maxTry = Math.max(1, Math.min(order.length, parseInt(env.MAX_ATTEMPTS, 10) || 8));
 	const deadline = Date.now() + totalMs;
 
-	for (let i = 0; i < order.length && i < maxTry; i++) {
+	let outOfTime = false;
+
+	for (let i = 0; i < order.length && i < maxTry && !outOfTime; i++) {
 		const entry = order[i];
-		const left = deadline - Date.now();
-		if (left < 4000) {
-			attempts.push({ provider: entry.provider, model: entry.model, error: "skipped: time budget exhausted" });
-			break;
-		}
-		const ms = Math.min(perMs, left);
-		try {
-			const raw = await callOne(entry, system, userMsg, maxTokens, ms);
-			const out = validate ? validate(raw) : raw;
-			return {
-				result: out,
-				provider: entry.provider,
-				model: entry.model,
-				attempts: attempts,
-				chainSize: order.length,
-			};
-		} catch (e) {
-			attempts.push({
-				provider: entry.provider,
-				model: entry.model,
-				error: String((e && e.message) || e).slice(0, 200),
-			});
+		// Groq meters only 6000 tokens/minute on the free tier, so it always gets
+		// the small prompt; everyone else starts full and shrinks on 413.
+		let level = entry.provider === "groq" ? "lite" : "full";
+
+		// Account pool: several free keys of the same provider are tried in turn,
+		// starting from a rotating offset so quota is spread across all accounts.
+		const keys = entry.keys && entry.keys.length ? entry.keys : [entry.key];
+		const keyCap = Math.max(1, Math.min(keys.length, parseInt(env.KEY_TRIES, 10) || keys.length));
+		let ki = keyStart(entry.provider, keys.length);
+		let keysBurned = 0;
+		const tag = (n) => (keys.length > 1 ? entry.provider + "#" + ((n % keys.length) + 1) : entry.provider);
+
+		for (let pass = 0; pass < 8; pass++) {
+			const left = deadline - Date.now();
+			if (left < 4000) {
+				attempts.push({ provider: tag(ki), model: entry.model, error: "skipped: time budget exhausted" });
+				outOfTime = true;
+				break;
+			}
+			const useKey = keys[ki % keys.length];
+			const label = tag(ki);
+			try {
+				const raw = await callOne(
+					Object.assign({}, entry, { key: useKey }),
+					system,
+					makeMsg(level),
+					maxTokens,
+					Math.min(perMs, left)
+				);
+				const out = validate ? validate(raw) : raw;
+				return {
+					result: out,
+					provider: label,
+					model: entry.model,
+					level: level,
+					account: (ki % keys.length) + 1,
+					accountPool: keys.length,
+					attempts: attempts,
+					chainSize: order.length,
+				};
+			} catch (e) {
+				const m = String((e && e.message) || e).slice(0, 200);
+				const smaller = NEXT_LEVEL[level];
+				if (TOO_BIG.test(m) && smaller) {
+					attempts.push({
+						provider: label,
+						model: entry.model,
+						error: "prompt too large at " + level + ", retrying " + smaller + " (" + m.slice(0, 80) + ")",
+					});
+					level = smaller;
+					continue;
+				}
+				attempts.push({ provider: label, model: entry.model, error: m });
+				keysBurned++;
+				if (keys.length > 1 && keysBurned < keyCap && KEY_EXHAUSTED.test(m)) {
+					ki++;
+					continue;
+				}
+				break;
+			}
 		}
 	}
 
@@ -377,23 +475,66 @@ async function runChain(env, system, userMsg, maxTokens, validate) {
 
 /* ---------------- payload shaping ---------------- */
 
-/**
- * Free models choke on a 100 KB asset dump: they time out, hit rate limits, or
- * truncate their JSON. Keep the library recognisable but small.
- */
-function compactAssets(list) {
-	const cut = (v, n) => String(v == null ? "" : v).slice(0, n);
-	const out = [];
-	for (const a of list) {
-		if (!a || !a.id) continue;
-		const o = { id: a.id, name: cut(a.name || a.nameZh, 46) };
-		if (a.kind) o.k = cut(a.kind, 14);
-		if (a.nameZh && a.nameZh !== a.name) o.zh = cut(a.nameZh, 24);
-		if (a.series) o.s = cut(a.series, 18);
-		if (a.faction) o.f = cut(a.faction, 20);
-		out.push(o);
+const KIND_QUOTA = {
+	full: { character: 70, vehicle: 55, weapon: 18, prop: 22, environment: 34, camera: 14, lighting: 12, colorGrade: 5, fx: 26, audio: 16 },
+	lite: { character: 26, vehicle: 20, weapon: 8, prop: 8, environment: 12, camera: 8, lighting: 6, colorGrade: 4, fx: 12, audio: 8 },
+	min: { character: 12, vehicle: 10, weapon: 4, prop: 4, environment: 6, camera: 5, lighting: 4, colorGrade: 3, fx: 6, audio: 4 },
+};
+const MOTION_QUOTA = { full: 60, lite: 24, min: 0 };
+
+/** Chinese 2-grams + latin words, used to rank assets against the theme. */
+function themeTokens(theme) {
+	const t = String(theme || "").toLowerCase();
+	const set = new Set();
+	(t.match(/[a-z0-9]{3,}/g) || []).forEach((w) => set.add(w));
+	const cjk = t.replace(/[^\u4e00-\u9fa5]/g, "");
+	for (let i = 0; i < cjk.length - 1; i++) set.add(cjk.slice(i, i + 2));
+	return Array.from(set);
+}
+
+function scoreAsset(a, toks) {
+	const zh = String(a.nameZh || "") + " " + String(a.tag || "");
+	const en = (String(a.name || "") + " " + String(a.tag || "")).toLowerCase();
+	let s = 0;
+	for (const k of toks) {
+		if (!k) continue;
+		if (/[\u4e00-\u9fa5]/.test(k)) {
+			if (zh.indexOf(k) >= 0) s += 3;
+		} else if (en.indexOf(k) >= 0) s += 2;
 	}
-	return out;
+	return s;
+}
+
+/**
+ * The full 392-asset dump can never fit a token-metered free tier (Groq allows
+ * 6000 tokens/minute, which is why it answered HTTP 413). Keep the assets that
+ * actually relate to the theme, fill the rest by kind quota, and emit compact
+ * pipe-delimited lines instead of JSON (roughly 60% fewer tokens).
+ */
+function shapeAssets(list, theme, level) {
+	const quota = KIND_QUOTA[level] || KIND_QUOTA.full;
+	const toks = themeTokens(theme);
+	const byKind = {};
+	(list || []).forEach((a) => {
+		if (!a || !a.id) return;
+		const k = String(a.kind || "prop");
+		(byKind[k] = byKind[k] || []).push(a);
+	});
+	const cut = (v, n) => String(v == null ? "" : v).replace(/[|\r\n]/g, " ").slice(0, n);
+	const rows = [];
+	Object.keys(byKind).forEach((k) => {
+		const cap = quota[k] == null ? 8 : quota[k];
+		byKind[k]
+			.map((a, idx) => ({ a: a, s: scoreAsset(a, toks), i: idx }))
+			.sort((x, y) => y.s - x.s || x.i - y.i)
+			.slice(0, cap)
+			.forEach((r) => rows.push(r.a));
+	});
+	return rows
+		.map((a) =>
+			[a.id, cut(a.name || a.nameZh, 40), cut(a.nameZh, 20), cut(a.series, 14), cut(a.faction, 16)].join("|")
+		)
+		.join("\n");
 }
 
 /** Stretch a short beat plan into the exact number of 8-second shots. */
@@ -482,7 +623,60 @@ export async function onRequest(context) {
 
 		// /api/compose?probe=1 pings every model in the chain with a tiny prompt
 		// and reports exactly which keys/models actually work.
-		if (new URL(request.url).searchParams.get("probe")) {
+		const probeMode = new URL(request.url).searchParams.get("probe");
+
+		// /api/compose?probe=keys tests EVERY key of EVERY account pool one by one.
+		if (probeMode === "keys" || probeMode === "key") {
+			const rows = [];
+			const t0 = Date.now();
+			const done = new Set();
+			for (const e of built.chain) {
+				if (done.has(e.provider)) continue;
+				done.add(e.provider);
+				const ks = e.keys && e.keys.length ? e.keys : [e.key];
+				for (let n = 0; n < ks.length; n++) {
+					const row = {
+						provider: e.provider,
+						account: "#" + (n + 1),
+						keyTail: "…" + String(ks[n]).slice(-4),
+						model: e.model,
+					};
+					if (Date.now() - t0 > 20000) {
+						rows.push(Object.assign(row, { ok: false, error: "skipped: probe time budget" }));
+						continue;
+					}
+					const s = Date.now();
+					try {
+						await callOne(
+							Object.assign({}, e, { key: ks[n] }),
+							"Reply with strict JSON only.",
+							'Return {"ok":1}',
+							64,
+							8000
+						);
+						rows.push(Object.assign(row, { ok: true, ms: Date.now() - s }));
+					} catch (err) {
+						rows.push(
+							Object.assign(row, {
+								ok: false,
+								ms: Date.now() - s,
+								error: String((err && err.message) || err).slice(0, 180),
+							})
+						);
+					}
+				}
+			}
+			return json({
+				ok: rows.some((x) => x.ok),
+				version: "4.5",
+				mode: "probe-keys",
+				usable: rows.filter((x) => x.ok).length,
+				total: rows.length,
+				accounts: rows,
+			});
+		}
+
+		if (probeMode) {
 			const probe = [];
 			const t0 = Date.now();
 			for (const e of built.chain) {
@@ -506,7 +700,7 @@ export async function onRequest(context) {
 			}
 			return json({
 				ok: probe.some((x) => x.ok),
-				version: "4.3",
+				version: "4.5",
 				mode: "probe",
 				usable: probe.filter((x) => x.ok).length,
 				total: probe.length,
@@ -516,15 +710,19 @@ export async function onRequest(context) {
 		return json({
 			ok: built.chain.length > 0,
 			service: "LWU AI compose",
-			version: "4.3",
+			version: "4.5",
 			modes: ["shot", "film"],
 			modelCount: built.chain.length,
+			keyPools: built.chain.reduce((o, e) => {
+				o[e.provider] = (e.keys && e.keys.length) || (e.key ? 1 : 0);
+				return o;
+			}, {}),
 			chain: built.chain.map((e) => e.provider + ":" + e.model),
 			skipped: built.skipped,
 			rotation: String(env.ROTATE || "").toLowerCase() === "off" ? "off" : "round-robin",
-			timeoutMs: Math.max(5000, Math.min(30000, parseInt(env.TIMEOUT_MS, 10) || 14000)),
+			timeoutMs: Math.max(5000, Math.min(30000, parseInt(env.TIMEOUT_MS, 10) || 12000)),
 			deadlineMs: Math.max(8000, Math.min(28000, parseInt(env.DEADLINE_MS, 10) || 24000)),
-			maxAttempts: Math.max(1, Math.min(built.chain.length || 1, parseInt(env.MAX_ATTEMPTS, 10) || 4)),
+			maxAttempts: Math.max(1, Math.min(built.chain.length || 1, parseInt(env.MAX_ATTEMPTS, 10) || 8)),
 			tokenRequired: !!env.ACCESS_TOKEN,
 			hint: built.chain.length
 				? "Ready. Requests fail over down the chain in order."
@@ -547,8 +745,8 @@ export async function onRequest(context) {
 	}
 
 	const theme = String((payload && payload.theme) || "").slice(0, 500);
-	const assets = compactAssets(
-		Array.isArray(payload && payload.assets) ? payload.assets.slice(0, 700) : []
+	const assets = (Array.isArray(payload && payload.assets) ? payload.assets.slice(0, 700) : []).filter(
+		(a) => a && a.id
 	);
 	if (!theme) return json({ error: "Missing theme" }, 400);
 	if (!assets.length) return json({ error: "Missing assets" }, 400);
@@ -570,8 +768,17 @@ export async function onRequest(context) {
 			// budget, so ask for a compact beat plan and stretch it server-side.
 			const ask = Math.max(1, Math.min(12, wanted));
 			const askBody = Object.assign({}, body, { shots: ask, total: wanted });
-			const run = await runChain(env, FILM_SYSTEM, buildFilmMsg(askBody, assets), 4096, (raw) =>
-				sanitizeFilm(raw || {}, known, ask, wanted)
+			const run = await runChain(
+				env,
+				FILM_SYSTEM,
+				(lv) =>
+					buildFilmMsg(
+						askBody,
+						shapeAssets(assets, theme, lv),
+						(askBody.motions || []).slice(0, MOTION_QUOTA[lv] || 0)
+					),
+				4096,
+				(raw) => sanitizeFilm(raw || {}, known, ask, wanted)
 			);
 			return json(
 				Object.assign({}, run.result, {
@@ -583,8 +790,12 @@ export async function onRequest(context) {
 			);
 		}
 
-		const run = await runChain(env, SHOT_SYSTEM, buildShotMsg(theme, assets), 2048, (raw) =>
-			sanitizeShot(raw, known)
+		const run = await runChain(
+			env,
+			SHOT_SYSTEM,
+			(lv) => buildShotMsg(theme, shapeAssets(assets, theme, lv)),
+			1024,
+			(raw) => sanitizeShot(raw, known)
 		);
 		return json(
 			Object.assign({}, run.result, {
