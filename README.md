@@ -230,4 +230,4 @@ wrangler deploy
 wrangler secret put GEMINI_API_KEY
 ```
 
-把得到的地址填进页面的「⚙ AI 增强」即可。AI 只负责选资产和写动作句，提示词仍由 Bible 模板组装，风格不会跑偏；失败自动回退本地匹配。详见 `06_Deploy/README.md`。
+ 把得到的地址填进页面的「⚙ AI 增强」即可。AI 只负责选资产和写动作句，提示词仍由 Bible 模板组装，风格不会跑偏；失败自动回退本地匹配。详见 `06_Deploy/README.md`。
