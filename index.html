@@ -968,6 +968,74 @@ function renderContinuity(){
   box.innerHTML=html;
 }
 
+function updateHeaderStats(){
+  if(!S) return;
+  var shots = curShots();
+  var count = shots.length;
+  var durSec = count * 8;
+  var mm = Math.floor(durSec / 60);
+  var ss = String(durSec % 60).padStart(2, "0");
+  var doneCount = 0;
+  shots.forEach(function(s){ if(s.done) doneCount++; });
+  
+  txt($("statShots"), count);
+  txt($("statDur"), mm + ":" + ss);
+  txt($("statDone"), doneCount);
+}
+
+function storeInfo(){
+  var el=$("storeInfo");if(!el||!S)return;
+  var bytes=0;
+  try{for(var k in localStorage){if(k.indexOf("lwu_")===0)bytes+=(localStorage.getItem(k)||"").length;}}catch(e){}
+  var p=loadProject();
+  var names=Object.keys(p.movies||{}),shots=0;
+  names.forEach(function(n){ shots += (Array.isArray(p.movies[n]) ? p.movies[n].length : 0); });
+  el.innerHTML="共 <b>"+names.length+"</b> 部影片、<b>"+shots+"</b> 个镜头，本地存储 <b>"+(bytes/1024).toFixed(1)+" KB</b>。当前影片：<b>"+(p.current||"—")+"</b>";
+}
+
+function fillLibCat(){
+  var c=$("libCat");if(!c)return;
+  c.innerHTML="<option value=''>全部类别</option>"+
+    "<option value='角色'>角色 (Characters)</option>"+
+    "<option value='载具'>载具 (Vehicles)</option>"+
+    "<option value='环境'>环境 (Environments)</option>"+
+    "<option value='镜头'>镜头 (Cameras)</option>"+
+    "<option value='灯光'>灯光 (Lighting)</option>"+
+    "<option value='色彩'>色彩 (Color Grades)</option>"+
+    "<option value='特效'>特效 (VFX)</option>"+
+    "<option value='音效'>音效 (Audio)</option>";
+}
+
+function renderRefTable(){
+  var t=$("refTable");if(!t||!D)return;
+  var html="<thead><tr><th>类别</th><th>编号</th><th>中文名 / 英文名</th><th>属性 / 风格说明</th></tr></thead><tbody>";
+  
+  function addRows(catName, items){
+    (items||[]).forEach(function(it){
+      var linesStr = Array.isArray(it.lines) ? it.lines.join("; ") : "";
+      html += "<tr>"+
+        "<td><span class='badge'>"+catName+"</span></td>"+
+        "<td><code>"+it.id+"</code></td>"+
+        "<td><b>"+(it.nameZh||it.name)+"</b><br><span class='small' style='color:#9CA3AF'>"+it.name+"</span></td>"+
+        "<td class='small'>"+(it.series ? "<b>["+it.series+"]</b> " : "") + linesStr+"</td>"+
+        "</tr>";
+    });
+  }
+
+  addRows("角色", D.characters);
+  addRows("载具", D.vehicles);
+  addRows("环境", D.environments);
+  addRows("镜头", D.cameras);
+  addRows("灯光", D.lighting);
+  addRows("色彩", D.colorGrades);
+  addRows("特效", D.fx);
+  addRows("音效", D.audio);
+  
+  html += "</tbody>";
+  t.innerHTML = html;
+  initLib();
+}
+
 function renderTimeline(){
   var box=$("timeline");var shots=curShots();if(!shots.length){box.innerHTML="<p class='small'>每个镜头 8 秒，按加入顺序排列。</p>";return;}
   var html="";shots.forEach(function(s,i){
@@ -1198,73 +1266,6 @@ function initTabs(){
       setAi("no","本地模式（内置智能引擎）",
         "<div class='msg warn'>当前为本地/静态模式。<b>本地智能引擎已就绪</b>，无需联网即可一键生成。</div>");
     }
-  }
-
-  function updateHeaderStats(){
-    var shots = curShots();
-    var count = shots.length;
-    var durSec = count * 8;
-    var mm = Math.floor(durSec / 60);
-    var ss = String(durSec % 60).padStart(2, "0");
-    var doneCount = 0;
-    shots.forEach(function(s){ if(s.done) doneCount++; });
-    
-    txt($("statShots"), count);
-    txt($("statDur"), mm + ":" + ss);
-    txt($("statDone"), doneCount);
-  }
-
-  function fillLibCat(){
-    var c=$("libCat");if(!c)return;
-    c.innerHTML="<option value=''>全部类别</option>"+
-      "<option value='角色'>角色 (Characters)</option>"+
-      "<option value='载具'>载具 (Vehicles)</option>"+
-      "<option value='环境'>环境 (Environments)</option>"+
-      "<option value='镜头'>镜头 (Cameras)</option>"+
-      "<option value='灯光'>灯光 (Lighting)</option>"+
-      "<option value='色彩'>色彩 (Color Grades)</option>"+
-      "<option value='特效'>特效 (VFX)</option>"+
-      "<option value='音效'>音效 (Audio)</option>";
-  }
-
-  function renderRefTable(){
-    var t=$("refTable");if(!t||!D)return;
-    var html="<thead><tr><th>类别</th><th>编号</th><th>中文名 / 英文名</th><th>属性 / 风格说明</th></tr></thead><tbody>";
-    
-    function addRows(catName, items){
-      (items||[]).forEach(function(it){
-        var linesStr = Array.isArray(it.lines) ? it.lines.join("; ") : "";
-        html += "<tr>"+
-          "<td><span class='badge'>"+catName+"</span></td>"+
-          "<td><code>"+it.id+"</code></td>"+
-          "<td><b>"+(it.nameZh||it.name)+"</b><br><span class='small' style='color:#9CA3AF'>"+it.name+"</span></td>"+
-          "<td class='small'>"+(it.series ? "<b>["+it.series+"]</b> " : "") + linesStr+"</td>"+
-          "</tr>";
-      });
-    }
-
-    addRows("角色", D.characters);
-    addRows("载具", D.vehicles);
-    addRows("环境", D.environments);
-    addRows("镜头", D.cameras);
-    addRows("灯光", D.lighting);
-    addRows("色彩", D.colorGrades);
-    addRows("特效", D.fx);
-    addRows("音效", D.audio);
-    
-    html += "</tbody>";
-    t.innerHTML = html;
-    initLib();
-  }
-
-  function storeInfo(){
-    var el=$("storeInfo");if(!el)return;
-    var bytes=0;
-    try{for(var k in localStorage){if(k.indexOf("lwu_")===0)bytes+=(localStorage.getItem(k)||"").length;}}catch(e){}
-    var p=loadProject();
-    var names=Object.keys(p.movies||{}),shots=0;
-    names.forEach(function(n){ shots += (Array.isArray(p.movies[n]) ? p.movies[n].length : 0); });
-    el.innerHTML="共 <b>"+names.length+"</b> 部影片、<b>"+shots+"</b> 个镜头，本地存储 <b>"+(bytes/1024).toFixed(1)+" KB</b>。当前影片：<b>"+(p.current||"—")+"</b>";
   }
 
   function initLib(){
