@@ -1,0 +1,3 @@
+import test from 'node:test';import assert from 'node:assert/strict';import{ProjectStore}from'../src/ui/project-store.js';
+const storage={v:null,getItem(){return this.v},setItem(_,v){this.v=v}};
+test('project import preserves continuity and rejects unknown version',async()=>{const s=new ProjectStore({storage});const good={schemaVersion:'1',shots:[{continuityOut:{screenDirection:'left-to-right'}}],continuity:{}};assert.equal((await s.import(JSON.stringify(good))).project.shots[0].continuityOut.screenDirection,'left-to-right');assert.equal((await s.import('{"schemaVersion":"99"}')).violations[0].code,'UNSUPPORTED_PROJECT_SCHEMA');});

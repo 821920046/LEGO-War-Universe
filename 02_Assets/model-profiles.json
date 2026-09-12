@@ -1,0 +1,1 @@
+{"schemaVersion":"1","profiles":[{"id":"veo-3.1-lite","name":"Veo 3.1 Lite","durations":[4,6,8],"aspectRatios":["16:9","9:16"],"resolutions":["720p"],"supportsIngredients":true,"supportsFirstLastFrames":true,"supportsExtend":true,"supportsNativeAudio":true}]}

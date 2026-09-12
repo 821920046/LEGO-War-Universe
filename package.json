@@ -1,0 +1,11 @@
+{
+  "name": "lego-war-universe-trusted",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build-assets.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "test:smoke": "node tests/smoke.mjs",
+    "verify": "python 02_Assets/validate.py 02_Assets/assets.json && npm run build && npm test && node scripts/check-release.mjs"
+  }
+}

@@ -1,0 +1,57 @@
+import { createHash } from 'node:crypto';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const ASSET_GROUPS = ['characters', 'vehicles', 'weapons', 'props', 'fx', 'environments', 'cameras', 'lighting', 'colorGrades', 'audio'];
+
+export function canonicalJson(value) {
+  if (Array.isArray(value)) return `[${value.map(canonicalJson).join(',')}]`;
+  if (value && typeof value === 'object') {
+    return `{${Object.keys(value).sort().map((key) => `${JSON.stringify(key)}:${canonicalJson(value[key])}`).join(',')}}`;
+  }
+  return JSON.stringify(value);
+}
+
+export function countAssets(registry) {
+  return ASSET_GROUPS.reduce((total, group) => total + (Array.isArray(registry[group]) ? registry[group].length : 0), 0);
+}
+
+export function readEmbeddedRegistry(html) {
+  const match = html.match(/<script id="lwu-data"[^>]*>([\s\S]*?)<\/script>/);
+  if (!match) throw new Error('Missing #lwu-data fallback registry');
+  return JSON.parse(match[1]);
+}
+
+export async function buildAssets({ root, write = true } = {}) {
+  const projectRoot = resolve(root || dirname(dirname(fileURLToPath(import.meta.url))));
+  const registry = JSON.parse(await readFile(join(projectRoot, '02_Assets/assets.json'), 'utf8'));
+  const canonical = canonicalJson(registry);
+  const assetSha256 = createHash('sha256').update(canonical).digest('hex');
+  const manifest = {
+    schemaVersion: '1',
+    projectVersion: '6.1.0',
+    assetManifestVersion: `${registry.schemaVersion}:${assetSha256.slice(0, 12)}`,
+    assetCount: countAssets(registry),
+    assetSha256,
+    sourceUpdated: registry.project?.updated || null,
+    builtAt: new Date().toISOString(),
+  };
+  if (write) {
+    const indexPath = join(projectRoot, 'index.html');
+    const html = await readFile(indexPath, 'utf8');
+    const embedded = `<script id="lwu-data" type="application/json">${JSON.stringify(registry)}</script>`;
+    const fallbackPattern = /<script id="lwu-data"[^>]*>[\s\S]*?<\/script>/;
+    if (!fallbackPattern.test(html)) throw new Error('Could not find #lwu-data fallback registry');
+    const updated = html.replace(fallbackPattern, embedded);
+    await writeFile(indexPath, updated, 'utf8');
+    await mkdir(join(projectRoot, 'public'), { recursive: true });
+    await writeFile(join(projectRoot, 'public/build-manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
+  }
+  return { registry, assetCount: manifest.assetCount, assetSha256, manifest };
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  const result = await buildAssets();
+  process.stdout.write(`Built asset manifest: ${result.assetCount} assets, ${result.assetSha256.slice(0, 12)}\n`);
+}

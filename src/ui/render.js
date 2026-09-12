@@ -1,0 +1,2 @@
+export const text=(node,value)=>{node.textContent=String(value??'');return node};
+export function renderPlan(node,plan,compile,registry,profile){node.replaceChildren();for(const [i,shot]of plan.shots.entries()){const section=document.createElement('section'),title=document.createElement('h3'),out=document.createElement('pre');title.textContent=`S${String(i+1).padStart(3,'0')} · ${shot.phase}`;out.textContent=compile(shot,registry,profile).prompt;section.append(title,out);node.append(section)}}

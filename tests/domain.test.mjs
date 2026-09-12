@@ -1,0 +1,13 @@
+import test from 'node:test'; import assert from 'node:assert/strict';
+import assets from '../02_Assets/assets.json' with { type: 'json' };
+import profiles from '../02_Assets/model-profiles.json' with { type: 'json' };
+import { createRegistry } from '../src/domain/registry.js';
+import { parseIntent } from '../src/domain/intent.js';
+import { validateShotSpec } from '../src/domain/shot-spec.js';
+import { planFilm } from '../src/domain/planner.js';
+import { compileShot } from '../src/domain/compiler.js';
+const registry=createRegistry(assets,profiles,{references:[]});
+test('registry exposes model profile and rejects an unknown reference asset',()=>{assert.equal(registry.profileById.get('veo-3.1-lite').supportsNativeAudio,true);assert.throws(()=>createRegistry(assets,profiles,{references:[{id:'REF-1',assetId:'NOPE'}]}));});
+test('intent parser recognizes snow rescue and leaves era ambiguous',()=>{const i=parseIntent('搜救直升机在雪山峡谷营救落难飞行员');assert.equal(i.task,'rescue');assert.equal(i.weather,'snow');assert.equal(i.needsConfirmation,true);});
+test('validator rejects character used as camera',()=>{const r=validateShotSpec({subjects:['CHR-401'],environment:'ENV-401',camera:'CHR-401',lighting:'LGT-401',colorGrade:'CLR-001',action:'The team advances.'},registry,{era:'Modern'});assert.equal(r.ok,false);assert.ok(r.violations.some(v=>v.code==='INVALID_KIND'));});
+test('carrier theme creates valid deterministic shots and compiles with profile duration',()=>{const {plan}=planFilm({theme:'航母战斗群在远海风暴中放飞舰载机',requestedShots:4,profileId:'veo-3.1-lite'},registry);assert.equal(plan.shots.length,4);assert.ok(plan.shots.every(s=>validateShotSpec(s,registry,plan.intent).ok));assert.match(compileShot(plan.shots[0],registry,registry.profileById.get('veo-3.1-lite')).prompt,/8-second shot/);});
