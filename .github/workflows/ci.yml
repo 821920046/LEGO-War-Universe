@@ -1,0 +1,69 @@
+name: CI & Cloudflare Preview Gate
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  verify:
+    name: Verify Assets, Spec & Gate
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [20, 22]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+
+      - name: Setup Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate Asset Schema & Unique IDs
+        run: python 02_Assets/validate.py 02_Assets/assets.json
+
+      - name: Build Asset Manifest & Embed Fallback
+        run: npm run build
+
+      - name: Run Full Test Suite
+        run: npm test
+
+      - name: Flow 25-Theme Blind Benchmark Gate
+        run: node scripts/run-blind-test.mjs --verify
+
+      - name: Check Release & Governance Documents Gate
+        run: node scripts/check-release.mjs
+
+      - name: Security & Vulnerability Audit
+        run: npm audit --audit-level=high || true
+
+  preview-gate:
+    name: Cloudflare Pages Build & Preview Gate
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Build Production Assets
+        run: npm run build
+
+      - name: Verify Cloudflare Pages Output Integrity
+        run: |
+          test -f index.html
+          test -f public/build-manifest.json
+          test -f _headers
+          echo "Cloudflare Pages preview distribution verified."
