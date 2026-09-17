@@ -145,4 +145,4 @@ node scripts/run-blind-test.mjs --verify
 npm run verify
 ```
 
-发布前请同步复核 `CONTENT_POLICY.md`、`DATA_PROCESSING.md`、`THIRD_PARTY_ASSETS.md` 与 `TRADEMARKS.md`。
+发布前请同步复核 `CONTENT_POLICY.md`、`DATA_PROCESSING.md`、`THIRD_PARTY_ASSETS.md` 与 `TRADEMARKS.md` 。
