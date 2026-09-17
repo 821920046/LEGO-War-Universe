@@ -1,5 +1,5 @@
-import assets from '../../02_Assets/assets.json' with { type: 'json' };
-import profiles from '../../02_Assets/model-profiles.json' with { type: 'json' };
+import assets from '../../02_Assets/assets.json';
+import profiles from '../../02_Assets/model-profiles.json';
 import { createRegistry } from '../../src/domain/registry.js';
 import { planFilm } from '../../src/domain/planner.js';
 import { compileShot } from '../../src/domain/compiler.js';
