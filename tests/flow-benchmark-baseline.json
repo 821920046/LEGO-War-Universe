@@ -1,0 +1,213 @@
+{
+  "project": "LEGO War Universe",
+  "testedThemesCount": 25,
+  "generatedAt": "2026-09-17T14:29:59.137Z",
+  "average": {
+    "Consistency": 1,
+    "Cutability": 1,
+    "Compliance": 0.97,
+    "RegenRate": 0.96
+  },
+  "results": {
+    "二战诺曼底海滩登陆": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "WWII",
+      "safetyStatus": "passed"
+    },
+    "太平洋舰队在中途岛空战": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "Pacific",
+      "safetyStatus": "passed"
+    },
+    "冷战富尔达缺口坦克对峙": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "Cold War",
+      "safetyStatus": "passed"
+    },
+    "海湾战争沙漠风暴M1A1坦克突击": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "Gulf War",
+      "safetyStatus": "passed"
+    },
+    "伊拉克战争城市巷战": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 0.2,
+      "RegenRate": 1,
+      "era": "Iraq War",
+      "safetyStatus": "passed"
+    },
+    "现代特种部队夜间突袭": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "Modern",
+      "safetyStatus": "passed"
+    },
+    "航母战斗群在远海风暴中放飞舰载机": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "Gulf War",
+      "safetyStatus": "passed"
+    },
+    "搜救直升机在雪山峡谷营救落难飞行员": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 0.75,
+      "era": null,
+      "safetyStatus": "passed"
+    },
+    "现代城市CQB近距离突入清剿": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "Modern",
+      "safetyStatus": "passed"
+    },
+    "特种部队在丛林中渗透侦察": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 0.75,
+      "era": null,
+      "safetyStatus": "passed"
+    },
+    "二战斯大林格勒废墟狙击战": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "WWII",
+      "safetyStatus": "passed"
+    },
+    "二战大西洋反潜护航战": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "WWII",
+      "safetyStatus": "passed"
+    },
+    "冷战装甲集群野战快速推进": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "Cold War",
+      "safetyStatus": "passed"
+    },
+    "现代无人机前沿空中引导与侦察": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "Modern",
+      "safetyStatus": "passed"
+    },
+    "索马里海域快艇突击解救商船": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 0.75,
+      "era": null,
+      "safetyStatus": "passed"
+    },
+    "现代高空伞降突入敌后集结": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "Modern",
+      "safetyStatus": "passed"
+    },
+    "二战北非沙漠装甲追击": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "WWII",
+      "safetyStatus": "passed"
+    },
+    "现代特战队员执行战地紧急医疗救援": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "Modern",
+      "safetyStatus": "passed"
+    },
+    "海湾战争夜战防空导弹阵地伏击": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "Modern",
+      "safetyStatus": "passed"
+    },
+    "现代边境山地巡逻遭遇战": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "Modern",
+      "safetyStatus": "passed"
+    },
+    "二战美军步兵协同谢尔曼坦克突破防线": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "WWII",
+      "safetyStatus": "passed"
+    },
+    "太平洋热带岛屿滩头两栖登陆作战": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "Pacific",
+      "safetyStatus": "passed"
+    },
+    "现代潜水蛙人秘密水下潜入渗透": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "Modern",
+      "safetyStatus": "passed"
+    },
+    "现代重装机械化步兵班城市外围清剿": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 1,
+      "era": "Modern",
+      "safetyStatus": "passed"
+    },
+    "极地严寒环境下特种侦察分队行动": {
+      "Consistency": 1,
+      "Cutability": 1,
+      "Compliance": 1,
+      "RegenRate": 0.75,
+      "era": null,
+      "safetyStatus": "passed"
+    }
+  }
+}

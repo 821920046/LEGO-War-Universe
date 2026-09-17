@@ -1,24 +1,148 @@
 # LEGO War Universe · Trusted Production Workbench
 
-LWU turns a film theme into a validated LEGO-style storyboard. It uses a single versioned asset registry, deterministic bilingual intent parsing, typed shot specifications, continuity-aware planning and a Flow model profile before compiling a prompt.
+LEGO War Universe (LWU) 是一套面向 Google Flow (Veo) 的工业级乐高微缩定格动画战争电影分镜生成与提示词编译工作台。系统依托唯一版本化的乐高强资产库、确定性中英双语意图解析、类型化镜头规范（ShotSpec）、深度连续性状态机以及内容安全治理引擎，将电影主题转化为高度自洽、可直接投产的电影级分镜板与提示词序列。
 
-## Start
+---
+
+## 一、重大版本演进与架构变革
+
+本次架构升级彻底解决了过去“缺乏强连续性约束、敏感内容无自动化分流、缺乏真实模型治理与时间线工作台”的痛点，主要重大变革如下：
+
+1. **内容安全治理前置（Content Governance）**：
+   - 解析阶段自动实施合规拦截：真实在世政治人物、极端主义暴行、严重血腥残害及现实危害指南直接触发 `403 CONTENT_BLOCKED` 阻断。
+   - 敏感现实冲突热点与高风险人道场景自动标记并推入**人工审核队列（Review Queue）**，支持人工审批放行。
+2. **强连续性状态机（Deep Continuity State Machine）**：
+   - **载具战损单调性**：损伤状态（全新 → 风化 → 战损 → 摧毁残骸）强制不可逆递增，严防战损回退。
+   - **角色外观演变**：标准外观演变为战损/夜战装束后，拦截无剧情说明的突变。
+   - **180 度屏幕轴线**：严格跟踪主体运动方向（从左向右、从右向左、迎面、远离），拦截非法跳轴与越轴。
+   - **前置参考帧强绑定**：从第 2 个镜头起强制绑定上一镜头尾帧，在提示词中显式注入连续性锚点。
+3. **ShotSpec 高阶物理与叙事规则集**：
+   - **阵营对抗冲突校验**：对立阵营实体同框时，动作必须包含交战/对抗交互，拦截非逻辑协同。
+   - **载具物理兼容**：地面履带车辆禁止深海潜行，潜艇禁止陆地部署。
+   - **环境气象物理兼容**：干旱沙漠环境禁止匹配极端暴雪气象。
+   - **叙事阶段顺行**：镜头序列严格按 `establish` → `build` → `climax` → `resolve` 推进，防叙事倒流。
+4. **云端安全编排与网关流控**：
+   - Cloudflare Pages Functions 接入 60 秒滑动窗口限流（`429 RATE_LIMITED`）与输入白名单。
+   - 全链路生成带有 `requestId`、`themeHash`、`latencyMs` 的脱敏结构化审计日志。
+5. **现代化全功能工作台前端**：
+   - 基于纯 DOM API（零 `innerHTML`，杜绝 XSS）重新实现现代暗色工作室布局。
+   - 恢复并升级**多影片工程 Tab 切换与增删改**、**可视化时间线（Timeline）**、**抽屉式单镜头属性编辑器（Shot Editor）**、**人工审核面板**与**工程 JSON 导入导出**。
+6. **跨时代 Flow 盲测套件与基准线**：
+   - 覆盖二战、太平洋、冷战、海湾战争、现代特战等 25 个跨时代主题，建立四维评分基准（一致性 100%、可剪辑性 100%、规则合规 97%、稳定性 96%）。
+7. **CI/CD 流水线与 Cloudflare Preview 门禁**：
+   - 接入 GitHub Actions，每次提交自动跑资产哈希、全套测试、盲测基线门禁、发布文件审查与安全漏洞扫描。
+
+---
+
+## 二、部署指南
+
+工作台提供**本地离线/开发部署**与**生产级 Cloudflare 全托管部署**两种模式。
+
+### 1. 本地快速部署（开发与离线模式）
+
+#### 环境要求
+- Node.js 20.0.0+
+- Python 3.10+
+
+#### 部署步骤
+```powershell
+# 1. 克隆或进入项目目录
+cd "c:\Users\qh686\Desktop\新建文件夹"
+
+# 2. 构建资产注册表与离线回退数据
+npm run build
+
+# 3. 启动本地静态 HTTP 服务（任选其一）
+# 方式 A: Node.js 简易服务
+npx serve . -p 8080
+
+# 方式 B: Python 内置服务
+python -m http.server 8080
+```
+启动后在浏览器中打开 `http://localhost:8080/index.html` 即可使用。本地运行采用确定性规则引擎，毫秒级响应，无需外部 API 依赖。
+
+---
+
+### 2. 生产级云端部署（Cloudflare Pages + Functions）
+
+生产环境利用 Cloudflare Pages 托管静态资源，并通过 Cloudflare Pages Functions (`functions/api/compose.js`) 提供零信任 API 服务。
+
+#### 环境变量配置
+在 Cloudflare Pages 控制台的 **Settings** -> **Environment variables** 中配置以下变量：
+
+| 变量名 | 推荐值 | 说明 |
+| :--- | :--- | :--- |
+| `ENVIRONMENT` | `production` | 生产环境模式，激活安全检查 |
+| `AUTH_MODE` | `access` | 强制要求 Cloudflare Access 身份标头 |
+| `ALLOWED_ORIGIN` | `https://your-domain.pages.dev` | 严格限制跨域访问白名单 |
+
+#### 自动化 CI/CD 部署
+项目已配置 `.github/workflows/ci.yml`。只需将代码仓库推送到 GitHub：
+1. 自动触发构建、资产哈希校验与盲测门禁；
+2. 绑定 Cloudflare Pages 仓库，即可实现主分支自动发布与 PR 预览环境（Preview Deployment）。
+
+#### 手动 CLI 部署
+```powershell
+npm run verify
+npx wrangler pages deploy . --project-name=lego-war-universe
+```
+
+---
+
+## 三、使用操作手册
+
+### 步骤 1：管理影片工程
+- **新建与切换**：点击页面顶部的 `+ 新建影片` 按钮创建独立项目；点击 Tab 可自由切换不同影片。
+- **保存与持久化**：所有镜头规划、时间线编辑与审核状态均自动保存在本地存储中。
+- **导入与导出**：点击右上角 `导出工程` 可备份为带有连续性元数据的标准 JSON 文件；点击 `导入工程` 可恢复已有工程。
+
+### 步骤 2：输入主题并配置模型
+1. **Flow 模型配置**：在右侧下拉菜单中选择目标模型（如 `Veo 3.1 Lite`）；
+2. **镜头数量**：选择生成 `4 镜头`（标准四阶段）、`8 镜头`（深度战术）或 `12 镜头`（史诗长片）；
+3. **影片主题**：在文本框中输入战术意图（例如：`航母战斗群在远海风暴中放飞舰载机`、`现代特种部队夜间突袭城市废墟`、`二战诺曼底海滩登陆`）。
+
+### 步骤 3：生成分镜与安全分流
+点击 **生成本地验证分镜计划**，系统将自动执行：
+- **直接阻断**：若输入包含违规人物或极端血腥暴力，页面红字阻断，不产生算力消耗；
+- **人工审核**：若命中敏感当代冲突，主题自动进入 **人工审核队列**。管理员可在面板中点击 `批准放行` 或 `驳回`；
+- **自动放行**：合规内容将解析时代、兵种、环境与天气，推演出包含战损递增与屏幕方向的镜头序列。
+
+### 步骤 4：时间线检查与镜头精细编辑
+- **时间线（Timeline）**：生成后中间区域直观展示镜头流转：
+  - 阶段徽章：`establish` (开场铺垫)、`build` (战术推进)、`climax` (决战高潮)、`resolve` (结局撤离)；
+  - 轴线箭头：`→` (从左向右)、`←` (从右向左)、`↑` (迎向镜头)、`↓` (远离镜头)；
+  - 损伤状态标签：`全新`、`风化`、`战损`、`残骸`；
+  - 参考帧标志：`🔗` 标明已锁定前序镜头参考。
+- **抽屉式镜头编辑器（Shot Editor）**：
+  - 点击时间线任一卡片或右侧 `编辑镜头` 按钮，弹出右侧微调面板；
+  - 可手动更换角色/载具、重选环境与气象、调整损伤状态与轴线方向、编辑动作文本；
+  - 面板底部实时运行物理与连续性校验，若出现违规（如坦克跳海、损伤回退）立即提示告警；
+  - 点击 `应用修改` 自动同步时间线并重新编译提示词。
+
+### 步骤 5：导出或复制 Flow 提示词
+在下方的“已验证分镜输出”区域，直接复制编译完成的完整 Prompt，每条 Prompt 均已包含：
+- 乐高大师风格约束块（LEGO Master Style）；
+- 场景、主体与动作描述；
+- 摄像机规格、灯光与色彩分级；
+- **屏幕轴线与前置参考帧连续性锚点（Continuity Anchor）**；
+- 镜头时长与宽高比；
+- 通用负向提示词（Negative Prompt）。
+
+---
+
+## 四、开发与质量门禁验证
+
+每次代码提交前，必须运行标准验证套件：
 
 ```powershell
-npm run build
+# 1. 执行全量单元测试与安全契约测试
+npm test
+
+# 2. 执行跨时代 Flow 盲测评分与 Baseline 回归门禁
+node scripts/run-blind-test.mjs --verify
+
+# 3. 运行全流程发布门禁（资产Schema检查 + 构建哈希防篡改 + 测试 + 文档治理）
 npm run verify
 ```
 
-Open `index.html` through a static HTTP server. The page loads `02_Assets/assets.json` and verifies the embedded offline fallback generated from that same file. Runtime metadata comes from the generated build manifest.
-
-## Production contract
-
-- `02_Assets/assets.json` is the sole asset source.
-- `02_Assets/model-profiles.json` states the selected Flow profile's declared capabilities.
-- Local planning is default. Ambiguous era requests require confirmation rather than silently choosing an asset.
-- The Pages endpoint accepts no browser-supplied asset catalogue. Production calls require Cloudflare Access identity (`ENVIRONMENT=production`, `AUTH_MODE=access`).
-- `GET /api/health` does not contact a model. There are no public model probes.
-
-## Release checks
-
-`npm run verify` validates assets, regenerates the fallback and manifest, runs domain/security/UI tests, and checks governance/docs. Review `CONTENT_POLICY.md`, `DATA_PROCESSING.md`, `THIRD_PARTY_ASSETS.md`, and `TRADEMARKS.md` before release.
+发布前请同步复核 `CONTENT_POLICY.md`、`DATA_PROCESSING.md`、`THIRD_PARTY_ASSETS.md` 与 `TRADEMARKS.md`。
