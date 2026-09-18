@@ -29,7 +29,7 @@ export function compileShot(s, r, p) {
   const color = get(s.colorGrade);
 
   const duration = p.durations.includes(8) ? 8 : p.durations[0];
-  const aspectRatio = p.aspectRatios[0];
+  const aspectRatio = s.aspectRatio || p.selectedAspectRatio || p.aspectRatios[0];
 
   // 连续性锚点（屏幕方向、损伤状态、参考帧）
   const screenDir = s.screenDirection || s.continuityIn?.screenDirection || 'neutral';

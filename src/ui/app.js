@@ -3,9 +3,10 @@ import { planFilm } from '../domain/planner.js';
 import { compileShot } from '../domain/compiler.js';
 import { validateFilmPlan } from '../domain/shot-spec.js';
 import { ProjectStore } from './project-store.js';
-import { renderTimeline } from './timeline.js';
+import { renderTimeline, exportToCapCutCSV } from './timeline.js';
 import { renderShotEditor } from './shot-editor.js';
 import { renderReviewQueue } from './review-queue.js';
+import { renderAssetManager } from './asset-manager.js';
 import { renderPlan, renderProjectTabs, text, createEl } from './render.js';
 
 const $ = id => document.getElementById(id);
@@ -132,16 +133,32 @@ function bindGlobalEvents() {
       $('intent').className = intent.needsConfirmation ? 'warn' : 'ok';
     }
 
+    // 注入当前选择的画面比例
+    const selectedAr = $('aspect-ratio').value || '16:9';
+    plan.shots.forEach(s => { s.aspectRatio = selectedAr; });
+
     // 更新当前项目并保存
     currentProject.shots = plan.shots;
     currentProject.theme = themeText;
     currentProject.intent = intent;
+    currentProject.aspectRatio = selectedAr;
     storeManager.saveAll(currentStore);
 
     renderCurrentProject();
   };
 
-  // 导出工程
+  // 监听画面比例切换
+  $('aspect-ratio').onchange = () => {
+    const ar = $('aspect-ratio').value;
+    if (currentProject && currentProject.shots) {
+      currentProject.shots.forEach(s => { s.aspectRatio = ar; });
+      currentProject.aspectRatio = ar;
+      storeManager.saveAll(currentStore);
+      refreshOutputs();
+    }
+  };
+
+  // 导出工程 JSON
   $('export-btn').onclick = () => {
     if (!currentProject) return;
     const jsonStr = storeManager.export(currentProject);
@@ -152,6 +169,20 @@ function bindGlobalEvents() {
     a.download = `${currentProject.name || 'lwu-film'}.json`;
     a.click();
     URL.revokeObjectURL(url);
+  };
+
+  // 导出剪映分镜表 CSV
+  $('export-csv-btn').onclick = () => {
+    if (!currentProject || !currentProject.shots || currentProject.shots.length === 0) {
+      alert('当前影片暂无镜头，请先生成分镜计划！');
+      return;
+    }
+    exportToCapCutCSV(currentProject.shots, activeRegistry, currentProject.theme || currentProject.name);
+  };
+
+  // 打开乐高资产库抽屉
+  $('asset-manager-btn').onclick = () => {
+    renderAssetManager($('asset-drawer'), activeRegistry);
   };
 
   // 导入工程
@@ -180,9 +211,12 @@ function refreshOutputs() {
   if (!currentProject) return;
   const p = activeProfile || activeRegistry.profileById.get($('profile').value);
 
-  // 1. 渲染时间线
+  // 1. 渲染双轨视听时间线（含首帧与音轨）
   renderTimeline($('timeline-container'), currentProject.shots || [], activeRegistry, (idx, shot) => {
     openShotEditor(idx, shot);
+  }, (prompt) => {
+    navigator.clipboard?.writeText(prompt);
+    alert('已成功复制 35mm 定格首帧参考图 Prompt 到剪贴板！\n可直接粘贴至 FLUX / Midjourney 中生成关键帧图片。');
   });
 
   // 2. 渲染已编译输出
