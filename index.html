@@ -3,122 +3,271 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LEGO War Universe · 视听制作工作台</title>
+  <title>LEGO War Universe · 好莱坞视听工坊</title>
   <style>
     :root {
-      --bg: #0b1320;
-      --card-bg: #111c2e;
-      --border: #23354d;
+      --bg: #060a12;
+      --card-bg: #0c1424;
+      --card-border: #1e293b;
+      --gold: #f59e0b;
+      --gold-glow: rgba(245, 158, 11, 0.15);
+      --cyan: #38bdf8;
       --primary: #40b9a6;
-      --text: #e7edf7;
-      --muted: #94a3b8;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
+    * { box-sizing: border-box; }
     body {
       margin: 0;
-      padding: 24px;
-      font: 14px/1.5 system-ui, -apple-system, sans-serif;
+      padding: 0;
+      font: 14px/1.6 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
       background: var(--bg);
+      background-image: radial-gradient(circle at 50% 0%, #111d38 0%, #060a12 60%);
       color: var(--text);
-      box-sizing: border-box;
+      min-height: 100vh;
     }
-    .layout-container {
-      max-width: 1280px;
+    .wrapper {
+      max-width: 1360px;
       margin: 0 auto;
+      padding: 24px 32px 64px;
     }
+    /* 顶栏 Header */
     header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       padding-bottom: 20px;
-      border-bottom: 1px solid var(--border);
-      margin-bottom: 20px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      margin-bottom: 24px;
     }
-    h1 {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 700;
+    .brand-title {
+      font-size: 22px;
+      font-weight: 800;
       letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(90deg, #ffffff, #94a3b8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .brand-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      background: var(--gold-glow);
+      border: 1px solid var(--gold);
+      color: var(--gold);
+      border-radius: 12px;
+      font-weight: 700;
+      -webkit-text-fill-color: initial;
     }
     #manifest {
-      margin: 0;
       font-size: 12px;
-      color: var(--muted);
+      color: var(--text-muted);
+      margin: 4px 0 0 0;
+      font-family: var(--font-mono);
     }
-    .top-actions {
+    .header-btns {
       display: flex;
       gap: 10px;
       align-items: center;
     }
-    button.btn-secondary {
-      background: #1e293b;
-      border: 1px solid var(--border);
+    button {
+      font-family: inherit;
+      transition: all 0.15s ease;
+    }
+    .btn-outline {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--card-border);
       color: var(--text);
-      padding: 6px 14px;
+      padding: 8px 16px;
       border-radius: 6px;
       cursor: pointer;
       font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
-    button.btn-accent {
+    .btn-outline:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: #334155;
+    }
+    .btn-gold {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      border: none;
+      color: #050811;
+      padding: 8px 18px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 700;
+      box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-gold:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+    .btn-cyan {
       background: #0284c7;
-      border: 1px solid #0369a1;
-      color: #ffffff;
-      padding: 6px 14px;
+      border: none;
+      color: #fff;
+      padding: 8px 18px;
       border-radius: 6px;
       cursor: pointer;
       font-size: 13px;
       font-weight: 600;
     }
-    button.btn-primary {
-      background: var(--primary);
-      border: 0;
-      color: #0a1628;
-      padding: 10px 20px;
-      border-radius: 6px;
-      font-weight: 700;
-      cursor: pointer;
+    /* 模式切换 Tabs */
+    .mode-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      border-bottom: 1px solid rgba(255,255,255,0.06);
+      padding-bottom: 8px;
+    }
+    .mode-tab {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
       font-size: 14px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      position: relative;
     }
-    .project-bar {
-      margin-bottom: 20px;
-      padding: 12px 16px;
+    .mode-tab.active {
+      color: #fff;
+      background: rgba(255, 255, 255, 0.05);
+    }
+    .mode-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -9px;
+      left: 12px;
+      right: 12px;
+      height: 2px;
+      background: var(--gold);
+      border-radius: 2px;
+    }
+    /* 核心舞台卡片 */
+    .stage-card {
       background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     }
+    .cinema-search-wrap {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .cinema-search-input {
+      flex: 1;
+      font-size: 16px;
+      padding: 14px 20px;
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      color: #fff;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.5);
+    }
+    .cinema-search-input:focus {
+      outline: none;
+      border-color: var(--gold);
+      box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+    }
+    .btn-search-transpile {
+      background: linear-gradient(135deg, #f59e0b 0%, #b45309 100%);
+      color: #050811;
+      font-size: 15px;
+      font-weight: 800;
+      padding: 0 28px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(245, 158, 11, 0.4);
+    }
+    .btn-search-transpile:hover {
+      filter: brightness(1.1);
+      transform: translateY(-1px);
+    }
+    /* 电影推荐标签流 */
+    .film-chips-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .film-chip {
+      background: #08101d;
+      border: 1px solid #1e293b;
+      color: #cbd5e1;
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .film-chip:hover {
+      background: #0f1c33;
+      border-color: var(--gold);
+      color: #fff;
+    }
+    /* 电影视听拉片大卡片 (Deck) */
+    #director-notes-panel {
+      display: none;
+      margin-bottom: 24px;
+    }
+    /* 常规自定义控制卡片 */
     .control-grid {
       display: grid;
       grid-template-columns: 2fr 1fr;
-      gap: 16px;
-      margin-bottom: 20px;
+      gap: 20px;
     }
-    .control-card {
-      background: var(--card-bg);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 16px;
+    label {
+      display: block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
     }
     textarea, select {
-      font: inherit;
       width: 100%;
-      box-sizing: border-box;
-      padding: 10px;
-      background: #071019;
-      border: 1px solid var(--border);
+      background: #030712;
+      border: 1px solid var(--card-border);
       border-radius: 6px;
-      color: var(--text);
-      margin-top: 6px;
-      margin-bottom: 12px;
+      color: #fff;
+      padding: 10px 14px;
+      font: inherit;
+      font-size: 13px;
+      margin-bottom: 14px;
+    }
+    textarea:focus, select:focus {
+      outline: none;
+      border-color: var(--cyan);
     }
     .warn { color: #ffd07a; }
     .bad { color: #ff9292; }
     .ok { color: #84edbd; }
+    /* 抽屉 */
     #editor-drawer {
       position: fixed;
       top: 24px;
       right: 24px;
       width: 440px;
       z-index: 100;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.7);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.8);
     }
     #asset-drawer {
       position: fixed;
@@ -132,93 +281,133 @@
   </style>
 </head>
 <body>
-  <div class="layout-container">
+  <div class="wrapper">
+    <!-- 顶部品牌栏 -->
     <header>
       <div>
-        <h1>LEGO War Universe · 视听制作工坊</h1>
-        <p id="manifest">正在校验资产构建…</p>
+        <div class="brand-title">
+          LEGO War Universe <span class="brand-badge">CINEMA 3.0</span>
+        </div>
+        <p id="manifest">正在启动好莱坞视听转译引擎与资产库…</p>
       </div>
-      <div class="top-actions">
-        <button id="asset-manager-btn" class="btn-secondary">乐高资产库</button>
-        <button id="export-csv-btn" class="btn-accent">导出剪映分镜表</button>
-        <button id="import-btn" class="btn-secondary">导入工程</button>
-        <button id="export-btn" class="btn-secondary">导出工程</button>
+      <div class="header-btns">
+        <button id="asset-manager-btn" class="btn-outline">🧱 乐高资产库 (390)</button>
+        <button id="export-csv-btn" class="btn-gold">📥 导出剪映分镜表 (.CSV)</button>
+        <button id="import-btn" class="btn-outline">导入工程</button>
+        <button id="export-btn" class="btn-outline">备份工程</button>
         <input type="file" id="import-file" style="display:none" accept=".json">
       </div>
     </header>
 
-    <!-- 多影片 Tab 切换栏 -->
-    <nav id="project-tabs" class="project-bar"></nav>
+    <!-- 工程多项目选项卡 -->
+    <nav id="project-tabs" style="margin-bottom: 20px;"></nav>
 
-    <!-- 核心编排控制台 -->
-    <main>
-          <div style="margin-bottom: 12px; padding: 10px; background: #071019; border: 1px solid #1e293b; border-radius: 6px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
-              <span style="font-size: 12px; color: #ffd07a; font-weight: 700;">🎬 输入/点选经典电影名智能转译乐高脚本</span>
-              <span style="font-size: 11px; color: #64748b;">好莱坞视听母题 + 深度拉片教学</span>
-            </div>
-            <div style="display: flex; gap: 8px;">
-              <input id="movie-input" type="text" placeholder="输入电影名（如：壮志凌云、地心引力、黑鹰坠落、明日边缘、流浪地球）…" style="flex: 1; padding: 6px 10px; background: #020617; border: 1px solid #334155; border-radius: 4px; color: #e2e8f0; font-size: 12px;">
-              <button id="transpile-movie-btn" class="btn-secondary" style="background: #0369a1; border-color: #0284c7; color: #fff; font-size: 12px; padding: 4px 12px; white-space: nowrap;">一键转译</button>
-            </div>
-            <div id="movie-chips" style="display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px;"></div>
-          </div>
+    <!-- 工作台模式切换栏 -->
+    <div class="mode-bar">
+      <button id="tab-cinema-mode" class="mode-tab active">🎬 好莱坞经典电影智能转译模式 (输入片名自动出大片)</button>
+      <button id="tab-custom-mode" class="mode-tab">🛠️ 自由战术分镜策划模式</button>
+    </div>
 
-          <label>
-            影片主题（支持时代/场景/战术动作解析）
-            <textarea id="theme" rows="3" placeholder="例如：航母战斗群在远海风暴中放飞舰载机"></textarea>
-          </label>
-          <button id="plan" class="btn-primary">生成本地验证分镜计划</button>
+    <!-- 模式一：好莱坞经典电影转译工坊 (主舞台) -->
+    <section id="section-cinema-mode" class="stage-card" style="border: 1px solid rgba(245, 158, 11, 0.3); background: linear-gradient(180deg, #0f1a30 0%, #080e1b 100%);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 14px;">
+        <div>
+          <h2 style="margin: 0; font-size: 18px; color: #fff; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            <span style="color: var(--gold);">⚡</span> 输入电影名，自动解构好莱坞视听语言并转译乐高大片
+          </h2>
+          <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 13px;">
+            系统将自动提炼该电影的【戏剧核心冲突、大师运镜景别、声音设计与台词】，并精准映射到 390 项乐高积木资产。
+          </p>
         </div>
-        <div class="control-card">
-          <label>
-            Flow 模型预设
-            <select id="profile"></select>
-          </label>
-          <label>
-            镜头数量
-            <select id="shots">
-              <option value="4">4 镜头 (完整四阶段叙事)</option>
-              <option value="8">8 镜头 (深度交战序列)</option>
-              <option value="12">12 镜头 (史诗长战役)</option>
+        <div style="display: flex; gap: 12px;">
+          <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted);">
+            画幅：
+            <select id="aspect-ratio-cinema" style="margin:0; padding: 4px 8px; width: auto; font-size: 12px;">
+              <option value="16:9">🖥️ 16:9 横屏电影大片</option>
+              <option value="9:16">📱 9:16 竖屏短视频 (抖音/小红书)</option>
             </select>
-          </label>
-          <label>
-            画面比例 (画幅尺寸)
-            <select id="aspect-ratio">
-              <option value="16:9">🖥️ 16:9 横屏电影 (B站/YouTube/长片)</option>
-              <option value="9:16">📱 9:16 竖屏短视频 (抖音/视频号/小红书)</option>
+          </div>
+          <div style="display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text-muted);">
+            镜头数：
+            <select id="shots-cinema" style="margin:0; padding: 4px 8px; width: auto; font-size: 12px;">
+              <option value="4">4 镜头 (经典四阶段叙事)</option>
+              <option value="8" selected>8 镜头 (深度交战序列)</option>
+              <option value="12">12 镜头 (史诗战役)</option>
             </select>
-          </label>
+          </div>
         </div>
       </div>
 
-      <!-- 经典电影视听拉片教学面板 -->
-      <section id="director-notes-panel" style="display:none; margin-bottom: 20px;"></section>
+      <!-- 搜索转译核心输入条 -->
+      <div class="cinema-search-wrap">
+        <input id="movie-input" type="text" class="cinema-search-input" placeholder="输入任意电影名，如：壮志凌云、地心引力、黑鹰坠落、明日边缘、流浪地球、拯救大兵瑞恩、边境杀手…">
+        <button id="transpile-movie-btn" class="btn-search-transpile">🎬 深度转译并生成乐高脚本</button>
+      </div>
 
-      <p id="intent"></p>
-      <section id="violations"></section>
+      <!-- 热门电影快捷海报标签流 -->
+      <div class="film-chips-row">
+        <span style="font-size: 12px; color: var(--gold); font-weight: 700;">🔥 经典名作一键解构：</span>
+        <div id="movie-chips" style="display: inline-flex; gap: 8px; flex-wrap: wrap;"></div>
+      </div>
+    </section>
 
-      <!-- 人工审核队列面板 -->
-      <section id="review-container" style="margin-bottom: 20px;"></section>
+    <!-- 模式二：自由战术策划面板 (可折叠) -->
+    <section id="section-custom-mode" class="stage-card" style="display: none;">
+      <div class="control-grid">
+        <div>
+          <label>输入原创影片主题（支持时代/场景/战术动作解析）</label>
+          <textarea id="theme" rows="3" placeholder="例如：现代特战小队在暴风雨之夜渗透敌方地下指挥掩体"></textarea>
+          <button id="plan" class="btn-cyan">生成本地验证分镜计划</button>
+        </div>
+        <div>
+          <label>Flow 模型预设</label>
+          <select id="profile"></select>
+          <label>镜头数量</label>
+          <select id="shots">
+            <option value="4">4 镜头 (完整四阶段叙事)</option>
+            <option value="8" selected>8 镜头 (深度交战序列)</option>
+            <option value="12">12 镜头 (史诗长战役)</option>
+          </select>
+          <label>画面画幅比例</label>
+          <select id="aspect-ratio">
+            <option value="16:9">🖥️ 16:9 横屏电影大片</option>
+            <option value="9:16">📱 9:16 竖屏短视频 (抖音/小红书)</option>
+          </select>
+        </div>
+      </div>
+    </section>
 
-      <!-- 双轨视听时间线 (画面轨 + 音效轨) -->
-      <section>
-        <h2 style="font-size: 16px; margin: 20px 0 10px;">视听多轨时间线 (Audio-Visual Timeline)</h2>
-        <div id="timeline-container"></div>
-      </section>
+    <!-- 电影全景视听解构拉片教学面板 (Master Deck) -->
+    <section id="director-notes-panel"></section>
 
-      <!-- 编译后分镜列表 -->
-      <section>
-        <h2 style="font-size: 16px; margin: 24px 0 12px;">已验证分镜输出与 Prompt 序列</h2>
-        <div id="output"></div>
-      </section>
-    </main>
+    <!-- 状态指示与治理警告 -->
+    <p id="intent" style="font-weight: 600;"></p>
+    <section id="violations"></section>
+    <section id="review-container" style="margin-bottom: 20px;"></section>
 
-    <!-- 镜头编辑抽屉 -->
+    <!-- 多轨视听时间线 (画面视频轨 + 音效台词轨) -->
+    <section style="margin-top: 28px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h2 style="font-size: 16px; margin: 0; display: flex; align-items: center; gap: 8px;">
+          <span>🎞️</span> 多轨视听时间线 (Audio-Visual Timeline)
+        </h2>
+        <span style="font-size: 12px; color: var(--text-muted);">
+          含 35mm 定格首帧参考图 (Image-to-Video Anchor) · 轴线连续性守恒 · 伴随音轨与电台台词
+        </span>
+      </div>
+      <div id="timeline-container"></div>
+    </section>
+
+    <!-- 编译后分镜列表与提示词导出 -->
+    <section style="margin-top: 36px;">
+      <h2 style="font-size: 16px; margin-bottom: 14px; display: flex; align-items: center; gap: 8px;">
+        <span>📝</span> 已验证分镜编译输出 (Google Flow / Veo / Midjourney Prompt 序列)
+      </h2>
+      <div id="output"></div>
+    </section>
+
+    <!-- 抽屉组件 -->
     <aside id="editor-drawer" style="display:none;"></aside>
-
-    <!-- 乐高资产管理器抽屉 -->
     <aside id="asset-drawer" style="display:none;"></aside>
   </div>
 

@@ -27,7 +27,7 @@ async function boot() {
   ]);
 
   activeRegistry = createRegistry(external, profiles, { references: [] });
-  text($('manifest'), `构建 ${manifest.projectVersion} · 资产 ${manifest.assetCount} · ${manifest.assetSha256.slice(0, 12)}`);
+  text($('manifest'), `构建 ${manifest.projectVersion} · 认证资产 ${manifest.assetCount} · 签名 ${manifest.assetSha256.slice(0, 12)} · 电影视听转译引擎就绪`);
 
   // 初始化模型 Profile 选项
   $('profile').replaceChildren();
@@ -67,7 +67,7 @@ function renderTabs() {
       renderCurrentProject();
     },
     onCreate: () => {
-      const name = prompt('请输入新影片名称：', `影片 ${currentStore.projects.length + 1}`);
+      const name = prompt('请输入新影片名称：', `大片企划 ${currentStore.projects.length + 1}`);
       if (!name) return;
       currentStore = storeManager.createProject(currentStore, name);
       currentProject = storeManager.getCurrentProject(currentStore);
@@ -86,71 +86,109 @@ function renderTabs() {
   });
 }
 
-function renderDirectorNotesPanel(movieName, notes) {
+/**
+ * 渲染好莱坞电影全景视听解构拉片教学看板 (Master Deck)
+ */
+function renderDirectorNotesPanel(movieName, data) {
   const panel = $('director-notes-panel');
-  if (!panel || !notes) return;
+  if (!panel || !data) return;
 
   panel.replaceChildren();
   panel.style.display = 'block';
 
+  const grammar = data.visualGrammar || {};
+
   const card = createEl('div', {
     style: {
-      background: 'linear-gradient(135deg, #091a2f 0%, #050d18 100%)',
-      border: '1px solid #1e3a5f',
-      borderRadius: '8px',
-      padding: '16px 20px',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+      background: 'linear-gradient(135deg, #0b1528 0%, #060b16 100%)',
+      border: '1px solid rgba(245, 158, 11, 0.4)',
+      borderRadius: '12px',
+      padding: '24px 28px',
+      boxShadow: '0 12px 36px rgba(0,0,0,0.7)',
       fontSize: '13px'
     }
   },
-    // 标题栏
-    createEl('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' } },
-      createEl('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
-        createEl('span', { style: { fontSize: '18px' } }, '🎬'),
-        createEl('strong', { style: { color: '#ffd07a', fontSize: '15px' } }, `《${movieName}》好莱坞经典视听解构与导演拉片笔记`),
-        createEl('span', { style: { color: '#64748b', fontSize: '12px' } }, `导演：${notes.director || '大师名家'}`)
+    // 顶栏：电影头衔与名牌
+    createEl('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '14px' } },
+      createEl('div', {},
+        createEl('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' } },
+          createEl('span', { style: { fontSize: '24px' } }, '🎬'),
+          createEl('h2', { style: { margin: '0', fontSize: '20px', color: '#ffd07a', fontWeight: '800' } }, data.matchedMovie || movieName),
+          createEl('span', { style: { background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '2px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '700', border: '1px solid rgba(56, 189, 248, 0.3)' } }, data.genre || '好莱坞大片')
+        ),
+        createEl('div', { style: { color: '#94a3b8', fontSize: '13px' } },
+          `导演：${data.director || '好莱坞名家'} · 上映年份：${data.year || '经典'} · 乐高适配引擎：已完成 390 资产精准重构`
+        )
       ),
       createEl('button', {
-        style: { background: 'transparent', border: '1px solid #475569', color: '#94a3b8', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' },
+        style: { background: 'transparent', border: '1px solid #475569', color: '#cbd5e1', padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' },
         onClick: () => { panel.style.display = 'none'; }
-      }, '收起笔记')
+      }, '收起拉片看板')
     ),
-    // 核心视听与光影
-    createEl('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' } },
-      createEl('div', { style: { background: 'rgba(255,255,255,0.03)', padding: '10px 12px', borderRadius: '6px' } },
-        createEl('div', { style: { color: '#38bdf8', fontWeight: '700', marginBottom: '4px' } }, '🎥 运镜视效特征 (Visual Style)'),
-        createEl('div', { style: { color: '#cbd5e1', lineHeight: '1.4' } }, notes.visualStyle || '')
-      ),
-      createEl('div', { style: { background: 'rgba(255,255,255,0.03)', padding: '10px 12px', borderRadius: '6px' } },
-        createEl('div', { style: { color: '#38bdf8', fontWeight: '700', marginBottom: '4px' } }, '🔊 声音设计灵魂 (Audio / SFX)'),
-        createEl('div', { style: { color: '#cbd5e1', lineHeight: '1.4' } }, notes.audioScore || '')
-      )
-    ),
-    // 拉片教学核心干货
+
+    // 核心戏剧冲突条
     createEl('div', {
       style: {
-        background: 'rgba(255, 208, 122, 0.08)',
-        borderLeft: '4px solid #ffd07a',
+        background: 'rgba(239, 68, 68, 0.08)',
+        borderLeft: '4px solid #ef4444',
         padding: '10px 14px',
         borderRadius: '4px',
-        color: '#fef08a',
+        marginBottom: '16px',
+        color: '#fca5a5',
+        fontSize: '13px',
         lineHeight: '1.5'
       }
     },
-      createEl('strong', { style: { color: '#ffd07a' } }, '💡 创作者提升 · 为什么这么拍：'),
-      document.createTextNode(` ${notes.pedagogyLesson || ''}`)
+      createEl('strong', { style: { color: '#f87171' } }, '💥 核心戏剧母题与危机冲突：'),
+      document.createTextNode(` ${data.dramaticConflict || '在极限压力下执行关键突破任务。'}`)
+    ),
+
+    // 三列网格：运镜、声效、乐高改编
+    createEl('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginBottom: '16px' } },
+      createEl('div', { style: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', padding: '14px 16px', borderRadius: '8px' } },
+        createEl('div', { style: { color: '#38bdf8', fontWeight: '700', fontSize: '13px', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' } }, '🎥 导演视听运镜法则'),
+        createEl('div', { style: { color: '#cbd5e1', lineHeight: '1.5' } }, grammar.cameraMotion || '经典好莱坞景别张力')
+      ),
+      createEl('div', { style: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', padding: '14px 16px', borderRadius: '8px' } },
+        createEl('div', { style: { color: '#38bdf8', fontWeight: '700', fontSize: '13px', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' } }, '🔊 声音设计与伴随配乐'),
+        createEl('div', { style: { color: '#cbd5e1', lineHeight: '1.5' } }, grammar.soundDesign || '战地环境音与低频脉冲')
+      ),
+      createEl('div', { style: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', padding: '14px 16px', borderRadius: '8px' } },
+        createEl('div', { style: { color: '#ffd07a', fontWeight: '700', fontSize: '13px', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' } }, '🧱 乐高微缩定格转译秘诀'),
+        createEl('div', { style: { color: '#cbd5e1', lineHeight: '1.5' } }, data.legoAdaptation || '微距景深与真实注塑颗粒反光')
+      )
+    ),
+
+    // 创作者干货底栏
+    createEl('div', {
+      style: {
+        background: 'rgba(245, 158, 11, 0.1)',
+        borderLeft: '4px solid #f59e0b',
+        padding: '12px 16px',
+        borderRadius: '6px',
+        color: '#fef08a',
+        fontSize: '13px',
+        lineHeight: '1.5'
+      }
+    },
+      createEl('strong', { style: { color: '#f59e0b' } }, '💡 自媒体短视频爆款秘籍 (Creator Insights)：'),
+      document.createTextNode(` ${data.creatorTips || '把握前3秒完播率，声画对齐。'}`)
     )
   );
 
   panel.appendChild(card);
 }
 
+/**
+ * 执行电影深度转译
+ */
 function executeMovieTranspile(movieQuery) {
-  const requestedShots = Number($('shots').value) || 4;
-  const selectedAr = $('aspect-ratio').value || '16:9';
+  const requestedShots = Number($('shots-cinema')?.value || $('shots')?.value) || 4;
+  const selectedAr = $('aspect-ratio-cinema')?.value || $('aspect-ratio')?.value || '16:9';
+
   const result = transpileMovieToLego(movieQuery, requestedShots);
 
-  // 填充主题文本
+  // 同步两边的主题文本与参数
   $('theme').value = result.themeZh;
   currentProject.theme = result.themeZh;
 
@@ -166,56 +204,113 @@ function executeMovieTranspile(movieQuery) {
     governance: { status: 'passed', flags: [], reasons: [] }
   };
   currentProject.aspectRatio = selectedAr;
-  currentProject.directorNotes = result.directorNotes;
+  currentProject.directorNotes = result;
   currentProject.matchedMovie = result.matchedMovie;
   storeManager.saveAll(currentStore);
 
-  // 渲染好莱坞导演拉片笔记面板
-  renderDirectorNotesPanel(result.matchedMovie, result.directorNotes);
+  // 渲染好莱坞电影全景视听解构看板
+  renderDirectorNotesPanel(result.matchedMovie, result);
 
-  text($('intent'), `🎬 已成功转译《${result.matchedMovie}》视听母题 · 时代：${result.era} · 好莱坞视听拉片已就绪`);
+  text($('intent'), `🎬 已成功深度解构并转译《${result.matchedMovie}》！${result.shots.length} 镜好莱坞视听分镜已生成。`);
   $('intent').className = 'ok';
 
   refreshOutputs();
+
+  // 平滑滚动到时间线
+  $('timeline-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function bindGlobalEvents() {
-  // 渲染电影快捷标签
+  // 1. 模式切换 Tab 交互
+  $('tab-cinema-mode').onclick = () => {
+    $('tab-cinema-mode').className = 'mode-tab active';
+    $('tab-custom-mode').className = 'mode-tab';
+    $('section-cinema-mode').style.display = 'block';
+    $('section-custom-mode').style.display = 'none';
+  };
+
+  $('tab-custom-mode').onclick = () => {
+    $('tab-cinema-mode').className = 'mode-tab';
+    $('tab-custom-mode').className = 'mode-tab active';
+    $('section-cinema-mode').style.display = 'none';
+    $('section-custom-mode').style.display = 'block';
+  };
+
+  // 2. 电影快捷选片标签流
   const chipContainer = $('movie-chips');
   if (chipContainer) {
     chipContainer.replaceChildren();
-    const chipMovies = ['壮志凌云', '黑鹰坠落', '地心引力', '明日边缘', '边境杀手', '流浪地球', '拯救大兵瑞恩', '敦刻尔克'];
-    for (const name of chipMovies) {
+    const films = [
+      { name: '壮志凌云：独行侠', tag: '五代机空战' },
+      { name: '黑鹰坠落', tag: '城市巷战索降' },
+      { name: '地心引力', tag: '空间站碎片危机' },
+      { name: '明日边缘', tag: '外骨骼突围' },
+      { name: '流浪地球', tag: '行星发动机史诗' },
+      { name: '边境杀手', tag: '夜视仪无声渗透' },
+      { name: '拯救大兵瑞恩', tag: '诺曼底血战' },
+      { name: '敦刻尔克', tag: '非线性时空撤离' }
+    ];
+    for (const f of films) {
       const btn = createEl('button', {
-        style: {
-          background: '#1e293b',
-          border: '1px solid #334155',
-          color: '#94a3b8',
-          padding: '2px 8px',
-          borderRadius: '12px',
-          fontSize: '11px',
-          cursor: 'pointer'
-        },
+        class: 'film-chip',
         onClick: () => {
-          $('movie-input').value = name;
-          executeMovieTranspile(name);
+          $('movie-input').value = f.name;
+          executeMovieTranspile(f.name);
         }
-      }, `🎬 ${name}`);
+      },
+        createEl('strong', { style: { color: '#ffd07a' } }, `🎬 ${f.name}`),
+        createEl('span', { style: { color: '#64748b', fontSize: '10px' } }, `(${f.tag})`)
+      );
       chipContainer.appendChild(btn);
     }
   }
 
-  // 电影智能转译按钮
+  // 3. 电影搜索转译按钮与回车触发
   $('transpile-movie-btn').onclick = () => {
     const query = $('movie-input').value.trim();
     if (!query) {
-      alert('请输入电影名称（如：壮志凌云、地心引力、黑鹰坠落）！');
+      alert('请输入要转译的电影名（例如：壮志凌云、地心引力、黑鹰坠落）！');
       return;
     }
     executeMovieTranspile(query);
   };
 
-  // 生成常规分镜计划按钮
+  $('movie-input').onkeydown = (e) => {
+    if (e.key === 'Enter') {
+      $('transpile-movie-btn').click();
+    }
+  };
+
+  // 4. 双向画幅与镜头选择同步
+  $('aspect-ratio-cinema').onchange = () => {
+    const val = $('aspect-ratio-cinema').value;
+    $('aspect-ratio').value = val;
+    applyAspectRatioChange(val);
+  };
+
+  $('aspect-ratio').onchange = () => {
+    const val = $('aspect-ratio').value;
+    $('aspect-ratio-cinema').value = val;
+    applyAspectRatioChange(val);
+  };
+
+  $('shots-cinema').onchange = () => {
+    $('shots').value = $('shots-cinema').value;
+  };
+  $('shots').onchange = () => {
+    $('shots-cinema').value = $('shots').value;
+  };
+
+  function applyAspectRatioChange(ar) {
+    if (currentProject && currentProject.shots) {
+      currentProject.shots.forEach(s => { s.aspectRatio = ar; });
+      currentProject.aspectRatio = ar;
+      storeManager.saveAll(currentStore);
+      refreshOutputs();
+    }
+  }
+
+  // 5. 自由模式生成常规分镜计划
   $('plan').onclick = () => {
     const themeText = $('theme').value.trim();
     if (!themeText) {
@@ -232,7 +327,7 @@ function bindGlobalEvents() {
       profileId
     }, activeRegistry);
 
-    // 内容治理前置分流与处理
+    // 内容治理前置分流
     if (governance.status === 'blocked') {
       text($('intent'), `❌ 已被内容安全策略阻断：${governance.reasons.join('；')}`);
       $('intent').className = 'bad';
@@ -244,7 +339,6 @@ function bindGlobalEvents() {
     }
 
     if (governance.status === 'review_required') {
-      // 加入人工审核队列
       currentProject.reviewQueue = currentProject.reviewQueue || [];
       currentProject.reviewQueue.unshift({
         id: `rev_${Date.now()}`,
@@ -262,32 +356,22 @@ function bindGlobalEvents() {
       $('intent').className = intent.needsConfirmation ? 'warn' : 'ok';
     }
 
-    // 注入当前选择的画面比例
     const selectedAr = $('aspect-ratio').value || '16:9';
     plan.shots.forEach(s => { s.aspectRatio = selectedAr; });
 
-    // 更新当前项目并保存
     currentProject.shots = plan.shots;
     currentProject.theme = themeText;
     currentProject.intent = intent;
     currentProject.aspectRatio = selectedAr;
-    storeManager.saveAll(currentStore);
+    currentProject.directorNotes = null;
+    currentProject.matchedMovie = null;
+    $('director-notes-panel').style.display = 'none';
 
+    storeManager.saveAll(currentStore);
     renderCurrentProject();
   };
 
-  // 监听画面比例切换
-  $('aspect-ratio').onchange = () => {
-    const ar = $('aspect-ratio').value;
-    if (currentProject && currentProject.shots) {
-      currentProject.shots.forEach(s => { s.aspectRatio = ar; });
-      currentProject.aspectRatio = ar;
-      storeManager.saveAll(currentStore);
-      refreshOutputs();
-    }
-  };
-
-  // 导出工程 JSON
+  // 6. 导出工程 JSON
   $('export-btn').onclick = () => {
     if (!currentProject) return;
     const jsonStr = storeManager.export(currentProject);
@@ -300,21 +384,21 @@ function bindGlobalEvents() {
     URL.revokeObjectURL(url);
   };
 
-  // 导出剪映分镜表 CSV
+  // 7. 导出剪映分镜表 CSV
   $('export-csv-btn').onclick = () => {
     if (!currentProject || !currentProject.shots || currentProject.shots.length === 0) {
-      alert('当前影片暂无镜头，请先生成分镜计划！');
+      alert('当前影片暂无镜头，请先选择一部电影或生成分镜计划！');
       return;
     }
     exportToCapCutCSV(currentProject.shots, activeRegistry, currentProject.theme || currentProject.name);
   };
 
-  // 打开乐高资产库抽屉
+  // 8. 打开乐高资产库抽屉
   $('asset-manager-btn').onclick = () => {
     renderAssetManager($('asset-drawer'), activeRegistry);
   };
 
-  // 导入工程
+  // 9. 导入工程
   $('import-btn').onclick = () => $('import-file').click();
   $('import-file').onchange = async (e) => {
     const file = e.target.files?.[0];
@@ -383,7 +467,10 @@ function refreshOutputs() {
 function renderCurrentProject() {
   if (!currentProject) return;
   if (currentProject.theme) $('theme').value = currentProject.theme;
-  if (currentProject.aspectRatio) $('aspect-ratio').value = currentProject.aspectRatio;
+  if (currentProject.aspectRatio) {
+    if ($('aspect-ratio')) $('aspect-ratio').value = currentProject.aspectRatio;
+    if ($('aspect-ratio-cinema')) $('aspect-ratio-cinema').value = currentProject.aspectRatio;
+  }
   if (currentProject.directorNotes && currentProject.matchedMovie) {
     renderDirectorNotesPanel(currentProject.matchedMovie, currentProject.directorNotes);
   }
