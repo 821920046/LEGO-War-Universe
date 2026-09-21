@@ -1,6 +1,8 @@
 import { checkContentGovernance } from './governance.js';
 
 const INTENT_RULES = [
+  ['Orbital', /太空|空间站|轨道|星际|近地轨道|零重力|外太空|宇航员|space|orbital|satellite|zero-g|astronaut/i, 'era'],
+  ['Modern High-Tech', /隐形战机|蜂群|无人机蜂群|激光防空|电子战|外骨骼|五代机|hypersonic|stealth|swarm|exoskeleton/i, 'era'],
   ['Modern', /现代|特战|无人机|夜战|cqb|night vision|modern|recon|csar/i, 'era'],
   ['Gulf War', /海湾战争|沙漠风暴|gulf war|desert storm/i, 'era'],
   ['Iraq War', /伊拉克战争|iraq war/i, 'era'],
@@ -10,6 +12,7 @@ const INTENT_RULES = [
   ['rescue', /营救|搜救|撤离|撤侨|疏散|rescue|evacuation|csar/i, 'task'],
   ['combat', /交战|进攻|突击|伏击|防守|combat|assault|ambush/i, 'task'],
   ['patrol', /巡逻|侦察|警戒|patrol|reconnaissance/i, 'task'],
+  ['space', /太空|空间站|轨道|失重|外太空|space|orbital|zero-g/i, 'setting'],
   ['naval', /航母|舰载|远海|海洋|舰队|carrier|naval|ocean|fleet/i, 'setting'],
   ['urban', /城市|巷战|公寓|废墟|街道|urban|city|street/i, 'setting'],
   ['desert', /沙漠|荒漠|沙丘|desert|dunes/i, 'setting'],

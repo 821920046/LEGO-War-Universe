@@ -2,6 +2,7 @@ import { createRegistry } from '../domain/registry.js';
 import { planFilm } from '../domain/planner.js';
 import { compileShot } from '../domain/compiler.js';
 import { validateFilmPlan } from '../domain/shot-spec.js';
+import { transpileMovieToLego, CINEMA_DATABASE } from '../domain/cinema-homage.js';
 import { ProjectStore } from './project-store.js';
 import { renderTimeline, exportToCapCutCSV } from './timeline.js';
 import { renderShotEditor } from './shot-editor.js';
@@ -85,8 +86,136 @@ function renderTabs() {
   });
 }
 
+function renderDirectorNotesPanel(movieName, notes) {
+  const panel = $('director-notes-panel');
+  if (!panel || !notes) return;
+
+  panel.replaceChildren();
+  panel.style.display = 'block';
+
+  const card = createEl('div', {
+    style: {
+      background: 'linear-gradient(135deg, #091a2f 0%, #050d18 100%)',
+      border: '1px solid #1e3a5f',
+      borderRadius: '8px',
+      padding: '16px 20px',
+      boxShadow: '0 4px 20px rgba(0,0,0,0.5)',
+      fontSize: '13px'
+    }
+  },
+    // 标题栏
+    createEl('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' } },
+      createEl('div', { style: { display: 'flex', alignItems: 'center', gap: '8px' } },
+        createEl('span', { style: { fontSize: '18px' } }, '🎬'),
+        createEl('strong', { style: { color: '#ffd07a', fontSize: '15px' } }, `《${movieName}》好莱坞经典视听解构与导演拉片笔记`),
+        createEl('span', { style: { color: '#64748b', fontSize: '12px' } }, `导演：${notes.director || '大师名家'}`)
+      ),
+      createEl('button', {
+        style: { background: 'transparent', border: '1px solid #475569', color: '#94a3b8', padding: '2px 8px', borderRadius: '4px', cursor: 'pointer', fontSize: '11px' },
+        onClick: () => { panel.style.display = 'none'; }
+      }, '收起笔记')
+    ),
+    // 核心视听与光影
+    createEl('div', { style: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px' } },
+      createEl('div', { style: { background: 'rgba(255,255,255,0.03)', padding: '10px 12px', borderRadius: '6px' } },
+        createEl('div', { style: { color: '#38bdf8', fontWeight: '700', marginBottom: '4px' } }, '🎥 运镜视效特征 (Visual Style)'),
+        createEl('div', { style: { color: '#cbd5e1', lineHeight: '1.4' } }, notes.visualStyle || '')
+      ),
+      createEl('div', { style: { background: 'rgba(255,255,255,0.03)', padding: '10px 12px', borderRadius: '6px' } },
+        createEl('div', { style: { color: '#38bdf8', fontWeight: '700', marginBottom: '4px' } }, '🔊 声音设计灵魂 (Audio / SFX)'),
+        createEl('div', { style: { color: '#cbd5e1', lineHeight: '1.4' } }, notes.audioScore || '')
+      )
+    ),
+    // 拉片教学核心干货
+    createEl('div', {
+      style: {
+        background: 'rgba(255, 208, 122, 0.08)',
+        borderLeft: '4px solid #ffd07a',
+        padding: '10px 14px',
+        borderRadius: '4px',
+        color: '#fef08a',
+        lineHeight: '1.5'
+      }
+    },
+      createEl('strong', { style: { color: '#ffd07a' } }, '💡 创作者提升 · 为什么这么拍：'),
+      document.createTextNode(` ${notes.pedagogyLesson || ''}`)
+    )
+  );
+
+  panel.appendChild(card);
+}
+
+function executeMovieTranspile(movieQuery) {
+  const requestedShots = Number($('shots').value) || 4;
+  const selectedAr = $('aspect-ratio').value || '16:9';
+  const result = transpileMovieToLego(movieQuery, requestedShots);
+
+  // 填充主题文本
+  $('theme').value = result.themeZh;
+  currentProject.theme = result.themeZh;
+
+  // 注入画面比例并更新镜头
+  result.shots.forEach(s => { s.aspectRatio = selectedAr; });
+  currentProject.shots = result.shots;
+  currentProject.intent = {
+    era: result.era,
+    task: 'combat',
+    theme: result.themeZh,
+    confidence: 1.0,
+    safetyTags: [],
+    governance: { status: 'passed', flags: [], reasons: [] }
+  };
+  currentProject.aspectRatio = selectedAr;
+  currentProject.directorNotes = result.directorNotes;
+  currentProject.matchedMovie = result.matchedMovie;
+  storeManager.saveAll(currentStore);
+
+  // 渲染好莱坞导演拉片笔记面板
+  renderDirectorNotesPanel(result.matchedMovie, result.directorNotes);
+
+  text($('intent'), `🎬 已成功转译《${result.matchedMovie}》视听母题 · 时代：${result.era} · 好莱坞视听拉片已就绪`);
+  $('intent').className = 'ok';
+
+  refreshOutputs();
+}
+
 function bindGlobalEvents() {
-  // 生成分镜计划按钮
+  // 渲染电影快捷标签
+  const chipContainer = $('movie-chips');
+  if (chipContainer) {
+    chipContainer.replaceChildren();
+    const chipMovies = ['壮志凌云', '黑鹰坠落', '地心引力', '明日边缘', '边境杀手', '流浪地球', '拯救大兵瑞恩', '敦刻尔克'];
+    for (const name of chipMovies) {
+      const btn = createEl('button', {
+        style: {
+          background: '#1e293b',
+          border: '1px solid #334155',
+          color: '#94a3b8',
+          padding: '2px 8px',
+          borderRadius: '12px',
+          fontSize: '11px',
+          cursor: 'pointer'
+        },
+        onClick: () => {
+          $('movie-input').value = name;
+          executeMovieTranspile(name);
+        }
+      }, `🎬 ${name}`);
+      chipContainer.appendChild(btn);
+    }
+  }
+
+  // 电影智能转译按钮
+  $('transpile-movie-btn').onclick = () => {
+    const query = $('movie-input').value.trim();
+    if (!query) {
+      alert('请输入电影名称（如：壮志凌云、地心引力、黑鹰坠落）！');
+      return;
+    }
+    executeMovieTranspile(query);
+  };
+
+  // 生成常规分镜计划按钮
   $('plan').onclick = () => {
     const themeText = $('theme').value.trim();
     if (!themeText) {
@@ -254,6 +383,10 @@ function refreshOutputs() {
 function renderCurrentProject() {
   if (!currentProject) return;
   if (currentProject.theme) $('theme').value = currentProject.theme;
+  if (currentProject.aspectRatio) $('aspect-ratio').value = currentProject.aspectRatio;
+  if (currentProject.directorNotes && currentProject.matchedMovie) {
+    renderDirectorNotesPanel(currentProject.matchedMovie, currentProject.directorNotes);
+  }
   refreshOutputs();
 }
 

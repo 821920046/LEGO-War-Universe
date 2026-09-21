@@ -1509,6 +1509,85 @@
       "referenceImage": "",
       "version": "1.0",
       "legacyId": ""
+    },
+    {
+      "id": "CHR-701",
+      "name": "Orbital Shock Trooper",
+      "nameZh": "轨道空降突击兵",
+      "kw": "太空 空间站 轨道空降 空降兵 零重力 外太空 星际 orbital drop odst space shock trooper",
+      "series": "Orbital",
+      "faction": "Coalition",
+      "unit": "Orbital Infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height, orbital drop shock trooper",
+        "glossy black pressurized EVA helmet with gold reflective faceplate and dual headlamps",
+        "matte carbon-fiber torso armor print with thruster harness, micro thruster pack on back",
+        "magnetic boots, tactical vacuum gloves, HUD visor display glow",
+        "equipment: bullpup kinetic battle rifle with HUD smart-link and recoil dampener",
+        "authentic LEGO plastic texture with crisp prints and visible studs"
+      ],
+      "changelog": [
+        "1.0 initial (LWU 3.0 Space Expansion)"
+      ],
+      "referenceImage": "",
+      "version": "1.0"
+    },
+    {
+      "id": "CHR-702",
+      "name": "EVA Combat Astronaut",
+      "nameZh": "太空站舱外宇航员",
+      "kw": "宇航员 空间站 舱外 太空行走 气闸舱 失重 维修 astronaut eva spacewalk zero-g",
+      "series": "Orbital",
+      "faction": "Coalition",
+      "unit": "Space Operations",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height, deep-space EVA astronaut",
+        "white pressurized spacesuit with thermal micrometeoroid garment print",
+        "gold coated reflective bubble visor, chest mounted display and control module",
+        "MMU manned maneuvering jetpack with cold gas thrusters attached to backpack peg",
+        "equipment: tether cable with carabiner, pneumatic torque wrench, emergency patch kit",
+        "authentic LEGO plastic texture with genuine stud connections"
+      ],
+      "changelog": [
+        "1.0 initial (LWU 3.0 Space Expansion)"
+      ],
+      "referenceImage": "",
+      "version": "1.0"
+    },
+    {
+      "id": "CHR-630",
+      "name": "Powered Exoskeleton Operator",
+      "nameZh": "动力外骨骼特战队员",
+      "kw": "外骨骼 动力装甲 重装 重步兵 机械臂 明日边缘 未来 现代特战 exoskeleton powered armor heavy infantry",
+      "series": "Modern High-Tech",
+      "faction": "Coalition",
+      "unit": "Advanced Special Forces",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height, modern heavy operator",
+        "tactical high-cut helmet with integrated multi-spectrum panoramic night vision goggles",
+        "brick-built external hydraulic exoskeleton frame reinforcing legs and spine with visible miniature pistons",
+        "multicam camouflage combat shirt, reinforced chest plate with active electronics glow",
+        "equipment: shoulder-slung smart heavy machine gun with gyro-stabilized support arm",
+        "authentic LEGO plastic texture with high-precision miniature detailing"
+      ],
+      "changelog": [
+        "1.0 initial (LWU 3.0 Modern Expansion)"
+      ],
+      "referenceImage": "",
+      "version": "1.0"
     }
   ],
   "vehicles": [
@@ -3558,6 +3637,84 @@
       ],
       "referenceImage": "",
       "version": "1.0"
+    },
+    {
+      "id": "AIR-701",
+      "name": "Orbital Assault Shuttle Gunship",
+      "nameZh": "近地轨道穿梭突击艇",
+      "class": "aircraft",
+      "series": "Orbital",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (LWU 3.0 Space Expansion)"
+      ],
+      "lines": [
+        "LEGO orbital assault shuttle gunship, modular angular brick construction",
+        "dark grey and black heat-shield tile belly, angled delta wings with RCS thruster quads",
+        "tinted cockpit canopy seating two minifigures, deployable magnetic docking clamp",
+        "twin plasma impulse sub-light thrusters with trans-light-blue glow bricks at rear",
+        "consistent LEGO scale, authentic visible studs and panel lines"
+      ],
+      "kw": "太空 飞船 穿梭机 穿梭艇 轨道 突击艇 登陆舰 shuttle gunship orbital space"
+    },
+    {
+      "id": "AIR-620",
+      "name": "Stealth Air-Dominance Fighter",
+      "nameZh": "隐形五代制空战机",
+      "class": "aircraft",
+      "series": "Modern High-Tech",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (LWU 3.0 Modern Expansion)"
+      ],
+      "lines": [
+        "LEGO fifth-generation stealth air-dominance fighter jet, sleek angular faceted brick geometry",
+        "radar-absorbent dark matte grey finish with low-observable panel seams and subdued roundels",
+        "internal weapon bays with operable doors showing micro AMRAAM missile elements",
+        "canted twin vertical stabilizers, vectoring exhaust nozzle, tinted reflective gold canopy",
+        "consistent scale, highly detailed authentic LEGO building techniques"
+      ],
+      "kw": "隐形战机 隐身 五代机 猛禽 闪电 壮志凌云 空战 歼击机 stealth fighter f22 f35"
+    },
+    {
+      "id": "VEH-620",
+      "name": "Autonomous Drone Swarm",
+      "nameZh": "自主打击蜂群无人机群",
+      "class": "drone",
+      "series": "Modern High-Tech",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "changelog": [
+        "1.0 initial (LWU 3.0 Modern Expansion)"
+      ],
+      "lines": [
+        "LEGO autonomous loitering drone swarm, formation of miniature flying-wing drone models",
+        "sleek dark olive and grey micro-brick frames with optical seeker nose domes",
+        "folding carbon-style wing elements, miniature twin pusher propellers",
+        "flying in synchronized staggered grid formation across the frame",
+        "consistent LEGO scale, crisp plastic studs and authentic decals"
+      ],
+      "kw": "无人机 蜂群 巡飞弹 自杀式无人机 自主打击 drone swarm uav loitering"
     }
   ],
   "weapons": [
@@ -5266,6 +5423,48 @@
       ],
       "nameZh": "撤离车队公路",
       "kw": "车队 护送 撤离 撤侨 突围 路障 convoy escort evacuation breakout roadblock 撤侨 侨民 使馆 大使馆 领事馆 外交 撤离 撤退 转移 疏散 接应 围困 evacuation evacuate embassy consulate diplomat noncombatant neo 车队 突围"
+    },
+    {
+      "id": "ENV-701",
+      "name": "Low Earth Orbit Space Station Exterior",
+      "nameZh": "近地轨道空间站外壁与太阳能翼",
+      "series": "Orbital",
+      "lines": [
+        "LEGO miniature set representing the exterior of a massive low Earth orbit space station",
+        "modular cylindrical laboratory modules built from white and light grey bricks with handrails",
+        "huge articulated gold and dark blue solar panel arrays extending outward",
+        "Earth limb with glowing blue atmospheric curvature and black star-filled vacuum in background",
+        "harsh direct sunlight creating high-contrast razor sharp shadows on white LEGO plastic"
+      ],
+      "kw": "空间站 太空站 外壁 太阳能帆板 太空 地球轨道 零重力 space station orbit earth leo"
+    },
+    {
+      "id": "ENV-702",
+      "name": "Space Station Airlock & Zero-G Module",
+      "nameZh": "空间站气闸舱与失重加压舱",
+      "series": "Orbital",
+      "lines": [
+        "LEGO interior set of an orbital space station airlock and pressurized module",
+        "white and tan padded insulation wall panels with grab rails, equipment racks and bungee nets",
+        "circular airlock hatch with heavy locking mechanism and decompression indicator light",
+        "floating tool boxes and loose tether cables suspended in zero-gravity stop motion",
+        "cool interior LED strip lighting with glowing instrument touchscreens"
+      ],
+      "kw": "气闸舱 空间站内景 加压舱 失重 舱内 airlock zero-g interior pressurized module"
+    },
+    {
+      "id": "ENV-640",
+      "name": "Subterranean Cyber Command Bunker",
+      "nameZh": "现代高科技地下指挥掩体",
+      "series": "Modern High-Tech",
+      "lines": [
+        "LEGO underground fortified joint operations command bunker",
+        "reinforced blast-resistant concrete walls built from dark bluish grey bricks with exposed conduits",
+        "panoramic holographic battlefield map table in center surrounded by tiered operator consoles",
+        "blue and amber ambient glow from multiple multi-monitor tactical displays",
+        "dim overhead fluorescent strip lights casting moody shadows on tactical operators"
+      ],
+      "kw": "地下掩体 指挥部 作战中心 高科技 电子战 控制室 bunker command center cyber operations"
     }
   ],
   "cameras": [

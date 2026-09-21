@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1",
   "projectVersion": "6.1.0",
-  "assetManifestVersion": "3.4:8c9643e78680",
-  "assetCount": 381,
-  "assetSha256": "8c9643e78680b22be22933f0992d4407b7e352678377df699bd4a361ed5dcba5",
+  "assetManifestVersion": "3.4:3d048aa87be6",
+  "assetCount": 390,
+  "assetSha256": "3d048aa87be6d439dc4e39fa6eb82ceaef3d7f26b92a3a3629c51bbbcb07d8a6",
   "sourceUpdated": "2026-08-04",
-  "builtAt": "2026-09-18T12:05:43.619Z"
+  "builtAt": "2026-09-21T10:18:57.853Z"
 }
