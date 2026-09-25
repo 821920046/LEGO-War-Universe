@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { transpileMovieToLego, CINEMA_DATABASE } from '../src/domain/cinema-homage.js';
 import { parseIntent } from '../src/domain/intent.js';
+import { validateContinuityChain } from '../src/domain/continuity.js';
 
 test('Cinema homage: database contains classic military and sci-fi films', () => {
   assert.ok(CINEMA_DATABASE.length >= 7);
@@ -27,6 +28,15 @@ test('Cinema homage: transpile Gravity outputs space station orbital shots', () 
   assert.ok(result.matchedMovie.includes('地心引力'));
   assert.ok(result.shots[0].action.includes('空间站') || result.shots[0].action.includes('宇航员'));
   assert.ok(result.visualGrammar?.soundDesign?.includes('寂静') || result.visualGrammar?.soundDesign?.includes('静音'));
+});
+
+test('Cinema homage: transpiled shots pass continuity validation without MISSING_REFERENCE_FRAME', () => {
+  const result = transpileMovieToLego('黑鹰坠落', 8);
+  const val = validateContinuityChain(result.shots);
+  assert.equal(val.ok, true);
+  assert.equal(val.violations.length, 0);
+  assert.equal(result.shots[1].referenceFrame, 'shot_1_end_frame');
+  assert.equal(result.era, 'Modern');
 });
 
 test('Intent parser: recognizes orbital and space keywords', () => {

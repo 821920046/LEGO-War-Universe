@@ -11,9 +11,10 @@ test('AI Brain: alignShotsToLego infers valid continuous shot parameters', () =>
   const aligned = alignShotsToLego(raw);
   assert.equal(aligned.length, 2);
   assert.equal(aligned[0].phase, 'establish');
-  assert.equal(aligned[0].screenDirection, 'towards-camera');
+  assert.equal(aligned[0].screenDirection, 'left-to-right');
   assert.equal(aligned[1].phase, 'build');
   assert.equal(aligned[1].damageState, 'weathered');
+  assert.equal(aligned[1].referenceFrame, 'shot_1_end_frame');
 });
 
 test('AI Brain Client: callAiBrain seamlessly outputs full plan with built-in fallback', async () => {
@@ -25,4 +26,5 @@ test('AI Brain Client: callAiBrain seamlessly outputs full plan with built-in fa
   assert.ok(result.matchedMovie.includes('壮志凌云'));
   assert.equal(result.shots.length, 4);
   assert.ok(result.shots[0].action.includes('隐形五代战机'));
+  assert.equal(result.shots[1].referenceFrame, 'shot_1_end_frame');
 });

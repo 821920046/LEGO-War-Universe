@@ -3,6 +3,8 @@
  * 将大模型自由发散的影视分镜文本，精准对齐为符合 390 项认证积木资产与微缩定格物理规范的数据结构
  */
 
+import { enforceContinuityChain } from './continuity.js';
+
 export function alignShotsToLego(rawShots = [], baseAssets = {}, era = 'Modern') {
   const defaultSubjects = baseAssets.subjects || ['CHR-401'];
   const defaultEnv = baseAssets.environment || 'ENV-001';
@@ -12,7 +14,7 @@ export function alignShotsToLego(rawShots = [], baseAssets = {}, era = 'Modern')
 
   const phases = ['establish', 'build', 'climax', 'resolve'];
 
-  return rawShots.map((shot, idx) => {
+  const mapped = rawShots.map((shot, idx) => {
     const phase = shot.phase || phases[Math.min(idx, phases.length - 1)] || 'build';
     let damageState = shot.damageState || 'clean';
     if (phase === 'build') damageState = 'weathered';
@@ -40,4 +42,6 @@ export function alignShotsToLego(rawShots = [], baseAssets = {}, era = 'Modern')
       colorGrade: shot.colorGrade || defaultClr
     };
   });
+
+  return enforceContinuityChain(mapped);
 }

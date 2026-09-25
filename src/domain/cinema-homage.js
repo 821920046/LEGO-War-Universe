@@ -3,6 +3,8 @@
  * 将真人电影的核心戏剧冲突、导演视听语法与声画对齐，深度转译为乐高微缩定格大片
  */
 
+import { enforceContinuityChain } from './continuity.js';
+
 export const CINEMA_DATABASE = [
   {
     id: 'top-gun-maverick',
@@ -10,6 +12,7 @@ export const CINEMA_DATABASE = [
     aliases: ['壮志凌云', 'top gun', '独行侠', 'maverick', '阿汤哥', '战斗机'],
     director: '约瑟夫·科辛斯基 (Joseph Kosinski)',
     year: '2022',
+    era: 'Modern High-Tech',
     genre: '现代空战 / 极限超音速突防',
     dramaticConflict: '在两分钟严苛时限内，以超低空贴地穿透雷达盲区与密集萨姆导弹网，摧毁高山深处重兵把守的目标。',
     visualGrammar: {
@@ -71,6 +74,7 @@ export const CINEMA_DATABASE = [
     aliases: ['黑鹰坠落', 'black hawk down', '摩加迪沙', '城市巷战', '索降'],
     director: '雷德利·斯科特 (Ridley Scott)',
     year: '2001',
+    era: 'Modern',
     genre: '现代战术突入 / 城市绞杀断后',
     dramaticConflict: '原本一小时的闪电抓捕任务突遭RPG击坠直升机，被困小队在数十倍敌人的包围网中固守待援，不放弃任何一个战友。',
     visualGrammar: {
@@ -132,6 +136,7 @@ export const CINEMA_DATABASE = [
     aliases: ['地心引力', 'gravity', '太空站', '空间站', '失重', '宇航员'],
     director: '阿方索·卡隆 (Alfonso Cuarón)',
     year: '2013',
+    era: 'Orbital',
     genre: '近未来太空轨道硬科幻 / 绝境求生',
     dramaticConflict: '轨道卫星连锁解体产生万物皆灭的高速碎片风暴，摧毁空间站，落单宇航员在绝氧与失重深渊中孤身泅渡求生。',
     visualGrammar: {
@@ -193,6 +198,7 @@ export const CINEMA_DATABASE = [
     aliases: ['明日边缘', 'edge of tomorrow', '外骨骼', '动力机甲', '阿汤哥科幻'],
     director: '道格·里曼 (Doug Liman)',
     year: '2014',
+    era: 'Modern High-Tech',
     genre: '重工业科幻战争 / 时间轮回强袭',
     dramaticConflict: '人类身穿笨重简陋的液压动力外骨骼，在滩头阵地迎战以绝对速度与数量碾压的外星生物，一次次在绝望中寻找破局密码。',
     visualGrammar: {
@@ -254,6 +260,7 @@ export const CINEMA_DATABASE = [
     aliases: ['流浪地球', 'wandering earth', '行星发动机', '太空电梯', '吴京', '郭帆'],
     director: '郭帆 (Frant Gwo)',
     year: '2019',
+    era: 'Orbital',
     genre: '硬核重工业科幻 / 宏大行星尺度史诗',
     dramaticConflict: '太阳即将熄灭，人类建造一万座巨型行星发动机推走地球，在面对木星引力死局时，唯有凡人微光汇聚成拯救文明的行星级决绝。',
     visualGrammar: {
@@ -315,6 +322,7 @@ export const CINEMA_DATABASE = [
     aliases: ['边境杀手', 'sicario', '暗夜突击', '夜视仪', '微光暗杀'],
     director: '丹尼斯·维伦纽瓦 (Denis Villeneuve)',
     year: '2015',
+    era: 'Modern',
     genre: '现代暗夜高危特战 / 极度压迫感冷峻渗透',
     dramaticConflict: '深入法外之地的黑暗地下隧道网络，在黑白难辨的灰色秩序中执行致命突袭，任何一丝声响都将招致毁灭伏击。',
     visualGrammar: {
@@ -376,6 +384,7 @@ export const CINEMA_DATABASE = [
     aliases: ['拯救大兵瑞恩', 'saving private ryan', '诺曼底', '奥马哈海滩', '斯皮尔伯格'],
     director: '史蒂文·斯皮尔伯格 (Steven Spielberg)',
     year: '1998',
+    era: 'WWII',
     genre: '二战纪实残酷写实 / 战火中的人性光辉',
     dramaticConflict: '八名士兵冒着枪林弹雨在敌后废墟中寻找一名普通二等兵，拷问战争中生命价值与牺牲代价的永恒悖论。',
     visualGrammar: {
@@ -437,6 +446,7 @@ export const CINEMA_DATABASE = [
     aliases: ['敦刻尔克', 'dunkirk', '诺兰战争', '防波堤'],
     director: '克里斯托弗·诺兰 (Christopher Nolan)',
     year: '2017',
+    era: 'WWII',
     genre: '非线性时空海陆空三重奏 / 悬念绝境撤离',
     dramaticConflict: '四十万大军被围困在窄小滩头，敌军装甲近在咫尺，唯有依靠头顶微弱的皇家空军与民用小船逆浪而行创造奇迹。',
     visualGrammar: {
@@ -560,6 +570,7 @@ export function transpileMovieToLego(query, requestedShots = 4) {
   return {
     matchedMovie: match.title,
     movieId: match.id,
+    era: match.era,
     director: match.director,
     year: match.year,
     genre: match.genre,
@@ -568,7 +579,7 @@ export function transpileMovieToLego(query, requestedShots = 4) {
     legoAdaptation: match.legoAdaptation,
     creatorTips: match.creatorTips,
     themeZh: `【${match.title} · 好莱坞视听转译】${match.shots[0].action.slice(0, 35)}…`,
-    shots,
+    shots: enforceContinuityChain(shots),
     assets: match.assets
   };
 }
