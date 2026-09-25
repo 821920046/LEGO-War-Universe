@@ -4,6 +4,7 @@ import { compileShot } from '../domain/compiler.js';
 import { validateFilmPlan } from '../domain/shot-spec.js';
 import { transpileMovieToLego, CINEMA_DATABASE } from '../domain/cinema-homage.js';
 import { callAiBrain } from '../domain/ai-brain.js';
+import { extractCharacterLineup, generateLineupPrompt } from '../domain/character-lineup.js';
 import { ProjectStore } from './project-store.js';
 import { renderTimeline, exportToCapCutCSV } from './timeline.js';
 import { renderShotEditor } from './shot-editor.js';
@@ -182,6 +183,80 @@ function renderDirectorNotesPanel(movieName, data) {
 }
 
 /**
+ * 渲染全片全角色定妆表与全家福控制台 (置顶于分镜脚本之前)
+ */
+function renderCharacterLineupPanel(project) {
+  const section = $('character-lineup-section');
+  if (!section) return;
+
+  if (!project || !project.shots || project.shots.length === 0) {
+    section.style.display = 'none';
+    return;
+  }
+
+  section.style.display = 'block';
+
+  // 1. 抽取所有登场角色并组装合影 Prompt
+  const characters = extractCharacterLineup(project.shots, activeRegistry);
+  const theme = project.theme || project.name || '好莱坞大片';
+  const era = project.intent?.era || 'Modern';
+  const ar = project.aspectRatio || '16:9';
+  const lineupData = generateLineupPrompt(characters, theme, era, ar);
+
+  // 2. 渲染角色名牌列表
+  const grid = $('character-roster-grid');
+  grid.replaceChildren();
+
+  for (const c of characters) {
+    const card = createEl('div', {
+      style: {
+        background: 'rgba(255, 255, 255, 0.03)',
+        border: '1px solid rgba(56, 189, 248, 0.2)',
+        borderRadius: '8px',
+        padding: '10px 14px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px'
+      }
+    },
+      createEl('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+        createEl('strong', { style: { color: '#ffd07a', fontSize: '13px' } }, `🧑‍🚀 ${c.name}`),
+        createEl('span', { style: { background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', fontSize: '10px', padding: '1px 6px', borderRadius: '10px', fontWeight: '700' } }, c.role)
+      ),
+      createEl('div', { style: { color: '#cbd5e1', fontSize: '11px', lineHeight: '1.4' } }, `服装装具：${c.outfit}`)
+    );
+    grid.appendChild(card);
+  }
+
+  // 3. 填充提示词
+  $('lineup-prompt-en').value = lineupData.promptEn;
+  text($('lineup-prompt-zh'), lineupData.promptZh);
+
+  // 4. 更新参考图上传预览状态
+  const previewWrap = $('lineup-preview-wrap');
+  const placeholder = $('lineup-upload-placeholder');
+  const imgPreview = $('lineup-image-preview');
+  const anchorStatus = $('lineup-anchor-status');
+
+  if (project.lineupImage) {
+    imgPreview.src = project.lineupImage;
+    previewWrap.style.display = 'block';
+    placeholder.style.display = 'none';
+    anchorStatus.textContent = '✔ 🔒 全局角色视觉锚点已锁定';
+    anchorStatus.style.background = 'rgba(52, 211, 153, 0.15)';
+    anchorStatus.style.color = '#34d399';
+    anchorStatus.style.borderColor = 'rgba(52, 211, 153, 0.3)';
+  } else {
+    previewWrap.style.display = 'none';
+    placeholder.style.display = 'block';
+    anchorStatus.textContent = '⏳ 待生成/上传全家福参考图';
+    anchorStatus.style.background = 'rgba(245, 158, 11, 0.15)';
+    anchorStatus.style.color = '#f59e0b';
+    anchorStatus.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+  }
+}
+
+/**
  * 执行电影深度转译（无缝调用后台免费大模型与智能兜底）
  */
 async function executeMovieTranspile(movieQuery) {
@@ -235,8 +310,8 @@ async function executeMovieTranspile(movieQuery) {
 
     refreshOutputs();
 
-    // 平滑滚动到时间线
-    $('timeline-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // 平滑滚动到置顶的角色定妆看板
+    $('character-lineup-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (err) {
     if (progressEl) {
       progressEl.textContent = `转译异常: ${err.message}`;
@@ -335,7 +410,71 @@ function bindGlobalEvents() {
     }
   }
 
-  // 5. 自由模式生成常规分镜计划
+  // 5. 复制全家福生图 Prompt 按钮
+  $('copy-lineup-prompt-btn').onclick = () => {
+    const promptText = $('lineup-prompt-en').value;
+    if (!promptText) return;
+    navigator.clipboard?.writeText(promptText);
+    alert('已成功复制【全角色同框大合影生图 Prompt】到剪贴板！\n\n可直接粘贴至 Midjourney / FLUX / DALL-E 中生成全员定妆大合照。生成完毕后请将图片上传到右侧，作为全片全局主控参考图。');
+  };
+
+  // 6. 全家福参考图上传与拖拽事件
+  const dropzone = $('lineup-dropzone');
+  const fileInput = $('lineup-file-input');
+
+  dropzone.onclick = (e) => {
+    if (e.target.id === 'remove-lineup-img-btn') return;
+    fileInput.click();
+  };
+
+  fileInput.onchange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) handleLineupImageFile(file);
+  };
+
+  dropzone.ondragover = (e) => {
+    e.preventDefault();
+    dropzone.style.borderColor = '#38bdf8';
+    dropzone.style.background = 'rgba(56, 189, 248, 0.1)';
+  };
+
+  dropzone.ondragleave = () => {
+    dropzone.style.borderColor = 'rgba(56, 189, 248, 0.3)';
+    dropzone.style.background = 'transparent';
+  };
+
+  dropzone.ondrop = (e) => {
+    e.preventDefault();
+    dropzone.style.borderColor = 'rgba(56, 189, 248, 0.3)';
+    dropzone.style.background = 'transparent';
+    const file = e.dataTransfer?.files?.[0];
+    if (file) handleLineupImageFile(file);
+  };
+
+  $('remove-lineup-img-btn').onclick = (e) => {
+    e.stopPropagation();
+    if (!confirm('确定更换或清除当前全家福参考图吗？')) return;
+    currentProject.lineupImage = null;
+    storeManager.saveAll(currentStore);
+    renderCharacterLineupPanel(currentProject);
+  };
+
+  function handleLineupImageFile(file) {
+    if (!file.type.startsWith('image/')) {
+      alert('请上传图片格式文件 (PNG / JPG / WEBP)！');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      currentProject.lineupImage = reader.result;
+      storeManager.saveAll(currentStore);
+      renderCharacterLineupPanel(currentProject);
+      alert('全角色全家福参考图上传成功！\n已成功锁定为整部视频所有镜头的全局视觉基准！');
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // 7. 自由模式生成常规分镜计划
   $('plan').onclick = () => {
     const themeText = $('theme').value.trim();
     if (!themeText) {
@@ -396,7 +535,7 @@ function bindGlobalEvents() {
     renderCurrentProject();
   };
 
-  // 6. 导出工程 JSON
+  // 8. 导出工程 JSON
   $('export-btn').onclick = () => {
     if (!currentProject) return;
     const jsonStr = storeManager.export(currentProject);
@@ -409,7 +548,7 @@ function bindGlobalEvents() {
     URL.revokeObjectURL(url);
   };
 
-  // 7. 导出剪映分镜表 CSV
+  // 9. 导出剪映分镜表 CSV
   $('export-csv-btn').onclick = () => {
     if (!currentProject || !currentProject.shots || currentProject.shots.length === 0) {
       alert('当前影片暂无镜头，请先选择一部电影或生成分镜计划！');
@@ -418,12 +557,12 @@ function bindGlobalEvents() {
     exportToCapCutCSV(currentProject.shots, activeRegistry, currentProject.theme || currentProject.name);
   };
 
-  // 8. 打开乐高资产库抽屉
+  // 10. 打开乐高资产库抽屉
   $('asset-manager-btn').onclick = () => {
     renderAssetManager($('asset-drawer'), activeRegistry);
   };
 
-  // 9. 导入工程
+  // 11. 导入工程
   $('import-btn').onclick = () => $('import-file').click();
   $('import-file').onchange = async (e) => {
     const file = e.target.files?.[0];
@@ -449,7 +588,10 @@ function refreshOutputs() {
   if (!currentProject) return;
   const p = activeProfile || activeRegistry.profileById.get($('profile').value);
 
-  // 1. 渲染双轨视听时间线（含首帧与音轨）
+  // 1. 置顶渲染全片全角色定妆表与全家福控制台
+  renderCharacterLineupPanel(currentProject);
+
+  // 2. 渲染双轨视听时间线（含首帧与音轨）
   renderTimeline($('timeline-container'), currentProject.shots || [], activeRegistry, (idx, shot) => {
     openShotEditor(idx, shot);
   }, (prompt) => {
@@ -457,12 +599,12 @@ function refreshOutputs() {
     alert('已成功复制 35mm 定格首帧参考图 Prompt 到剪贴板！\n可直接粘贴至 FLUX / Midjourney 中生成关键帧图片。');
   });
 
-  // 2. 渲染已编译输出
+  // 3. 渲染已编译输出
   renderPlan($('output'), { shots: currentProject.shots || [] }, compileShot, activeRegistry, p, (idx, shot) => {
     openShotEditor(idx, shot);
   });
 
-  // 3. 校验违规
+  // 4. 校验违规
   const valResult = validateFilmPlan({ shots: currentProject.shots || [], intent: currentProject.intent || {} }, activeRegistry);
   $('violations').replaceChildren();
   if (!valResult.ok) {
@@ -474,7 +616,7 @@ function refreshOutputs() {
     }
   }
 
-  // 4. 渲染审核队列
+  // 5. 渲染审核队列
   renderReviewQueue($('review-container'), currentProject.reviewQueue || [], {
     onApprove: (item) => {
       currentProject.reviewQueue = currentProject.reviewQueue.filter(q => q.id !== item.id);

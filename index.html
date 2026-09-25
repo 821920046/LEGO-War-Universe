@@ -389,6 +389,57 @@
     <section id="violations"></section>
     <section id="review-container" style="margin-bottom: 20px;"></section>
 
+    <!-- 🎭 全角色定妆表与全员全家福生图控制台 (置顶于分镜脚本最前) -->
+    <section id="character-lineup-section" class="stage-card" style="display: none; margin-top: 24px; border: 1px solid rgba(56, 189, 248, 0.4); background: linear-gradient(180deg, #0b172a 0%, #060e1d 100%);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;">
+        <div>
+          <h2 style="margin: 0; font-size: 17px; color: #38bdf8; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+            <span>🎭</span> 全片角色定妆表与全员全家福生图控制台 (Character Lineup Sheet)
+          </h2>
+          <p style="margin: 4px 0 0 0; color: var(--text-muted); font-size: 12px;">
+            【生图防穿帮第一步】必须先拿下方提示词生成全员同框大合影，并上传作为整部片子的全局主控参考图，彻底锁死人仔服装、脸部与装备细节。
+          </p>
+        </div>
+        <div id="lineup-anchor-status" style="font-size: 11px; padding: 4px 10px; border-radius: 12px; background: rgba(245, 158, 11, 0.15); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); font-weight: 700;">
+          ⏳ 待生成/上传全家福参考图
+        </div>
+      </div>
+
+      <!-- 角色名牌流 -->
+      <div id="character-roster-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; margin-bottom: 16px;"></div>
+
+      <!-- 左右分栏：提示词复制区 vs 图片上传预览区 -->
+      <div style="display: grid; grid-template-columns: 3fr 2fr; gap: 16px;">
+        <!-- 左侧：全家福生图 Prompt -->
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 14px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+            <label style="margin: 0; color: #ffd07a; font-weight: 700; font-size: 12px;">📸 全角色同框大合影生图 Prompt (Midjourney / FLUX / DALL-E)</label>
+            <button id="copy-lineup-prompt-btn" class="btn-gold" style="padding: 4px 12px; font-size: 12px;">📋 一键复制全家福 Prompt</button>
+          </div>
+          <textarea id="lineup-prompt-en" rows="4" readonly style="font-family: var(--font-mono); font-size: 12px; color: #38bdf8; background: #030712; margin-bottom: 8px; resize: vertical;"></textarea>
+          <div id="lineup-prompt-zh" style="font-size: 12px; color: #94a3b8; line-height: 1.4; background: rgba(255,255,255,0.02); padding: 8px 10px; border-radius: 4px;"></div>
+        </div>
+
+        <!-- 右侧：全家福参考图上传与锁帧控制 -->
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 8px; padding: 14px; display: flex; flex-direction: column;">
+          <label style="margin: 0 0 8px 0; color: #34d399; font-weight: 700; font-size: 12px;">🖼️ 上传已生成的全家福参考图 (用于图生视频/全局锁帧)</label>
+          <div id="lineup-dropzone" style="flex: 1; border: 2px dashed rgba(56, 189, 248, 0.3); border-radius: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px; text-align: center; cursor: pointer; transition: all 0.2s;">
+            <div id="lineup-preview-wrap" style="display: none; width: 100%; text-align: center;">
+              <img id="lineup-image-preview" style="max-height: 120px; max-width: 100%; border-radius: 4px; border: 1px solid #38bdf8; margin-bottom: 8px; object-fit: contain;">
+              <div style="font-size: 11px; color: #34d399; font-weight: 700;">✔ 🔒 全局角色视觉锚点已锁定</div>
+              <button id="remove-lineup-img-btn" style="background: transparent; border: 1px solid #ef4444; color: #ef4444; border-radius: 4px; padding: 2px 8px; font-size: 11px; margin-top: 6px; cursor: pointer;">更换图片</button>
+            </div>
+            <div id="lineup-upload-placeholder">
+              <span style="font-size: 24px;">📥</span>
+              <p style="margin: 4px 0 0 0; font-size: 12px; color: #cbd5e1;">点击或将全家福图片拖入此处</p>
+              <span style="font-size: 11px; color: #64748b;">支持 PNG / JPG / WEBP</span>
+            </div>
+          </div>
+          <input type="file" id="lineup-file-input" style="display:none" accept="image/*">
+        </div>
+      </div>
+    </section>
+
     <!-- 多轨视听时间线 (画面视频轨 + 音效台词轨) -->
     <section style="margin-top: 28px;">
       <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
