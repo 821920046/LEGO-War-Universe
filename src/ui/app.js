@@ -3,7 +3,7 @@ import { planFilm } from '../domain/planner.js';
 import { compileShot } from '../domain/compiler.js';
 import { validateFilmPlan } from '../domain/shot-spec.js';
 import { transpileMovieToLego, CINEMA_DATABASE } from '../domain/cinema-homage.js';
-import { callAiBrain, getAiConfig, saveAiConfig, DEFAULT_AI_CONFIG } from '../domain/ai-brain.js';
+import { callAiBrain } from '../domain/ai-brain.js';
 import { ProjectStore } from './project-store.js';
 import { renderTimeline, exportToCapCutCSV } from './timeline.js';
 import { renderShotEditor } from './shot-editor.js';
@@ -28,7 +28,7 @@ async function boot() {
   ]);
 
   activeRegistry = createRegistry(external, profiles, { references: [] });
-  text($('manifest'), `构建 ${manifest.projectVersion} · 认证资产 ${manifest.assetCount} · 签名 ${manifest.assetSha256.slice(0, 12)} · 电影视听转译引擎就绪`);
+  text($('manifest'), `构建 ${manifest.projectVersion} · 认证资产 ${manifest.assetCount} · 签名 ${manifest.assetSha256.slice(0, 12)} · 免费大模型大脑全自动就绪`);
 
   // 初始化模型 Profile 选项
   $('profile').replaceChildren();
@@ -55,21 +55,7 @@ async function boot() {
 
   renderTabs();
   bindGlobalEvents();
-  updateAiBrainStatus();
   renderCurrentProject();
-}
-
-function updateAiBrainStatus() {
-  const cfg = getAiConfig();
-  const indicator = $('ai-status-indicator');
-  if (!indicator) return;
-  if (cfg.apiKey && cfg.apiKey.trim()) {
-    indicator.textContent = `已连接 (${cfg.model || 'DeepSeek'})`;
-    indicator.style.color = '#34d399';
-  } else {
-    indicator.textContent = '本地离线引擎 (点击配置AI)';
-    indicator.style.color = '#94a3b8';
-  }
 }
 
 function renderTabs() {
@@ -196,7 +182,7 @@ function renderDirectorNotesPanel(movieName, data) {
 }
 
 /**
- * 执行电影深度转译（集成 AI 智慧大脑调度）
+ * 执行电影深度转译（无缝调用后台免费大模型与智能兜底）
  */
 async function executeMovieTranspile(movieQuery) {
   const requestedShots = Number($('shots-cinema')?.value || $('shots')?.value) || 4;
@@ -205,7 +191,7 @@ async function executeMovieTranspile(movieQuery) {
 
   if (progressEl) {
     progressEl.style.display = 'block';
-    progressEl.textContent = '🚀 正在唤醒 AI 导演大脑进行视听拉片与转译…';
+    progressEl.textContent = '🚀 正在唤醒后台免费 AI 导演大脑进行视听拉片与转译…';
   }
 
   try {
@@ -410,91 +396,7 @@ function bindGlobalEvents() {
     renderCurrentProject();
   };
 
-  // 6. AI 智能大脑配置弹窗逻辑
-  const modal = $('ai-brain-modal');
-  $('ai-brain-config-btn').onclick = () => {
-    const cfg = getAiConfig();
-    $('ai-provider-select').value = cfg.provider || 'deepseek';
-    $('ai-base-url-input').value = cfg.baseUrl || DEFAULT_AI_CONFIG.baseUrl;
-    $('ai-key-input').value = cfg.apiKey || '';
-    $('ai-model-input').value = cfg.model || DEFAULT_AI_CONFIG.model;
-    $('ai-test-result').style.display = 'none';
-    modal.showModal();
-  };
-
-  $('close-ai-modal-btn').onclick = () => modal.close();
-
-  $('ai-provider-select').onchange = () => {
-    const prov = $('ai-provider-select').value;
-    if (prov === 'deepseek') {
-      $('ai-base-url-input').value = 'https://api.deepseek.com/v1';
-      $('ai-model-input').value = 'deepseek-chat';
-    } else if (prov === 'openai') {
-      $('ai-base-url-input').value = 'https://api.openai.com/v1';
-      $('ai-model-input').value = 'gpt-4o-mini';
-    }
-  };
-
-  $('save-ai-btn').onclick = () => {
-    const newCfg = {
-      provider: $('ai-provider-select').value,
-      baseUrl: $('ai-base-url-input').value.trim() || DEFAULT_AI_CONFIG.baseUrl,
-      apiKey: $('ai-key-input').value.trim(),
-      model: $('ai-model-input').value.trim() || DEFAULT_AI_CONFIG.model,
-      temperature: 0.7
-    };
-    saveAiConfig(newCfg);
-    updateAiBrainStatus();
-    modal.close();
-    alert('AI 大脑配置已成功保存至本地！');
-  };
-
-  $('test-ai-btn').onclick = async () => {
-    const testResultEl = $('ai-test-result');
-    const key = $('ai-key-input').value.trim();
-    if (!key) {
-      testResultEl.style.display = 'block';
-      testResultEl.style.background = 'rgba(239,68,68,0.15)';
-      testResultEl.style.color = '#fca5a5';
-      testResultEl.textContent = '❌ 请先填写 API Key 密钥！';
-      return;
-    }
-    testResultEl.style.display = 'block';
-    testResultEl.style.background = 'rgba(56,189,248,0.15)';
-    testResultEl.style.color = '#38bdf8';
-    testResultEl.textContent = '正在测试与 AI 接口的连通性…';
-
-    const testCfg = {
-      provider: $('ai-provider-select').value,
-      baseUrl: $('ai-base-url-input').value.trim() || DEFAULT_AI_CONFIG.baseUrl,
-      apiKey: key,
-      model: $('ai-model-input').value.trim() || DEFAULT_AI_CONFIG.model,
-      temperature: 0.7
-    };
-
-    try {
-      const res = await callAiBrain({
-        query: '壮志凌云',
-        requestedShots: 4,
-        config: testCfg
-      });
-      if (res.isAiGenerated) {
-        testResultEl.style.background = 'rgba(52,211,153,0.15)';
-        testResultEl.style.color = '#34d399';
-        testResultEl.textContent = `✔ 连通成功！模型已正常响应并成功转译《${res.matchedMovie}》！`;
-      } else {
-        testResultEl.style.background = 'rgba(245,158,11,0.15)';
-        testResultEl.style.color = '#fcd34d';
-        testResultEl.textContent = `⚠ 接口未能成功返回 JSON，已降级本地规则: ${res.engine}`;
-      }
-    } catch (e) {
-      testResultEl.style.background = 'rgba(239,68,68,0.15)';
-      testResultEl.style.color = '#fca5a5';
-      testResultEl.textContent = `❌ 测试连接失败: ${e.message}`;
-    }
-  };
-
-  // 7. 导出工程 JSON
+  // 6. 导出工程 JSON
   $('export-btn').onclick = () => {
     if (!currentProject) return;
     const jsonStr = storeManager.export(currentProject);
@@ -507,7 +409,7 @@ function bindGlobalEvents() {
     URL.revokeObjectURL(url);
   };
 
-  // 8. 导出剪映分镜表 CSV
+  // 7. 导出剪映分镜表 CSV
   $('export-csv-btn').onclick = () => {
     if (!currentProject || !currentProject.shots || currentProject.shots.length === 0) {
       alert('当前影片暂无镜头，请先选择一部电影或生成分镜计划！');
@@ -516,12 +418,12 @@ function bindGlobalEvents() {
     exportToCapCutCSV(currentProject.shots, activeRegistry, currentProject.theme || currentProject.name);
   };
 
-  // 9. 打开乐高资产库抽屉
+  // 8. 打开乐高资产库抽屉
   $('asset-manager-btn').onclick = () => {
     renderAssetManager($('asset-drawer'), activeRegistry);
   };
 
-  // 10. 导入工程
+  // 9. 导入工程
   $('import-btn').onclick = () => $('import-file').click();
   $('import-file').onchange = async (e) => {
     const file = e.target.files?.[0];
