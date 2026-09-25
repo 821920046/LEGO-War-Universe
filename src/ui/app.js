@@ -3,6 +3,7 @@ import { planFilm } from '../domain/planner.js';
 import { compileShot } from '../domain/compiler.js';
 import { validateFilmPlan } from '../domain/shot-spec.js';
 import { transpileMovieToLego, CINEMA_DATABASE } from '../domain/cinema-homage.js';
+import { callAiBrain, getAiConfig, saveAiConfig, DEFAULT_AI_CONFIG } from '../domain/ai-brain.js';
 import { ProjectStore } from './project-store.js';
 import { renderTimeline, exportToCapCutCSV } from './timeline.js';
 import { renderShotEditor } from './shot-editor.js';
@@ -54,7 +55,21 @@ async function boot() {
 
   renderTabs();
   bindGlobalEvents();
+  updateAiBrainStatus();
   renderCurrentProject();
+}
+
+function updateAiBrainStatus() {
+  const cfg = getAiConfig();
+  const indicator = $('ai-status-indicator');
+  if (!indicator) return;
+  if (cfg.apiKey && cfg.apiKey.trim()) {
+    indicator.textContent = `已连接 (${cfg.model || 'DeepSeek'})`;
+    indicator.style.color = '#34d399';
+  } else {
+    indicator.textContent = '本地离线引擎 (点击配置AI)';
+    indicator.style.color = '#94a3b8';
+  }
 }
 
 function renderTabs() {
@@ -114,7 +129,8 @@ function renderDirectorNotesPanel(movieName, data) {
         createEl('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' } },
           createEl('span', { style: { fontSize: '24px' } }, '🎬'),
           createEl('h2', { style: { margin: '0', fontSize: '20px', color: '#ffd07a', fontWeight: '800' } }, data.matchedMovie || movieName),
-          createEl('span', { style: { background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '2px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '700', border: '1px solid rgba(56, 189, 248, 0.3)' } }, data.genre || '好莱坞大片')
+          createEl('span', { style: { background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '2px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '700', border: '1px solid rgba(56, 189, 248, 0.3)' } }, data.genre || '好莱坞大片'),
+          createEl('span', { style: { background: 'rgba(52, 211, 153, 0.15)', color: '#34d399', padding: '2px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '700', border: '1px solid rgba(52, 211, 153, 0.3)' } }, data.engine || '智能大脑')
         ),
         createEl('div', { style: { color: '#94a3b8', fontSize: '13px' } },
           `导演：${data.director || '好莱坞名家'} · 上映年份：${data.year || '经典'} · 乐高适配引擎：已完成 390 资产精准重构`
@@ -180,44 +196,67 @@ function renderDirectorNotesPanel(movieName, data) {
 }
 
 /**
- * 执行电影深度转译
+ * 执行电影深度转译（集成 AI 智慧大脑调度）
  */
-function executeMovieTranspile(movieQuery) {
+async function executeMovieTranspile(movieQuery) {
   const requestedShots = Number($('shots-cinema')?.value || $('shots')?.value) || 4;
   const selectedAr = $('aspect-ratio-cinema')?.value || $('aspect-ratio')?.value || '16:9';
+  const progressEl = $('transpile-progress');
 
-  const result = transpileMovieToLego(movieQuery, requestedShots);
+  if (progressEl) {
+    progressEl.style.display = 'block';
+    progressEl.textContent = '🚀 正在唤醒 AI 导演大脑进行视听拉片与转译…';
+  }
 
-  // 同步两边的主题文本与参数
-  $('theme').value = result.themeZh;
-  currentProject.theme = result.themeZh;
+  try {
+    const result = await callAiBrain({
+      query: movieQuery,
+      requestedShots,
+      onProgress: (msg) => {
+        if (progressEl) progressEl.textContent = msg;
+      }
+    });
 
-  // 注入画面比例并更新镜头
-  result.shots.forEach(s => { s.aspectRatio = selectedAr; });
-  currentProject.shots = result.shots;
-  currentProject.intent = {
-    era: result.era,
-    task: 'combat',
-    theme: result.themeZh,
-    confidence: 1.0,
-    safetyTags: [],
-    governance: { status: 'passed', flags: [], reasons: [] }
-  };
-  currentProject.aspectRatio = selectedAr;
-  currentProject.directorNotes = result;
-  currentProject.matchedMovie = result.matchedMovie;
-  storeManager.saveAll(currentStore);
+    if (progressEl) {
+      progressEl.style.display = 'none';
+    }
 
-  // 渲染好莱坞电影全景视听解构看板
-  renderDirectorNotesPanel(result.matchedMovie, result);
+    // 同步两边的主题文本与参数
+    $('theme').value = result.themeZh;
+    currentProject.theme = result.themeZh;
 
-  text($('intent'), `🎬 已成功深度解构并转译《${result.matchedMovie}》！${result.shots.length} 镜好莱坞视听分镜已生成。`);
-  $('intent').className = 'ok';
+    // 注入画面比例并更新镜头
+    result.shots.forEach(s => { s.aspectRatio = selectedAr; });
+    currentProject.shots = result.shots;
+    currentProject.intent = {
+      era: result.era || 'Modern',
+      task: 'combat',
+      theme: result.themeZh,
+      confidence: 1.0,
+      safetyTags: [],
+      governance: { status: 'passed', flags: [], reasons: [] }
+    };
+    currentProject.aspectRatio = selectedAr;
+    currentProject.directorNotes = result;
+    currentProject.matchedMovie = result.matchedMovie;
+    storeManager.saveAll(currentStore);
 
-  refreshOutputs();
+    // 渲染好莱坞电影全景视听解构看板
+    renderDirectorNotesPanel(result.matchedMovie, result);
 
-  // 平滑滚动到时间线
-  $('timeline-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    text($('intent'), `🎬 已成功解构并转译《${result.matchedMovie}》！${result.shots.length} 镜好莱坞视听分镜已生成 [${result.engine || 'AI'}]。`);
+    $('intent').className = 'ok';
+
+    refreshOutputs();
+
+    // 平滑滚动到时间线
+    $('timeline-container')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } catch (err) {
+    if (progressEl) {
+      progressEl.textContent = `转译异常: ${err.message}`;
+      setTimeout(() => { progressEl.style.display = 'none'; }, 4000);
+    }
+  }
 }
 
 function bindGlobalEvents() {
@@ -371,7 +410,91 @@ function bindGlobalEvents() {
     renderCurrentProject();
   };
 
-  // 6. 导出工程 JSON
+  // 6. AI 智能大脑配置弹窗逻辑
+  const modal = $('ai-brain-modal');
+  $('ai-brain-config-btn').onclick = () => {
+    const cfg = getAiConfig();
+    $('ai-provider-select').value = cfg.provider || 'deepseek';
+    $('ai-base-url-input').value = cfg.baseUrl || DEFAULT_AI_CONFIG.baseUrl;
+    $('ai-key-input').value = cfg.apiKey || '';
+    $('ai-model-input').value = cfg.model || DEFAULT_AI_CONFIG.model;
+    $('ai-test-result').style.display = 'none';
+    modal.showModal();
+  };
+
+  $('close-ai-modal-btn').onclick = () => modal.close();
+
+  $('ai-provider-select').onchange = () => {
+    const prov = $('ai-provider-select').value;
+    if (prov === 'deepseek') {
+      $('ai-base-url-input').value = 'https://api.deepseek.com/v1';
+      $('ai-model-input').value = 'deepseek-chat';
+    } else if (prov === 'openai') {
+      $('ai-base-url-input').value = 'https://api.openai.com/v1';
+      $('ai-model-input').value = 'gpt-4o-mini';
+    }
+  };
+
+  $('save-ai-btn').onclick = () => {
+    const newCfg = {
+      provider: $('ai-provider-select').value,
+      baseUrl: $('ai-base-url-input').value.trim() || DEFAULT_AI_CONFIG.baseUrl,
+      apiKey: $('ai-key-input').value.trim(),
+      model: $('ai-model-input').value.trim() || DEFAULT_AI_CONFIG.model,
+      temperature: 0.7
+    };
+    saveAiConfig(newCfg);
+    updateAiBrainStatus();
+    modal.close();
+    alert('AI 大脑配置已成功保存至本地！');
+  };
+
+  $('test-ai-btn').onclick = async () => {
+    const testResultEl = $('ai-test-result');
+    const key = $('ai-key-input').value.trim();
+    if (!key) {
+      testResultEl.style.display = 'block';
+      testResultEl.style.background = 'rgba(239,68,68,0.15)';
+      testResultEl.style.color = '#fca5a5';
+      testResultEl.textContent = '❌ 请先填写 API Key 密钥！';
+      return;
+    }
+    testResultEl.style.display = 'block';
+    testResultEl.style.background = 'rgba(56,189,248,0.15)';
+    testResultEl.style.color = '#38bdf8';
+    testResultEl.textContent = '正在测试与 AI 接口的连通性…';
+
+    const testCfg = {
+      provider: $('ai-provider-select').value,
+      baseUrl: $('ai-base-url-input').value.trim() || DEFAULT_AI_CONFIG.baseUrl,
+      apiKey: key,
+      model: $('ai-model-input').value.trim() || DEFAULT_AI_CONFIG.model,
+      temperature: 0.7
+    };
+
+    try {
+      const res = await callAiBrain({
+        query: '壮志凌云',
+        requestedShots: 4,
+        config: testCfg
+      });
+      if (res.isAiGenerated) {
+        testResultEl.style.background = 'rgba(52,211,153,0.15)';
+        testResultEl.style.color = '#34d399';
+        testResultEl.textContent = `✔ 连通成功！模型已正常响应并成功转译《${res.matchedMovie}》！`;
+      } else {
+        testResultEl.style.background = 'rgba(245,158,11,0.15)';
+        testResultEl.style.color = '#fcd34d';
+        testResultEl.textContent = `⚠ 接口未能成功返回 JSON，已降级本地规则: ${res.engine}`;
+      }
+    } catch (e) {
+      testResultEl.style.background = 'rgba(239,68,68,0.15)';
+      testResultEl.style.color = '#fca5a5';
+      testResultEl.textContent = `❌ 测试连接失败: ${e.message}`;
+    }
+  };
+
+  // 7. 导出工程 JSON
   $('export-btn').onclick = () => {
     if (!currentProject) return;
     const jsonStr = storeManager.export(currentProject);
@@ -384,7 +507,7 @@ function bindGlobalEvents() {
     URL.revokeObjectURL(url);
   };
 
-  // 7. 导出剪映分镜表 CSV
+  // 8. 导出剪映分镜表 CSV
   $('export-csv-btn').onclick = () => {
     if (!currentProject || !currentProject.shots || currentProject.shots.length === 0) {
       alert('当前影片暂无镜头，请先选择一部电影或生成分镜计划！');
@@ -393,12 +516,12 @@ function bindGlobalEvents() {
     exportToCapCutCSV(currentProject.shots, activeRegistry, currentProject.theme || currentProject.name);
   };
 
-  // 8. 打开乐高资产库抽屉
+  // 9. 打开乐高资产库抽屉
   $('asset-manager-btn').onclick = () => {
     renderAssetManager($('asset-drawer'), activeRegistry);
   };
 
-  // 9. 导入工程
+  // 10. 导入工程
   $('import-btn').onclick = () => $('import-file').click();
   $('import-file').onchange = async (e) => {
     const file = e.target.files?.[0];
