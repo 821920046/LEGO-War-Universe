@@ -4,7 +4,7 @@ import { compileShot } from '../domain/compiler.js';
 import { validateFilmPlan } from '../domain/shot-spec.js';
 import { transpileMovieToLego, CINEMA_DATABASE } from '../domain/cinema-homage.js';
 import { callAiBrain } from '../domain/ai-brain.js';
-import { extractCharacterLineup, generateLineupPrompt } from '../domain/character-lineup.js';
+import { extractDualFactionLineup, generateLineupPrompt } from '../domain/character-lineup.js';
 import { ProjectStore } from './project-store.js';
 import { renderTimeline, exportToCapCutCSV } from './timeline.js';
 import { renderShotEditor } from './shot-editor.js';
@@ -196,41 +196,82 @@ function renderCharacterLineupPanel(project) {
 
   section.style.display = 'block';
 
-  // 1. 抽取所有登场角色并组装合影 Prompt
-  const characters = extractCharacterLineup(project.shots, activeRegistry);
+  // 1. 抽取正反两排全员角色并组装合影 Prompt
   const theme = project.theme || project.name || '好莱坞大片';
   const era = project.intent?.era || 'Modern';
   const ar = project.aspectRatio || '16:9';
-  const lineupData = generateLineupPrompt(characters, theme, era, ar);
+  const lineupData = extractDualFactionLineup(theme, era);
+  const promptData = generateLineupPrompt(lineupData, theme, ar);
 
-  // 2. 渲染角色名牌列表
-  const grid = $('character-roster-grid');
-  grid.replaceChildren();
-
-  for (const c of characters) {
-    const card = createEl('div', {
-      style: {
-        background: 'rgba(255, 255, 255, 0.03)',
-        border: '1px solid rgba(56, 189, 248, 0.2)',
-        borderRadius: '8px',
-        padding: '10px 14px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '4px'
-      }
-    },
-      createEl('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
-        createEl('strong', { style: { color: '#ffd07a', fontSize: '13px' } }, `🧑‍🚀 ${c.name}`),
-        createEl('span', { style: { background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', fontSize: '10px', padding: '1px 6px', borderRadius: '10px', fontWeight: '700' } }, c.role)
-      ),
-      createEl('div', { style: { color: '#cbd5e1', fontSize: '11px', lineHeight: '1.4' } }, `服装装具：${c.outfit}`)
-    );
-    grid.appendChild(card);
+  // 2. 渲染前排：正派特遣队
+  const frontGrid = $('character-roster-front');
+  if (frontGrid) {
+    frontGrid.replaceChildren();
+    for (const c of lineupData.frontRow) {
+      frontGrid.appendChild(buildCharacterCard(c, '#38bdf8'));
+    }
   }
 
-  // 3. 填充提示词
-  $('lineup-prompt-en').value = lineupData.promptEn;
-  text($('lineup-prompt-zh'), lineupData.promptZh);
+  // 3. 渲染后排：反派敌对势力
+  const backGrid = $('character-roster-back');
+  if (backGrid) {
+    backGrid.replaceChildren();
+    for (const c of lineupData.backRow) {
+      backGrid.appendChild(buildCharacterCard(c, '#f87171'));
+    }
+  }
+
+  function buildCharacterCard(c, accentColor) {
+    return createEl('div', {
+      style: {
+        background: 'rgba(255, 255, 255, 0.02)',
+        border: `1px solid ${accentColor}33`,
+        borderRadius: '8px',
+        padding: '10px 12px',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'space-between',
+        gap: '6px'
+      }
+    },
+      createEl('div', {},
+        createEl('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' } },
+          createEl('strong', { style: { color: '#ffd07a', fontSize: '13px' } }, c.name),
+          createEl('span', { style: { background: `${accentColor}22`, color: accentColor, fontSize: '10px', padding: '1px 6px', borderRadius: '10px', fontWeight: '700' } }, c.role)
+        ),
+        createEl('div', { style: { color: '#cbd5e1', fontSize: '11px', lineHeight: '1.4' } }, c.outfit)
+      ),
+      // 核心要求：脚底专属代号名牌（点击一键复制代号）
+      createEl('div', {
+        style: {
+          background: '#030712',
+          border: '1px solid #334155',
+          borderRadius: '4px',
+          padding: '4px 8px',
+          fontFamily: 'var(--font-mono)',
+          fontSize: '11px',
+          color: '#f8fafc',
+          fontWeight: '800',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          cursor: 'pointer'
+        },
+        title: '点击复制此角色代号（用于视频生成调用）',
+        onClick: () => {
+          navigator.clipboard?.writeText(c.nameplate);
+          alert(`已复制角色代号 ${c.nameplate} 到剪贴板！\n可在视频生成指令中指定：“调用 ${c.nameplate} 角色形象”。`);
+        }
+      },
+        createEl('span', { style: { color: accentColor } }, `🏷️ 激光名牌: ${c.nameplate}`),
+        createEl('span', { style: { color: '#64748b', fontSize: '10px' } }, '复制')
+      )
+    );
+  }
+
+  // 4. 填充两排提示词与中文说明
+  $('lineup-prompt-en').value = promptData.promptEn;
+  text($('lineup-prompt-zh'), promptData.promptZh);
 
   // 4. 更新参考图上传预览状态
   const previewWrap = $('lineup-preview-wrap');
