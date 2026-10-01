@@ -4,7 +4,7 @@ import { compileShot } from '../domain/compiler.js';
 import { validateFilmPlan } from '../domain/shot-spec.js';
 import { transpileMovieToLego, CINEMA_DATABASE } from '../domain/cinema-homage.js';
 import { callAiBrain } from '../domain/ai-brain.js';
-import { extractDualFactionLineup, generateLineupPrompt } from '../domain/character-lineup.js';
+import { extractCharacterLineup, generateLineupPrompt } from '../domain/character-lineup.js';
 import { ProjectStore } from './project-store.js';
 import { renderTimeline, exportToCapCutCSV } from './timeline.js';
 import { renderShotEditor } from './shot-editor.js';
@@ -183,7 +183,59 @@ function renderDirectorNotesPanel(movieName, data) {
 }
 
 /**
+ * 渲染单个阵营的角色卡片网格
+ * @param {HTMLElement} container 容器元素
+ * @param {Array} chars 角色数组
+ * @param {'coalition'|'opposing'} faction 阵营类型
+ */
+function renderFactionCards(container, chars, faction) {
+  const isCoalition = faction === 'coalition';
+  const borderColor = isCoalition ? 'rgba(56, 189, 248, 0.35)' : 'rgba(239, 68, 68, 0.35)';
+  const accentColor = isCoalition ? '#38bdf8' : '#f87171';
+  const tagBg = isCoalition ? 'rgba(56, 189, 248, 0.15)' : 'rgba(239, 68, 68, 0.15)';
+  const nameplateColor = isCoalition ? '#60a5fa' : '#fb923c';
+
+  for (const c of chars) {
+    const card = createEl('div', {
+      style: {
+        background: 'rgba(255, 255, 255, 0.03)',
+        border: `1px solid ${borderColor}`,
+        borderRadius: '8px',
+        padding: '10px 14px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '4px'
+      }
+    },
+      createEl('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
+        createEl('strong', { style: { color: '#ffd07a', fontSize: '13px' } }, `${isCoalition ? '🛡️' : '⚔️'} ${c.name}`),
+        createEl('span', { style: { background: tagBg, color: accentColor, fontSize: '10px', padding: '1px 6px', borderRadius: '10px', fontWeight: '700' } }, c.role)
+      ),
+      createEl('div', { style: { color: '#cbd5e1', fontSize: '11px', lineHeight: '1.4' } }, `服装装具：${c.outfit}`),
+      // 底部代号名牌标签 — 醒目展示，方便视频生成时调用
+      createEl('div', {
+        style: {
+          marginTop: '6px',
+          padding: '3px 8px',
+          background: isCoalition ? 'rgba(37, 99, 235, 0.2)' : 'rgba(185, 28, 28, 0.2)',
+          border: `1px solid ${nameplateColor}`,
+          borderRadius: '4px',
+          textAlign: 'center',
+          fontSize: '13px',
+          fontWeight: '800',
+          fontFamily: 'var(--font-mono)',
+          color: nameplateColor,
+          letterSpacing: '0.08em'
+        }
+      }, `🏷️ [${c.callsign}]`)
+    );
+    container.appendChild(card);
+  }
+}
+
+/**
  * 渲染全片全角色定妆表与全家福控制台 (置顶于分镜脚本之前)
+ * 自动生成正反双阵营完整名册，每个角色附带代号名牌
  */
 function renderCharacterLineupPanel(project) {
   const section = $('character-lineup-section');
@@ -196,82 +248,59 @@ function renderCharacterLineupPanel(project) {
 
   section.style.display = 'block';
 
-  // 1. 抽取正反两排全员角色并组装合影 Prompt
+  // 1. 提取完整正反双阵营角色名册
   const theme = project.theme || project.name || '好莱坞大片';
   const era = project.intent?.era || 'Modern';
   const ar = project.aspectRatio || '16:9';
-  const lineupData = extractDualFactionLineup(theme, era);
-  const promptData = generateLineupPrompt(lineupData, theme, ar);
+  const factions = extractCharacterLineup(project.shots, activeRegistry, era, theme);
+  const lineupData = generateLineupPrompt(factions, theme, era, ar);
 
-  // 2. 渲染前排：正派特遣队
-  const frontGrid = $('character-roster-front');
-  if (frontGrid) {
-    frontGrid.replaceChildren();
-    for (const c of lineupData.frontRow) {
-      frontGrid.appendChild(buildCharacterCard(c, '#38bdf8'));
+  // 2. 渲染双阵营角色卡片网格（蓝色正方 + 红色反方）
+  const grid = $('character-roster-grid');
+  grid.replaceChildren();
+
+  // 🔵 正方联军标题
+  const coalitionHeader = createEl('div', {
+    style: {
+      gridColumn: '1 / -1',
+      padding: '6px 14px',
+      background: 'rgba(37, 99, 235, 0.15)',
+      borderLeft: '4px solid #3b82f6',
+      borderRadius: '4px',
+      color: '#60a5fa',
+      fontSize: '13px',
+      fontWeight: '800',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px'
     }
-  }
+  }, `🔵 正方联军阵营 (Coalition Forces) — ${factions.coalition.length} 名角色`);
+  grid.appendChild(coalitionHeader);
+  renderFactionCards(grid, factions.coalition, 'coalition');
 
-  // 3. 渲染后排：反派敌对势力
-  const backGrid = $('character-roster-back');
-  if (backGrid) {
-    backGrid.replaceChildren();
-    for (const c of lineupData.backRow) {
-      backGrid.appendChild(buildCharacterCard(c, '#f87171'));
+  // 🔴 反方势力标题
+  const opposingHeader = createEl('div', {
+    style: {
+      gridColumn: '1 / -1',
+      padding: '6px 14px',
+      background: 'rgba(185, 28, 28, 0.15)',
+      borderLeft: '4px solid #ef4444',
+      borderRadius: '4px',
+      color: '#f87171',
+      fontSize: '13px',
+      fontWeight: '800',
+      marginTop: '8px',
+      display: 'flex',
+      alignItems: 'center',
+      gap: '6px'
     }
-  }
+  }, `🔴 反方敌对势力 (Opposing Forces) — ${factions.opposing.length} 名角色`);
+  grid.appendChild(opposingHeader);
+  renderFactionCards(grid, factions.opposing, 'opposing');
 
-  function buildCharacterCard(c, accentColor) {
-    return createEl('div', {
-      style: {
-        background: 'rgba(255, 255, 255, 0.02)',
-        border: `1px solid ${accentColor}33`,
-        borderRadius: '8px',
-        padding: '10px 12px',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-        gap: '6px'
-      }
-    },
-      createEl('div', {},
-        createEl('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '4px' } },
-          createEl('strong', { style: { color: '#ffd07a', fontSize: '13px' } }, c.name),
-          createEl('span', { style: { background: `${accentColor}22`, color: accentColor, fontSize: '10px', padding: '1px 6px', borderRadius: '10px', fontWeight: '700' } }, c.role)
-        ),
-        createEl('div', { style: { color: '#cbd5e1', fontSize: '11px', lineHeight: '1.4' } }, c.outfit)
-      ),
-      // 核心要求：脚底专属代号名牌（点击一键复制代号）
-      createEl('div', {
-        style: {
-          background: '#030712',
-          border: '1px solid #334155',
-          borderRadius: '4px',
-          padding: '4px 8px',
-          fontFamily: 'var(--font-mono)',
-          fontSize: '11px',
-          color: '#f8fafc',
-          fontWeight: '800',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          cursor: 'pointer'
-        },
-        title: '点击复制此角色代号（用于视频生成调用）',
-        onClick: () => {
-          navigator.clipboard?.writeText(c.nameplate);
-          alert(`已复制角色代号 ${c.nameplate} 到剪贴板！\n可在视频生成指令中指定：“调用 ${c.nameplate} 角色形象”。`);
-        }
-      },
-        createEl('span', { style: { color: accentColor } }, `🏷️ 激光名牌: ${c.nameplate}`),
-        createEl('span', { style: { color: '#64748b', fontSize: '10px' } }, '复制')
-      )
-    );
-  }
-
-  // 4. 填充两排提示词与中文说明
-  $('lineup-prompt-en').value = promptData.promptEn;
-  text($('lineup-prompt-zh'), promptData.promptZh);
+  // 3. 填充提示词
+  $('lineup-prompt-en').value = lineupData.promptEn;
+  text($('lineup-prompt-zh'), lineupData.promptZh);
 
   // 4. 更新参考图上传预览状态
   const previewWrap = $('lineup-preview-wrap');
