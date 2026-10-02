@@ -11,6 +11,8 @@ import { renderTimeline, exportToCapCutCSV } from './timeline.js';
 import { renderShotEditor } from './shot-editor.js';
 import { renderReviewQueue } from './review-queue.js';
 import { renderAssetManager } from './asset-manager.js';
+import { renderEvolutionPanel } from './evolution-panel.js';
+import { loadLedger, saveLedger, createLedger, evolve, applyForgedAssets, enrichShotsWithForged, ledgerStats } from '../domain/evolution.js';
 import { renderPlan, renderProjectTabs, renderViolations, continuityRepairWarnings, text, createEl } from './render.js';
 import { toast, confirmDialog, promptDialog } from './feedback.js';
 import { loadCustomAssets, applyCustomAssets } from './custom-assets.js';
@@ -22,8 +24,78 @@ const storeManager = new ProjectStore();
 let currentStore = null;
 let currentProject = null;
 let activeRegistry = null;
+let activeRegistryData = null;
 let activeProfile = null;
+let evolutionLedger = null;
 let transpiling = false;
+
+/**
+ * 统一渲染进化面板（含重置交互），避免在 boot / 切换 / 生成后重复实现。
+ */
+function refreshEvolutionPanel() {
+  renderEvolutionPanel($('evolution-panel'), evolutionLedger || createLedger(), {
+    registry: activeRegistry,
+    onReset: async () => {
+      const ok = await confirmDialog({
+        title: '重置自我进化记忆',
+        message: '将清空全部学习统计、锻造资产与晋升记录，且不可恢复。是否继续？',
+        confirmText: '确认重置',
+        danger: true
+      });
+      if (!ok) return;
+      evolutionLedger = createLedger();
+      saveLedger(evolutionLedger);
+      refreshEvolutionPanel();
+      toast('进化记忆已重置（刷新页面后锻造资产将被移除）', 'info', 4500);
+    }
+  });
+}
+
+/**
+ * 生成后的自我进化闭环：衰减 → 锻造缺口 → 记录 → 晋升 → 让新装备上镜。
+ * 返回富化后的镜头数组，并刷新进化面板。
+ */
+function runEvolution({ theme, engine, era, shots, forgeCount = 6 }) {
+  try {
+    const result = evolve({
+      ledger: evolutionLedger || createLedger(),
+      theme,
+      engine,
+      era,
+      shots,
+      registryData: activeRegistryData || {},
+      forgeCount
+    });
+    evolutionLedger = result.ledger;
+    saveLedger(evolutionLedger);
+
+    const added = applyForgedAssets(activeRegistry, result.forgedAssets);
+    if (added.added > 0) {
+      const total = activeRegistry.byId.size;
+      if ($('asset-manager-btn')) $('asset-manager-btn').textContent = `🧱 乐高资产库 (${total} · 进化 ${evolutionLedger.forged.length})`;
+    }
+
+    const enriched = enrichShotsWithForged(shots, result.forgedAssets, activeRegistry);
+    refreshEvolutionPanel();
+
+    return { shots: enriched.shots, forged: result.forgedAssets, promotions: result.newlyPromoted, applied: enriched.applied };
+  } catch (err) {
+    console.warn('自我进化流程跳过:', err);
+    return { shots, forged: [], promotions: [], applied: [] };
+  }
+}
+
+/** 生成后把进化成果反馈到界面状态栏 */
+function reportEvolution({ forged, promotions, applied }, intentEl) {
+  if (!intentEl) return;
+  const bits = [];
+  if (forged?.length) bits.push(`⚒️ 锻造 ${forged.length} 件新装备`);
+  if (applied?.length) bits.push(`🎬 ${applied.length} 处已用上进化资产`);
+  if (promotions?.length) bits.push(`⭐ 晋升 ${promotions.length} 项主力资产`);
+  if (bits.length) {
+    intentEl.textContent += ` ｜ ${bits.join(' · ')}`;
+  }
+}
 
 /**
  * 统一的持久化入口。
@@ -84,17 +156,23 @@ async function boot() {
   ]);
 
   activeRegistry = createRegistry(external, profiles, { references: [] });
+  activeRegistryData = external;
 
   // 用户录入的自定义资产并入运行时注册表，使其可被检索、校验与编译
   const customApplied = applyCustomAssets(activeRegistry, loadCustomAssets());
+
+  // 载入自我进化记忆，并把历次锻造出的资产重新并入注册表
+  evolutionLedger = loadLedger();
+  const forgedApplied = applyForgedAssets(activeRegistry, evolutionLedger.forged);
 
   text($('manifest'), `构建 ${manifest.projectVersion} · 认证资产 ${manifest.assetCount} · 签名 ${manifest.assetSha256.slice(0, 12)}`);
 
   // 资产数量必须以实际注册表为准：写死的数字会随资产库扩充或自定义录入而失真
   const totalAssets = activeRegistry.byId.size;
+  if ($('asset-count-inline')) text($('asset-count-inline'), totalAssets);
   if ($('asset-manager-btn')) {
     $('asset-manager-btn').textContent =
-      `🧱 乐高资产库 (${totalAssets}${customApplied.added ? ` · 自定义 ${customApplied.added}` : ''})`;
+      `🧱 乐高资产库 (${totalAssets}${customApplied.added ? ` · 自定义 ${customApplied.added}` : ''}${forgedApplied.added ? ` · 进化 ${forgedApplied.added}` : ''})`;
   }
   if ($('ai-brain-status')) {
     $('ai-brain-status').textContent = '🧠 云端 AI 导演大脑：待调用（不可用时将自动回退本地引擎）';
@@ -126,6 +204,7 @@ async function boot() {
   renderTabs();
   bindGlobalEvents();
   bindDrawerEscapeKeys();
+  refreshEvolutionPanel();
   renderCurrentProject();
 }
 
@@ -478,7 +557,15 @@ async function executeMovieTranspile(movieQuery) {
     currentProject.theme = result.themeZh;
 
     result.shots.forEach(s => { s.aspectRatio = selectedAr; });
-    currentProject.shots = result.shots;
+
+    // 自我进化闭环：记录学习、锻造缺口资产，并让新装备进入分镜
+    const evolution = runEvolution({
+      theme: movieQuery,
+      engine: result.engine,
+      era: result.era || 'Modern',
+      shots: result.shots
+    });
+    currentProject.shots = evolution.shots;
     currentProject.intent = {
       era: result.era || 'Modern',
       task: 'combat',
@@ -497,6 +584,7 @@ async function executeMovieTranspile(movieQuery) {
 
     text($('intent'), `🎬 已成功解构并转译《${result.matchedMovie}》！${result.shots.length} 镜好莱坞视听分镜已生成 [${result.engine || 'AI'}]。`);
     $('intent').className = 'ok';
+    reportEvolution(evolution, $('intent'));
 
     refreshOutputs();
     $('character-lineup-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -744,7 +832,16 @@ function bindGlobalEvents() {
     const selectedAr = $('aspect-ratio').value || '16:9';
     plan.shots.forEach(s => { s.aspectRatio = selectedAr; });
 
-    currentProject.shots = plan.shots;
+    // 自由模式同样接入自我进化：现代/未来战争题材会触发缺口锻造
+    const evolution = runEvolution({
+      theme: themeText,
+      engine: 'Local Planner (本地规划器)',
+      era: intent.era,
+      shots: plan.shots
+    });
+    reportEvolution(evolution, $('intent'));
+
+    currentProject.shots = evolution.shots;
     currentProject.theme = themeText;
     currentProject.intent = intent;
     currentProject.aspectRatio = selectedAr;
@@ -785,6 +882,17 @@ function bindGlobalEvents() {
   $('asset-manager-btn').onclick = () => {
     renderAssetManager($('asset-drawer'), activeRegistry);
   };
+
+  // 10b. 切换自我进化面板
+  if ($('evolution-btn')) {
+    $('evolution-btn').onclick = () => {
+      const section = $('evolution-section');
+      if (!section) return;
+      const showing = section.style.display !== 'none';
+      section.style.display = showing ? 'none' : 'block';
+      if (!showing) refreshEvolutionPanel();
+    };
+  }
 
   // 11. 导入工程
   $('import-btn').onclick = () => $('import-file').click();

@@ -1,17 +1,23 @@
 /**
  * LEGO War Universe - 前端 AI 智能大脑调度客户端 (AI Brain Client)
- * 优先请求后台 /api/ai-brain (接入 Groq / OpenRouter / Gemini 等免费大模型)
- * 用户无需在前端填写任何 API Key；若网络断网或纯离线打开，前端无缝平滑回退至本地离线引擎。
+ *
+ * 生成策略（与产品需求一致）：
+ *   1. 优先请求后台 /api/ai-brain —— 后台会把「与本片题材相关的真实资产目录」
+ *      注入 Prompt，大模型据此产出引用了真实资产 ID 的分镜脚本；
+ *   2. 若网络断网 / 后端未就绪 / 纯离线打开，则无缝回退到本地高保真引擎，
+ *      由本地资产库（CINEMA_DATABASE + 注册表）生成影片脚本。
+ *
+ * 两条路径返回的数据结构完全一致，调用方无需区分处理。
  */
 
 import { transpileMovieToLego } from './cinema-homage.js';
-import { alignShotsToLego } from './lego-aligner.js';
 
 /**
  * 调度 AI 大脑（优先后台免费大模型服务，无缝自动容灾降级）
+ * @param {{ query: string, requestedShots?: number, onProgress?: (msg: string) => void }} params
  */
 export async function callAiBrain({ query, requestedShots = 4, onProgress = null }) {
-  if (onProgress) onProgress('正在连接后台免费 AI 导演大脑 (Groq / OpenRouter / Gemini)…');
+  if (onProgress) onProgress('正在构建题材资产目录并连接后台免费 AI 导演大脑 (Groq / OpenRouter / Gemini)…');
 
   try {
     const res = await fetch('/api/ai-brain', {
@@ -22,7 +28,7 @@ export async function callAiBrain({ query, requestedShots = 4, onProgress = null
 
     if (res.ok) {
       const data = await res.json();
-      if (data.ok && data.shots) {
+      if (data.ok && Array.isArray(data.shots) && data.shots.length > 0) {
         return {
           ...data,
           themeZh: data.themeZh || `【${data.matchedMovie || query}】${(data.shots[0]?.action || '').slice(0, 35)}…`
@@ -34,11 +40,13 @@ export async function callAiBrain({ query, requestedShots = 4, onProgress = null
   }
 
   // 离线环境或后端未就绪时，前端内置高保真引擎秒级响应
-  if (onProgress) onProgress('正在调用内置好莱坞视听转译引擎…');
+  if (onProgress) onProgress('云端大脑不可用，正在调用内置本地资产引擎生成影片脚本…');
   const localResult = transpileMovieToLego(query, requestedShots);
   return {
     ...localResult,
     isAiGenerated: false,
-    engine: 'Built-in Engine (本地高保真离线引擎)'
+    engine: 'Built-in Engine (本地高保真离线引擎)',
+    assetUsage: null,
+    proposedAssets: []
   };
 }

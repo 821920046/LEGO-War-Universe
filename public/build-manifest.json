@@ -1,9 +1,9 @@
 {
   "schemaVersion": "1",
-  "projectVersion": "6.1.0",
-  "assetManifestVersion": "3.4:a6d364d71596",
-  "assetCount": 390,
-  "assetSha256": "a6d364d71596bd0452ea6b468143e134d534524e02dc5a119259ba768fee4b19",
-  "sourceUpdated": "2026-08-04",
-  "builtAt": "2026-10-02T07:41:43.137Z"
+  "projectVersion": "6.2.0",
+  "assetManifestVersion": "3.4:5c3bdc3c7d9a",
+  "assetCount": 445,
+  "assetSha256": "5c3bdc3c7d9aa3863f24a87747eafc980f5f78940cdaf87724f11f33465b31ed",
+  "sourceUpdated": "2026-10-02",
+  "builtAt": "2026-10-02T08:19:57.930Z"
 }
