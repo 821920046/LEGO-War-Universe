@@ -8,14 +8,42 @@
 
 import { transpileMovieToLego } from '../../src/domain/cinema-homage.js';
 import { alignShotsToLego } from '../../src/domain/lego-aligner.js';
+import { checkContentGovernance } from '../../src/domain/governance.js';
 
 // 简易限流配置
+// 注意：Cloudflare Workers 的模块级 Map 只在单个 isolate 内有效，且随时可能被回收，
+// 因此这里只是「尽力而为」的单点保护，不能当作严格的配额系统。
+// 更重要的是必须定期清理过期条目：早期实现只增不删，任何访问过的 IP 都会永久驻留，
+// 构成明确的内存泄漏 / 内存耗尽型 DoS 面。
 const rateLimits = new Map();
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX = 30;
+const RATE_LIMIT_MAX_TRACKED = 5000;
+let lastSweep = 0;
+
+function sweepExpired(now) {
+  for (const [key, record] of rateLimits) {
+    if (now - record.windowStart > RATE_LIMIT_WINDOW_MS) rateLimits.delete(key);
+  }
+  lastSweep = now;
+}
 
 function checkRateLimit(clientId) {
   const now = Date.now();
+
+  // 周期性清理 + 容量硬上限，双重保证 Map 不会无界增长
+  if (now - lastSweep > RATE_LIMIT_WINDOW_MS) sweepExpired(now);
+  if (rateLimits.size > RATE_LIMIT_MAX_TRACKED) sweepExpired(now);
+  if (rateLimits.size > RATE_LIMIT_MAX_TRACKED) {
+    // 极端情况下（全部条目都在窗口内）丢弃最早写入的一批，保住 isolate 内存
+    const overflow = rateLimits.size - RATE_LIMIT_MAX_TRACKED;
+    let dropped = 0;
+    for (const key of rateLimits.keys()) {
+      if (dropped++ >= overflow) break;
+      rateLimits.delete(key);
+    }
+  }
+
   let record = rateLimits.get(clientId);
   if (!record || (now - record.windowStart) > RATE_LIMIT_WINDOW_MS) {
     record = { count: 0, windowStart: now };
@@ -42,10 +70,43 @@ const json = (body, status = 200, headers = {}) => new Response(JSON.stringify(b
 function cors(request, env = {}) {
   const origin = request.headers.get('origin');
   const expected = env.ALLOWED_ORIGIN;
+  // Same-origin requests need no CORS header. Cross-origin callers are allowed only
+  // when they exactly match the configured deployment origin; never fall back to '*'.
   if (origin && expected && origin === expected) {
     return { 'access-control-allow-origin': origin, 'vary': 'Origin' };
   }
-  return { 'access-control-allow-origin': '*' };
+  return {};
+}
+
+function governResponse(responseBody, inputGovernance) {
+  const outputGovernance = checkContentGovernance(JSON.stringify(responseBody));
+  if (outputGovernance.status === 'blocked') {
+    return {
+      status: 502,
+      body: {
+        error: 'GENERATED_CONTENT_BLOCKED',
+        flags: outputGovernance.flags,
+        reasons: outputGovernance.reasons
+      }
+    };
+  }
+
+  const flags = [...new Set([
+    ...(inputGovernance.flags || []),
+    ...(outputGovernance.flags || [])
+  ])];
+  const reasons = [...new Set([
+    ...(inputGovernance.reasons || []),
+    ...(outputGovernance.reasons || [])
+  ])];
+  const reviewRequired = inputGovernance.status === 'review_required' || outputGovernance.status === 'review_required';
+  responseBody.governance = { status: reviewRequired ? 'review_required' : 'passed', flags, reasons };
+  if (reviewRequired) {
+    responseBody.reviewRequired = true;
+    responseBody.flags = flags;
+    responseBody.reasons = reasons;
+  }
+  return { status: 200, body: responseBody };
 }
 
 const DIRECTOR_SYSTEM_PROMPT = `你是一位好莱坞顶级电影摄影指导与微缩定格动画导演（擅长诺兰、雷德利·斯科特、丹尼斯·维伦纽瓦的视听语言，精通乐高定格微缩物理美学）。
@@ -201,12 +262,32 @@ export async function onRequest({ request, env = {} }) {
     return json({ error: 'INVALID_JSON' }, 400, headers);
   }
 
+  if (!body || typeof body !== 'object' || Array.isArray(body)) {
+    return json({ error: 'INVALID_BODY' }, 400, headers);
+  }
+
   const query = String(body.query || '').trim();
   if (!query) {
     return json({ error: 'MISSING_QUERY' }, 400, headers);
   }
+  if (query.length > 1200) {
+    return json({ error: 'QUERY_TOO_LONG', maxLength: 1200 }, 413, headers);
+  }
 
-  const requestedShots = Number(body.requestedShots) || 4;
+  const requestedShots = body.requestedShots == null ? 4 : Number(body.requestedShots);
+  if (!Number.isInteger(requestedShots) || requestedShots < 1 || requestedShots > 12) {
+    return json({ error: 'INVALID_REQUESTED_SHOTS', allowedRange: [1, 12] }, 400, headers);
+  }
+
+  const inputGovernance = checkContentGovernance(query);
+  if (inputGovernance.status === 'blocked') {
+    return json({
+      error: 'CONTENT_BLOCKED',
+      flags: inputGovernance.flags,
+      reasons: inputGovernance.reasons
+    }, 403, headers);
+  }
+
   let result = null;
   let usedEngine = 'None';
 
@@ -244,7 +325,7 @@ export async function onRequest({ request, env = {} }) {
   if (!result) {
     const local = transpileMovieToLego(query, requestedShots);
     const latencyMs = Date.now() - startTime;
-    return json({
+    const responseBody = {
       ok: true,
       matchedMovie: local.matchedMovie,
       director: local.director,
@@ -259,14 +340,16 @@ export async function onRequest({ request, env = {} }) {
       isAiGenerated: false,
       engine: 'Built-in Cinema Engine (本地高保真离线引擎)',
       latencyMs
-    }, 200, headers);
+    };
+    const governed = governResponse(responseBody, inputGovernance);
+    return json(governed.body, governed.status, headers);
   }
 
   // 5. 将大模型输出的分镜与乐高资产规范对齐
   const alignedShots = alignShotsToLego(result.shots || [], {}, 'Modern');
   const latencyMs = Date.now() - startTime;
 
-  return json({
+  const responseBody = {
     ok: true,
     matchedMovie: result.matchedMovie || query,
     director: result.director || 'AI 导演中枢',
@@ -281,5 +364,7 @@ export async function onRequest({ request, env = {} }) {
     isAiGenerated: true,
     engine: `Cloud Free AI (${usedEngine})`,
     latencyMs
-  }, 200, headers);
+  };
+  const governed = governResponse(responseBody, inputGovernance);
+  return json(governed.body, governed.status, headers);
 }

@@ -31,6 +31,8 @@ const CATEGORY_NAMES = {
   colorGrades: '色彩分级 (Color Grades)'
 };
 
+import { openAddAssetDialog, openManageCustomAssets, loadCustomAssets } from './custom-assets.js';
+
 /**
  * 渲染资产库抽屉面板
  * @param {HTMLElement} container 抽屉容器
@@ -97,8 +99,12 @@ export function renderAssetManager(container, registry, onClose = null) {
   }
 
   // 头部
+  const totalCount = registry?.byId?.size ?? 0;
+  const customCount = loadCustomAssets().length;
+
   const header = el('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' } },
-    el('h3', { style: { color: '#e7edf7', margin: '0', fontSize: '16px' } }, '乐高微缩资产库 (381 官方认证标准资产)'),
+    el('h3', { style: { color: '#e7edf7', margin: '0', fontSize: '16px' } },
+      `乐高微缩资产库 (${totalCount} 项${customCount ? `，含自定义 ${customCount} 项` : ''})`),
     el('button', {
       style: { background: 'transparent', border: '1px solid #475569', color: '#94a3b8', padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' },
       onClick: () => { container.style.display = 'none'; onClose?.(); }
@@ -141,24 +147,40 @@ export function renderAssetManager(container, registry, onClose = null) {
     catTabs.appendChild(btn);
   }
 
-  // 新增资产入口按钮
-  const addAssetBtn = el('button', {
-    style: {
-      background: 'transparent',
-      border: '1px dashed #38bdf8',
-      color: '#38bdf8',
-      padding: '8px',
-      borderRadius: '6px',
-      cursor: 'pointer',
-      width: '100%',
-      fontSize: '12px',
-      marginTop: '12px',
-      fontWeight: '600'
-    },
-    onClick: () => {
-      openAddAssetDialog();
-    }
-  }, '+ 录入新的自定义乐高人仔 / 载具装备');
+  // 新增资产入口：录入后立即注入注册表并持久化，而非仅仅下载一个 JSON 文件
+  const addAssetBtn = el('div', { style: { display: 'flex', gap: '8px', marginTop: '12px' } },
+    el('button', {
+      style: {
+        flex: '1',
+        background: 'transparent',
+        border: '1px dashed #38bdf8',
+        color: '#38bdf8',
+        padding: '8px',
+        borderRadius: '6px',
+        cursor: 'pointer',
+        fontSize: '12px',
+        fontWeight: '600'
+      },
+      onClick: () => openAddAssetDialog(() => {
+        refreshList();
+        const customCount = loadCustomAssets().length;
+        header.firstChild.textContent = `乐高微缩资产库 (${registry?.byId?.size ?? 0} 项，含自定义 ${customCount} 项)`;
+      })
+    }, '+ 录入新的自定义乐高人仔 / 载具装备'),
+    el('button', {
+      style: {
+        background: 'transparent',
+        border: '1px solid #475569',
+        color: '#94a3b8',
+        padding: '8px 12px',
+        borderRadius: '6px',
+        cursor: 'pointer',
+        fontSize: '12px'
+      },
+      title: '管理/清除已录入的自定义资产',
+      onClick: () => openManageCustomAssets(registry, () => refreshList())
+    }, '管理自定义')
+  );
 
   const wrapper = el('div', {
     style: {
@@ -172,44 +194,4 @@ export function renderAssetManager(container, registry, onClose = null) {
 
   container.appendChild(wrapper);
   refreshList();
-}
-
-/**
- * 录入新资产的弹窗表单
- */
-function openAddAssetDialog() {
-  const nameZh = prompt('请输入新乐高装备中文名称（如：特战全地形车）：');
-  if (!nameZh) return;
-  const nameEn = prompt('请输入新乐高装备英文名称（如：Special Forces ATV）：') || nameZh;
-  const kind = prompt('请输入类别代号（CHR=人仔, VEH=地面载具, AIR=空中飞行器）：', 'VEH')?.toUpperCase() || 'VEH';
-  const customId = prompt('请输入资产ID（必须为 PREFIX-NNN 格式，如 VEH-901）：', `${kind}-901`);
-
-  if (!/^[A-Z]{2,5}-[0-9]{3}$/.test(customId)) {
-    alert('ID 格式不符合规范！必须形如 VEH-901 或 CHR-888');
-    return;
-  }
-
-  const assetJson = {
-    id: customId,
-    name: nameEn,
-    nameZh: nameZh,
-    series: 'Modern',
-    faction: 'Coalition',
-    variants: ['clean', 'weathered', 'damaged'],
-    lines: [
-      `LEGO model of ${nameEn}, authentic LEGO plastic texture with visible studs and seams.`,
-      `high detail miniature scale, realistic military camouflage print.`
-    ]
-  };
-
-  const jsonString = JSON.stringify(assetJson, null, 2);
-  const blob = new Blob([jsonString], { type: 'application/json' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `${customId}_asset.json`;
-  a.click();
-  URL.revokeObjectURL(url);
-
-  alert(`已生成新资产定义文件: ${customId}_asset.json！\n您可以将该 JSON 内容合并入 02_Assets/assets.json 中。`);
 }

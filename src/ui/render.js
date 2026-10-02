@@ -86,6 +86,57 @@ export function renderProjectTabs(container, projects = [], currentId = null, ca
 }
 
 /**
+ * 按严重度分级渲染规则校验结果
+ *
+ * 分级渲染的理由：早期实现把所有违规一律渲染成红色警告。由于环境资产的时代
+ * 覆盖极不均衡，一次转译就能刷出十几条红色提示，真正的穿帮错误反而被淹没。
+ * error 用红色阻断式呈现，warning 用琥珀色提示式呈现。
+ *
+ * @param {HTMLElement} node 容器
+ * @param {{ violations?: Array<object>, errors?: Array<object>, warnings?: Array<object> }} result 校验结果
+ */
+export function continuityRepairWarnings(shots = []) {
+  return shots.flatMap((shot, index) => shot?.axisRepairedFrom ? [{
+    code: 'AXIS_DIRECTION_AUTO_REPAIRED',
+    severity: 'warning',
+    message: `S${String(index + 1).padStart(3, '0')} 的作者方向 ${shot.axisRepairedFrom} 与前镜头构成越轴，已自动调整为 neutral（中性骑轴）。请确认该镜头仍符合创作意图。`
+  }] : []);
+}
+
+export function renderViolations(node, result) {
+  if (!node) return;
+  node.replaceChildren();
+  if (!result) return;
+
+  const errors = result.errors ?? (result.violations || []).filter(v => v.severity !== 'warning');
+  const warnings = result.warnings ?? (result.violations || []).filter(v => v.severity === 'warning');
+
+  if (errors.length === 0 && warnings.length === 0) return;
+
+  if (errors.length > 0) {
+    node.appendChild(createEl('div', {
+      style: { color: '#ff9292', fontSize: '12px', fontWeight: '700', margin: '8px 0 6px 0' }
+    }, `⛔ 阻断级问题 ${errors.length} 项`));
+    for (const v of errors) {
+      node.appendChild(createEl('div', {
+        style: { color: '#ff9292', padding: '6px 12px', background: 'rgba(255,146,146,0.08)', borderLeft: '3px solid #ef4444', borderRadius: '4px', marginBottom: '6px', fontSize: '13px' }
+      }, `⚠ 规则警告 [${v.code}] ${v.message || ''}`));
+    }
+  }
+
+  if (warnings.length > 0) {
+    node.appendChild(createEl('div', {
+      style: { color: '#ffd07a', fontSize: '12px', fontWeight: '700', margin: '10px 0 6px 0' }
+    }, `💡 提示级建议 ${warnings.length} 项（不影响生成）`));
+    for (const v of warnings) {
+      node.appendChild(createEl('div', {
+        style: { color: '#ffd07a', padding: '6px 12px', background: 'rgba(245,158,11,0.07)', borderLeft: '3px solid #f59e0b', borderRadius: '4px', marginBottom: '6px', fontSize: '13px' }
+      }, `[${v.code}] ${v.message || `资产 ${v.id || ''} 属 ${v.era || '?'} 系列，与设定的 ${v.targetEra || '?'} 题材略有出入`}`));
+    }
+  }
+}
+
+/**
  * 渲染已编译的镜头输出列表
  */
 export function renderPlan(node, plan, compile, registry, profile, onEditShot = null) {

@@ -227,7 +227,7 @@
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
       ],
-      "nameZh": "艾布拉姆斯坑克乘员"
+      "nameZh": "艾布拉姆斯坦克乘员"
     },
     {
       "id": "CHR-003",
@@ -488,7 +488,7 @@
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
       ],
-      "nameZh": "北约坑克指挥官（冷战）"
+      "nameZh": "北约坦克指挥官（冷战）"
     },
     {
       "id": "CHR-401",
@@ -1489,7 +1489,7 @@
     {
       "id": "CHR-626",
       "name": "Embassy Marine Guard",
-      "nameZh": "使馆馆卫队员",
+      "nameZh": "使馆警卫队员",
       "kw": "撤侨 侨民 使馆 大使馆 领事馆 外交 撤离 撤退 转移 疏散 接应 围困 evacuation evacuate embassy consulate diplomat noncombatant neo 馆卫 守卫 门岗 防御周界 embassy guard marine security",
       "series": "Modern",
       "faction": "Coalition",
@@ -1617,7 +1617,7 @@
         "rubber LEGO tracks",
         "consistent scale, consistent markings, same brick construction, high detail"
       ],
-      "nameZh": "M1A1 艾布拉姆斯主战坑克"
+      "nameZh": "M1A1 艾布拉姆斯主战坦克"
     },
     {
       "id": "VEH-002",
@@ -1750,7 +1750,7 @@
         "rubber LEGO tracks",
         "consistent scale, consistent markings, same brick construction, high detail"
       ],
-      "nameZh": "M4 谢尔曼坑克"
+      "nameZh": "M4 谢尔曼坦克"
     },
     {
       "id": "VEH-102",
@@ -1776,7 +1776,7 @@
         "rubber LEGO tracks",
         "consistent scale, consistent markings, same brick construction, high detail"
       ],
-      "nameZh": "虎式坑克"
+      "nameZh": "虎式坦克"
     },
     {
       "id": "VEH-103",
@@ -1827,7 +1827,7 @@
         "rubber LEGO tracks",
         "consistent scale, consistent markings, same brick construction, high detail"
       ],
-      "nameZh": "T-72 坑克"
+      "nameZh": "T-72 坦克"
     },
     {
       "id": "VEH-302",
@@ -1853,7 +1853,7 @@
         "rubber LEGO tracks",
         "consistent scale, consistent markings, same brick construction, high detail"
       ],
-      "nameZh": "莹2 坑克"
+      "nameZh": "豹2 坦克"
     },
     {
       "id": "AIR-001",
@@ -2305,7 +2305,7 @@
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
       ],
-      "nameZh": "M1A2 SEPv3 艾布拉姆斯坑克"
+      "nameZh": "M1A2 SEPv3 艾布拉姆斯坦克"
     },
     {
       "id": "VEH-402",
@@ -2435,7 +2435,7 @@
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
       ],
-      "nameZh": "莹2A7 坑克"
+      "nameZh": "豹2A7 坦克"
     },
     {
       "id": "VEH-407",
@@ -2461,7 +2461,7 @@
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
       ],
-      "nameZh": "T-90M 主战坑克"
+      "nameZh": "T-90M 主战坦克"
     },
     {
       "id": "VEH-408",
@@ -2669,7 +2669,7 @@
         "realistic LEGO stickers and decals",
         "consistent scale, consistent markings, same brick construction, high detail"
       ],
-      "nameZh": "V-22 鱼鹰候转旋翼机",
+      "nameZh": "V-22 鱼鹰倾转旋翼机",
       "kw": "撤侨 撤离 疏散 空运 接应 evacuation airlift extraction pickup 撤侨 侨民 使馆 大使馆 领事馆 外交 撤离 撤退 转移 疏散 接应 围困 evacuation evacuate embassy consulate diplomat noncombatant neo 快速撤离 长航程"
     },
     {
@@ -3781,7 +3781,7 @@
       ],
       "series": "Modern",
       "version": "1.0",
-      "nameZh": "FGM-148 标枪反坑克导弹"
+      "nameZh": "FGM-148 标枪反坦克导弹"
     },
     {
       "id": "WPN-404",
@@ -3791,7 +3791,7 @@
       ],
       "series": "Modern",
       "version": "1.0",
-      "nameZh": "NLAW 反坑克导弹"
+      "nameZh": "NLAW 反坦克导弹"
     },
     {
       "id": "WPN-405",
@@ -4250,7 +4250,7 @@
         "photorealistic large fireball with rolling black smoke column and heat distortion",
         "turret blown off, LEGO bricks scattering as real physical debris"
       ],
-      "nameZh": "坑克爆炸"
+      "nameZh": "坦克爆炸"
     },
     {
       "id": "FX-003",
@@ -5568,7 +5568,7 @@
       "lines": [
         "locked thermal optic view, subtle digital zoom steps, crosshair centred, minimal camera shake"
       ],
-      "nameZh": "热成像矄准视角"
+      "nameZh": "热成像瞄准视角"
     },
     {
       "id": "CAM-403",
@@ -5934,7 +5934,7 @@
       "lines": [
         "deep diesel tank engine rumble and clanking tracks"
       ],
-      "nameZh": "坑克引擎声"
+      "nameZh": "坦克引擎声"
     },
     {
       "id": "AUD-002",
@@ -6401,7 +6401,7 @@
     ]
   },
   "motionLabelsZh": {
-    "idle": "怡速",
+    "idle": "怠速",
     "start engine": "启动引擎",
     "accelerate": "加速",
     "drive straight": "直线行驶",
@@ -6436,7 +6436,7 @@
     "turn to starboard": "右转向",
     "radar rotate": "雷达旋转",
     "launch aircraft": "舰载机起飞",
-    "drop anchor": "招锚",
+    "drop anchor": "抛锚",
     "launcher raises": "发射架升起",
     "rocket ignites": "火箭点火",
     "rocket salvo fires": "火箭齐射发射",
@@ -6445,7 +6445,7 @@
     "walk": "行走",
     "run": "奔跑",
     "crouch": "蹲伏",
-    "aim": "矄准",
+    "aim": "瞄准",
     "fire": "射击",
     "take cover": "寻找掩护",
     "signal": "打手势",
@@ -6456,7 +6456,7 @@
     "bound between cover": "掩体间跃进",
     "call in air support on radio": "无线电呼叫空中支援",
     "scan with night vision": "夜视搜索",
-    "shoulder anti-tank launcher": "肩扈反坑克筒",
+    "shoulder anti-tank launcher": "肩扛反坦克筒",
     "launch hand-held drone": "放飞手持无人机",
     "apply tourniquet": "上止血带",
     "signal advance": "示意推进",
@@ -6473,7 +6473,7 @@
     "lose signal and tumble": "失联翻滚",
     "roll forward": "向前行进",
     "pivot in place": "原地转向",
-    "raise sensor mast": "升起传感器桓杆",
+    "raise sensor mast": "升起传感器桅杆",
     "traverse weapon station": "武器站转向",
     "climb over rubble": "越过废墟",
     "halt and scan": "停车扫描",
@@ -6508,7 +6508,7 @@
     "extend manipulator arm": "伸出机械臂",
     "carry casualty out": "载出伤员",
     "ushering civilians toward the helicopter in a crouched run": "弯身快跑引导平民登机",
-    "holding back a panicking crowd at a barrier": "在隔离带前抦住慌乱人群",
+    "holding back a panicking crowd at a barrier": "在隔离带前挡住慌乱人群",
     "shielding a civilian with a raised riot shield": "举盾掩护平民转移",
     "flaring hard onto a rooftop helipad as civilians board": "急降楼顶停机坪接应平民"
   },
