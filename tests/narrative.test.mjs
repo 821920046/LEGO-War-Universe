@@ -1,10 +1,17 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  PHASES, mulberry32, seedOf, seededShuffle, fillTemplate,
-  selectBeats, beatsForPhase, phaseBeatPool, expandBeats, buildOriginality, diversifyShots
+  PHASES, FUNCTIONS, FOCUS_ROLES, PHASE_ARC,
+  mulberry32, seedOf, seededShuffle, fillTemplate, tidySpacing, renderTemplate,
+  selectBeats, beatsForPhase, phaseBeatPool, expandBeats, buildOriginality, diversifyShots,
+  inferFunction, tagDramaticFunctions
 } from '../src/domain/narrative.js';
 import { hasHostileFraming } from '../src/domain/shot-spec.js';
+
+/** 全量节拍（所有门控打开时，各阶段的池子即为该阶段全部节拍） */
+const allBeats = () => PHASES.flatMap(p => phaseBeatPool(p, { seed: 1, hasEnemy: true, hasSupport: true, hasVehicle: true }));
+/** 抽出一段文本里用到的所有占位符名 */
+const placeholdersIn = (text) => [...String(text || '').matchAll(/\{(\w+)\}/g)].map(m => m[1]);
 
 test('narrative: mulberry32 and seededShuffle are deterministic', () => {
   const a = mulberry32(12345);
@@ -32,6 +39,25 @@ test('narrative: fillTemplate substitutes known keys and preserves unknown ones'
   assert.equal(fillTemplate('{a} {missing}', { a: 'X' }), 'X {missing}');
   assert.equal(fillTemplate('{a}', { a: '' }), '{a}', '空值视为未提供，保留占位符便于排查');
   assert.equal(fillTemplate(null, {}), '');
+});
+
+test('narrative: tidySpacing 清掉中文之间的空格，且一次扫干净连续空格', () => {
+  // 模板写成 `{heroCallsign} 与 {enemyCallsign} 同时抬枪`，
+  // 展开后是「【A】甲 与 【B】乙 同时抬枪」——中文之间不该有空格。
+  assert.equal(
+    renderTemplate('{h} 与 {e} 同时抬枪开火', { h: '【A】甲', e: '【B】乙' }),
+    '【A】甲与【B】乙同时抬枪开火'
+  );
+  // 连续多处空格必须一次清完（早期用 `([CJK])\s+([CJK])` 会漏掉第二处，
+  // 因为右侧字符被上一次匹配吃掉，导致「甲与 【B】」这种半拉子修复）
+  assert.equal(tidySpacing('甲 与 乙 同时 推进'), '甲与乙同时推进');
+  assert.equal(tidySpacing('街道 在 夜色里'), '街道在夜色里');
+  // 中文标点前不留空格
+  assert.equal(tidySpacing('推进 ！'), '推进！');
+  // 中英混排完全不受影响
+  assert.equal(tidySpacing('LEGO minifigure 与 AR-15 步枪'), 'LEGO minifigure 与 AR-15 步枪');
+  assert.equal(tidySpacing(''), '');
+  assert.equal(tidySpacing(null), '');
 });
 
 test('narrative: selectBeats returns n distinct beats covering all four phases', () => {
@@ -128,19 +154,146 @@ test('narrative: selectBeats 在任意门控组合与任意镜头数下都不重
 });
 
 test('narrative: expandBeats 池耗尽后派生变奏，且变奏保持确定性', () => {
-  const pool = phaseBeatPool('build', { seed: 5, hasEnemy: false, hasSupport: false, hasVehicle: false });
-  assert.equal(pool.length, 3, 'build 阶段无敌人/无僚机/无载具时应有 3 条 hero 节拍');
-  const out = expandBeats('build', { need: pool.length + 4, seed: 5, hasEnemy: false, hasSupport: false, hasVehicle: false });
-  assert.equal(out.length, pool.length + 4);
+  const gates = { hasEnemy: false, hasSupport: false, hasVehicle: false };
+  const pool = phaseBeatPool('build', { seed: 5, ...gates });
+  assert.ok(pool.length >= 3, `build 阶段无敌人/无僚机/无载具时应有足够的 hero 节拍，实得 ${pool.length}`);
+
+  const need = pool.length + 4;
+  const out = expandBeats('build', { need, seed: 5, ...gates });
+  assert.equal(out.length, need);
   assert.equal(new Set(out.map(b => b.id)).size, out.length);
   assert.equal(new Set(out.map(b => b.action)).size, out.length);
+
   // 溢出项必须标记来源，便于排查
   const derived = out.filter(b => b.derivedFrom);
   assert.equal(derived.length, 4);
   assert.ok(derived.every(b => b.id.startsWith(b.derivedFrom + '~v')));
+  // 变奏必须继承原节拍的戏剧功能与时长，否则会破坏戏剧形状与节奏
+  for (const b of derived) {
+    const base = pool.find(p => p.id === b.derivedFrom);
+    assert.equal(b.fn, base.fn);
+    assert.equal(b.duration, base.duration);
+  }
 
-  const again = expandBeats('build', { need: pool.length + 4, seed: 5, hasEnemy: false, hasSupport: false, hasVehicle: false });
+  const again = expandBeats('build', { need, seed: 5, ...gates });
   assert.deepEqual(again.map(b => b.id), out.map(b => b.id), '变奏必须确定性可复现');
+});
+
+// ---------------------------------------------------------------------------
+// 戏剧功能（fn）—— 用户反馈「动作太单一，完全不能构成电影」的回归护栏。
+// 根因：v1 节拍库只有 focus（谁在画面里），没有 fn（这一镜对故事做了什么），
+// 于是每一镜都在干同一件戏剧上的事：「战斗员执行一个战斗动作」。
+// ---------------------------------------------------------------------------
+
+test('narrative: 每个节拍都声明了合法的戏剧功能、时长与镜头类型', () => {
+  const beats = allBeats();
+  assert.ok(beats.length >= 35, `节拍库规模过小（${beats.length}），难以支撑长片`);
+  for (const b of beats) {
+    assert.ok(FUNCTIONS[b.fn], `${b.id} 的 fn "${b.fn}" 不在 FUNCTIONS 中`);
+    assert.ok([4, 6, 8].includes(b.duration), `${b.id} 的 duration ${b.duration} 不在模型支持的档位 [4,6,8] 内`);
+    assert.ok(b.shotType && b.action, `${b.id} 缺少 shotType 或 action`);
+  }
+});
+
+test('narrative: 节拍只使用其 focus 声明过的占位符（防止自指错句）', () => {
+  // 背景：focus=hero 的节拍只有主角在画面里，若 action 里写 {enemyCallsign}，
+  // 规划器会退化成用主角自己的代号去填敌人位，生成
+  // 「【A】抓住唯一的窗口，一发命中【A】的火力点」这种自指错句（v1 真实存在过）。
+  for (const b of allBeats()) {
+    const allowed = new Set(FOCUS_ROLES[b.focus]);
+    assert.ok(allowed.size > 0, `${b.id} 的 focus "${b.focus}" 未在 FOCUS_ROLES 中声明`);
+    for (const ph of placeholdersIn(b.action)) {
+      assert.ok(allowed.has(ph), `${b.id} (focus=${b.focus}) 使用了不允许的占位符 {${ph}}`);
+    }
+  }
+});
+
+test('narrative: 节拍库覆盖足够多的戏剧功能，且每个阶段都有非战斗功能', () => {
+  const beats = allBeats();
+  const fns = new Set(beats.map(b => b.fn));
+  assert.ok(fns.size >= 12, `戏剧功能种类过少（${fns.size}）：这正是「动作单一」的根因`);
+
+  // 必须存在「不靠开枪推进故事」的功能
+  for (const required of ['goal', 'character', 'quiet', 'reaction', 'reveal', 'decision', 'cost', 'reversal']) {
+    assert.ok(fns.has(required), `缺少关键戏剧功能 ${required}`);
+  }
+
+  // 每个阶段的弧线都要指向真实存在的功能
+  for (const phase of PHASES) {
+    assert.ok(PHASE_ARC[phase]?.length, `${phase} 缺少戏剧弧线`);
+    for (const fn of PHASE_ARC[phase]) {
+      assert.ok(
+        beats.some(b => b.phase === phase && b.fn === fn),
+        `${phase} 弧线引用了不存在的功能 ${fn}`
+      );
+    }
+    // 每阶段至少要有一个「非战斗」功能（clash/contact/escalate/observe 之外的）
+    const nonCombat = PHASE_ARC[phase].filter(fn => !['clash', 'contact', 'escalate'].includes(fn));
+    assert.ok(nonCombat.length >= 2, `${phase} 的弧线几乎全是战斗功能`);
+  }
+});
+
+test('narrative: 短片的戏剧弧线是完整的（每一镜都在推进故事，而不是重复同一动作）', () => {
+  // 这是「能不能构成电影」的核心断言：4/8/12 镜的片子，
+  // 每一镜都必须承担**互不相同**的戏剧功能，且功能要落在正确的叙事阶段里。
+  const expectations = {
+    4: ['goal', 'plan', 'escalate', 'aftermath'],
+    8: ['goal', 'character', 'plan', 'contact', 'escalate', 'clash', 'aftermath', 'reaction']
+  };
+  for (const [n, expected] of Object.entries(expectations)) {
+    const beats = selectBeats({ n: Number(n), seed: seedOf(`arc|${n}`), hasEnemy: true, hasSupport: true, hasVehicle: true });
+    assert.equal(beats.length, Number(n));
+    assert.deepEqual(
+      beats.map(b => b.fn),
+      expected,
+      `${n} 镜的戏剧功能序列不符（得到 ${beats.map(b => b.fn).join(' → ')}）`
+    );
+  }
+});
+
+test('narrative: 相邻两镜不承担同一戏剧功能，且整片功能多样性达标', () => {
+  for (const n of [4, 6, 8, 12, 16, 24]) {
+    const beats = selectBeats({ n, seed: seedOf(`diversity|${n}`), hasEnemy: true, hasSupport: true, hasVehicle: true });
+    for (let i = 1; i < beats.length; i++) {
+      assert.notEqual(beats[i].fn, beats[i - 1].fn, `n=${n} 第 ${i + 1} 镜与前一镜功能相同（${beats[i].fn}）`);
+    }
+    const distinct = new Set(beats.map(b => b.fn)).size;
+    assert.ok(distinct >= Math.min(6, n), `n=${n} 只覆盖了 ${distinct} 种戏剧功能，过于单调`);
+  }
+});
+
+test('narrative: 战斗与非战斗镜头混合，且非战斗镜头占比可观', () => {
+  // 「完全不能构成电影」的直接量化指标：不能全是战斗镜头。
+  const COMBAT_FNS = new Set(['clash', 'contact', 'escalate']);
+  for (const n of [8, 12, 16]) {
+    const beats = selectBeats({ n, seed: seedOf(`mix|${n}`), hasEnemy: true, hasSupport: true, hasVehicle: true });
+    const nonCombat = beats.filter(b => !COMBAT_FNS.has(b.fn)).length;
+    assert.ok(
+      nonCombat / n >= 0.3,
+      `n=${n} 非战斗镜头仅占 ${Math.round((nonCombat / n) * 100)}%，全片仍是一段战斗蒙太奇`
+    );
+  }
+});
+
+test('narrative: 节奏有起伏（不是全片等权重的 8 秒）', () => {
+  for (const n of [8, 12]) {
+    const beats = selectBeats({ n, seed: seedOf(`pacing|${n}`), hasEnemy: true, hasSupport: true, hasVehicle: true });
+    const durations = new Set(beats.map(b => b.duration));
+    assert.ok(durations.size >= 2, `n=${n} 全片时长单一（${[...durations].join(',')}），没有节奏差`);
+    assert.ok(beats.some(b => b.duration === 4), `n=${n} 缺少快切镜头`);
+    assert.ok(beats.some(b => b.duration === 8), `n=${n} 缺少长镜头`);
+  }
+});
+
+test('narrative: 无敌军时弧线自动降级，clash 不会被硬塞', () => {
+  // 没有敌军资产时，clash / contact 这类需要正反同框的功能必须让位给其它功能，
+  // 而不是生成一个「双方对轰」却没有敌人的镜头。
+  const beats = selectBeats({ n: 12, seed: seedOf('no-enemy'), hasEnemy: false, hasSupport: true, hasVehicle: true });
+  assert.equal(beats.length, 12);
+  assert.ok(beats.every(b => b.focus !== 'clash' && b.focus !== 'enemy'));
+  const fns = new Set(beats.map(b => b.fn));
+  assert.ok(fns.size >= 5, `降级后功能反而更单调了（${[...fns].join(',')}）`);
+  assert.ok(fns.has('character') || fns.has('quiet'), '降级后应更多依赖非战斗功能');
 });
 
 test('narrative: buildOriginality derives an independent logline / twist / hook', () => {
@@ -238,4 +391,87 @@ test('narrative: diversifyShots survives empty and malformed input', () => {
   assert.equal(diversifyShots(null).shots.length, 0);
   const res = diversifyShots([{ action: '' }, { action: '' }]);
   assert.equal(res.fixed, 0, '空 action 不参与去重，避免产出无意义变奏');
+});
+
+test('narrative: inferFunction maps combat text to clash and reads phase for fallback', () => {
+  assert.equal(inferFunction({ phase: 'climax', action: '双方在几米内直接交战对轰。' }), 'clash');
+  assert.equal(inferFunction({ phase: 'build', action: '他掀开伪装网，情报错了。' }), 'reveal');
+  assert.equal(inferFunction({ phase: 'resolve', action: '他摘下耳机，准备收队返航。' }), 'close');
+  // 无任何关键词命中时，回退到该阶段弧线首项
+  assert.equal(inferFunction({ phase: 'establish', action: '……' }), PHASE_ARC.establish[0]);
+  assert.equal(inferFunction({}), PHASE_ARC.build[0], '缺省阶段按 build 处理');
+});
+
+test('narrative: tagDramaticFunctions respects a model-declared legal fn', () => {
+  const shots = [
+    { phase: 'establish', fn: 'goal', action: '任务简报。' },
+    { phase: 'climax', fn: 'clash', action: '正面交战。' }
+  ];
+  const res = tagDramaticFunctions(shots);
+  assert.deepEqual(res.functions, ['goal', 'clash']);
+  assert.equal(res.monotone, false);
+});
+
+test('narrative: tagDramaticFunctions breaks adjacent duplicate functions', () => {
+  const shots = [
+    { phase: 'build', fn: 'clash', action: 'A 开火。' },
+    { phase: 'build', fn: 'clash', action: 'B 开火。' },
+    { phase: 'build', fn: 'clash', action: 'C 开火。' }
+  ];
+  const res = tagDramaticFunctions(shots);
+  for (let i = 1; i < res.functions.length; i++) {
+    assert.notEqual(res.functions[i], res.functions[i - 1], '相邻两镜不得同功能');
+  }
+});
+
+test('narrative: tagDramaticFunctions monotone guard rescues an all-combat script', () => {
+  // 典型的「8 镜全程对轰」——文字不同但戏剧功能全同，正是用户抱怨的「不能构成电影」
+  const shots = Array.from({ length: 8 }, (_, i) => ({
+    phase: PHASES[Math.floor(i / 2)],
+    action: `第 ${i + 1} 镜：双方持续交战对轰，弹壳四溅。`
+  }));
+  const res = tagDramaticFunctions(shots);
+  assert.equal(res.monotone, true, '必须识别出单调脚本');
+  const distinct = new Set(res.functions).size;
+  assert.ok(distinct >= 4, `单调兜底后应长出至少 4 种戏剧功能，实际 ${distinct}`);
+  for (let i = 1; i < res.functions.length; i++) {
+    assert.notEqual(res.functions[i], res.functions[i - 1]);
+  }
+  // 节奏：模型没给时长时应按功能补出多种时长，而不是全片同一个长度
+  const durations = res.shots.map(s => s.duration);
+  assert.ok(new Set(durations).size >= 2, `补出的时长应有起伏，实际 ${durations.join('/')}`);
+  assert.ok(durations.every(d => [4, 6, 8].includes(d)), '时长必须是 4/6/8 档位');
+});
+
+test('narrative: tagDramaticFunctions keeps a model-supplied duration', () => {
+  const shots = [
+    { phase: 'build', fn: 'clash', duration: 6, action: 'A 开火。' },
+    { phase: 'resolve', fn: 'close', duration: 8, action: 'B 收队。' }
+  ];
+  const res = tagDramaticFunctions(shots);
+  assert.deepEqual(res.shots.map(s => s.duration), [6, 8], '模型给了时长就必须尊重');
+});
+
+test('narrative: tagDramaticFunctions supplies a duration when the model omits it', () => {
+  const res = tagDramaticFunctions([{ phase: 'climax', fn: 'clash', action: '开火。' }]);
+  assert.equal(res.shots[0].duration, 4, '正面交锋默认快切 4s');
+});
+
+test('narrative: tagDramaticFunctions never mutates input and survives bad input', () => {
+  const shots = [{ phase: 'build', action: '开火。' }];
+  const copy = JSON.parse(JSON.stringify(shots));
+  const res = tagDramaticFunctions(shots);
+  assert.deepEqual(shots, copy, '不得就地修改原数组');
+  assert.notEqual(res.shots, shots);
+  assert.deepEqual(tagDramaticFunctions([]).functions, []);
+  assert.equal(tagDramaticFunctions(null).shots.length, 0);
+});
+
+test('narrative: every inferred fn is a member of FUNCTIONS', () => {
+  for (const phase of PHASES) {
+    for (const beat of phaseBeatPool(phase, { seed: 3, hasEnemy: true, hasSupport: true, hasVehicle: true })) {
+      const fn = inferFunction(beat);
+      assert.ok(FUNCTIONS[fn], `推断出的 fn 必须是合法功能：${fn}`);
+    }
+  }
 });

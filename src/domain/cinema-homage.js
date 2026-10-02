@@ -5,8 +5,20 @@
 
 import { enforceContinuityChain } from './continuity.js';
 import { selectCast, buildRoster, rosterToJSON, sideOf, aliasLabel } from './roster.js';
-import { beatsForPhase, fillTemplate, seedOf, buildOriginality, diversifyShots, PHASES } from './narrative.js';
+import { beatsForPhase, renderTemplate, seedOf, buildOriginality, diversifyShots, tagDramaticFunctions, PHASES } from './narrative.js';
 import { parseIntent } from './intent.js';
+
+/**
+ * 策展桥段（CINEMA_DATABASE 里手写的 baseShots）没有声明 fn，
+ * 但它们本身就是按四阶段写的，这里按阶段给一个合理的戏剧功能默认值，
+ * 保证整片在 UI 上仍能显示出连贯的戏剧弧线。
+ */
+const CURATED_FN_BY_PHASE = {
+  establish: 'world',
+  build: 'escalate',
+  climax: 'clash',
+  resolve: 'aftermath'
+};
 
 export const CINEMA_DATABASE = [
   {
@@ -665,7 +677,11 @@ export function transpileMovieToLego(query, requestedShots = 4, registry = null)
         hasEnemy,
         hasSupport,
         hasVehicle: vehicleAssets.length > 0,
-        limit: need
+        limit: need,
+        // 策展镜头（k=0）已经占用了该阶段的 CURATED_FN_BY_PHASE，
+        // 必须把它当作「上一镜的戏剧功能」传进去，否则第一个扩展节拍会和策展镜头
+        // 撞成同一功能（resolve 阶段就是 aftermath 撞 aftermath，连看两镜一模一样）。
+        prevFn: CURATED_FN_BY_PHASE[phase] || null
       }));
     }
     return expansionCache.get(phase)[k - 1] || null;
@@ -733,11 +749,14 @@ export function transpileMovieToLego(query, requestedShots = 4, registry = null)
       phase,
       beatId: expansion ? expansion.id : `${match.id}-beat-${pi}`,
       shotType: expansion ? expansion.shotType : curated.shotType,
-      action: expansion ? fillTemplate(expansion.action, ctx) : curated.action,
+      // 戏剧功能与镜头时长：扩展节拍继承 BEATS 的声明；策展桥段按阶段给一个合理默认。
+      fn: expansion ? expansion.fn : (CURATED_FN_BY_PHASE[phase] || 'escalate'),
+      duration: expansion ? expansion.duration : 8,
+      action: expansion ? renderTemplate(expansion.action, ctx) : curated.action,
       screenDirection: expansion ? screenDirections[i % screenDirections.length] : curated.screenDirection,
       damageState: expansion ? expansion.damageState : curated.damageState,
-      audioCue: expansion ? fillTemplate(expansion.audioCue || '', ctx) : curated.audioCue,
-      radioVoice: expansion ? fillTemplate(expansion.radioVoice || '', ctx) : curated.radioVoice,
+      audioCue: expansion ? renderTemplate(expansion.audioCue || '', ctx) : curated.audioCue,
+      radioVoice: expansion ? renderTemplate(expansion.radioVoice || '', ctx) : curated.radioVoice,
       subjects,
       environment: match.assets.environment,
       camera: match.assets.camera,
@@ -749,6 +768,11 @@ export function transpileMovieToLego(query, requestedShots = 4, registry = null)
   // 6. 连续性链条 + 反重复兜底
   const continuousShots = enforceContinuityChain(shots);
   const diversified = diversifyShots(continuousShots);
+
+  // 6b. 戏剧功能不变式（与本地规划器、云端大模型路径共用同一道保险）：
+  //     相邻两镜绝不允许承担同一戏剧功能 —— 那正是用户说的「动作太单一、不成电影」。
+  //     上面的 prevFn 修复已从源头避免撞车，这里再做一次强制兜底，确保不变式恒成立。
+  const functioned = tagDramaticFunctions(diversified.shots);
 
   // 7. 原创层：参考片只做视听致敬，情节独立生成
   const intent = parseIntent(query);
@@ -766,7 +790,7 @@ export function transpileMovieToLego(query, requestedShots = 4, registry = null)
     legoAdaptation: match.legoAdaptation,
     creatorTips: match.creatorTips,
     themeZh: `【${match.title} · 好莱坞视听转译】${match.shots[0].action.slice(0, 35)}…`,
-    shots: diversified.shots,
+    shots: functioned.shots,
     assets: match.assets,
     originality,
     roster: rosterToJSON(roster),

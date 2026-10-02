@@ -2,7 +2,7 @@ import { parseIntent } from './intent.js';
 import { enforceContinuityChain } from './continuity.js';
 import { isEraCompatible } from './shot-spec.js';
 import { selectCast, buildRoster, rosterToJSON, aliasLabel } from './roster.js';
-import { selectBeats, fillTemplate, seedOf, buildOriginality } from './narrative.js';
+import { selectBeats, renderTemplate, seedOf, buildOriginality, tagDramaticFunctions } from './narrative.js';
 
 /**
  * 依据时代、意图与关键词从注册表中筛选最适资产
@@ -198,6 +198,10 @@ export function planFilm({ theme, requestedShots = 4, profileId }, r) {
       phase: beat.phase,
       shotType: beat.shotType,
       beatId: beat.id,
+      // 戏剧功能与镜头时长随节拍一起带下去：前者让 UI 能显示「这一镜在故事里做什么」，
+      // 后者让整片有快切/长镜的节奏差，而不是等权重的幻灯片。
+      fn: beat.fn || null,
+      duration: beat.duration || 8,
       subjects,
       environment: env?.id,
       camera: camera?.id,
@@ -205,14 +209,20 @@ export function planFilm({ theme, requestedShots = 4, profileId }, r) {
       colorGrade: color?.id,
       fx: beat.phase === 'climax' && fxPool.length > 0 ? [fxPool[i % fxPool.length].id] : [],
       audio: [],
-      action: fillTemplate(beat.action, ctx),
-      audioCue: fillTemplate(beat.audioCue || '', ctx),
-      radioVoice: fillTemplate(beat.radioVoice || '', ctx)
+      action: renderTemplate(beat.action, ctx),
+      audioCue: renderTemplate(beat.audioCue || '', ctx),
+      radioVoice: renderTemplate(beat.radioVoice || '', ctx)
     };
   });
 
   // 4. 注入强制连续性链条（角色外观、损伤累积、180度轴线、参考帧）
   const continuousShots = enforceContinuityChain(rawShots);
+
+  // 4b. 戏剧功能不变式：相邻两镜绝不承担同一戏剧功能。
+  //     selectBeats 在规划期已按 PHASE_ARC 保证这一点，这里再做一次强制兜底，
+  //     让「本地规划器 / 电影致敬引擎 / 云端大模型」三条路径共用同一道保险，
+  //     彻底杜绝「每一镜都在干同一件戏剧上的事」这种「不成电影」的输出。
+  const functioned = tagDramaticFunctions(continuousShots);
 
   // 5. 原创层：与参考影片解耦的立意 / 转折 / 开场钩子
   const originality = buildOriginality({ theme, intent, reference: null, seed });
@@ -220,7 +230,7 @@ export function planFilm({ theme, requestedShots = 4, profileId }, r) {
   const plan = {
     intent,
     profileId,
-    shots: continuousShots,
+    shots: functioned.shots,
     cast: {
       heroes: heroes.map(a => a.id),
       enemies: enemies.map(a => a.id),
