@@ -5,6 +5,7 @@ import { validateFilmPlan } from '../domain/shot-spec.js';
 import { transpileMovieToLego, CINEMA_DATABASE } from '../domain/cinema-homage.js';
 import { callAiBrain } from '../domain/ai-brain.js';
 import { buildRoster, rosterToJSON, rosterFromJSON } from '../domain/roster.js';
+import { FUNCTION_LABELS } from '../domain/narrative.js';
 import { extractCharacterLineup, generateLineupPrompt } from '../domain/character-lineup.js';
 import { checkContentGovernance } from '../domain/governance.js';
 import { ProjectStore } from './project-store.js';
@@ -379,7 +380,7 @@ function renderFactionCards(container, chars, faction) {
  * 渲染原创立意卡（logline / 转折 / 开场钩子 / 致敬说明）。
  * 这一层正是「像智能」与「照着电影抄」的分界线：参考片只贡献视听语言，情节独立生成。
  */
-function renderOriginality(project) {
+function renderOriginality(project, shots = []) {
   const box = $('lineup-originality');
   if (!box) return;
   box.replaceChildren();
@@ -398,15 +399,35 @@ function renderOriginality(project) {
     ['🎬 致敬说明 (Homage)', o.homageNote]
   ].filter(([, v]) => v);
 
+  const children = [
+    createEl('div', { class: 'field__label', style: { marginBottom: '8px', color: 'var(--accent-hi)' } },
+      '🧠 原创立意层（独立于参考片，避免照搬桥段）'),
+    ...rows.map(([k, v]) => createEl('div', { style: { fontSize: '12.5px', color: 'var(--text-2)', lineHeight: '1.6', marginBottom: '4px' } },
+      createEl('strong', { style: { color: 'var(--text)' } }, `${k}：`),
+      document.createTextNode(String(v))
+    ))
+  ];
+
+  // 戏剧弧线：把「每一镜在故事里做什么」串成一条线。
+  // 这是对「动作太单一、完全不能构成电影」最直接的可视化回应 ——
+  // 如果弧线上一眼看去全是「压力升级」，那就确实不是电影。
+  const list = Array.isArray(shots) ? shots : [];
+  const withFn = list.filter(s => s && s.fn);
+  if (withFn.length) {
+    const arcText = withFn.map(s => FUNCTION_LABELS[s.fn] || s.fn).join('  →  ');
+    const totalSeconds = list.reduce((sum, s) => sum + (Number(s.duration) || 8), 0);
+    const distinct = new Set(withFn.map(s => s.fn)).size;
+    children.push(
+      createEl('div', { style: { marginTop: '10px', paddingTop: '10px', borderTop: '1px solid var(--border)' } },
+        createEl('div', { style: { fontSize: '11px', color: 'var(--text-3)', marginBottom: '5px' } },
+          `🎞️ 戏剧弧线 · ${list.length} 镜 / ${distinct} 种戏剧功能 / 总时长 ${totalSeconds} 秒`),
+        createEl('div', { style: { fontSize: '12px', color: 'var(--text-2)', lineHeight: '1.8' } }, arcText)
+      )
+    );
+  }
+
   box.appendChild(
-    createEl('div', { class: 'panel', style: { marginBottom: '16px' } },
-      createEl('div', { class: 'field__label', style: { marginBottom: '8px', color: 'var(--accent-hi)' } },
-        '🧠 原创立意层（独立于参考片，避免照搬桥段）'),
-      ...rows.map(([k, v]) => createEl('div', { style: { fontSize: '12.5px', color: 'var(--text-2)', lineHeight: '1.6', marginBottom: '4px' } },
-        createEl('strong', { style: { color: 'var(--text)' } }, `${k}：`),
-        document.createTextNode(String(v))
-      ))
-    )
+    createEl('div', { class: 'panel', style: { marginBottom: '16px' } }, ...children)
   );
 }
 
@@ -454,8 +475,8 @@ function renderCharacterLineupPanel(project, roster = null) {
 
     const lineupData = generateLineupPrompt(factions, theme, era, ar);
 
-    // 原创立意层
-    renderOriginality(project);
+    // 原创立意层（含戏剧弧线）
+    renderOriginality(project, project.shots);
 
     // 2. 渲染双阵营角色卡片网格（蓝色前排正方 + 红色后排反方）
     const grid = $('character-roster-grid');

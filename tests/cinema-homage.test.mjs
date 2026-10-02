@@ -39,6 +39,30 @@ test('Cinema homage: transpiled shots pass continuity validation without MISSING
   assert.equal(result.era, 'Modern');
 });
 
+test('Cinema homage: every shot declares a dramatic function and no two adjacent shots repeat one', () => {
+  // 回归：早期实现里 resolve 阶段的策展镜头与第一个扩展节拍都是 aftermath，
+  // 于是最后两镜连看一模一样 —— 用户抱怨的「动作太单一、不成电影」的一种具体形态。
+  for (const n of [4, 8, 12]) {
+    const result = transpileMovieToLego('黑鹰坠落', n);
+    const fns = result.shots.map(s => s.fn);
+    assert.equal(fns.length, n);
+    assert.ok(fns.every(Boolean), `n=${n} 每一镜都必须有戏剧功能：${fns.join(',')}`);
+    for (let i = 1; i < fns.length; i++) {
+      assert.notEqual(fns[i], fns[i - 1], `n=${n} 相邻两镜不得同功能：${fns.join(' / ')}`);
+    }
+    if (n >= 8) {
+      assert.ok(new Set(fns).size >= 4, `n=${n} 至少要有 4 种戏剧功能，实际 ${new Set(fns).size}`);
+    }
+  }
+});
+
+test('Cinema homage: shots carry a profile-legal duration for pacing', () => {
+  const result = transpileMovieToLego('黑鹰坠落', 8);
+  const durations = result.shots.map(s => s.duration);
+  assert.ok(durations.every(d => [4, 6, 8].includes(d)), `时长必须是 4/6/8 档位：${durations.join(',')}`);
+  assert.ok(new Set(durations).size >= 2, `整片节奏必须有起伏：${durations.join(',')}`);
+});
+
 test('Intent parser: recognizes orbital and space keywords', () => {
   const intent = parseIntent('宇航员在近地轨道空间站外壁维修太阳能电池翼');
   assert.equal(intent.era, 'Orbital');

@@ -33,7 +33,12 @@ export function compileShot(s, r, p, roster = null) {
   const lighting = get(s.lighting);
   const color = get(s.colorGrade);
 
-  const duration = p.durations.includes(8) ? 8 : p.durations[0];
+  // 时长优先取镜头自带值（叙事层按戏剧功能给了快切/长镜的节奏差），
+  // 但必须落在模型 profile 真正支持的档位里，否则回退到 8s / 首个档位。
+  const supported = Array.isArray(p.durations) ? p.durations : [];
+  const duration = supported.includes(s.duration)
+    ? s.duration
+    : (supported.includes(8) ? 8 : supported[0]);
   const aspectRatio = s.aspectRatio || p.selectedAspectRatio || p.aspectRatios[0];
 
   // 连续性锚点（屏幕方向、损伤状态、参考帧）

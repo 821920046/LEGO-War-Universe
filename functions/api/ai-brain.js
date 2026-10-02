@@ -15,7 +15,7 @@ import { buildAssetCatalog, formatCatalogForPrompt, collectValidIds, resolveShot
 import { assets as ASSET_REGISTRY } from '../../src/domain/assets-data.js';
 import { createRegistry } from '../../src/domain/registry.js';
 import { selectCast, buildRoster, rosterToJSON, rosterPromptLines } from '../../src/domain/roster.js';
-import { diversifyShots } from '../../src/domain/narrative.js';
+import { diversifyShots, tagDramaticFunctions } from '../../src/domain/narrative.js';
 
 /**
  * 后端侧的资产注册表。
@@ -159,6 +159,23 @@ const DIRECTOR_SYSTEM_PROMPT_HEADER = `你是一位好莱坞顶级电影摄影�
 若下方【本片固定阵容】中存在对立阵营角色，则至少有两个镜头必须让敌方实际出场并产生对抗；
 同时，每个镜头的 subjects 必须与 action 里实际描写的角色保持一致，不得出现「写的是敌人、填的是友军」。
 
+【最高优先级五：每镜必须有各自不同的戏剧功能（这是「能不能构成电影」的生死线）】
+一部电影不是把「开火」拍 N 遍。逐镜检查：这一镜在故事里**做了一件什么事**？
+你必须为每个镜头在 fn 字段里声明它的戏剧功能，取值只能从下面这 17 个里选：
+  goal(交代目标) world(铺陈规模) character(人物时刻) approach(接近) observe(观察等待)
+  plan(临场计划) contact(首次接触) escalate(压力升级) reveal(情报有变) decision(抉择)
+  reversal(反转) cost(代价) clash(正面交锋) quiet(静默) aftermath(残局) reaction(反应) close(收束)
+硬约束（系统会逐条校验，违反即判定不合格）：
+- **相邻两镜的 fn 必须不同**：绝不允许连续两个镜头都在干同一件戏剧上的事。
+- **clash（正面交锋）最多占全片 1/3**：全片若有一半以上镜头是 clash，就直接判定为「蒙太奇、不成电影」。
+- **必须包含非战斗功能**：全片至少要有 goal / character / observe / quiet / decision / cost / reaction / close 中的 3 种。
+- 每个阶段各自的长相：
+  · establish（铺垫）：先让人知道「要干什么、赌注是什么、人是谁」，再谈打。
+  · build（展开）：制造意外（reveal）、让压力加码（escalate）、逼出计划（plan）。
+  · climax（决战）：升级到正面交锋，但**必须**在交锋之间插入抉择(decision)/反转(reversal)/代价(cost)/静默(quiet)。
+  · resolve（尾声）：打完之后的残局(aftermath)、反应(reaction)、收束(close)——而不是继续开火。
+- 允许并且鼓励「不开枪的镜头」：观察、等待、静默、一个反应特写，往往比又一场交火更有力量。
+
 【角色代号纪律】
 阵容里给出的代号是该角色在全片的唯一身份，action / radioVoice 中必须用【代号】称呼角色，
 且同一角色全片同名，绝不换称呼。镜头间保持同一套外观与损伤状态。
@@ -187,6 +204,7 @@ const DIRECTOR_SYSTEM_PROMPT_HEADER = `你是一位好莱坞顶级电影摄影�
   "shots": [
     {
       "phase": "establish",
+      "fn": "本镜戏剧功能，只能取以下 17 值之一：goal/world/character/approach/observe/plan/contact/escalate/reveal/decision/reversal/cost/clash/quiet/aftermath/reaction/close（相邻两镜不得相同）",
       "shotType": "景别类型（如：超低空掠地全景 / 驾驶舱微型特写）",
       "action": "详细的乐高微缩动作描述，必须指明乐高人仔、载具、建筑积木细节，并用【代号】称呼角色",
       "screenDirection": "towards-camera",
@@ -521,10 +539,15 @@ export async function onRequest({ request, env = {} }) {
   // 6b. 反重复兜底：大模型最爱偷懒复制同一句话，这里对撞车的 action 做确定性变奏
   const diversified = diversifyShots(alignedShots);
 
-  // 6c. 以「最终真正上镜的镜头」为准聚合名册，并继承 Prompt 阶段已分配的代号，
+  // 6c. 戏剧功能兜底：大模型最爱的另一种偷懒是「8 个镜头全是对轰」——
+  //     文字各不相同，但每一镜在故事里干的是同一件事，观感仍是蒙太奇而非电影。
+  //     这里给每镜补/规整 fn（戏剧功能），保证相邻两镜不同功能、整片长出戏剧弧线。
+  const functioned = tagDramaticFunctions(diversified.shots);
+
+  // 6d. 以「最终真正上镜的镜头」为准聚合名册，并继承 Prompt 阶段已分配的代号，
   //     保证「模型脚本里的称呼」与「前端定妆表 / 编译 Prompt」完全一致。
   const finalRoster = REGISTRY
-    ? buildRoster(diversified.shots, REGISTRY, { prior: castRoster })
+    ? buildRoster(functioned.shots, REGISTRY, { prior: castRoster })
     : null;
 
   const latencyMs = Date.now() - startTime;
@@ -539,11 +562,13 @@ export async function onRequest({ request, env = {} }) {
     visualGrammar: result.visualGrammar || {},
     legoAdaptation: result.legoAdaptation || '高精度乐高微缩定格美学',
     creatorTips: result.creatorTips || '把握前3秒视听钩子',
-    themeZh: `【${result.matchedMovie || query} · AI 大脑转译】${(diversified.shots[0]?.action || '').slice(0, 35)}…`,
-    shots: diversified.shots,
+    themeZh: `【${result.matchedMovie || query} · AI 大脑转译】${(functioned.shots[0]?.action || '').slice(0, 35)}…`,
+    shots: functioned.shots,
     originality: result.originality || null,
     roster: finalRoster ? rosterToJSON(finalRoster) : [],
     repetitionFixed: diversified.fixed,
+    functionRetagged: functioned.retagged,
+    monotoneGuard: functioned.monotone,
     isAiGenerated: true,
     engine: `Cloud Free AI (${usedEngine})`,
     era: intent.era,

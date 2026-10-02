@@ -6,6 +6,7 @@
 
 import { compileKeyframeImage } from '../domain/image-compiler.js';
 import { labelFor, aliasLabel } from '../domain/roster.js';
+import { FUNCTION_LABELS } from '../domain/narrative.js';
 
 const PHASE_COLORS = {
   establish: '#3FB950',
@@ -151,6 +152,8 @@ function renderShotCard(shot, index, registry, onSelect, onCopyKeyframe, roster 
       el('strong', { class: 'tl-card__id' }, shotLabel),
       el('span', { class: 'tl-card__phase', style: { color: phaseColor } }, phase)
     ),
+    // 戏剧功能：让「这一镜对故事做了什么」一眼可见（治「动作单一」的可视化手段）
+    shot.fn ? el('div', { class: 'tl-card__fn', title: '戏剧功能' }, FUNCTION_LABELS[shot.fn] || shot.fn) : null,
     // 首帧定格占位图
     renderKeyframeThumb(shot, registry, onCopyKeyframe, roster),
     // 主体
@@ -161,6 +164,7 @@ function renderShotCard(shot, index, registry, onSelect, onCopyKeyframe, roster 
     ),
     // 底部状态
     el('div', { class: 'tl-card__meta' },
+      el('span', { class: 'badge badge--mono', title: '镜头时长' }, `${Number(shot.duration) || 8}s`),
       el('span', { class: 'badge', title: `屏幕方向: ${dir}` }, `轴 ${arrow}`),
       el('span', { class: `badge ${damageBadge.cls}`.trim() }, damageBadge.label),
       hasRef ? el('span', { class: 'badge badge--info', title: '已锁前序参考帧' }, '🔗 锁帧') : null,
@@ -258,7 +262,6 @@ export function exportToCapCutCSV(shots = [], registry = null, filmTheme = '未�
   ];
 
   let currentSecond = 0;
-  const shotDuration = 8; // 8秒定格
 
   // 标准时间码 HH:MM:SS:FF。时位此前被写死为 00，长片（>150 镜）会溢出。
   const pad = (n) => String(n).padStart(2, '0');
@@ -271,6 +274,9 @@ export function exportToCapCutCSV(shots = [], registry = null, filmTheme = '未�
 
   shots.forEach((s, idx) => {
     const shotLabel = `S${String(idx + 1).padStart(3, '0')}`;
+    // 逐镜时长：叙事层按戏剧功能给了快切(4s)/常规(6s)/长镜(8s)的节奏差，
+    // 早期实现把全片时长写死为 8 秒，等于把电影压成等权重的幻灯片。
+    const shotDuration = Number(s.duration) || 8;
     const inTC = formatTC(currentSecond);
     const outTC = formatTC(currentSecond + shotDuration);
     currentSecond += shotDuration;
