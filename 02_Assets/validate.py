@@ -19,7 +19,7 @@ import json, os, re, sys
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ID_RE = re.compile(r"^[A-Z]{2,5}-[0-9]{3}$")
-VEHICLE_CLASSES = {"ground", "aircraft", "helicopter", "ship", "drone", "ugv"}
+VEHICLE_CLASSES = {"ground", "aircraft", "helicopter", "ship", "submarine", "drone", "ugv"}
 ASSET_ARRAYS = ["characters", "vehicles", "weapons", "props", "fx",
                 "environments", "cameras", "lighting", "colorGrades", "audio"]
 

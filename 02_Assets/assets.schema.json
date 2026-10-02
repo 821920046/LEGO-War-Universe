@@ -70,7 +70,7 @@
       "allOf": [{ "$ref": "#/definitions/asset" }],
       "required": ["id", "name", "class", "lines"],
       "properties": {
-        "class": { "type": "string", "enum": ["ground", "aircraft", "helicopter", "ship", "drone", "ugv"] },
+        "class": { "type": "string", "enum": ["ground", "aircraft", "helicopter", "ship", "submarine", "drone", "ugv"] },
         "faction": { "type": "string" },
         "variants": { "type": "array", "items": { "type": "string" } },
         "changelog": { "type": "array", "items": { "type": "string" } }

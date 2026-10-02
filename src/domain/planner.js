@@ -100,7 +100,9 @@ export function planFilm({ theme, requestedShots = 4, profileId }, r) {
   const env = pick(r, 'environment', intent, envTerm, envExclude) || pick(r, 'environment', intent);
 
   // 2. 从真实资产库挑选演员（正反双方），并给出逐镜轮换的摄影机/灯光短名单
-  const cast = selectCast(r, { era: intent.era || 'Modern', task: intent.task, theme });
+  // 必须把 theme 与 setting 都传进去：选角引擎据此判定「战场域」，
+  // 否则海军/空战/战略题材都会拿到同一组陆战装备（「装备太单一」的根因）。
+  const cast = selectCast(r, { era: intent.era || 'Modern', task: intent.task, theme, setting: intent.setting || '' });
 
   // 兜底：若某时代确实没有任何可用人仔，退回按关键词挑一个真实角色
   let heroes = cast.heroes;
@@ -133,11 +135,19 @@ export function planFilm({ theme, requestedShots = 4, profileId }, r) {
   // 3a. 第一遍：只确定逐镜「主体组合」。
   // 动作文本里要写角色代号，而代号由「最终上镜的资产集合」决定，
   // 因此必须先定主体、再用 buildRoster 求代号、最后才生成文本。
+  //
+  // 载具用**独立游标**而不是镜头序号 i 取模：vehicles[0] 是选角引擎按
+  // 「战场域 + 题材点名度」排出来的主载具（题材写 F-22 就是 F-22、写核潜艇就是核潜艇）。
+  // 旧实现 `vehicles[i % len]` 下，载具镜若落在 i=1，主载具就永远轮不到 —— 题材点名了
+  // F-22，片子里出现的却是 RQ-4 侦察机。游标只在真正用到载具时前进，保证主载具先上镜。
+  let vehicleCursor = 0;
   const drafts = beats.map((beat, i) => {
     const lead = heroes[i % Math.max(1, heroes.length)];
     const support = heroes[(i + 1) % Math.max(1, heroes.length)];
     const enemy = enemies[i % Math.max(1, enemies.length)];
-    const vehicle = vehicles[i % Math.max(1, vehicles.length)];
+    const vehicle = (beat.focus === 'vehicle' && vehicles.length)
+      ? vehicles[(vehicleCursor++) % vehicles.length]
+      : null;
 
     let subjects;
     switch (beat.focus) {
