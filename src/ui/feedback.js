@@ -13,28 +13,19 @@ function ensureToastLayer() {
   if (toastLayer && document.body.contains(toastLayer)) return toastLayer;
   toastLayer = createEl('div', {
     id: 'lwu-toast-layer',
-    style: {
-      position: 'fixed',
-      top: '20px',
-      left: '50%',
-      transform: 'translateX(-50%)',
-      zIndex: '9999',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '10px',
-      alignItems: 'center',
-      pointerEvents: 'none'
-    }
+    class: 'toast-layer',
+    role: 'region',
+    'aria-live': 'polite'
   });
   document.body.appendChild(toastLayer);
   return toastLayer;
 }
 
 const TOAST_STYLES = {
-  info: { border: '1px solid #38bdf8', bg: 'rgba(8, 47, 73, 0.96)', fg: '#bae6fd', icon: 'ℹ' },
-  success: { border: '1px solid #34d399', bg: 'rgba(6, 46, 36, 0.96)', fg: '#a7f3d0', icon: '✔' },
-  warn: { border: '1px solid #f59e0b', bg: 'rgba(69, 45, 6, 0.96)', fg: '#fde68a', icon: '⚠' },
-  error: { border: '1px solid #ef4444', bg: 'rgba(69, 10, 10, 0.96)', fg: '#fecaca', icon: '✕' }
+  info: { cls: 'toast--info', icon: 'ℹ' },
+  success: { cls: 'toast--ok', icon: '✔' },
+  warn: { cls: 'toast--warn', icon: '⚠' },
+  error: { cls: 'toast--error', icon: '✕' }
 };
 
 /**
@@ -46,41 +37,19 @@ const TOAST_STYLES = {
 export function toast(message, type = 'info', duration = 3200) {
   const s = TOAST_STYLES[type] || TOAST_STYLES.info;
   const node = createEl('div', {
-    role: 'status',
-    style: {
-      maxWidth: '560px',
-      padding: '12px 18px',
-      background: s.bg,
-      border: s.border,
-      borderRadius: '8px',
-      color: s.fg,
-      fontSize: '13px',
-      lineHeight: '1.5',
-      boxShadow: '0 10px 30px rgba(0,0,0,0.6)',
-      pointerEvents: 'auto',
-      display: 'flex',
-      gap: '10px',
-      alignItems: 'flex-start',
-      whiteSpace: 'pre-wrap',
-      opacity: '0',
-      transition: 'opacity 0.18s ease, transform 0.18s ease',
-      transform: 'translateY(-6px)'
-    }
+    class: `toast ${s.cls}`,
+    role: 'status'
   },
-    createEl('span', { style: { fontWeight: '800' } }, s.icon),
+    createEl('span', { class: 'toast__icon' }, s.icon),
     createEl('span', {}, String(message ?? ''))
   );
 
   ensureToastLayer().appendChild(node);
-  requestAnimationFrame(() => {
-    node.style.opacity = '1';
-    node.style.transform = 'translateY(0)';
-  });
+  requestAnimationFrame(() => node.classList.add('is-in'));
 
   if (duration > 0) {
     setTimeout(() => {
-      node.style.opacity = '0';
-      node.style.transform = 'translateY(-6px)';
+      node.classList.remove('is-in');
       setTimeout(() => node.remove(), 200);
     }, duration);
   }
@@ -91,18 +60,7 @@ let dialogLayer = null;
 
 function ensureDialogLayer() {
   if (dialogLayer && document.body.contains(dialogLayer)) return dialogLayer;
-  dialogLayer = createEl('div', {
-    style: {
-      position: 'fixed',
-      inset: '0',
-      background: 'rgba(2, 6, 16, 0.72)',
-      zIndex: '10000',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '20px'
-    }
-  });
+  dialogLayer = createEl('div', { class: 'modal-layer' });
   document.body.appendChild(dialogLayer);
   return dialogLayer;
 }
@@ -134,35 +92,12 @@ export function confirmDialog({ title = '请确认', message = '', confirmText =
     };
     document.addEventListener('keydown', onKey);
 
-    const card = createEl('div', {
-      style: {
-        width: '100%',
-        maxWidth: '440px',
-        background: '#0c1424',
-        border: '1px solid #1e293b',
-        borderRadius: '12px',
-        padding: '22px 24px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.7)'
-      }
-    },
-      createEl('h3', { style: { margin: '0 0 10px 0', fontSize: '16px', color: '#f1f5f9' } }, title),
-      createEl('p', { style: { margin: '0 0 20px 0', fontSize: '13px', lineHeight: '1.6', color: '#94a3b8', whiteSpace: 'pre-wrap' } }, message),
-      createEl('div', { style: { display: 'flex', gap: '10px', justifyContent: 'flex-end' } },
-        createEl('button', {
-          style: {
-            background: 'transparent', border: '1px solid #475569', color: '#cbd5e1',
-            padding: '8px 18px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px'
-          },
-          onClick: () => finish(false)
-        }, cancelText),
-        createEl('button', {
-          style: {
-            background: danger ? '#ef4444' : '#40b9a6', border: '0',
-            color: danger ? '#fff' : '#0a1628',
-            padding: '8px 18px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '700'
-          },
-          onClick: () => finish(true)
-        }, confirmText)
+    const card = createEl('div', { class: 'modal' },
+      createEl('h3', { class: 'modal__title' }, title),
+      createEl('p', { class: 'modal__text' }, message),
+      createEl('div', { class: 'modal__actions' },
+        createEl('button', { class: 'btn btn--ghost', onClick: () => finish(false) }, cancelText),
+        createEl('button', { class: `btn ${danger ? 'btn--danger' : 'btn--primary'}`, onClick: () => finish(true) }, confirmText)
       )
     );
 
@@ -183,13 +118,10 @@ export function promptDialog({ title = '请输入', label = '', defaultValue = '
 
     const input = createEl('input', {
       type: 'text',
+      class: 'input',
       value: defaultValue,
       placeholder,
-      style: {
-        width: '100%', boxSizing: 'border-box', padding: '10px 14px', fontSize: '13px',
-        background: '#030712', border: '1px solid #334155', borderRadius: '6px',
-        color: '#f1f5f9', marginBottom: '20px'
-      }
+      style: { marginBottom: '20px' }
     });
 
     const finish = (value) => {
@@ -207,25 +139,13 @@ export function promptDialog({ title = '请输入', label = '', defaultValue = '
     };
     document.addEventListener('keydown', onKey);
 
-    const card = createEl('div', {
-      style: {
-        width: '100%', maxWidth: '440px', background: '#0c1424',
-        border: '1px solid #1e293b', borderRadius: '12px', padding: '22px 24px',
-        boxShadow: '0 20px 60px rgba(0,0,0,0.7)'
-      }
-    },
-      createEl('h3', { style: { margin: '0 0 10px 0', fontSize: '16px', color: '#f1f5f9' } }, title),
-      createEl('label', { style: { display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '6px' } }, label),
+    const card = createEl('div', { class: 'modal' },
+      createEl('h3', { class: 'modal__title' }, title),
+      createEl('label', { class: 'field__label', style: { display: 'block', marginBottom: '6px' } }, label),
       input,
-      createEl('div', { style: { display: 'flex', gap: '10px', justifyContent: 'flex-end' } },
-        createEl('button', {
-          style: { background: 'transparent', border: '1px solid #475569', color: '#cbd5e1', padding: '8px 18px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
-          onClick: () => finish(null)
-        }, cancelText),
-        createEl('button', {
-          style: { background: '#40b9a6', border: '0', color: '#0a1628', padding: '8px 18px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '700' },
-          onClick: submit
-        }, confirmText)
+      createEl('div', { class: 'modal__actions' },
+        createEl('button', { class: 'btn btn--ghost', onClick: () => finish(null) }, cancelText),
+        createEl('button', { class: 'btn btn--primary', onClick: submit }, confirmText)
       )
     );
 

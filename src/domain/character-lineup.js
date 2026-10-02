@@ -158,7 +158,7 @@ export function extractCharacterLineup(shots = [], registry = null, era = 'Moder
  * @param {string} aspectRatio 画幅比例
  * @returns {object} 包含 promptEn, promptZh, characterCount, factions, aspectRatio
  */
-export function generateLineupPrompt(factions = { coalition: [], opposing: [] }, filmTheme = '', era = 'Modern', aspectRatio = '16:9') {
+export function generateLineupPrompt(factions = { coalition: [], opposing: [] }, filmTheme = '', era = 'Modern', aspectRatio = '9:16') {
   let normalizedFactions = { coalition: [], opposing: [] };
 
   // 兼容模式 1：如果传入的是纯平铺数组

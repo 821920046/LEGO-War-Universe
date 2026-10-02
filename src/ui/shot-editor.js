@@ -51,7 +51,7 @@ function el(tag, attrs = {}, ...children) {
  */
 function labeledSelect(label, options, currentValue, onChange) {
   const select = el('select', {
-    style: { width: '100%', padding: '8px', background: '#0d1b2a', color: '#e7edf7', border: '1px solid #324256', borderRadius: '4px', fontSize: '13px' },
+    class: 'select',
     onChange: (e) => onChange(e.target.value)
   });
   for (const opt of options) {
@@ -61,8 +61,8 @@ function labeledSelect(label, options, currentValue, onChange) {
     if (opt.value === currentValue) o.selected = true;
     select.appendChild(o);
   }
-  return el('div', { style: { marginBottom: '12px' } },
-    el('label', { style: { color: '#90a4ae', fontSize: '12px', marginBottom: '4px', display: 'block' } }, label),
+  return el('div', { class: 'field' },
+    el('label', { class: 'field__label' }, label),
     select
   );
 }
@@ -84,13 +84,13 @@ export function renderShotEditor(container, shot, shotIndex, registry, intent = 
     container.style.display = 'none';
     return;
   }
-  container.style.display = 'block';
+  container.style.display = 'flex';
 
   const shotLabel = `S${String(shotIndex + 1).padStart(3, '0')}`;
   const working = { ...shot };
 
   // 验证区域
-  const violationsBox = el('div', { id: 'editor-violations', style: { marginBottom: '12px' } });
+  const violationsBox = el('div', { id: 'editor-violations', style: { marginBottom: '16px' } });
 
   function runValidation() {
     const result = validateShotSpec(working, registry, intent);
@@ -98,13 +98,16 @@ export function renderShotEditor(container, shot, shotIndex, registry, intent = 
     if (!result.ok) {
       for (const v of result.violations) {
         violationsBox.appendChild(
-          el('div', { style: { color: '#ff5252', fontSize: '12px', padding: '4px 8px', background: 'rgba(255,82,82,0.1)', borderRadius: '4px', marginBottom: '4px' } },
-            `⚠ ${v.code}${v.message ? ': ' + v.message : ''}${v.field ? ` [${v.field}]` : ''}`)
+          el('div', { class: 'alert alert--danger' },
+            el('span', { class: 'alert__icon' }, '⚠'),
+            el('span', {}, `${v.code}${v.message ? ': ' + v.message : ''}${v.field ? ` [${v.field}]` : ''}`))
         );
       }
     } else {
       violationsBox.appendChild(
-        el('div', { style: { color: '#84edbd', fontSize: '12px', padding: '4px 8px' } }, '✓ 镜头规范校验通过')
+        el('div', { class: 'alert alert--ok' },
+          el('span', { class: 'alert__icon' }, '✓'),
+          el('span', {}, '镜头规范校验通过'))
       );
     }
   }
@@ -116,19 +119,20 @@ export function renderShotEditor(container, shot, shotIndex, registry, intent = 
   };
 
   // 头部
-  const header = el('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' } },
-    el('h3', { style: { color: '#e7edf7', margin: '0', fontSize: '16px' } }, `编辑 ${shotLabel} · ${working.phase || 'build'}`),
+  const header = el('div', { class: 'drawer__head' },
+    el('h3', { class: 'drawer__title' }, `编辑 ${shotLabel} · ${working.phase || 'build'}`),
     el('button', {
-      style: { background: 'transparent', border: '1px solid #546e7a', color: '#90a4ae', padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' },
+      class: 'btn btn--ghost btn--sm',
       onClick: () => onClose?.()
     }, '关闭')
   );
 
   // 动作描述编辑
-  const actionArea = el('div', { style: { marginBottom: '12px' } },
-    el('label', { style: { color: '#90a4ae', fontSize: '12px', marginBottom: '4px', display: 'block' } }, '动作描述'),
+  const actionArea = el('div', { class: 'field' },
+    el('label', { class: 'field__label' }, '动作描述'),
     el('textarea', {
-      style: { width: '100%', boxSizing: 'border-box', padding: '8px', background: '#0d1b2a', color: '#e7edf7', border: '1px solid #324256', borderRadius: '4px', fontSize: '13px', minHeight: '60px', resize: 'vertical' },
+      class: 'textarea',
+      rows: '3',
       onInput: (e) => { working.action = e.target.value; runValidation(); }
     }, working.action || '')
   );
@@ -137,12 +141,12 @@ export function renderShotEditor(container, shot, shotIndex, registry, intent = 
   // 此前只渲染第一个主体，且提交时把 subjects 整个替换成 [val]，
   // 编辑任何多主体镜头（如「坦克 + 步兵」）都会静默丢掉其余主体。
   const subjectOptions = [{ value: '', label: '-- 移除该主体 --' }, ...assetOptions('character'), ...assetOptions('vehicle')];
-  const subjectsBox = el('div', { style: { marginBottom: '12px' } });
+  const subjectsBox = el('div', { style: { marginBottom: '4px' } });
 
   function renderSubjects() {
     subjectsBox.replaceChildren();
     subjectsBox.appendChild(
-      el('label', { style: { color: '#90a4ae', fontSize: '12px', marginBottom: '4px', display: 'block' } },
+      el('label', { class: 'field__label', style: { display: 'block', marginBottom: '8px' } },
         `主体 (Subject) · ${(working.subjects || []).length}/${MAX_SUBJECTS}`)
     );
 
@@ -164,10 +168,8 @@ export function renderShotEditor(container, shot, shotIndex, registry, intent = 
 
     if ((working.subjects || []).length < MAX_SUBJECTS) {
       subjectsBox.appendChild(el('button', {
-        style: {
-          background: 'transparent', border: '1px dashed #38bdf8', color: '#38bdf8',
-          borderRadius: '4px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', width: '100%'
-        },
+        class: 'btn btn--subtle btn--block',
+        style: { borderStyle: 'dashed' },
         onClick: () => {
           working.subjects = [...(working.subjects || []), ''];
           renderSubjects();
@@ -193,15 +195,15 @@ export function renderShotEditor(container, shot, shotIndex, registry, intent = 
 
   // 应用按钮
   const applyBtn = el('button', {
-    style: { background: '#40b9a6', border: '0', color: '#0a1628', padding: '10px 20px', borderRadius: '6px', fontWeight: '700', cursor: 'pointer', width: '100%', fontSize: '14px', marginTop: '8px' },
+    class: 'btn btn--primary btn--block',
+    style: { marginTop: '14px' },
     onClick: () => onUpdate?.(working)
   }, '应用修改');
 
-  const panel = el('div', {
-    style: { background: '#101722', border: '1px solid #1e3a5f', borderRadius: '8px', padding: '20px', maxHeight: '80vh', overflowY: 'auto' }
-  }, header, violationsBox, actionArea, subjectsBox, envSelect, camSelect, lightSelect, colorSelect, damageSelect, dirSelect, applyBtn);
+  const body = el('div', { class: 'drawer__body' },
+    violationsBox, actionArea, subjectsBox, envSelect, camSelect, lightSelect, colorSelect, damageSelect, dirSelect, applyBtn);
 
-  container.appendChild(panel);
+  container.replaceChildren(header, body);
   renderSubjects();
   runValidation();
 }

@@ -81,29 +81,24 @@ export function openAddAssetDialog(onRegistered) {
     if (dialogLayer) { dialogLayer.remove(); dialogLayer = null; }
   };
 
-  const field = (label, input) => createEl('div', { style: { marginBottom: '12px' } },
-    createEl('label', { style: { display: 'block', fontSize: '12px', color: '#94a3b8', marginBottom: '4px' } }, label),
+  const field = (label, input) => createEl('div', { class: 'field' },
+    createEl('label', { class: 'field__label' }, label),
     input
   );
 
-  const inputStyle = {
-    width: '100%', boxSizing: 'border-box', padding: '9px 12px', fontSize: '13px',
-    background: '#030712', border: '1px solid #334155', borderRadius: '6px', color: '#f1f5f9'
-  };
-
-  const idInput = createEl('input', { type: 'text', placeholder: 'VEH-901', style: inputStyle });
-  const zhInput = createEl('input', { type: 'text', placeholder: '特战全地形车', style: inputStyle });
-  const enInput = createEl('input', { type: 'text', placeholder: 'Special Forces ATV', style: inputStyle });
-  const seriesInput = createEl('select', { style: inputStyle },
+  const idInput = createEl('input', { type: 'text', class: 'input', placeholder: 'VEH-901' });
+  const zhInput = createEl('input', { type: 'text', class: 'input', placeholder: '特战全地形车' });
+  const enInput = createEl('input', { type: 'text', class: 'input', placeholder: 'Special Forces ATV' });
+  const seriesInput = createEl('select', { class: 'select' },
     ...['shared', 'Modern', 'Modern High-Tech', 'WWII', 'Pacific', 'Cold War', 'Gulf War', 'Iraq War', 'Orbital']
       .map(s => { const o = document.createElement('option'); o.value = s; o.textContent = s; return o; })
   );
   const descInput = createEl('textarea', {
+    class: 'textarea',
     rows: '3',
-    placeholder: 'LEGO model of ..., authentic LEGO plastic texture with visible studs and seams.',
-    style: { ...inputStyle, resize: 'vertical' }
+    placeholder: 'LEGO model of ..., authentic LEGO plastic texture with visible studs and seams.'
   });
-  const errorBox = createEl('div', { style: { color: '#ff9292', fontSize: '12px', minHeight: '18px', marginBottom: '8px' } });
+  const errorBox = createEl('div', { style: { color: 'var(--danger)', fontSize: '12px', minHeight: '18px', marginBottom: '8px' } });
 
   const submit = () => {
     const id = idInput.value.trim().toUpperCase();
@@ -144,37 +139,29 @@ export function openAddAssetDialog(onRegistered) {
   };
 
   const card = createEl('div', {
-    style: {
-      width: '100%', maxWidth: '480px', background: '#0c1424', border: '1px solid #1e293b',
-      borderRadius: '12px', padding: '22px 24px', boxShadow: '0 20px 60px rgba(0,0,0,0.7)',
-      maxHeight: '90vh', overflowY: 'auto'
-    }
+    class: 'modal',
+    style: { maxWidth: '480px', maxHeight: '90vh', overflowY: 'auto' }
   },
-    createEl('h3', { style: { margin: '0 0 14px 0', fontSize: '16px', color: '#f1f5f9' } }, '录入自定义乐高资产'),
+    createEl('h3', { class: 'modal__title', style: { marginBottom: '16px' } }, '录入自定义乐高资产'),
     field('资产 ID（PREFIX-NNN，前缀决定类别：CHR/VEH/AIR/ENV/CAM/LGT/CLR…）', idInput),
     field('中文名称', zhInput),
     field('英文名称（留空则复用中文名）', enInput),
     field('所属时代系列', seriesInput),
     field('外观描述（写入 Prompt 的英文描述行）', descInput),
     errorBox,
-    createEl('div', { style: { display: 'flex', gap: '10px', justifyContent: 'flex-end' } },
+    createEl('div', { class: 'modal__actions' },
       createEl('button', {
-        style: { background: 'transparent', border: '1px solid #475569', color: '#cbd5e1', padding: '8px 18px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px' },
+        class: 'btn btn--ghost',
         onClick: close
       }, '取消'),
       createEl('button', {
-        style: { background: '#40b9a6', border: '0', color: '#0a1628', padding: '8px 18px', borderRadius: '6px', cursor: 'pointer', fontSize: '13px', fontWeight: '700' },
+        class: 'btn btn--primary',
         onClick: submit
       }, '录入并生效')
     )
   );
 
-  dialogLayer = createEl('div', {
-    style: {
-      position: 'fixed', inset: '0', background: 'rgba(2, 6, 16, 0.72)', zIndex: '10000',
-      display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
-    }
-  });
+  dialogLayer = createEl('div', { class: 'modal-layer' });
   dialogLayer.appendChild(card);
   dialogLayer.onclick = (e) => { if (e.target === dialogLayer) close(); };
   document.body.appendChild(dialogLayer);

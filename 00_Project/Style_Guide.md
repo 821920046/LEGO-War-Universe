@@ -11,7 +11,6 @@ authentic LEGO minifigure and brick construction,
 cinematic lighting, movie quality, shot on virtual 35mm anamorphic,
 shallow depth of field, natural motion blur,
 8K detail, 24fps cinematic motion,
-16:9 aspect ratio,
 Google Flow optimized, Veo optimized
 ```
 
@@ -20,7 +19,7 @@ Google Flow optimized, Veo optimized
 1. **真实乐高质感**：强调 `photorealistic LEGO plastic`、`real brick textures`、`mold seams`（注塑缝），避免变成写实真人或黏土动画。
 2. **电影感优先**：虚拟 35mm 变形宽银幕、浅景深、自然运动模糊，让 8 秒片段有「电影镜头」而非「玩具视频」的观感。
 3. **停格动画气质**：`stop motion` 让画面带轻微机械质感，符合乐高定格片传统。
-4. **统一比例与帧率**：16:9、24fps，全片一致。
+4. **统一比例与帧率**：默认 9:16 竖屏（抖音 / 小红书），可选 16:9 横屏；24fps，全片一致。画幅由编译器按镜头实际 `aspectRatio` 输出，风格块内不再写死比例。
 
 ## 风格一致性红线（写进 Negative）
 
