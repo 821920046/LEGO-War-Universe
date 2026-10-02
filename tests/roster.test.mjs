@@ -7,7 +7,8 @@ import { isEraCompatible } from '../src/domain/shot-spec.js';
 import {
   FRIENDLY_FACTIONS, ENEMY_FACTIONS, sideOf, fnv1a, archetypeOf,
   assignCallsign, buildRoster, rosterToJSON, rosterFromJSON,
-  labelFor, aliasLabel, callsignOf, selectCast, rosterPromptLines
+  labelFor, aliasLabel, callsignOf, selectCast, rosterPromptLines,
+  domainOfText, themeMatch, taskAffinity
 } from '../src/domain/roster.js';
 
 const registry = createRegistry(assets, profiles, { references: [] });
@@ -146,4 +147,101 @@ test('roster: prompt lines list both sides in English for the LLM', () => {
   assert.ok(lines.some(l => l.startsWith('COALITION CAST:')));
   assert.ok(lines.some(l => l.startsWith('OPPOSING CAST:')));
   for (const l of lines) assert.match(l, /\[[A-Z0-9-]+\] .+ \([A-Z]+-\d+\) — .+/);
+});
+
+/* ───────────────────── 现代战争资产扩充（6.5.0）回归 ───────────────────── */
+
+test('roster: taskAffinity 的 combat 不再把「空中加油机」当成「坦克」', () => {
+  // 早期裸 `tank` 命中 "KC-46 Tanker"，于是空中加油机成了所有战斗题材排名第一的载具。
+  const tanker = { unit: 'Tanker Crew', name: 'KC-46 Pegasus Aerial Refueling Tanker', nameZh: 'KC-46 空中加油机' };
+  assert.equal(taskAffinity(tanker, 'combat'), false, 'KC-46 Tanker 不该命中 combat');
+  assert.equal(taskAffinity({ nameZh: 'M1A2 艾布拉姆斯主战坦克' }, 'combat'), true, '真坦克必须命中');
+  assert.equal(taskAffinity({ name: 'Armour Crew' }, 'combat'), true);
+});
+
+test('roster: domainOfText 把题材路由到正确的战场域', () => {
+  assert.equal(domainOfText('核潜艇在深海猎杀敌方舰队')?.key, 'naval');
+  assert.equal(domainOfText('驱逐舰编队防空反导作战')?.key, 'naval');
+  assert.equal(domainOfText('F-22 战斗机高空制空巡逻')?.key, 'air');
+  assert.equal(domainOfText('洲际弹道导弹发射井战备值班')?.key, 'strategic');
+  assert.equal(domainOfText('现代城市巷战清剿')?.key, 'ground');
+  assert.equal(domainOfText(''), null);
+  assert.equal(domainOfText('完全无关的一段文字'), null);
+});
+
+test('roster: themeMatch 让题材点名的型号压过泛类别', () => {
+  const f22 = registry.byId.get('AIR-402');
+  const f35 = registry.byId.get('AIR-401');
+  const theme = 'F-22 战斗机高空制空巡逻';
+  // 两者同属「战斗机」，只靠泛类别命中会并列 —— 型号点名必须把 F-22 顶上去
+  assert.ok(themeMatch(f22, theme) > themeMatch(f35, theme), 'F-22 必须高于 F-35A');
+
+  // 边界保护：题材写 B-2，不能命中 B-21
+  const b2 = registry.byId.get('AIR-901');
+  const b21 = registry.byId.get('AIR-903');
+  const bTheme = 'B-2 隐形轰炸机深入敌后战略打击';
+  assert.ok(themeMatch(b2, bTheme) > themeMatch(b21, bTheme), 'B-2 必须高于 B-21');
+
+  // 无型号的题材仍能靠通用最长公共子串点名
+  assert.ok(themeMatch(registry.byId.get('SHP-904'), '驱逐舰编队防空反导作战') > 0);
+  assert.equal(themeMatch(registry.byId.get('SHP-904'), ''), 0);
+});
+
+test('roster: selectCast 按战场域选出正确的领头载具', () => {
+  const lead = (theme) => {
+    const cast = selectCast(registry, { era: 'Modern', task: 'combat', theme });
+    assert.ok(cast.vehicles.length > 0, `${theme} 必须至少选出一件载具`);
+    return cast.vehicles[0];
+  };
+  assert.ok(['ship', 'submarine'].includes(lead('核潜艇在深海猎杀敌方舰队').class));
+  assert.ok(['ship', 'submarine'].includes(lead('驱逐舰编队防空反导作战').class));
+  assert.ok(['aircraft', 'helicopter', 'drone'].includes(lead('B-2 隐形轰炸机深入敌后战略打击').class));
+  assert.equal(lead('现代城市巷战清剿').class, 'ground');
+});
+
+test('roster: 用户点名的现代装备都能被对应题材选中', () => {
+  const cases = [
+    ['F-22 战斗机高空制空巡逻', /F-22/i],
+    ['B-2 隐形轰炸机深入敌后战略打击', /B-2/i],
+    ['洲际弹道导弹发射井战备值班', /洲际|ICBM/i],
+    ['航母战斗群在远海风暴中放飞舰载机', /航母|母舰/],
+    ['驱逐舰编队防空反导作战', /驱逐舰/],
+    ['核潜艇在深海猎杀敌方舰队', /潜艇/]
+  ];
+  for (const [theme, want] of cases) {
+    const cast = selectCast(registry, { era: 'Modern', task: 'combat', theme });
+    const pool = [...cast.heroes, ...cast.vehicles, ...cast.enemies];
+    assert.ok(
+      pool.some(a => want.test(`${a.name} ${a.nameZh}`)),
+      `题材「${theme}」必须能选出 ${want}`
+    );
+  }
+});
+
+test('roster: 潜艇是合法载具类别且不再是死代码', () => {
+  const subs = [...registry.byKind.get('vehicle')].filter(a => a.class === 'submarine');
+  assert.ok(subs.length >= 3, `资产库应有潜艇资产，实际 ${subs.length}`);
+  // 战略/海军题材必须真的把潜艇选上镜
+  const cast = selectCast(registry, { era: 'Modern', task: 'combat', theme: '核潜艇在深海猎杀敌方舰队' });
+  assert.ok(cast.vehicles.some(a => a.class === 'submarine'), '核潜艇题材必须选出潜艇');
+});
+
+test('roster: 现代战争扩充包把资产库扩到 576+ 且 ID 全局唯一', () => {
+  const groups = ['characters', 'vehicles', 'weapons', 'props', 'fx', 'environments', 'cameras', 'lighting', 'colorGrades', 'audio'];
+  const total = groups.reduce((n, g) => n + (assets[g]?.length || 0), 0);
+  assert.ok(total >= 576, `资产总数应 >= 576，实际 ${total}`);
+
+  const ids = [];
+  for (const g of groups) for (const a of assets[g] || []) ids.push(a.id);
+  assert.equal(new Set(ids).size, ids.length, '资产 ID 必须全局唯一');
+  for (const id of ids) assert.match(id, /^[A-Z]{2,5}-\d{3}$/);
+
+  // CHR-999 必须保持空缺：有测试断言它是未知资产
+  assert.equal(ids.includes('CHR-999'), false);
+
+  // 用户点名的装备必须在库
+  const names = [...(assets.vehicles || []), ...(assets.weapons || [])].map(a => `${a.name} ${a.nameZh}`).join(' | ');
+  for (const want of [/F-22/i, /B-2/i, /洲际/, /航母|母舰/, /驱逐舰/, /潜艇/]) {
+    assert.ok(want.test(names), `资产库必须包含 ${want}`);
+  }
 });

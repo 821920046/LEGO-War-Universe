@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "3.4",
+  "schemaVersion": "3.5",
   "project": {
     "name": "LEGO War Universe",
     "code": "LWU",
@@ -1737,6 +1737,222 @@
         "battle-worn",
         "damaged"
       ]
+    },
+    {
+      "id": "CHR-901",
+      "name": "Modern Carrier Deck Director",
+      "nameZh": "现代航母甲板调度员",
+      "series": "Modern",
+      "faction": "NATO",
+      "unit": "Navy",
+      "kw": "航母 甲板 调度 海军 carrier deck director navy",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure modern carrier flight deck director",
+        "yellow flight deck jersey and cranial helmet with ear protection and goggles",
+        "float coat over the jersey, handheld signalling wands, deck trousers and steel-toe boots",
+        "dark skin, determined expression, authentic LEGO plastic texture, consistent proportions"
+      ]
+    },
+    {
+      "id": "CHR-902",
+      "name": "Modern Carrier Pilot",
+      "nameZh": "现代舰载机飞行员",
+      "series": "Modern",
+      "faction": "NATO",
+      "unit": "Naval Aviation",
+      "kw": "舰载机 飞行员 海军 naval pilot carrier",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure modern carrier-based fighter pilot",
+        "grey flight helmet with an oxygen mask hanging loose and a visor raised",
+        "olive flight suit with squadron patches, G-suit, survival vest and leg restraints",
+        "light skin, calm focused expression, authentic LEGO plastic texture, consistent proportions"
+      ]
+    },
+    {
+      "id": "CHR-903",
+      "name": "Strategic Bomber Aircrew",
+      "nameZh": "战略轰炸机机组",
+      "series": "Modern",
+      "faction": "NATO",
+      "unit": "Strategic Aviation",
+      "kw": "轰炸机 机组 飞行员 bomber aircrew strategic",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure strategic bomber aircrew member",
+        "flight helmet with boom microphone and dark visor, olive flight suit",
+        "parachute harness over a survival vest, kneeboard with mission cards",
+        "focused expression, authentic LEGO plastic texture, consistent proportions"
+      ]
+    },
+    {
+      "id": "CHR-904",
+      "name": "SSBN Commanding Officer",
+      "nameZh": "弹道导弹核潜艇艇长",
+      "series": "Modern",
+      "faction": "NATO",
+      "unit": "Navy Command",
+      "kw": "潜艇 艇长 指挥 海军 submarine commander navy",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure ballistic-missile submarine commanding officer",
+        "navy blue coveralls with gold rank shoulder boards and a submarine warfare pin",
+        "folding cap tucked in the belt, clipboard with a launch authorisation card",
+        "grey hair, stern expression, authentic LEGO plastic texture, consistent proportions"
+      ]
+    },
+    {
+      "id": "CHR-905",
+      "name": "Submarine Sonar Operator",
+      "nameZh": "潜艇声纳操作员",
+      "series": "Modern",
+      "faction": "NATO",
+      "unit": "Navy",
+      "kw": "声纳 潜艇 操作员 sonar operator submarine",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure submarine sonar operator",
+        "navy blue coveralls and a lightweight headset with a boom mic",
+        "waterfall sonar display tablet tucked under one arm, cable coil on the belt",
+        "focused listening expression, authentic LEGO plastic texture, consistent proportions"
+      ]
+    },
+    {
+      "id": "CHR-906",
+      "name": "Missile Launch Control Officer",
+      "nameZh": "导弹发射控制军官",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "unit": "Strategic Rocket Forces",
+      "kw": "导弹 发射 控制 军官 missile launch officer strategic",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure strategic missile launch control officer",
+        "olive-grey uniform with a peaked cap and a red armband, rigid bearing",
+        "key on a lanyard around the neck, launch code folder in hand",
+        "severe expression, authentic LEGO plastic texture, consistent proportions"
+      ]
+    },
+    {
+      "id": "CHR-907",
+      "name": "Destroyer Combat Information Officer",
+      "nameZh": "驱逐舰战情中心军官",
+      "series": "Modern",
+      "faction": "NATO",
+      "unit": "Navy",
+      "kw": "驱逐舰 战情 军官 cic navy officer",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure destroyer combat information center officer",
+        "navy working uniform with a headset and a tactical vest over it",
+        "touchscreen stylus on a lanyard, plot board under one arm",
+        "alert expression lit by console glow, authentic LEGO plastic texture, consistent proportions"
+      ]
+    },
+    {
+      "id": "CHR-908",
+      "name": "Anti-Submarine Warfare Operator",
+      "nameZh": "反潜战操作员",
+      "series": "Modern",
+      "faction": "NATO",
+      "unit": "Naval Aviation",
+      "kw": "反潜 操作员 声纳 asw operator naval",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure anti-submarine warfare operator",
+        "flight deck jersey over a dry suit with a sensor operator harness",
+        "sonobuoy launcher tube slung across the back, headset with a coiled cable",
+        "focused expression, authentic LEGO plastic texture, consistent proportions"
+      ]
     }
   ],
   "vehicles": [
@@ -3008,7 +3224,7 @@
     },
     {
       "id": "SHP-402",
-      "class": "ship",
+      "class": "submarine",
       "series": "Modern",
       "faction": "Coalition",
       "variants": [
@@ -3735,7 +3951,7 @@
     },
     {
       "id": "SHP-603",
-      "class": "ship",
+      "class": "submarine",
       "name": "Attack Submarine (Surfaced)",
       "nameZh": "攻击核潜艇（上浮）",
       "kw": "潜艇 核潜艇 上浮 潜望镜 深海 submarine surfaced attack",
@@ -4231,13 +4447,1741 @@
         "a pump-jet propulsor at the stern and a sensor array along the flanks",
         "a tethered docking cradle and translucent bubble-trail bricks behind it"
       ],
-      "class": "ship",
+      "class": "submarine",
       "faction": "NATO",
       "variants": [
         "clean",
         "weathered",
         "damaged",
         "destroyed"
+      ]
+    },
+    {
+      "id": "AIR-901",
+      "name": "B-2 Spirit Stealth Bomber",
+      "nameZh": "B-2 幽灵隐形战略轰炸机",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "b2 隐形 轰炸机 战略 飞翼 stealth bomber flying wing",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO B-2 Spirit flying-wing stealth bomber",
+        "no vertical tail, sawtooth trailing edge, matte charcoal radar-absorbent brick plating",
+        "flush weapons bay doors open showing a rotary launcher, low-visibility grey markings",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-902",
+      "name": "B-1B Lancer Supersonic Bomber",
+      "nameZh": "B-1B 枪骑兵超音速战略轰炸机",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "b1b 轰炸机 超音速 战略 变后掠 bomber lancer",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO B-1B Lancer supersonic strategic bomber",
+        "variable-sweep wings swept back, long slender fuselage, four afterburning engines",
+        "rotary weapons bay, cockpit windows in a row, pale gunship-grey bricks",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-903",
+      "name": "B-21 Raider Stealth Bomber",
+      "nameZh": "B-21 突袭者隐身轰炸机",
+      "class": "aircraft",
+      "series": "Modern High-Tech",
+      "faction": "NATO",
+      "kw": "b21 隐形 轰炸机 突袭者 stealth bomber flying wing",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO B-21 Raider next-generation flying-wing stealth bomber",
+        "cleaner blended planform, pale grey stealth coating, flush inlets",
+        "buried engines, minimalist panel lines, sensor apertures along the leading edge",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-904",
+      "name": "F-15EX Eagle II",
+      "nameZh": "F-15EX 鹰II 战斗机",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "f15 鹰 战斗机 制空 eagle fighter",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO F-15EX Eagle II air-superiority fighter",
+        "twin canted tails, conformal fuel tanks along the fuselage, heavy missile load",
+        "new AESA radome, dark grey low-visibility markings, open canopy",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-905",
+      "name": "F-16V Viper",
+      "nameZh": "F-16V 战隼（升级型）",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "f16 战隼 战斗机 viper fighter",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO F-16V Viper multirole fighter",
+        "single vertical tail, bubble canopy, ventral intake under a chined nose",
+        "AESA radome, wingtip missile rails, two-tone grey camouflage bricks",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-906",
+      "name": "F-35C Lightning II Carrier Variant",
+      "nameZh": "F-35C 舰载型闪电II",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "f35 舰载 闪电 隐形 carrier stealth fighter",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO F-35C carrier-based stealth fighter",
+        "larger folding wing, twin-wheel nose gear, tailhook under the aft fuselage",
+        "single-engine stealth airframe with canted twin tails, folded wings for hangar stowage",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-907",
+      "name": "EA-18G Growler Electronic Attack",
+      "nameZh": "EA-18G 咆哮者电子攻击机",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "电子战 干扰 咆哮者 growler electronic attack jammer",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO EA-18G Growler electronic-attack aircraft",
+        "underwing jamming pods, wingtip ALQ pods, no gun muzzle on the nose",
+        "two-seat canopy, carrier tailhook, low-visibility squadron markings",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-908",
+      "name": "E-3 Sentry AWACS",
+      "nameZh": "E-3 哨兵预警机",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "预警机 哨兵 雷达 awacs sentry radar",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO E-3 Sentry airborne early warning aircraft",
+        "rotating rotodome on twin struts above the fuselage, four turbofan engines",
+        "airliner-style airframe with a full antenna farm along the belly",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-909",
+      "name": "E-2D Advanced Hawkeye",
+      "nameZh": "E-2D 先进鹰眼舰载预警机",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "预警机 鹰眼 舰载 hawkeye aew",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO E-2D Advanced Hawkeye carrier-based early warning aircraft",
+        "eight-blade turboprop engines, saucer radome held above the fuselage on struts",
+        "carrier tailhook, folding wings, grey low-visibility markings",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-910",
+      "name": "P-8A Poseidon Maritime Patrol",
+      "nameZh": "P-8A 波塞冬反潜巡逻机",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "反潜 巡逻机 波塞冬 maritime patrol asw",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO P-8A Poseidon maritime patrol and anti-submarine aircraft",
+        "airliner airframe with a weapons bay, sonobuoy rotary launcher bays along the belly",
+        "magnetic anomaly detector boom at the tail, wingtip missile rails, torpedo bay open",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-911",
+      "name": "C-17 Globemaster III",
+      "nameZh": "C-17 环球霸王III 战略运输机",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "运输机 战略空运 globemaster airlift",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO C-17 Globemaster III strategic transport aircraft",
+        "high T-tail, four turbofan engines under a broad wing, rear loading ramp down",
+        "heavy landing gear, cargo pallets visible on the ramp, grey military livery",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-912",
+      "name": "KC-135 Stratotanker",
+      "nameZh": "KC-135 同温层加油机",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "加油机 空中加油 tanker refuelling boom",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO KC-135 Stratotanker aerial refuelling aircraft",
+        "flying boom extended from the rear, airliner airframe with four engines",
+        "refuelling drogue hoses under the wings, grey low-visibility markings",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-913",
+      "name": "RC-135 Rivet Joint ISR",
+      "nameZh": "RC-135 铆钉电子侦察机",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "侦察机 电子侦察 isr rivet joint signals",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO RC-135 Rivet Joint signals-intelligence aircraft",
+        "cheek fairings and a dense antenna farm along the fuselage and belly",
+        "airliner airframe, four engines, small sensor blisters under the wings",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-914",
+      "name": "RQ-4 Global Hawk HALE Drone",
+      "nameZh": "RQ-4 全球鹰高空长航时侦察无人机",
+      "class": "drone",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "无人机 侦察 高空 全球鹰 drone hale isr",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO RQ-4 Global Hawk high-altitude long-endurance reconnaissance drone",
+        "bulbous satellite-communications nose, very high aspect-ratio wing, single intake above the tail",
+        "no cockpit, sensor turret under the chin, pale grey finish",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-915",
+      "name": "MQ-25 Stingray Carrier Tanker Drone",
+      "nameZh": "MQ-25 黄貂鱼舰载加油无人机",
+      "class": "drone",
+      "series": "Modern High-Tech",
+      "faction": "NATO",
+      "kw": "无人机 舰载 加油 drone carrier tanker stingray",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO MQ-25 Stingray carrier-based unmanned tanker",
+        "folding wings, refuelling pod under the wing, no cockpit canopy",
+        "low-observable blended fuselage, carrier tailhook, grey deck markings",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-916",
+      "name": "Su-35S Supermaneuverable Fighter",
+      "nameZh": "苏-35S 超机动战斗机",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "kw": "苏35 战斗机 制空 su35 fighter",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Su-35S supermaneuverable multirole fighter",
+        "canards ahead of the wings, three-dimensional thrust-vectoring nozzles",
+        "twin engines, tall vertical tails, blue-grey splinter camouflage bricks",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-917",
+      "name": "MiG-31 Foxhound Interceptor",
+      "nameZh": "米格-31 猎狐犬截击机",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "kw": "米格31 截击机 高空 foxhound interceptor",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO MiG-31 Foxhound high-altitude interceptor",
+        "long boxy fuselage, twin rectangular intakes, large radome, twin tails",
+        "heavy missile rails under the wings, grey-green camouflage bricks",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-918",
+      "name": "Tu-160 Blackjack Strategic Bomber",
+      "nameZh": "图-160 白天鹅战略轰炸机",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "kw": "图160 轰炸机 战略 变后掠 blackjack bomber",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Tu-160 Blackjack strategic bomber",
+        "variable-geometry wings, four engines in paired nacelles, white anti-flash paint",
+        "cross-shaped tail, long weapons bay, red star markings",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-919",
+      "name": "Tu-95MS Bear Strategic Bomber",
+      "nameZh": "图-95MS 熊式战略轰炸机",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "kw": "图95 轰炸机 战略 螺旋桨 bear bomber",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Tu-95MS Bear strategic bomber",
+        "four turboprop engines with contra-rotating propellers, swept wings",
+        "large radome under the nose, long cylindrical fuselage, bare-metal bricks",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-920",
+      "name": "A-10C Thunderbolt II (Modernized)",
+      "nameZh": "A-10C 雷电II 攻击机（现代化）",
+      "class": "aircraft",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "攻击机 近距空中支援 疣猪 thunderbolt cas",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO A-10C Thunderbolt II close-air-support aircraft",
+        "huge GAU-8 cannon barrel protruding from the nose, twin tail booms",
+        "high-mounted engines, heavy external stores, pale grey-green finish",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-921",
+      "name": "AH-1Z Viper Attack Helicopter",
+      "nameZh": "AH-1Z 蝰蛇武装直升机",
+      "class": "helicopter",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "武装直升机 蝰蛇 viper attack helicopter",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO AH-1Z Viper attack helicopter",
+        "narrow fuselage, tandem stepped cockpit, four-blade rotor, skid landing gear",
+        "stub wings with rocket pods and anti-tank missiles, sensor turret on the nose",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-922",
+      "name": "MH-60R Seahawk ASW Helicopter",
+      "nameZh": "MH-60R 海鹰反潜直升机",
+      "class": "helicopter",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "反潜 直升机 海鹰 asw seahawk",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO MH-60R Seahawk anti-submarine warfare helicopter",
+        "dipping sonar on a cable below the cabin, torpedo pylons on the stub wings",
+        "folding tail for hangar stowage, radome under the nose, naval grey finish",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-923",
+      "name": "CH-53K King Stallion Heavy Lift",
+      "nameZh": "CH-53K 种马王重型运输直升机",
+      "class": "helicopter",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "重型直升机 运输 种马王 heavy lift helicopter",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO CH-53K King Stallion heavy-lift helicopter",
+        "three turboshaft engines, seven-blade rotor, wide sponsons",
+        "rear ramp open with a slung load beneath, olive-drab military bricks",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-901",
+      "name": "Gerald R. Ford-class Aircraft Carrier",
+      "nameZh": "福特级核动力航空母舰",
+      "class": "ship",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "航母 核动力 福特 舰载机 carrier ford nuclear",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Gerald R. Ford-class nuclear aircraft carrier",
+        "compact new island with a dual-band radar, three deck-edge elevators",
+        "electromagnetic catapult tracks along the angled flight deck, island sponson, escort screen",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-902",
+      "name": "America-class Amphibious Assault Ship",
+      "nameZh": "美国级两栖攻击舰",
+      "class": "ship",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "两栖攻击舰 登陆 直升机 amphibious lha assault",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO America-class amphibious assault ship",
+        "full-length flight deck without a bow ramp, large island, hangar below",
+        "well deck at the stern, F-35B and helicopters spotted on deck",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-903",
+      "name": "San Antonio-class Amphibious Transport Dock",
+      "nameZh": "圣安东尼奥级两栖船坞运输舰",
+      "class": "ship",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "两栖 船坞 登陆舰 lpd transport dock",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO San Antonio-class amphibious transport dock",
+        "boxy superstructure with two masts, floodable well deck at the stern",
+        "landing craft and amphibious vehicles in the well, helicopter deck aft",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-904",
+      "name": "Arleigh Burke Flight III Destroyer",
+      "nameZh": "阿利·伯克 Flight III 驱逐舰",
+      "class": "ship",
+      "series": "Modern High-Tech",
+      "faction": "NATO",
+      "kw": "驱逐舰 宙斯盾 垂发 destroyer aegis vls",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Arleigh Burke Flight III guided-missile destroyer",
+        "large SPY-6 phased-array panels on the deckhouse, 96-cell vertical launch system forward",
+        "tall lattice mast, 5-inch gun turret, close-in weapon system on the aft deckhouse",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-905",
+      "name": "Ticonderoga-class Cruiser (Modernized)",
+      "nameZh": "提康德罗加级巡洋舰（现代化改装）",
+      "class": "ship",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "巡洋舰 宙斯盾 导弹 cruiser aegis",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Ticonderoga-class guided-missile cruiser",
+        "tall boxy superstructure with phased-array panels on the corners",
+        "forward and aft vertical launch system blocks, twin 5-inch guns",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-906",
+      "name": "Ohio-class Ballistic Missile Submarine",
+      "nameZh": "俄亥俄级弹道导弹核潜艇",
+      "class": "submarine",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "核潜艇 弹道导弹 战略 ssbn ohio submarine",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Ohio-class ballistic-missile nuclear submarine",
+        "rounded hull with a low sail and a long missile deck of 24 hatches",
+        "fairwater planes on the sail, seven-blade propeller, black anechoic tile bricks",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-907",
+      "name": "Ohio-class Guided-Missile Submarine",
+      "nameZh": "俄亥俄级巡航导弹核潜艇",
+      "class": "submarine",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "核潜艇 巡航导弹 战斧 ssgn submarine tomahawk",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Ohio-class guided-missile submarine",
+        "converted missile tubes carrying clusters of cruise missiles, dry deck shelter aft of the sail",
+        "low sail, rounded bow, black hull bricks with visible panel lines",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-908",
+      "name": "Seawolf-class Attack Submarine",
+      "nameZh": "海狼级攻击核潜艇",
+      "class": "submarine",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "攻击核潜艇 海狼 ssn attack submarine",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Seawolf-class nuclear attack submarine",
+        "wide beam hull, large spherical bow sonar, retractable bow planes",
+        "short sail with masts raised, pump-jet propulsor, dark grey hull bricks",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-909",
+      "name": "Virginia-class Block V Attack Submarine",
+      "nameZh": "弗吉尼亚级 Block V 攻击核潜艇",
+      "class": "submarine",
+      "series": "Modern High-Tech",
+      "faction": "NATO",
+      "kw": "攻击核潜艇 弗吉尼亚 ssn virginia submarine",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Virginia-class Block V nuclear attack submarine",
+        "Virginia Payload Module inserted amidships, chin sonar array on the bow",
+        "sail with photonic masts, pump-jet propulsor, black low-observable tiles",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-910",
+      "name": "Borei-class Ballistic Missile Submarine",
+      "nameZh": "北风之神级弹道导弹核潜艇",
+      "class": "submarine",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "kw": "核潜艇 弹道导弹 战略 borei ssbn",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Borei-class ballistic-missile nuclear submarine",
+        "rounded sail blending into a wide missile deck with sixteen hatches",
+        "smooth tapered hull, seven-blade propeller, dark grey hull bricks",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-911",
+      "name": "Yasen-class Attack Submarine",
+      "nameZh": "亚森级攻击核潜艇",
+      "class": "submarine",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "kw": "攻击核潜艇 亚森 yasen ssn",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Yasen-class nuclear attack submarine",
+        "large vertical launch tubes angled forward of the sail, rounded sail",
+        "wide cylindrical hull, pump-jet propulsor, dark grey bricks with panel lines",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-912",
+      "name": "Fast Combat Support Ship",
+      "nameZh": "快速战斗支援舰",
+      "class": "ship",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "补给舰 海上补给 支援 ship replenishment",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO fast combat support ship underway replenishment vessel",
+        "kingpost rigs with fuel hoses and cargo booms over both beams",
+        "tall midships superstructure, stacked cargo decks, grey fleet livery",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-913",
+      "name": "Dock Landing Ship",
+      "nameZh": "船坞登陆舰",
+      "class": "ship",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "船坞 登陆舰 两栖 dock landing ship",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO dock landing ship with a floodable well deck",
+        "stern gate lowered to the water, landing craft inside the dock",
+        "boxy superstructure, helicopter platform aft, grey amphibious livery",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-914",
+      "name": "Mine Countermeasures Ship",
+      "nameZh": "猎雷舰",
+      "class": "ship",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "猎雷 扫雷 水雷 mine countermeasures mcm",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO mine countermeasures ship",
+        "low wooden-hulled profile with a mine-hunting sonar body towed astern",
+        "remote mine-disposal vehicle on the aft deck, small gun forward",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-915",
+      "name": "Anti-Submarine Frigate",
+      "nameZh": "反潜护卫舰",
+      "class": "ship",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "护卫舰 反潜 frigate asw",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO anti-submarine warfare frigate",
+        "towed-array sonar cable streaming astern, hull-mounted sonar dome forward",
+        "boxy superstructure with a single mast, helicopter deck and hangar aft",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-916",
+      "name": "Submarine at Periscope Depth",
+      "nameZh": "潜望镜深度的潜艇",
+      "class": "submarine",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "潜艇 潜望镜 上浮 periscope depth submarine",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO submarine at periscope depth",
+        "only the sail and a cluster of masts break the surface, dark hull visible under the waterline",
+        "wake rings and bubbles around the periscope, foam bricks on the swell",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-917",
+      "name": "Fleet Oiler",
+      "nameZh": "舰队补给油船",
+      "class": "ship",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "补给 油船 舰队 oiler tanker",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO fleet oiler underway replenishment tanker",
+        "hose rigs and a derrick frame amidships, long cargo deck",
+        "low superstructure aft, grey fleet livery with visible piping",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-918",
+      "name": "Kirov-class Nuclear Battlecruiser",
+      "nameZh": "基洛夫级核动力巡洋舰",
+      "class": "ship",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "kw": "巡洋舰 核动力 导弹 battlecruiser kirov",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Kirov-class nuclear-powered guided-missile battlecruiser",
+        "huge deckhouse packed with vertical launch silos and anti-ship missile tubes",
+        "twin gun turret forward, dense superstructure and masts, dark grey livery",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-901",
+      "name": "ICBM Transporter-Erector-Launcher",
+      "nameZh": "洲际弹道导弹发射车（多轴重型 TEL）",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "kw": "洲际 弹道导弹 发射车 战略 tel icbm launcher",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO multi-axle transporter-erector-launcher carrying an intercontinental ballistic missile",
+        "long canister raised on a hydraulic erector rail, fourteen heavy wheels in a row",
+        "support outriggers deployed, crew cab at the front, olive-drab and dust bricks",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-902",
+      "name": "Tactical Ballistic Missile TEL",
+      "nameZh": "战术弹道导弹发射车",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "kw": "弹道导弹 发射车 战术 tel ballistic launcher",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO tactical ballistic missile transporter-erector-launcher",
+        "single missile canister raised on a rail above an eight-wheel chassis",
+        "blast deflector behind the cab, camouflage netting folded on the deck",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-903",
+      "name": "THAAD Terminal High-Altitude Air Defense",
+      "nameZh": "萨德末段高空区域防御系统",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "反导 防空 萨德 拦截 thaad air defense interceptor",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO THAAD terminal high-altitude area defence battery",
+        "truck-mounted launcher with eight interceptor canisters erected at an angle",
+        "separate AN/TPY-2 radar trailer and an engagement control shelter beside it",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-904",
+      "name": "Patriot PAC-3 Air Defense Battery",
+      "nameZh": "爱国者 PAC-3 防空导弹连",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "防空 导弹 爱国者 拦截 patriot air defense",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Patriot PAC-3 air-defence battery",
+        "four-canister launchers on towed trailers raised to firing angle",
+        "phased-array radar trailer and engagement control station with a generator",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-905",
+      "name": "Medium-Range Ballistic Missile TEL",
+      "nameZh": "中程弹道导弹发射车",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "kw": "中程 弹道导弹 发射车 mrbm tel",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO medium-range ballistic missile transporter-erector-launcher",
+        "single large missile on an elevated erector rail above a six-wheel chassis",
+        "hydraulic stabiliser legs, camouflage-painted cab, dusty desert bricks",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-906",
+      "name": "Coastal Anti-Ship Missile Launcher",
+      "nameZh": "岸基反舰导弹发射车",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "反舰 导弹 岸基 发射车 anti-ship coastal launcher",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO coastal defence anti-ship missile launcher truck",
+        "four boxy missile canisters elevated on a launcher frame above the cab",
+        "raised sensor mast on the cab roof, camouflaged chassis on a cliff-top position",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-907",
+      "name": "Tracked Long-Range MLRS",
+      "nameZh": "履带式远程火箭炮",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "火箭炮 远程 履带 mlrs artillery",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO tracked long-range multiple launch rocket system",
+        "box launcher raised to firing angle on a tracked chassis, stabiliser legs down",
+        "armoured cab forward, rocket pods visibly loaded, dusty olive-drab bricks",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-908",
+      "name": "Heavy Equipment Transporter",
+      "nameZh": "重型装备运输车",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "运输车 重装 牵引 transporter lowboy",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO heavy equipment transporter tractor with a lowboy trailer",
+        "tank secured with chains on the drop-deck trailer, many wheels in a row",
+        "tall tractor cab with a sleeper box, olive-drab military livery",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-909",
+      "name": "Armoured Recovery Vehicle",
+      "nameZh": "装甲抢修车",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "抢修 装甲 救援 recovery vehicle",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO armoured recovery vehicle on a tank chassis",
+        "heavy crane jib folded over the hull and a winch cable running out to the rear spade",
+        "dozer blade on the lower front plate, tool boxes along the sponsons",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-910",
+      "name": "Armoured Vehicle-Launched Bridge",
+      "nameZh": "装甲架桥车",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "架桥 装甲 工兵 bridge layer avlb",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO armoured vehicle-launched bridge carrier",
+        "scissor bridge folded flat above the tank chassis, ready to unfold",
+        "no turret, launch rails along the hull top, engineer camouflage bricks",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-911",
+      "name": "Mine-Clearing Breaching Vehicle",
+      "nameZh": "扫雷破障车",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "扫雷 破障 工兵 mine plough breaching",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO mine-clearing breaching vehicle",
+        "heavy mine plough pushed ahead of the tracks, lane-marking poles on the rear",
+        "armoured cab with reinforced windows, blast-scarred lower hull",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-912",
+      "name": "Next-Generation Main Battle Tank",
+      "nameZh": "下一代主战坦克（无人炮塔）",
+      "class": "ground",
+      "series": "Modern High-Tech",
+      "faction": "NATO",
+      "kw": "坦克 无人炮塔 下一代 mbt unmanned turret",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO next-generation main battle tank with an unmanned turret",
+        "low-profile remote turret with a large-calibre gun and a coaxial sensor mast",
+        "crew in a protected hull capsule, active-protection launcher panels on the hull sides",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-913",
+      "name": "Self-Propelled Anti-Aircraft / Counter-UAS Gun",
+      "nameZh": "自行高炮/反无人机炮车",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "高炮 防空 反无人机 spaag gun",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO self-propelled anti-aircraft gun on a tracked chassis",
+        "twin revolver cannons on a fast-rotation turret, tracking radar on the turret roof",
+        "radar dish folded on the hull rear, camouflage netting on the sides",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-914",
+      "name": "Mobile Counter-Battery Radar",
+      "nameZh": "机动反炮兵雷达车",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "雷达 反炮兵 机动 counter-battery radar",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO mobile counter-battery radar vehicle",
+        "large flat-panel phased-array radar raised on a mast above the truck cab",
+        "stabiliser legs deployed, generator trailer behind, camouflage-painted chassis",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-915",
+      "name": "Short-Range Air Defense Vehicle",
+      "nameZh": "近程野战防空导弹车",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "防空 近程 导弹 shorad air defense",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO short-range air-defence missile vehicle",
+        "box launcher of eight missiles elevated on a wheeled chassis, optical sight on the cab",
+        "small tracking radar on the rear deck, camouflage-painted hull",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-916",
+      "name": "Pontoon Bridge Layer",
+      "nameZh": "舟桥车",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "舟桥 工兵 渡河 pontoon bridge",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO pontoon bridge layer truck",
+        "folded pontoon sections stacked on the rear deck ready to unfold onto the water",
+        "crane arm over the load, engineer camouflage livery, wet muddy bricks",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-917",
+      "name": "Armoured Resupply Vehicle",
+      "nameZh": "装甲弹药补给车",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "补给 弹药 装甲 resupply ammunition",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO armoured ammunition resupply vehicle",
+        "rear doors open with palletised ammunition crates on a roller conveyor",
+        "boxy armoured body on a tracked chassis, crane arm on the roof",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-918",
+      "name": "Brigade Command Vehicle",
+      "nameZh": "旅级通信指挥车",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "指挥 通信 雷达 command post antenna",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO brigade command and communications vehicle",
+        "telescopic mast raised with a satellite dish and a cluster of antennas",
+        "expanded shelter body with lit windows, map table visible inside, generator trailer",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-919",
+      "name": "Drone Mothership Vehicle",
+      "nameZh": "无人机母车（车载蜂群发射）",
+      "class": "ground",
+      "series": "Modern High-Tech",
+      "faction": "NATO",
+      "kw": "无人机 母车 蜂群 发射 drone mothership swarm",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO drone mothership vehicle with roof-mounted launch rails",
+        "stacked launch canisters and folded quadcopter racks on the shelter roof",
+        "operator station visible through the open side door, datalink mast raised",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-920",
+      "name": "Rail-Mobile Missile Launcher",
+      "nameZh": "导弹发射列车",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "kw": "导弹列车 铁路 发射 rail missile train",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO rail-mobile intercontinental missile launcher train",
+        "missile canister raised from a flatcar between two locomotives and support cars",
+        "roof hatches open along the train, catenary masts beside the track",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-921",
+      "name": "Silo-Based ICBM Transporter-Erector",
+      "nameZh": "洲际弹道导弹运输起竖发射车（本方）",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "洲际 弹道导弹 发射车 战略 icbm tel 民兵 哨兵",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO silo-based intercontinental ballistic missile transporter-erector vehicle",
+        "long multi-axle transporter with a raised missile canister clamped in the erector cradle",
+        "heavy tractor unit, warning placards, concrete silo apron beside the vehicle",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-922",
+      "name": "High-Mobility Artillery Rocket System (HIMARS)",
+      "nameZh": "高机动火箭炮系统（HIMARS）",
+      "class": "ground",
+      "series": "Modern",
+      "faction": "NATO",
+      "kw": "火箭炮 高机动 战术导弹 himars mlrs 火力",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO HIMARS high-mobility artillery rocket system on a wheeled truck chassis",
+        "box launcher pod raised at the rear, armoured cab at the front, stabiliser legs deployed",
+        "camouflaged brick plating, rocket pod hatch open showing six tubes",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-923",
+      "name": "Mobile Strategic Missile Command Post",
+      "nameZh": "机动战略导弹指挥所车",
+      "class": "ground",
+      "series": "Modern High-Tech",
+      "faction": "NATO",
+      "kw": "战略 指挥 导弹 发射控制 command post",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO mobile strategic missile command post vehicle",
+        "large box body on a multi-axle chassis with a satellite dish and a mast antenna",
+        "console windows glowing inside, cable spools and a generator trailer alongside",
+        "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
       ]
     }
   ],
@@ -4631,6 +6575,277 @@
         "clean",
         "weathered",
         "damaged"
+      ]
+    },
+    {
+      "id": "WPN-901",
+      "name": "Intercontinental Ballistic Missile (MIRV)",
+      "nameZh": "洲际弹道导弹（分导式多弹头）",
+      "series": "Modern",
+      "kw": "洲际 弹道导弹 多弹头 战略 icbm mirv",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO intercontinental ballistic missile with multiple independently targetable re-entry vehicles",
+        "long three-stage stack with a blunt shroud, faint panel lines on the casing",
+        "cold-launch gas generator at the base, small brick-built MIRV bus under the shroud"
+      ]
+    },
+    {
+      "id": "WPN-902",
+      "name": "Submarine-Launched Ballistic Missile",
+      "nameZh": "潜射弹道导弹",
+      "series": "Modern",
+      "kw": "潜射 弹道导弹 战略 slbm",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO submarine-launched ballistic missile breaking clear of the water",
+        "blunt rounded nose cap, aerospike spike extended, water sheeting off the casing",
+        "gas-boil bubbles around the launch tube, sea spray bricks"
+      ]
+    },
+    {
+      "id": "WPN-903",
+      "name": "Hypersonic Boost-Glide Missile",
+      "nameZh": "高超音速助推滑翔导弹",
+      "series": "Modern High-Tech",
+      "kw": "高超音速 滑翔 导弹 hypersonic glide",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO hypersonic boost-glide missile",
+        "slender waverider glide body on a booster stack, sharp delta edges",
+        "glowing leading edges, ablative tile bricks, shockwave rings around the nose"
+      ]
+    },
+    {
+      "id": "WPN-904",
+      "name": "Long-Range Anti-Ship Missile",
+      "nameZh": "远程反舰导弹（LRASM）",
+      "series": "Modern",
+      "kw": "反舰 导弹 远程 lrasm anti-ship",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO long-range anti-ship missile",
+        "low-observable faceted body with pop-out wings and a small inlet",
+        "seeker window in the nose, grey low-visibility markings, carried in a canister"
+      ]
+    },
+    {
+      "id": "WPN-905",
+      "name": "SM-6 Multi-Mission Missile",
+      "nameZh": "标准-6 多用途防空导弹",
+      "series": "Modern",
+      "kw": "防空 导弹 标准 sm6 interceptor",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO SM-6 multi-mission surface-to-air missile",
+        "slender cylindrical body with four mid-body fins and a pointed nose",
+        "vertical launch canister beside it, white and grey naval markings"
+      ]
+    },
+    {
+      "id": "WPN-906",
+      "name": "ESSM Evolved Sea Sparrow",
+      "nameZh": "改进型海麻雀防空导弹",
+      "series": "Modern",
+      "kw": "防空 导弹 海麻雀 essm",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO Evolved Sea Sparrow missile",
+        "compact finned missile in a four-pack canister cluster",
+        "tail control fins folded, naval grey and white livery"
+      ]
+    },
+    {
+      "id": "WPN-907",
+      "name": "Phalanx Close-In Weapon System",
+      "nameZh": "密集阵近防炮",
+      "series": "Modern",
+      "kw": "近防炮 密集阵 ciws phalanx",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO Phalanx close-in weapon system",
+        "white radome dome over a six-barrel rotary cannon on a rotating mount",
+        "ammunition drum below the gun, deck mounting ring, naval grey bricks"
+      ]
+    },
+    {
+      "id": "WPN-908",
+      "name": "5-inch Naval Gun",
+      "nameZh": "5英寸舰炮",
+      "series": "Modern",
+      "kw": "舰炮 主炮 naval gun turret",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO 5-inch naval gun turret",
+        "angular stealthy turret with a single long barrel raised",
+        "muzzle brake, deck ring mount, grey naval livery with hazard stripes"
+      ]
+    },
+    {
+      "id": "WPN-909",
+      "name": "MK41 Vertical Launch System",
+      "nameZh": "MK41 垂直发射系统",
+      "series": "Modern",
+      "kw": "垂直发射 垂发 vls mk41",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO MK41 vertical launch system deck module",
+        "eight square hatch cells in a grid, one hatch open with a missile erecting",
+        "exhaust plenum between cells, non-skid deck bricks around the module"
+      ]
+    },
+    {
+      "id": "WPN-910",
+      "name": "Anti-Submarine Rocket",
+      "nameZh": "反潜火箭深弹",
+      "series": "Modern",
+      "kw": "反潜 火箭 深弹 asroc",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO anti-submarine rocket launched from a deck launcher",
+        "torpedo payload on a rocket booster, launch box tilted skyward",
+        "water splash and a bubble column where the payload entered the sea"
+      ]
+    },
+    {
+      "id": "WPN-911",
+      "name": "Heavyweight Torpedo",
+      "nameZh": "重型鱼雷",
+      "series": "Modern",
+      "kw": "鱼雷 重型 反潜 torpedo heavyweight",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO heavyweight torpedo running underwater",
+        "long cylindrical body with a blunt nose and a propeller at the tail",
+        "cavitation bubble trail behind it, sonar pings rippling outward"
+      ]
+    },
+    {
+      "id": "WPN-912",
+      "name": "Exo-Atmospheric Interceptor",
+      "nameZh": "中段反导拦截弹",
+      "series": "Modern High-Tech",
+      "kw": "反导 拦截 中段 导弹 interceptor",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO exo-atmospheric interceptor missile",
+        "multi-stage interceptor with a kill vehicle and lateral thrusters at the tip",
+        "cold-gas attitude jets firing, star field behind it"
+      ]
+    },
+    {
+      "id": "WPN-913",
+      "name": "Land-Attack Cruise Missile",
+      "nameZh": "对地攻击巡航导弹",
+      "series": "Modern",
+      "kw": "巡航导弹 对地 战斧 cruise missile",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO land-attack cruise missile in level flight",
+        "pop-out straight wings and tail fins, turbofan inlet under the body",
+        "terrain-following low over the ground with a faint exhaust trail"
+      ]
+    },
+    {
+      "id": "WPN-914",
+      "name": "Paveway Laser-Guided Bomb",
+      "nameZh": "宝石路激光制导炸弹",
+      "series": "Modern",
+      "kw": "激光制导 炸弹 宝石路 paveway lgb",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO Paveway laser-guided bomb",
+        "finned bomb body with a seeker nose and a guidance canard kit",
+        "laser spot glinting on the target below, olive-drab casing"
+      ]
+    },
+    {
+      "id": "WPN-915",
+      "name": "Air-Launched Cruise Missile",
+      "nameZh": "空射巡航导弹",
+      "series": "Modern",
+      "kw": "空射 巡航导弹 alcms",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO air-launched cruise missile separating from a rotary launcher",
+        "folding wings extending, exhaust plume behind, bomb bay doors around it"
+      ]
+    },
+    {
+      "id": "WPN-916",
+      "name": "Bunker-Buster Penetrator Bomb",
+      "nameZh": "钻地弹",
+      "series": "Modern",
+      "kw": "钻地 炸弹 侵彻 bunker buster penetrator",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO bunker-buster penetrating bomb",
+        "very long slender steel casing with a hardened pointed nose and tail fins",
+        "impact dust column above a concrete bunker roof, rebar exposed"
       ]
     }
   ],
@@ -5046,6 +7261,142 @@
         "clean",
         "weathered",
         "damaged"
+      ]
+    },
+    {
+      "id": "PRP-901",
+      "name": "Steam Catapult",
+      "nameZh": "航母蒸汽弹射器",
+      "series": "Modern",
+      "kw": "弹射器 蒸汽 甲板 catapult track",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO carrier steam catapult track",
+        "long slotted rail recessed into the deck with a shuttle and holdback bar",
+        "steam venting from the slot, deck markings and wear plates along the track"
+      ]
+    },
+    {
+      "id": "PRP-902",
+      "name": "Aircraft Elevator",
+      "nameZh": "舰载机升降机",
+      "series": "Modern",
+      "kw": "升降机 舰载机 甲板 elevator",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO carrier aircraft elevator",
+        "square deck-edge platform with safety nets and a raised aircraft moving between decks",
+        "chain and hydraulic rams visible beneath, deck crew guiding the move"
+      ]
+    },
+    {
+      "id": "PRP-903",
+      "name": "Vertical Launch Cells",
+      "nameZh": "垂直发射装置",
+      "series": "Modern",
+      "kw": "垂发 发射井 甲板 vls cells",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO vertical launch system cell block",
+        "grid of square hatches flush with the deck, one open showing the missile canister",
+        "exhaust plenum grilles between the cells, non-skid deck plating"
+      ]
+    },
+    {
+      "id": "PRP-904",
+      "name": "Sonobuoy",
+      "nameZh": "声纳浮标",
+      "series": "Modern",
+      "kw": "声纳 浮标 sonobuoy",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO sonobuoy floating on the sea",
+        "small cylindrical canister with a float collar and a thin antenna",
+        "hydrophone cable descending into the water, ripples around the float"
+      ]
+    },
+    {
+      "id": "PRP-905",
+      "name": "Silo Blast Door",
+      "nameZh": "导弹发射井盖",
+      "series": "Modern",
+      "kw": "发射井 井盖 silo blast door",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO missile silo blast door",
+        "thick segmented concrete-and-steel cover rolled aside on rails",
+        "warning stripes along the edge, exposed shaft and cradle below"
+      ]
+    },
+    {
+      "id": "PRP-906",
+      "name": "Aegis Phased-Array Radar",
+      "nameZh": "舰载相控阵雷达阵面",
+      "series": "Modern",
+      "kw": "相控阵 雷达 宙斯盾 phased array radar",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO shipboard phased-array radar face",
+        "large flat octagonal panel of thousands of small emitter tiles set into the deckhouse",
+        "cooling ducts at the base, naval grey plating and hazard markings"
+      ]
+    },
+    {
+      "id": "PRP-907",
+      "name": "Arrestor Cable",
+      "nameZh": "拦阻索",
+      "series": "Modern",
+      "kw": "拦阻索 甲板 着舰 arrestor cable",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO carrier arrestor cable across the landing area",
+        "thick braided steel cable on low stanchions with a cross-deck pendant",
+        "wear marks on the deck, cable supports and deck-edge sheaves"
+      ]
+    },
+    {
+      "id": "PRP-908",
+      "name": "Submarine Periscope and Masts",
+      "nameZh": "潜艇潜望镜与桅杆",
+      "series": "Modern",
+      "kw": "潜望镜 桅杆 periscope mast",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO submarine periscope and sensor masts",
+        "cluster of black masts and a periscope head rising from the sail",
+        "water sheeting off the masts, small radar and antenna housings at the tips"
       ]
     }
   ],
@@ -5573,6 +7924,176 @@
         "clean",
         "weathered",
         "damaged"
+      ]
+    },
+    {
+      "id": "FX-901",
+      "name": "Ballistic Missile Launch Plume",
+      "nameZh": "弹道导弹发射尾焰",
+      "series": "Modern",
+      "kw": "弹道导弹 发射 尾焰 尾烟 missile launch plume",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "towering ballistic missile launch plume",
+        "bright orange core with a billowing white-grey column of smoke and steam",
+        "ground dust ring kicked up at the pad, embers swirling in the updraft"
+      ]
+    },
+    {
+      "id": "FX-902",
+      "name": "Re-entry Plasma Trail",
+      "nameZh": "再入大气层等离子尾迹",
+      "series": "Modern High-Tech",
+      "kw": "再入 等离子 尾迹 高超音速 re-entry plasma",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "hypersonic re-entry plasma trail",
+        "brilliant white-hot bow shock with an ionised orange-violet wake streaming behind",
+        "thin ionised trail left across the dark upper atmosphere"
+      ]
+    },
+    {
+      "id": "FX-903",
+      "name": "Naval Gun Salvo Flash",
+      "nameZh": "舰炮齐射炮口焰",
+      "series": "Modern",
+      "kw": "舰炮 齐射 炮口焰 naval gun salvo",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "naval gun salvo muzzle flash",
+        "huge yellow-white flash and a shock ring blasting off the deck",
+        "smoke rolling back over the turret, water surface rippling from the pressure"
+      ]
+    },
+    {
+      "id": "FX-904",
+      "name": "CIWS Bullet Spray",
+      "nameZh": "近防炮弹幕",
+      "series": "Modern",
+      "kw": "近防炮 弹幕 曳光 ciws tracer",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "close-in weapon system bullet spray",
+        "dense cone of glowing tracer rounds arcing out over the water",
+        "brass casings cascading off the mount, radar dome spinning above"
+      ]
+    },
+    {
+      "id": "FX-905",
+      "name": "VLS Launch Plume",
+      "nameZh": "垂直发射导弹尾焰",
+      "series": "Modern",
+      "kw": "垂直发射 垂发 尾焰 vls launch",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "vertical launch system missile ignition plume",
+        "violent exhaust blast deflected sideways by the plenum, hot gas washing the deck",
+        "grey smoke ring lifting off the deck, paint blistering around the hatch"
+      ]
+    },
+    {
+      "id": "FX-906",
+      "name": "Submarine Missile Break-Surface",
+      "nameZh": "潜射导弹出水",
+      "series": "Modern",
+      "kw": "潜射 出水 导弹 submarine missile launch",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "submarine-launched missile breaking the ocean surface",
+        "huge gas-boil bubble dome bursting, water sheeting off the rising missile",
+        "foam rings spreading outward and steam trailing from the hot casing"
+      ]
+    },
+    {
+      "id": "FX-907",
+      "name": "Ship Wake and Bow Wave",
+      "nameZh": "舰船尾流与破浪",
+      "series": "Modern",
+      "kw": "尾流 破浪 航迹 ship wake bow wave",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "ship bow wave and long wake trail",
+        "white foam curling away from the bow, a churned propeller wash stretching astern",
+        "photoreal ocean water with spray blowing off the crests"
+      ]
+    },
+    {
+      "id": "FX-908",
+      "name": "Sonobuoy Splash",
+      "nameZh": "声纳浮标入水",
+      "series": "Modern",
+      "kw": "声纳 浮标 入水 sonobuoy splash",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "sonobuoy splash and sonar return",
+        "small white splash column where the canister hit the sea, a floating buoy bobbing",
+        "concentric sonar rings rippling outward under the surface"
+      ]
+    },
+    {
+      "id": "FX-909",
+      "name": "Catapult Steam Burst",
+      "nameZh": "航母弹射蒸汽",
+      "series": "Modern",
+      "kw": "弹射 蒸汽 甲板 catapult steam",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "catapult steam burst on a carrier deck",
+        "roaring white steam jets blasting from the track slots as the shuttle runs",
+        "steam wrapping the aircraft's wheels, deck crew silhouetted inside the cloud"
+      ]
+    },
+    {
+      "id": "FX-910",
+      "name": "Fleet Air-Defense Barrage",
+      "nameZh": "舰队防空拦截弹幕",
+      "series": "Modern",
+      "kw": "防空 拦截 弹幕 fleet air defense",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "fleet air-defence intercept barrage",
+        "multiple missiles streaking upward on divergent trails from several ships",
+        "bursts of proximity-fused flak puffing across the sky above the formation"
       ]
     }
   ],
@@ -6519,6 +9040,159 @@
         "weathered",
         "damaged"
       ]
+    },
+    {
+      "id": "ENV-901",
+      "name": "Carrier Flight Deck (Catapult Ops)",
+      "nameZh": "航母飞行甲板（弹射作业）",
+      "series": "Modern",
+      "kw": "航母 甲板 弹射 carrier flight deck catapult",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "carrier flight deck during catapult operations",
+        "non-skid deck with catapult tracks, jet blast deflectors raised, deck crew in coloured jerseys",
+        "parked aircraft chained down along the deck edge, sea horizon beyond the bow"
+      ]
+    },
+    {
+      "id": "ENV-902",
+      "name": "Carrier Hangar Deck",
+      "nameZh": "航母机库甲板",
+      "series": "Modern",
+      "kw": "航母 机库 甲板 carrier hangar deck",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "carrier hangar deck interior",
+        "low steel ceiling with overhead rails and rolling shutter doors at both ends",
+        "aircraft packed with folded wings, deck crew moving equipment between them"
+      ]
+    },
+    {
+      "id": "ENV-903",
+      "name": "Destroyer Combat Information Center",
+      "nameZh": "驱逐舰作战情报中心",
+      "series": "Modern",
+      "kw": "驱逐舰 战情中心 指挥 cic combat information",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "destroyer combat information center",
+        "dark compartment lit only by green and blue console glow, a large tactical plot screen",
+        "operators in headsets at consoles, cables routed overhead, red night lighting strips"
+      ]
+    },
+    {
+      "id": "ENV-904",
+      "name": "Nuclear Submarine Control Room",
+      "nameZh": "核潜艇控制舱",
+      "series": "Modern",
+      "kw": "潜艇 控制舱 指挥 submarine control room",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "nuclear submarine control room",
+        "cramped compartment packed with dials, periscope pedestal and a dive control panel",
+        "red battle lighting, pipes and valve wheels along the bulkheads"
+      ]
+    },
+    {
+      "id": "ENV-905",
+      "name": "Strategic Bomber Cockpit",
+      "nameZh": "战略轰炸机驾驶舱",
+      "series": "Modern",
+      "kw": "轰炸机 驾驶舱 cockpit bomber",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "strategic bomber cockpit interior",
+        "wide multi-panel glazing with a view over the nose, analogue dials beside digital displays",
+        "two crew seats with ejection handles, faint red instrument glow in the dark"
+      ]
+    },
+    {
+      "id": "ENV-906",
+      "name": "ICBM Silo Complex",
+      "nameZh": "洲际导弹发射井",
+      "series": "Modern",
+      "kw": "发射井 导弹 地下 silo icbm",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "intercontinental ballistic missile silo complex",
+        "huge open silo shaft with a blast door rolled aside, missile canister inside on a cradle",
+        "floodlights on the concrete apron, blast-hardened walls and cable ducts"
+      ]
+    },
+    {
+      "id": "ENV-907",
+      "name": "Anti-Submarine Warfare Zone",
+      "nameZh": "反潜作战海域",
+      "series": "Modern",
+      "kw": "反潜 海域 声纳 asw ocean",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "anti-submarine warfare zone at sea",
+        "grey open ocean under a low overcast, sonobuoy floats bobbing across the swell",
+        "a frigate and a helicopter working the datum, wake trails crossing the water"
+      ]
+    },
+    {
+      "id": "ENV-908",
+      "name": "Amphibious Landing Beachhead",
+      "nameZh": "两栖登陆滩头",
+      "series": "Modern",
+      "kw": "两栖 登陆 滩头 amphibious beachhead",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "amphibious landing beachhead",
+        "surf zone churned by landing craft, tracked vehicles rolling up the wet sand",
+        "smoke on the treeline, beach obstacles and a landing craft ramp down at the waterline"
+      ]
+    },
+    {
+      "id": "ENV-909",
+      "name": "Strategic Airbase Runway",
+      "nameZh": "战略空军基地跑道",
+      "series": "Modern",
+      "kw": "空军基地 跑道 战略 airbase runway",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "strategic bomber airbase runway",
+        "long concrete runway with taxiway turnoffs and hardened aircraft shelters",
+        "a bomber on alert beside its shelter, runway lights stretching into the distance"
+      ]
     }
   ],
   "cameras": [
@@ -6805,6 +9479,108 @@
         "weathered",
         "damaged"
       ]
+    },
+    {
+      "id": "CAM-901",
+      "name": "Catapult Launch Follow",
+      "nameZh": "弹射起飞跟随",
+      "series": "Modern",
+      "kw": "弹射 起飞 跟随 catapult launch follow",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "catapult launch tracking shot",
+        "camera low beside the track as the aircraft accelerates away, steam blasting past the lens",
+        "shutter drag on the wheels, then the aircraft lifts and the deck falls away"
+      ]
+    },
+    {
+      "id": "CAM-902",
+      "name": "Bridge Deck View",
+      "nameZh": "舰桥视角",
+      "series": "Modern",
+      "kw": "舰桥 视角 驾驶台 bridge view",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "bridge deck viewpoint looking forward over the bow",
+        "windshield frame and radar repeaters in the foreground, forecastle and gun turret beyond",
+        "slight ship roll and vibration, spray flicking across the glass"
+      ]
+    },
+    {
+      "id": "CAM-903",
+      "name": "Periscope View",
+      "nameZh": "潜望镜视角",
+      "series": "Modern",
+      "kw": "潜望镜 视角 periscope view",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "submarine periscope view",
+        "circular masked field with a crosshair graticule, faint water droplets on the lens",
+        "target ship small in the distance, slight rise and fall with the swell"
+      ]
+    },
+    {
+      "id": "CAM-904",
+      "name": "Missile Seeker View",
+      "nameZh": "导弹导引头视角",
+      "series": "Modern",
+      "kw": "导弹 导引头 视角 seeker view",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "missile seeker camera view",
+        "monochrome sensor image with a tracking gate locked on the target, scanline noise",
+        "target growing rapidly, slight roll as the airframe corrects course"
+      ]
+    },
+    {
+      "id": "CAM-905",
+      "name": "Fleet Formation Aerial",
+      "nameZh": "编队航拍",
+      "series": "Modern",
+      "kw": "编队 航拍 舰队 fleet formation aerial",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "high aerial of a naval task force in formation",
+        "carrier at the centre with escorts in a screen around it, long white wakes behind each hull",
+        "slow banking drift revealing the full formation against open ocean"
+      ]
+    },
+    {
+      "id": "CAM-906",
+      "name": "High-Altitude Recon Overlook",
+      "nameZh": "高空侦察俯瞰",
+      "series": "Modern",
+      "kw": "高空 侦察 俯瞰 high altitude recon",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "high-altitude reconnaissance overlook",
+        "very distant near-orthographic view with the horizon curving at the frame edge",
+        "target complex tiny at the centre of a huge landscape, thin haze layer below"
+      ]
     }
   ],
   "lighting": [
@@ -7035,6 +9811,91 @@
         "clean",
         "weathered",
         "damaged"
+      ]
+    },
+    {
+      "id": "LGT-901",
+      "name": "Carrier Deck Night Ops",
+      "nameZh": "航母甲板夜间作业灯",
+      "series": "Modern",
+      "kw": "航母 甲板 夜间 作业灯 carrier night deck",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "carrier deck night operations lighting",
+        "pooled white and amber deck lights with deep shadow between them",
+        "coloured jersey glow under floodlights, aircraft position lights blinking in the dark"
+      ]
+    },
+    {
+      "id": "LGT-902",
+      "name": "Submarine Red Battle Lighting",
+      "nameZh": "潜艇红色战备照明",
+      "series": "Modern",
+      "kw": "潜艇 红色 战备 照明 submarine red light",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "submarine red battle lighting",
+        "saturated red compartment illumination preserving night vision, deep black shadows",
+        "instrument glow and the faint green of a sonar display against the red"
+      ]
+    },
+    {
+      "id": "LGT-903",
+      "name": "Open-Ocean Dawn",
+      "nameZh": "大洋晨曦",
+      "series": "Modern",
+      "kw": "大洋 晨曦 黎明 ocean dawn",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "pale dawn light over open ocean",
+        "soft blue-pink gradient from the horizon, long silver reflection on the swell",
+        "low contrast and gentle haze, silhouetted hulls against the brightening sky"
+      ]
+    },
+    {
+      "id": "LGT-904",
+      "name": "Silo Cold White Light",
+      "nameZh": "导弹发射井冷白光",
+      "series": "Modern",
+      "kw": "发射井 冷白 泛光 silo floodlight",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "harsh cold white floodlights inside a missile silo complex",
+        "hard shadows cast by the canister cradle, visible cable shadows on concrete",
+        "dust suspended in the beams, high contrast against the dark shaft"
+      ]
+    },
+    {
+      "id": "LGT-905",
+      "name": "Fleet Night Navigation Lights",
+      "nameZh": "舰队夜间航行灯",
+      "series": "Modern",
+      "kw": "舰队 夜间 航行灯 fleet navigation lights",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "fleet night navigation lighting",
+        "red and green running lights and white masthead lamps across the formation",
+        "light trails reflecting in black water, deck glow along each hull"
       ]
     }
   ],
@@ -7493,6 +10354,142 @@
         "weathered",
         "damaged"
       ]
+    },
+    {
+      "id": "AUD-901",
+      "name": "Ballistic Missile Launch Roar",
+      "nameZh": "弹道导弹发射轰鸣",
+      "series": "Modern",
+      "kw": "弹道导弹 发射 轰鸣 低频 missile launch roar",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "earth-shaking ballistic missile launch roar",
+        "deep subsonic ignition thump swelling into a continuous tearing roar",
+        "steam hiss and debris patter falling back onto the pad"
+      ]
+    },
+    {
+      "id": "AUD-902",
+      "name": "Naval Gunfire",
+      "nameZh": "舰炮射击",
+      "series": "Modern",
+      "kw": "舰炮 射击 齐射 naval gunfire",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "heavy naval gunfire",
+        "concussive muzzle blast with a sharp crack, echoing across open water",
+        "brass and shell casings ringing on the deck, turret hydraulics whining"
+      ]
+    },
+    {
+      "id": "AUD-903",
+      "name": "CIWS Rapid Fire",
+      "nameZh": "近防炮速射",
+      "series": "Modern",
+      "kw": "近防炮 速射 密集 ciws",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "close-in weapon system rapid fire",
+        "frantic buzz-saw burst of cannon fire at extreme rate",
+        "tracer whoosh overhead, brass cascading and ringing on the deck"
+      ]
+    },
+    {
+      "id": "AUD-904",
+      "name": "Submarine Interior Hum and Sonar",
+      "nameZh": "潜艇舱内嗡鸣与声纳",
+      "series": "Modern",
+      "kw": "潜艇 舱内 声纳 嗡鸣 submarine sonar",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "submarine interior ambience",
+        "constant low machinery hum, creaking hull pressure and dripping condensation",
+        "regular sonar ping with a long decaying underwater tail"
+      ]
+    },
+    {
+      "id": "AUD-905",
+      "name": "Catapult Launch and Arrestor Trap",
+      "nameZh": "航母弹射与拦阻",
+      "series": "Modern",
+      "kw": "弹射 拦阻 甲板 catapult arrestor",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "carrier catapult launch and arrestor trap",
+        "explosive steam release and a violent whoosh as the shuttle accelerates",
+        "later, the harsh screech of an arrestor cable paying out and snapping taut"
+      ]
+    },
+    {
+      "id": "AUD-906",
+      "name": "Strategic Bomber Low Pass",
+      "nameZh": "战略轰炸机低空掠过",
+      "series": "Modern",
+      "kw": "轰炸机 低空 掠过 bomber flyby",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "strategic bomber low pass",
+        "deep turbine drone building into a chest-thumping roar overhead",
+        "the airframe's wake rattling loose objects as it recedes"
+      ]
+    },
+    {
+      "id": "AUD-907",
+      "name": "Fleet Horn",
+      "nameZh": "舰队汽笛",
+      "series": "Modern",
+      "kw": "舰队 汽笛 号令 fleet horn",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "fleet horn and boatswain's call",
+        "deep resonant ship's horn answered by another hull across the water",
+        "pipe whistle over a PA announcement and crew footsteps on steel"
+      ]
+    },
+    {
+      "id": "AUD-908",
+      "name": "Depth Charge Explosion",
+      "nameZh": "深水炸弹爆炸",
+      "series": "Modern",
+      "kw": "深水 炸弹 爆炸 depth charge underwater",
+      "version": "1.0",
+      "origin": "modern-warfare-pack",
+      "changelog": [
+        "1.0 modern warfare expansion pack"
+      ],
+      "lines": [
+        "underwater depth charge explosion",
+        "muffled crump followed by a pressure wave thudding against the hull",
+        "bubble roar rushing past, sonar operator wincing at the noise"
+      ]
     }
   ],
   "motions": {
@@ -7628,6 +10625,20 @@
       "reverse out of cover",
       "extend manipulator arm",
       "carry casualty out"
+    ],
+    "submarine": [
+      "silent running",
+      "surface",
+      "dive to periscope depth",
+      "emergency dive",
+      "launch torpedo",
+      "launch ballistic missile",
+      "launch cruise missile",
+      "raise periscope",
+      "run at depth",
+      "hover and listen",
+      "blow ballast",
+      "surface through ice"
     ]
   },
   "motionLabelsZh": {
@@ -7740,7 +10751,19 @@
     "ushering civilians toward the helicopter in a crouched run": "弯身快跑引导平民登机",
     "holding back a panicking crowd at a barrier": "在隔离带前挡住慌乱人群",
     "shielding a civilian with a raised riot shield": "举盾掩护平民转移",
-    "flaring hard onto a rooftop helipad as civilians board": "急降楼顶停机坪接应平民"
+    "flaring hard onto a rooftop helipad as civilians board": "急降楼顶停机坪接应平民",
+    "silent running": "静默航行",
+    "surface": "上浮出水",
+    "dive to periscope depth": "下潜至潜望镜深度",
+    "emergency dive": "紧急下潜",
+    "launch torpedo": "发射鱼雷",
+    "launch ballistic missile": "发射弹道导弹",
+    "launch cruise missile": "发射巡航导弹",
+    "raise periscope": "升起潜望镜",
+    "run at depth": "深水巡航",
+    "hover and listen": "悬停监听",
+    "blow ballast": "吹除压载",
+    "surface through ice": "破冰上浮"
   },
   "seriesLabelsZh": {
     "Cold War": "冷战",

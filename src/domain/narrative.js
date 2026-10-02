@@ -416,7 +416,20 @@ export function expandBeats(phase, { need = 0, seed = 1, hasEnemy = false, hasSu
   const out = [];
   let prevFn = seedPrevFn;
 
-  const takeByFn = (fn) => pool.find(b => b.fn === fn && !used.has(b.id));
+  // 同一功能有多个候选时，优先选载具镜 —— 只要本阶段还没出现过载具。
+  //
+  // 这是「载具必须上镜」的第一道保障：PHASE_ARC 靠前的功能（goal/character/plan/contact…）
+  // 没有载具镜，而 escalate / close 有。让 escalate 位置优先落在载具镜上，n=4 也能自然出现载具，
+  // 不必依赖后面的强制替换。fn 不变，因此戏剧弧线不受影响。
+  const takeByFn = (fn) => {
+    const cands = pool.filter(b => b.fn === fn && !used.has(b.id));
+    if (cands.length === 0) return undefined;
+    if (hasVehicle && !out.some(b => b.focus === 'vehicle')) {
+      const v = cands.find(b => b.focus === 'vehicle');
+      if (v) return v;
+    }
+    return cands[0];
+  };
   const fnAvailable = (fn) => pool.some(b => b.fn === fn && !used.has(b.id));
 
   for (let k = 0; k < want; k++) {
@@ -498,6 +511,35 @@ export function selectBeats({ n, seed = 1, hasEnemy = false, hasSupport = false,
         if (used.has(cand.id)) continue;
         used.add(cand.id);
         picked.push(cand);
+      }
+    }
+  }
+
+  // 载具必须真的上镜。
+  //
+  // PHASE_ARC 把「goal / character / plan / contact / aftermath …」这类通用功能排在弧线前段，
+  // 而 focus='vehicle' 的节拍恰好都落在 observe / approach / escalate / close 这些靠后的功能上，
+  // 于是 n 较小时（4 / 8 镜）载具镜几乎永远轮不到 —— 资产库再大，片子里也见不到 F-22、
+  // B-2、航母、潜艇，用户感知就是「装备太单一」。
+  //
+  // 修法：在不改变戏剧功能（fn）的前提下，把已有的一两镜**换成同 fn 的载具镜**。
+  // 因为 fn 不变，戏剧弧线与「相邻功能互异」两条不变式都自动保持。
+  if (hasVehicle) {
+    const wantVehicles = count >= 8 ? 2 : 1;
+    let have = picked.filter(b => b.focus === 'vehicle').length;
+    if (have < wantVehicles) {
+      const vehiclePool = usableBeats(gates).filter(b => b.focus === 'vehicle');
+      const enemyShots = () => picked.filter(b => b.focus === 'enemy' || b.focus === 'clash').length;
+      for (let i = picked.length - 1; i >= 0 && have < wantVehicles; i--) {
+        const cur = picked[i];
+        if (cur.focus === 'vehicle') continue;
+        // 不能为了塞载具把仅剩的敌我对峙镜也换掉 —— 那样就变成「没有敌人的战争片」
+        if ((cur.focus === 'enemy' || cur.focus === 'clash') && enemyShots() <= 1) continue;
+        const swap = vehiclePool.find(b => b.fn === cur.fn && !picked.some(p => p.id === b.id));
+        if (swap) {
+          picked[i] = swap;
+          have += 1;
+        }
       }
     }
   }

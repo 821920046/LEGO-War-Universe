@@ -742,7 +742,7 @@ export function validateForgedAsset(asset) {
   if (!asset?.name) errors.push('missing name');
   if (!Array.isArray(asset?.lines) || asset.lines.length === 0) errors.push('empty lines');
   const isVehicle = /^(VEH|AIR|SHP)-/.test(asset?.id || '');
-  if (isVehicle && !['ground', 'aircraft', 'helicopter', 'ship', 'drone', 'ugv'].includes(asset.class)) {
+  if (isVehicle && !['ground', 'aircraft', 'helicopter', 'ship', 'submarine', 'drone', 'ugv'].includes(asset.class)) {
     errors.push(`invalid vehicle class ${asset.class}`);
   }
   return { ok: errors.length === 0, errors };

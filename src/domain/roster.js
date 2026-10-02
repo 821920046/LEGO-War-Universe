@@ -359,12 +359,188 @@ export function rosterPromptLines(roster) {
 }
 
 /** 判断任务关键词是否命中某个原型 */
-function taskAffinity(asset, task) {
+export function taskAffinity(asset, task) {
   const hay = `${asset?.unit || ''} ${asset?.name || ''} ${asset?.nameZh || ''}`;
   if (task === 'rescue') return /medical|medic|csar|rescue|surgeon|aviation|pilot|医护|医疗|救援|救生|飞行/i.test(hay);
   if (task === 'patrol') return /recon|scout|sniper|infantry|侦察|观察|狙击|步兵/i.test(hay);
-  if (task === 'combat') return /special|assault|infantry|armor|tank|突击|特战|步兵|装甲/i.test(hay);
+  // 必须给 tank / armour 加词边界：早期写成裸 `tank` 会命中 "KC-46 **Tank**er"，
+  // 于是「空中加油机」成了所有现代战斗题材里排名第一的载具。
+  if (task === 'combat') return /special|assault|infantry|\barmou?r\b|\btank\b|突击|特战|步兵|装甲|坦克/i.test(hay);
   return false;
+}
+
+/**
+ * 战场域规则（顺序敏感：越具体越靠前）。
+ *
+ * 存在的意义：旧实现把 `theme` 传进 selectCast 却**完全没有解构使用**，
+ * 载具因此只按 ID 升序取前 3 个 —— 「核潜艇在深海猎杀敌方舰队」拿到的却是
+ * 空中加油机 + 突击艇 + 越野车，而且任何现代题材拿到的都是同一组。
+ * 资产库再大也白搭：题材里说什么，片子里就该出什么。
+ *
+ * classes —— 该域优先的载具类别（与 assets.schema.json 的 vehicle.class 对齐）；
+ * re      —— 域识别正则，同时用于给单个资产打分（命中即说明它属于这个域）。
+ */
+const DOMAIN_RULES = [
+  {
+    key: 'naval',
+    classes: ['ship', 'submarine'],
+    re: /navy|naval|\bship\b|fleet|carrier|destroyer|frigate|cruiser|submarine|warship|ocean|sea|maritime|amphibious|torpedo|sonar|海军|舰|航母|潜艇|驱逐舰|护卫舰|巡洋舰|舰队|海上|远海|深海|两栖|登陆舰|鱼雷|声纳|水雷/i
+  },
+  {
+    key: 'air',
+    classes: ['aircraft', 'helicopter', 'drone'],
+    re: /air ?force|aircraft|bomber|fighter|\bjet\b|airbase|airborne|aerial|air superiority|sortie|stealth|aviation|空军|轰炸机|战斗机|战机|制空|空中|空袭|空战|僚机|加油机|预警机|侦察机|直升机|伞降|空降/i
+  },
+  {
+    key: 'strategic',
+    classes: ['ground', 'ship', 'aircraft'],
+    re: /icbm|intercontinental|ballistic missile|missile silo|\bsilo\b|nuclear deterrent|strategic (?:strike|deterrence|rocket|bomber)|洲际|弹道导弹|发射井|战略打击|战略轰炸|核威慑|导弹基地|战略值班/i
+  },
+  {
+    key: 'ground',
+    classes: ['ground', 'ugv'],
+    re: /\btank\b|armou?r|infantry|urban|\bcity\b|street|convoy|artillery|装甲|坦克|步兵|巷战|城市|街区|车队|炮兵|阵地|堑壕/i
+  }
+];
+
+/**
+ * 判定一段文本（题材 / 战场环境）属于哪个战场域。
+ * @returns {{ key: string, classes: string[], re: RegExp }|null}
+ */
+export function domainOfText(text) {
+  const hay = String(text || '');
+  if (!hay.trim()) return null;
+  for (const rule of DOMAIN_RULES) {
+    if (rule.re.test(hay)) return rule;
+  }
+  return null;
+}
+
+/**
+ * 资产与战场域的契合分。
+ *
+ * 权重设计：类别匹配（+10）是强信号 —— 海军题材里的「舰艇/潜艇」必然优于飞机；
+ * 域关键词命中（+4）是弱信号，用来在同一类别内部排序（题材提到「潜艇」时，
+ * 潜艇要排在驱逐舰前面）。
+ */
+function domainScore(asset, domain) {
+  if (!domain) return 0;
+  const hay = `${asset?.unit || ''} ${asset?.name || ''} ${asset?.nameZh || ''} ${asset?.kw || ''}`.toLowerCase();
+  let score = 0;
+  if (asset?.class && domain.classes.includes(asset.class)) score += 10;
+  if (domain.re.test(hay)) score += 4;
+  return score;
+}
+
+/**
+ * 归一化：小写 + 去掉所有分隔符。
+ *
+ * 去掉连字符是必需的：题材写「F-22」而资产名写「F-22 Raptor」，两者去掉分隔符后
+ * 都是 `f22…` 才能对上；否则 `b-2` 与 `b-52` 会因为共享 `b-` 而互相误命中。
+ */
+function normalizeMatchText(value) {
+  return String(value || '').toLowerCase().replace(/[\s\-_/·.,()（）【】[\]]+/g, '');
+}
+
+/** 最长公共子串长度（滚动数组，O(n·m)）。资产与题材都很短，开销可忽略。 */
+function longestCommonSubstr(a, b) {
+  if (!a || !b) return 0;
+  const m = a.length;
+  const n = b.length;
+  let prev = new Array(n + 1).fill(0);
+  let best = 0;
+  for (let i = 1; i <= m; i += 1) {
+    const cur = new Array(n + 1).fill(0);
+    const ai = a[i - 1];
+    for (let j = 1; j <= n; j += 1) {
+      if (ai === b[j - 1]) {
+        const v = prev[j - 1] + 1;
+        cur[j] = v;
+        if (v > best) best = v;
+      }
+    }
+    prev = cur;
+  }
+  return best;
+}
+
+/** 型号 token：F-22 / B-2 / M1A2 / SEPv3 / HIMARS 等带数字的型号标识。 */
+const MODEL_TOKEN_RE = /[a-z]{1,6}[-\s]?\d{1,4}[a-z0-9-]*|\d{1,4}[a-z]{1,4}/g;
+
+/** 从题材里抽出型号 token（保留连字符，用于带边界的精确命中）。 */
+function modelTokens(theme) {
+  const raw = String(theme || '').toLowerCase();
+  const out = new Set();
+  for (const m of raw.match(MODEL_TOKEN_RE) || []) {
+    const t = m.trim();
+    if (t.length >= 2) out.add(t);
+  }
+  return [...out];
+}
+
+/** 带字母数字边界的命中：`b-2` 不能命中 `b-21`。 */
+function hasBoundedToken(hayLower, token) {
+  const esc = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return new RegExp(`(^|[^a-z0-9])${esc}([^a-z0-9]|$)`).test(hayLower);
+}
+
+/**
+ * 题材点名度：题材里**明确说出的装备**必须排到同类前面。
+ *
+ * 这是「装备太单一」的第二层根治点。仅有战场域还不够 —— 域只保证「海军题材给舰艇」，
+ * 但「核潜艇」题材里排第一的仍可能是两栖攻击舰、「F-22」题材里排第一的仍可能是
+ * 电子侦察机（因为 taskAffinity 的 patrol 命中「侦察」）。这里直接拿题材文本与资产
+ * 的名称/中文名/关键词求最长公共子串：题材说了「驱逐舰」，驱逐舰就赢。
+ *
+ * 分两档：
+ *   · 通用点名 —— 最长公共子串（封顶 10 字 × 3，最高 30）。题材说「航母」「驱逐舰」
+ *     「洲际弹道导弹」时靠它命中。
+ *   · 型号点名 —— 额外 +12。**必须单独一档**：否则「F-22 战斗机」题材里，所有
+ *     「战斗机」都会因泛类别命中而拿到同样的分，点名型号反而被 ID 排序挤掉
+ *     （实测 F-35A 会排在 F-22 前面）。型号命中还做了边界保护，`B-2` 不会命中 `B-21`。
+ */
+export function themeMatch(asset, theme) {
+  const t = normalizeMatchText(theme);
+  if (t.length < 2) return 0;
+  const hayRaw = `${asset?.unit || ''} ${asset?.name || ''} ${asset?.nameZh || ''} ${asset?.kw || ''}`;
+  const hay = normalizeMatchText(hayRaw);
+  if (hay.length < 2) return 0;
+
+  const len = longestCommonSubstr(hay, t);
+  let score = len >= 2 ? Math.min(len, 10) * 3 : 0;
+
+  for (const tok of modelTokens(theme)) {
+    if (hasBoundedToken(hayRaw.toLowerCase(), tok)) { score += 12; break; }
+    // 兜底：题材写 `F22`、资产写 `F-22` 时连字符不一致，退化为归一化包含判断，
+    // 但右侧不允许紧跟数字，避免 `b2` 命中 `b21`。
+    const nTok = normalizeMatchText(tok);
+    if (nTok.length < 2) continue;
+    const i = hay.indexOf(nTok);
+    if (i !== -1 && !/\d/.test(hay[i + nTok.length] || '')) { score += 12; break; }
+  }
+  return score;
+}
+
+
+/**
+ * 类别多样性挑选：同类只取一个，避免「三部片子都是主战坦克」。
+ * 不足时按原顺序补足，保证长度满足 maxVehicles。
+ */
+function pickDiverse(pool, limit) {
+  const out = [];
+  const usedClass = new Set();
+  for (const a of pool) {
+    if (out.length >= limit) break;
+    const cls = a?.class || a?.kind || 'other';
+    if (usedClass.has(cls)) continue;
+    usedClass.add(cls);
+    out.push(a);
+  }
+  for (const a of pool) {
+    if (out.length >= limit) break;
+    if (!out.includes(a)) out.push(a);
+  }
+  return out;
 }
 
 /**
@@ -375,11 +551,15 @@ function taskAffinity(asset, task) {
  * 会自动降级到时代亲和组里的敌军，并置 enemyFallback=true 供上层提示。
  *
  * @param {object} registry 资产注册表
- * @param {{ era?: string, task?: string, theme?: string, maxHeroes?: number, maxEnemies?: number, maxVehicles?: number }} options
- * @returns {{ heroes: Array, enemies: Array, vehicles: Array, enemyFallback: boolean, era: string }}
+ * @param {{ era?: string, task?: string, theme?: string, setting?: string, maxHeroes?: number, maxEnemies?: number, maxVehicles?: number }} options
+ * @returns {{ heroes: Array, enemies: Array, vehicles: Array, enemyFallback: boolean, era: string, domain: string|null }}
  */
-export function selectCast(registry, { era = 'Modern', task = 'combat', maxHeroes = 4, maxEnemies = 3, maxVehicles = 3 } = {}) {
+export function selectCast(registry, { era = 'Modern', task = 'combat', theme = '', setting = '', maxHeroes = 4, maxEnemies = 3, maxVehicles = 3 } = {}) {
   const affinity = ERA_AFFINITY[era] || [era, 'Modern'];
+
+  // 题材 / 战场环境 → 战场域。这是「装备太单一」的根治点：
+  // 海军题材选舰艇与潜艇、空战题材选飞机、战略题材选导弹与轰炸机、陆战题材选装甲与步兵。
+  const domain = domainOfText(`${theme} ${setting}`);
 
   // 只收「与目标时代视觉兼容」的资产，避免挑出一个必然触发 ERA_MISMATCH 穿帮的演员
   // （例如给 Orbital 题材硬塞 Modern 装备）。亲和顺序仅用于排序偏好。
@@ -404,15 +584,27 @@ export function selectCast(registry, { era = 'Modern', task = 'combat', maxHeroe
   const vehicles = collect('vehicle');
 
   const bySide = (list, side) => list.filter(a => sideOf(a) === side);
+
+  /**
+   * 排序信号（从强到弱）：
+   *   1. 战场域契合（题材说了海军，就别给空军装备）—— 这是「题材里说什么，片子里出什么」的保证；
+   *   2. 题材点名度（题材里写了「驱逐舰 / F-22 / 洲际弹道导弹」，点名的那件就排第一）；
+   *   3. 任务契合（救援题材优先医护 / 搜救人员）；
+   *   4. ID 稳定排序，保证同一输入跨会话可复现。
+   */
   const rank = (list) => [...list].sort((a, b) => {
-    // 任务契合的排前面；其次按 ID 稳定排序，保证跨会话可复现
+    const da = domainScore(a, domain) + themeMatch(a, theme);
+    const db = domainScore(b, domain) + themeMatch(b, theme);
+    if (da !== db) return db - da;
     const ta = taskAffinity(a, task) ? 0 : 1;
     const tb = taskAffinity(b, task) ? 0 : 1;
     if (ta !== tb) return ta - tb;
     return a.id < b.id ? -1 : (a.id > b.id ? 1 : 0);
   });
 
-  const heroes = rank(bySide(characters, 'coalition')).slice(0, maxHeroes);
+  // 角色同样吃战场域：海军题材优先舰艇船员/潜水员，空战题材优先飞行员/引导员，
+  // 否则「核潜艇」题材里上镜的仍会是步兵班长与核生化专家。
+  const heroes = pickDiverse(rank(bySide(characters, 'coalition')), maxHeroes);
 
   const enemyPool = rank(bySide(characters, 'opposing'));
   // 该时代（含兼容时代）确实没有敌军角色时才会为空 —— 例如 Orbital 库里没有任何反派角色。
@@ -420,9 +612,10 @@ export function selectCast(registry, { era = 'Modern', task = 'combat', maxHeroe
   const enemyFallback = enemyPool.length === 0;
   const enemies = enemyPool.slice(0, maxEnemies);
 
-  // 载具：优先与已选英雄同阵营，保证镜头里不会出现「孤零零一辆敌车」的穿帮
+  // 载具：优先与已选英雄同阵营，保证镜头里不会出现「孤零零一辆敌车」的穿帮。
+  // 再按「战场域优先 + 类别多样性」挑选，避免三辆全是主战坦克、或题材是海军却派来飞机。
   const vehiclePool = rank(bySide(vehicles, 'coalition'));
-  const chosenVehicles = (vehiclePool.length ? vehiclePool : rank(vehicles)).slice(0, maxVehicles);
+  const chosenVehicles = pickDiverse(vehiclePool.length ? vehiclePool : rank(vehicles), maxVehicles);
 
-  return { heroes, enemies, vehicles: chosenVehicles, enemyFallback, era };
+  return { heroes, enemies, vehicles: chosenVehicles, enemyFallback, era, domain: domain ? domain.key : null };
 }
