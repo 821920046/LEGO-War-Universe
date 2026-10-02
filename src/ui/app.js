@@ -125,8 +125,9 @@ function applyGovernance(rawText, { source = '主题' } = {}) {
     text($('intent'), `❌ 已被内容安全策略阻断：${governance.reasons.join('；')}`);
     $('intent').className = 'bad';
     $('violations').replaceChildren(
-      createEl('div', { style: { color: '#ff5252', padding: '12px', background: 'rgba(255,82,82,0.1)', borderRadius: '6px' } },
-        `触发阻断规则: ${governance.flags.join(', ')}。请修改${source}以符合微缩军事安全规范。`)
+      createEl('div', { class: 'alert alert--danger' },
+        createEl('span', { class: 'alert__icon' }, '⛔'),
+        createEl('span', {}, `触发阻断规则: ${governance.flags.join(', ')}。请修改${source}以符合微缩军事安全规范。`))
     );
     toast(`已被内容安全策略阻断：${governance.reasons.join('；')}`, 'error', 6000);
     return governance;
@@ -263,82 +264,59 @@ function renderDirectorNotesPanel(movieName, data) {
 
   const grammar = data.visualGrammar || {};
 
-  const card = createEl('div', {
-    style: {
-      background: 'linear-gradient(135deg, #0b1528 0%, #060b16 100%)',
-      border: '1px solid rgba(245, 158, 11, 0.4)',
-      borderRadius: '12px',
-      padding: '24px 28px',
-      boxShadow: '0 12px 36px rgba(0,0,0,0.7)',
-      fontSize: '13px'
-    }
-  },
+  const card = createEl('div', { class: 'card card--accent' },
     // 顶栏：电影头衔与名牌
-    createEl('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '14px' } },
+    createEl('div', { class: 'card__head' },
       createEl('div', {},
-        createEl('div', { style: { display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '4px' } },
-          createEl('span', { style: { fontSize: '24px' } }, '🎬'),
-          createEl('h2', { style: { margin: '0', fontSize: '20px', color: '#ffd07a', fontWeight: '800' } }, data.matchedMovie || movieName),
-          createEl('span', { style: { background: 'rgba(56, 189, 248, 0.15)', color: '#38bdf8', padding: '2px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '700', border: '1px solid rgba(56, 189, 248, 0.3)' } }, data.genre || '好莱坞大片'),
-          createEl('span', { style: { background: 'rgba(52, 211, 153, 0.15)', color: '#34d399', padding: '2px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '700', border: '1px solid rgba(52, 211, 153, 0.3)' } }, data.engine || '智能大脑')
+        createEl('div', { class: 'card__title', style: { fontSize: '19px' } },
+          createEl('span', { style: { fontSize: '22px' } }, '🎬'),
+          createEl('span', {}, data.matchedMovie || movieName),
+          createEl('span', { class: 'badge badge--info' }, data.genre || '好莱坞大片'),
+          createEl('span', { class: 'badge badge--ok' }, data.engine || '智能大脑')
         ),
-        createEl('div', { style: { color: '#94a3b8', fontSize: '13px' } },
-          `导演：${data.director || '好莱坞名家'} · 上映年份：${data.year || '经典'} · 乐高适配引擎：已完成 390 资产精准重构`
-        )
+        createEl('p', { class: 'card__sub' },
+          `导演：${data.director || '好莱坞名家'} · 上映年份：${data.year || '经典'} · 乐高适配引擎：已完成认证资产精准重构`)
       ),
-      createEl('button', {
-        style: { background: 'transparent', border: '1px solid #475569', color: '#cbd5e1', padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' },
-        onClick: () => { panel.style.display = 'none'; }
-      }, '收起拉片看板')
-    ),
-
-    // 核心戏剧冲突条
-    createEl('div', {
-      style: {
-        background: 'rgba(239, 68, 68, 0.08)',
-        borderLeft: '4px solid #ef4444',
-        padding: '10px 14px',
-        borderRadius: '4px',
-        marginBottom: '16px',
-        color: '#fca5a5',
-        fontSize: '13px',
-        lineHeight: '1.5'
-      }
-    },
-      createEl('strong', { style: { color: '#f87171' } }, '💥 核心戏剧母题与危机冲突：'),
-      document.createTextNode(` ${data.dramaticConflict || '在极限压力下执行关键突破任务。'}`)
-    ),
-
-    // 三列网格：运镜、声效、乐高改编
-    createEl('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px', marginBottom: '16px' } },
-      createEl('div', { style: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', padding: '14px 16px', borderRadius: '8px' } },
-        createEl('div', { style: { color: '#38bdf8', fontWeight: '700', fontSize: '13px', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' } }, '🎥 导演视听运镜法则'),
-        createEl('div', { style: { color: '#cbd5e1', lineHeight: '1.5' } }, grammar.cameraMotion || '经典好莱坞景别张力')
-      ),
-      createEl('div', { style: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', padding: '14px 16px', borderRadius: '8px' } },
-        createEl('div', { style: { color: '#38bdf8', fontWeight: '700', fontSize: '13px', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' } }, '🔊 声音设计与伴随配乐'),
-        createEl('div', { style: { color: '#cbd5e1', lineHeight: '1.5' } }, grammar.soundDesign || '战地环境音与低频脉冲')
-      ),
-      createEl('div', { style: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', padding: '14px 16px', borderRadius: '8px' } },
-        createEl('div', { style: { color: '#ffd07a', fontWeight: '700', fontSize: '13px', marginBottom: '6px', display: 'flex', alignItems: 'center', gap: '6px' } }, '🧱 乐高微缩定格转译秘诀'),
-        createEl('div', { style: { color: '#cbd5e1', lineHeight: '1.5' } }, data.legoAdaptation || '微距景深与真实注塑颗粒反光')
+      createEl('div', { class: 'card__actions' },
+        createEl('button', {
+          class: 'btn btn--ghost btn--sm',
+          onClick: () => { panel.style.display = 'none'; }
+        }, '收起拉片看板')
       )
     ),
 
-    // 创作者干货底栏
-    createEl('div', {
-      style: {
-        background: 'rgba(245, 158, 11, 0.1)',
-        borderLeft: '4px solid #f59e0b',
-        padding: '12px 16px',
-        borderRadius: '6px',
-        color: '#fef08a',
-        fontSize: '13px',
-        lineHeight: '1.5'
-      }
-    },
-      createEl('strong', { style: { color: '#f59e0b' } }, '💡 自媒体短视频爆款秘籍 (Creator Insights)：'),
-      document.createTextNode(` ${data.creatorTips || '把握前3秒完播率，声画对齐。'}`)
+    createEl('div', { class: 'card__body' },
+      // 核心戏剧冲突条
+      createEl('div', { class: 'alert alert--danger', style: { marginBottom: '16px' } },
+        createEl('span', { class: 'alert__icon' }, '💥'),
+        createEl('span', {},
+          createEl('strong', {}, '核心戏剧母题与危机冲突：'),
+          document.createTextNode(` ${data.dramaticConflict || '在极限压力下执行关键突破任务。'}`))
+      ),
+
+      // 三列网格：运镜、声效、乐高改编
+      createEl('div', { class: 'grid grid--3', style: { marginBottom: '16px' } },
+        createEl('div', { class: 'panel' },
+          createEl('div', { class: 'field__label', style: { color: 'var(--info)', marginBottom: '8px' } }, '🎥 导演视听运镜法则'),
+          createEl('div', { style: { color: 'var(--text)', lineHeight: '1.55', fontSize: '12.5px' } }, grammar.cameraMotion || '经典好莱坞景别张力')
+        ),
+        createEl('div', { class: 'panel' },
+          createEl('div', { class: 'field__label', style: { color: 'var(--info)', marginBottom: '8px' } }, '🔊 声音设计与伴随配乐'),
+          createEl('div', { style: { color: 'var(--text)', lineHeight: '1.55', fontSize: '12.5px' } }, grammar.soundDesign || '战地环境音与低频脉冲')
+        ),
+        createEl('div', { class: 'panel' },
+          createEl('div', { class: 'field__label', style: { color: 'var(--accent-hi)', marginBottom: '8px' } }, '🧱 乐高微缩定格转译秘诀'),
+          createEl('div', { style: { color: 'var(--text)', lineHeight: '1.55', fontSize: '12.5px' } }, data.legoAdaptation || '微距景深与真实注塑颗粒反光')
+        )
+      ),
+
+      // 创作者干货底栏
+      createEl('div', { class: 'alert alert--warn' },
+        createEl('span', { class: 'alert__icon' }, '💡'),
+        createEl('span', {},
+          createEl('strong', {}, '自媒体短视频爆款秘籍 (Creator Insights)：'),
+          document.createTextNode(` ${data.creatorTips || '把握前3秒完播率，声画对齐。'}`))
+      )
     )
   );
 
@@ -356,45 +334,18 @@ function renderFactionCards(container, chars, faction) {
   if (!container || !Array.isArray(chars) || chars.length === 0) return;
 
   const isCoalition = faction === 'coalition';
-  const borderColor = isCoalition ? 'rgba(56, 189, 248, 0.35)' : 'rgba(239, 68, 68, 0.35)';
-  const accentColor = isCoalition ? '#38bdf8' : '#f87171';
-  const tagBg = isCoalition ? 'rgba(56, 189, 248, 0.15)' : 'rgba(239, 68, 68, 0.15)';
-  const nameplateColor = isCoalition ? '#60a5fa' : '#fb923c';
+  const variant = isCoalition ? 'blue' : 'red';
 
   for (const c of chars) {
     if (!c) continue;
-    const card = createEl('div', {
-      style: {
-        background: 'rgba(255, 255, 255, 0.03)',
-        border: `1px solid ${borderColor}`,
-        borderRadius: '8px',
-        padding: '10px 14px',
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '4px'
-      }
-    },
-      createEl('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
-        createEl('strong', { style: { color: '#ffd07a', fontSize: '13px' } }, `${isCoalition ? '🛡️' : '⚔️'} ${c.name || '战术角色'}`),
-        createEl('span', { style: { background: tagBg, color: accentColor, fontSize: '10px', padding: '1px 6px', borderRadius: '10px', fontWeight: '700' } }, c.role || '战斗员')
+    const card = createEl('div', { class: `rcard rcard--${variant}` },
+      createEl('div', { class: 'rcard__top' },
+        createEl('strong', { class: 'rcard__name' }, `${isCoalition ? '🛡️' : '⚔️'} ${c.name || '战术角色'}`),
+        createEl('span', { class: `badge ${isCoalition ? 'badge--info' : 'badge--danger'}` }, c.role || '战斗员')
       ),
-      createEl('div', { style: { color: '#cbd5e1', fontSize: '11px', lineHeight: '1.4' } }, `服装装具：${c.outfit || '标准作战配置'}`),
+      createEl('div', { class: 'rcard__outfit' }, `服装装具：${c.outfit || '标准作战配置'}`),
       // 底部代号名牌标签 — 醒目展示，方便视频生成时直接调用对应角色
-      createEl('div', {
-        style: {
-          marginTop: '6px',
-          padding: '3px 8px',
-          background: isCoalition ? 'rgba(37, 99, 235, 0.2)' : 'rgba(185, 28, 28, 0.2)',
-          border: `1px solid ${nameplateColor}`,
-          borderRadius: '4px',
-          textAlign: 'center',
-          fontSize: '13px',
-          fontWeight: '800',
-          fontFamily: 'var(--font-mono)',
-          color: nameplateColor,
-          letterSpacing: '0.08em'
-        }
-      }, `🏷️ [${c.callsign || 'AGENT'}]`)
+      createEl('div', { class: `rcard__tag rcard__tag--${variant}` }, `🏷️ [${c.callsign || 'AGENT'}]`)
     );
     container.appendChild(card);
   }
@@ -419,7 +370,7 @@ function renderCharacterLineupPanel(project) {
     // 1. 提取完整正反双阵营角色名册（双层防御：确保输出必为合法对象）
     const theme = project.theme || project.name || '好莱坞大片';
     const era = project.intent?.era || project.directorNotes?.era || 'Modern';
-    const ar = project.aspectRatio || '16:9';
+    const ar = project.aspectRatio || '9:16';
     const factions = extractCharacterLineup(project.shots, activeRegistry, era, theme);
     const lineupData = generateLineupPrompt(factions, theme, era, ar);
 
@@ -432,41 +383,14 @@ function renderCharacterLineupPanel(project) {
       const opposingList = Array.isArray(factions?.opposing) ? factions.opposing : [];
 
       // 🔵 前排站位 · 正方特战小队
-      const coalitionHeader = createEl('div', {
-        style: {
-          gridColumn: '1 / -1',
-          padding: '6px 14px',
-          background: 'rgba(37, 99, 235, 0.15)',
-          borderLeft: '4px solid #3b82f6',
-          borderRadius: '4px',
-          color: '#60a5fa',
-          fontSize: '13px',
-          fontWeight: '800',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px'
-        }
-      }, `🔵 前排站位 (Front Row) · 正义主角特战小队 (每位角色脚踏专属代号名牌 · ${coalitionList.length} 人)`);
+      const coalitionHeader = createEl('div', { class: 'roster-head roster-head--blue' },
+        `🔵 前排站位 (Front Row) · 正义主角特战小队 (每位角色脚踏专属代号名牌 · ${coalitionList.length} 人)`);
       grid.appendChild(coalitionHeader);
       renderFactionCards(grid, coalitionList, 'coalition');
 
       // 🔴 后排站位 · 敌对武装反派势力
-      const opposingHeader = createEl('div', {
-        style: {
-          gridColumn: '1 / -1',
-          padding: '6px 14px',
-          background: 'rgba(185, 28, 28, 0.15)',
-          borderLeft: '4px solid #ef4444',
-          borderRadius: '4px',
-          color: '#f87171',
-          fontSize: '13px',
-          fontWeight: '800',
-          marginTop: '8px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '6px'
-        }
-      }, `🔴 后排站位 (Elevated Back Row) · 敌对武装反派势力 (每位角色脚踏专属代号名牌 · ${opposingList.length} 人)`);
+      const opposingHeader = createEl('div', { class: 'roster-head roster-head--red', style: { marginTop: '8px' } },
+        `🔴 后排站位 (Elevated Back Row) · 敌对武装反派势力 (每位角色脚踏专属代号名牌 · ${opposingList.length} 人)`);
       grid.appendChild(opposingHeader);
       renderFactionCards(grid, opposingList, 'opposing');
     }
@@ -487,18 +411,14 @@ function renderCharacterLineupPanel(project) {
       if (placeholder) placeholder.style.display = 'none';
       if (anchorStatus) {
         anchorStatus.textContent = '✔ 🔒 全局角色视觉锚点已锁定';
-        anchorStatus.style.background = 'rgba(52, 211, 153, 0.15)';
-        anchorStatus.style.color = '#34d399';
-        anchorStatus.style.borderColor = 'rgba(52, 211, 153, 0.3)';
+        anchorStatus.className = 'badge badge--ok';
       }
     } else {
       if (previewWrap) previewWrap.style.display = 'none';
       if (placeholder) placeholder.style.display = 'block';
       if (anchorStatus) {
-        anchorStatus.textContent = '⏳ 待生成/上传全家福参考图';
-        anchorStatus.style.background = 'rgba(245, 158, 11, 0.15)';
-        anchorStatus.style.color = '#f59e0b';
-        anchorStatus.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+        anchorStatus.textContent = '⏳ 待生成 / 上传全家福';
+        anchorStatus.className = 'badge badge--warn';
       }
     }
   } catch (err) {
@@ -518,7 +438,7 @@ async function executeMovieTranspile(movieQuery) {
 
   const btn = $('transpile-movie-btn');
   const requestedShots = Number($('shots-cinema')?.value || $('shots')?.value) || 4;
-  const selectedAr = $('aspect-ratio-cinema')?.value || $('aspect-ratio')?.value || '16:9';
+  const selectedAr = $('aspect-ratio-cinema')?.value || $('aspect-ratio')?.value || '9:16';
 
   // 内容治理必须与自由模式一致地作用于转译输入。
   // 此前该路径把 governance 硬编码为 passed，等于默认模式完全没有安全拦截。
@@ -551,6 +471,7 @@ async function executeMovieTranspile(movieQuery) {
     // 真实回显本次实际使用的引擎，而不是无条件宣称"云端大脑就绪"
     if ($('ai-brain-status')) {
       $('ai-brain-status').textContent = `🧠 本次引擎：${result.engine || '未知'}`;
+      $('ai-brain-status').className = 'badge badge--ok';
     }
 
     $('theme').value = result.themeZh;
@@ -604,19 +525,44 @@ async function executeMovieTranspile(movieQuery) {
 
 function bindGlobalEvents() {
   // 1. 模式切换 Tab 交互
-  $('tab-cinema-mode').onclick = () => {
-    $('tab-cinema-mode').className = 'mode-tab active';
-    $('tab-custom-mode').className = 'mode-tab';
-    $('section-cinema-mode').style.display = 'block';
-    $('section-custom-mode').style.display = 'none';
+  const setMode = (mode) => {
+    const cinema = mode === 'cinema';
+    $('tab-cinema-mode').className = `seg__btn${cinema ? ' is-active' : ''}`;
+    $('tab-custom-mode').className = `seg__btn${cinema ? '' : ' is-active'}`;
+    $('tab-cinema-mode').setAttribute('aria-selected', String(cinema));
+    $('tab-custom-mode').setAttribute('aria-selected', String(!cinema));
+    $('section-cinema-mode').style.display = cinema ? 'block' : 'none';
+    $('section-custom-mode').style.display = cinema ? 'none' : 'block';
   };
+  $('tab-cinema-mode').onclick = () => setMode('cinema');
+  $('tab-custom-mode').onclick = () => setMode('custom');
 
-  $('tab-custom-mode').onclick = () => {
-    $('tab-cinema-mode').className = 'mode-tab';
-    $('tab-custom-mode').className = 'mode-tab active';
-    $('section-cinema-mode').style.display = 'none';
-    $('section-custom-mode').style.display = 'block';
-  };
+  // 1b. 顶栏「更多」下拉菜单（主次分离：主操作在顶栏，次级操作收进菜单）
+  const moreBtn = $('more-btn');
+  const moreMenu = $('more-menu');
+  if (moreBtn && moreMenu) {
+    const closeMenu = () => {
+      moreMenu.hidden = true;
+      moreBtn.setAttribute('aria-expanded', 'false');
+    };
+    moreBtn.onclick = (e) => {
+      e.stopPropagation();
+      const willOpen = moreMenu.hidden;
+      moreMenu.hidden = !willOpen;
+      moreBtn.setAttribute('aria-expanded', String(willOpen));
+    };
+    // 点击菜单内任意项后自动收起
+    moreMenu.addEventListener('click', closeMenu);
+    // 点击菜单外部或按 ESC 收起
+    document.addEventListener('click', (e) => {
+      if (moreMenu.hidden) return;
+      if (e.target === moreBtn || moreBtn.contains(e.target)) return;
+      closeMenu();
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeMenu();
+    });
+  }
 
   // 2. 电影快捷选片标签流
   const chipContainer = $('movie-chips');
@@ -634,14 +580,14 @@ function bindGlobalEvents() {
     ];
     for (const f of films) {
       const btn = createEl('button', {
-        class: 'film-chip',
+        class: 'chip',
         onClick: () => {
           $('movie-input').value = f.name;
           executeMovieTranspile(f.name);
         }
       },
-        createEl('strong', { style: { color: '#ffd07a' } }, `🎬 ${f.name}`),
-        createEl('span', { style: { color: '#64748b', fontSize: '10px' } }, `(${f.tag})`)
+        createEl('strong', {}, `🎬 ${f.name}`),
+        createEl('span', { style: { color: 'var(--text-3)', fontSize: '10px' } }, `(${f.tag})`)
       );
       chipContainer.appendChild(btn);
     }
@@ -724,19 +670,16 @@ function bindGlobalEvents() {
 
   dropzone.ondragover = (e) => {
     e.preventDefault();
-    dropzone.style.borderColor = '#38bdf8';
-    dropzone.style.background = 'rgba(56, 189, 248, 0.1)';
+    dropzone.classList.add('is-drag');
   };
 
   dropzone.ondragleave = () => {
-    dropzone.style.borderColor = 'rgba(56, 189, 248, 0.3)';
-    dropzone.style.background = 'transparent';
+    dropzone.classList.remove('is-drag');
   };
 
   dropzone.ondrop = (e) => {
     e.preventDefault();
-    dropzone.style.borderColor = 'rgba(56, 189, 248, 0.3)';
-    dropzone.style.background = 'transparent';
+    dropzone.classList.remove('is-drag');
     const file = e.dataTransfer?.files?.[0];
     if (file) handleLineupImageFile(file);
   };
@@ -829,7 +772,7 @@ function bindGlobalEvents() {
       $('intent').className = intent.needsConfirmation ? 'warn' : 'ok';
     }
 
-    const selectedAr = $('aspect-ratio').value || '16:9';
+    const selectedAr = $('aspect-ratio').value || '9:16';
     plan.shots.forEach(s => { s.aspectRatio = selectedAr; });
 
     // 自由模式同样接入自我进化：现代/未来战争题材会触发缺口锻造

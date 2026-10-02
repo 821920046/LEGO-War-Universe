@@ -41,21 +41,12 @@ import { openAddAssetDialog, openManageCustomAssets, loadCustomAssets } from './
  */
 export function renderAssetManager(container, registry, onClose = null) {
   container.replaceChildren();
-  container.style.display = 'block';
+  container.style.display = 'flex';
 
   let currentCategory = 'characters';
   let searchQuery = '';
 
-  const listContainer = el('div', {
-    style: {
-      maxHeight: '400px',
-      overflowY: 'auto',
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-      gap: '10px',
-      padding: '4px'
-    }
-  });
+  const listContainer = el('div', { class: 'grid grid--cards' });
 
   function refreshList() {
     listContainer.replaceChildren();
@@ -70,29 +61,19 @@ export function renderAssetManager(container, registry, onClose = null) {
 
     if (filtered.length === 0) {
       listContainer.appendChild(
-        el('div', { style: { gridColumn: '1 / -1', color: '#64748b', textAlign: 'center', padding: '24px' } }, '未找到匹配的乐高资产')
+        el('div', { class: 'empty', style: { gridColumn: '1 / -1' } }, '未找到匹配的乐高资产')
       );
       return;
     }
 
     for (const item of filtered) {
-      const card = el('div', {
-        style: {
-          background: '#071019',
-          border: '1px solid #1e293b',
-          borderRadius: '6px',
-          padding: '10px 12px',
-          fontSize: '12px'
-        }
-      },
-        el('div', { style: { display: 'flex', justifyContent: 'space-between', marginBottom: '4px' } },
-          el('strong', { style: { color: '#38bdf8' } }, item.id),
-          el('span', { style: { color: '#94a3b8', fontSize: '11px' } }, item.series || '通用')
+      const card = el('div', { class: 'rcard' },
+        el('div', { class: 'rcard__top' },
+          el('strong', { class: 'badge badge--mono badge--info' }, item.id),
+          el('span', { style: { color: 'var(--text-3)', fontSize: '11px' } }, item.series || '通用')
         ),
-        el('div', { style: { color: '#f1f5f9', fontWeight: '600', marginBottom: '4px' } }, item.nameZh || item.name),
-        el('div', { style: { color: '#64748b', fontSize: '11px', lineHeight: '1.4', maxHeight: '36px', overflow: 'hidden' } },
-          item.lines ? item.lines[0] : ''
-        )
+        el('div', { class: 'rcard__name' }, item.nameZh || item.name),
+        el('div', { class: 'rcard__outfit' }, item.lines ? item.lines[0] : '')
       );
       listContainer.appendChild(card);
     }
@@ -102,11 +83,11 @@ export function renderAssetManager(container, registry, onClose = null) {
   const totalCount = registry?.byId?.size ?? 0;
   const customCount = loadCustomAssets().length;
 
-  const header = el('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' } },
-    el('h3', { style: { color: '#e7edf7', margin: '0', fontSize: '16px' } },
-      `乐高微缩资产库 (${totalCount} 项${customCount ? `，含自定义 ${customCount} 项` : ''})`),
+  const header = el('div', { class: 'drawer__head' },
+    el('h3', { class: 'drawer__title' },
+      `乐高微缩资产库 · ${totalCount} 项${customCount ? `（含自定义 ${customCount} 项）` : ''}`),
     el('button', {
-      style: { background: 'transparent', border: '1px solid #475569', color: '#94a3b8', padding: '4px 12px', borderRadius: '4px', cursor: 'pointer', fontSize: '12px' },
+      class: 'btn btn--ghost btn--sm',
       onClick: () => { container.style.display = 'none'; onClose?.(); }
     }, '关闭')
   );
@@ -114,33 +95,20 @@ export function renderAssetManager(container, registry, onClose = null) {
   // 搜索栏与分类过滤
   const searchInput = el('input', {
     type: 'text',
+    class: 'input',
     placeholder: '按名称、ID、时代或阵营搜索（如 Abrams、特种部队）…',
-    style: { width: '100%', boxSizing: 'border-box', padding: '8px 12px', background: '#020617', border: '1px solid #334155', borderRadius: '6px', color: '#e2e8f0', fontSize: '13px', marginBottom: '12px' },
+    style: { marginBottom: '12px' },
     onInput: (e) => { searchQuery = e.target.value; refreshList(); }
   });
 
-  const catTabs = el('div', { style: { display: 'flex', gap: '6px', overflowX: 'auto', paddingBottom: '8px', marginBottom: '12px' } });
+  const catTabs = el('div', { class: 'tabs', style: { marginBottom: '14px' } });
   for (const [key, label] of Object.entries(CATEGORY_NAMES)) {
     const btn = el('button', {
-      style: {
-        background: key === currentCategory ? '#38bdf8' : '#1e293b',
-        color: key === currentCategory ? '#0f172a' : '#94a3b8',
-        border: '0',
-        borderRadius: '4px',
-        padding: '4px 10px',
-        fontSize: '11px',
-        cursor: 'pointer',
-        whiteSpace: 'nowrap',
-        fontWeight: '600'
-      },
+      class: `tab${key === currentCategory ? ' is-active' : ''}`,
       onClick: () => {
         currentCategory = key;
-        for (const child of catTabs.children) {
-          child.style.background = '#1e293b';
-          child.style.color = '#94a3b8';
-        }
-        btn.style.background = '#38bdf8';
-        btn.style.color = '#0f172a';
+        for (const child of catTabs.children) child.classList.remove('is-active');
+        btn.classList.add('is-active');
         refreshList();
       }
     }, label);
@@ -148,50 +116,27 @@ export function renderAssetManager(container, registry, onClose = null) {
   }
 
   // 新增资产入口：录入后立即注入注册表并持久化，而非仅仅下载一个 JSON 文件
-  const addAssetBtn = el('div', { style: { display: 'flex', gap: '8px', marginTop: '12px' } },
+  const addAssetBtn = el('div', { style: { display: 'flex', gap: '8px', marginTop: '14px' } },
     el('button', {
-      style: {
-        flex: '1',
-        background: 'transparent',
-        border: '1px dashed #38bdf8',
-        color: '#38bdf8',
-        padding: '8px',
-        borderRadius: '6px',
-        cursor: 'pointer',
-        fontSize: '12px',
-        fontWeight: '600'
-      },
+      class: 'btn btn--subtle',
+      style: { flex: '1', borderStyle: 'dashed' },
       onClick: () => openAddAssetDialog(() => {
         refreshList();
-        const customCount = loadCustomAssets().length;
-        header.firstChild.textContent = `乐高微缩资产库 (${registry?.byId?.size ?? 0} 项，含自定义 ${customCount} 项)`;
+        const nextCustom = loadCustomAssets().length;
+        header.querySelector('.drawer__title').textContent = `乐高微缩资产库 · ${registry?.byId?.size ?? 0} 项（含自定义 ${nextCustom} 项）`;
       })
     }, '+ 录入新的自定义乐高人仔 / 载具装备'),
     el('button', {
-      style: {
-        background: 'transparent',
-        border: '1px solid #475569',
-        color: '#94a3b8',
-        padding: '8px 12px',
-        borderRadius: '6px',
-        cursor: 'pointer',
-        fontSize: '12px'
-      },
+      class: 'btn btn--ghost',
       title: '管理/清除已录入的自定义资产',
       onClick: () => openManageCustomAssets(registry, () => refreshList())
     }, '管理自定义')
   );
 
-  const wrapper = el('div', {
-    style: {
-      background: '#0b1320',
-      border: '1px solid #1e3a5f',
-      borderRadius: '8px',
-      padding: '20px',
-      boxShadow: '0 10px 30px rgba(0,0,0,0.8)'
-    }
-  }, header, searchInput, catTabs, listContainer, addAssetBtn);
+  const body = el('div', { class: 'drawer__body' },
+    searchInput, catTabs, listContainer, addAssetBtn);
 
-  container.appendChild(wrapper);
+  container.appendChild(header);
+  container.appendChild(body);
   refreshList();
 }

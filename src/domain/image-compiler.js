@@ -75,7 +75,7 @@ export function compileKeyframeImage(shot, registry) {
   if (shot.screenDirection) {
     parts.push(`Subject orientation: facing ${shot.screenDirection}`);
   }
-  const ar = shot.aspectRatio || '16:9';
+  const ar = shot.aspectRatio || '9:16';
   parts.push(`Aspect ratio: ${ar}`);
 
   const prompt = parts.filter(Boolean).join('. ') + '.';

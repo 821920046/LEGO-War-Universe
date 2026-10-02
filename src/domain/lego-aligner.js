@@ -34,7 +34,7 @@ export function alignShotsToLego(rawShots = [], baseAssets = {}, era = 'Modern')
       damageState,
       audioCue: shot.audioCue || '环境战术音效 · 细微塑料碰撞声',
       radioVoice: shot.radioVoice || '【无线电】全队保持警戒，注意前方动向。',
-      aspectRatio: shot.aspectRatio || '16:9',
+      aspectRatio: shot.aspectRatio || '9:16',
       subjects: shot.subjects && shot.subjects.length > 0 ? shot.subjects : defaultSubjects,
       environment: shot.environment || defaultEnv,
       camera: shot.camera || defaultCam,

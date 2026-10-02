@@ -9,19 +9,10 @@ import { createEl, text } from './render.js';
 import { ledgerStats, exportLedger } from '../domain/evolution.js';
 import { toast } from './feedback.js';
 
-function statCard(label, value, accent) {
-  return createEl('div', {
-    style: {
-      background: 'rgba(255,255,255,0.02)',
-      border: '1px solid rgba(255,255,255,0.07)',
-      borderRadius: '8px',
-      padding: '12px 14px',
-      minWidth: '120px',
-      flex: '1 1 120px'
-    }
-  },
-    createEl('div', { style: { fontSize: '22px', fontWeight: '800', color: accent || '#38bdf8' } }, String(value)),
-    createEl('div', { style: { fontSize: '12px', color: '#94a3b8', marginTop: '2px' } }, label)
+function statCard(label, value, color) {
+  return createEl('div', { class: 'stat' },
+    createEl('div', { class: 'stat__value', style: { color } }, String(value)),
+    createEl('div', { class: 'stat__label' }, label)
   );
 }
 
@@ -36,21 +27,19 @@ export function renderEvolutionPanel(container, ledger, callbacks = {}) {
 
   const stats = ledgerStats(ledger);
 
-  const header = createEl('div', {
-    style: { display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '14px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '12px', gap: '12px', flexWrap: 'wrap' }
-  },
+  const header = createEl('div', { class: 'card__head' },
     createEl('div', {},
-      createEl('h2', { style: { margin: '0', fontSize: '17px', color: '#a78bfa', fontWeight: '800', display: 'flex', alignItems: 'center', gap: '8px' } },
+      createEl('h2', { class: 'card__title' },
         createEl('span', {}, '🧬'), '自我进化学习引擎 (Self-Evolution Engine)'),
-      createEl('p', { style: { margin: '4px 0 0 0', color: '#94a3b8', fontSize: '12px', lineHeight: '1.5' } },
+      createEl('p', { class: 'card__sub' },
         '每次生成都会留下学习痕迹：高分资产被优先复用，多个题材反复验证的资产会被晋升；题材需要而资产库缺失的现代/未来战争装备，会由锻造炉当场生成并纳入记忆。')
     )
   );
 
-  const actions = createEl('div', { style: { display: 'flex', gap: '8px', flexWrap: 'wrap' } });
+  const actions = createEl('div', { class: 'card__actions' });
   actions.append(
     createEl('button', {
-      style: { background: '#1e293b', border: '1px solid #475569', color: '#a78bfa', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer' },
+      class: 'btn btn--subtle btn--sm',
       onClick: () => {
         try {
           const blob = new Blob([exportLedger(ledger)], { type: 'application/json' });
@@ -67,57 +56,56 @@ export function renderEvolutionPanel(container, ledger, callbacks = {}) {
       }
     }, '⬇ 导出记忆'),
     createEl('button', {
-      style: { background: 'transparent', border: '1px solid #7f1d1d', color: '#f87171', borderRadius: '6px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer' },
+      class: 'btn btn--danger btn--sm',
       onClick: () => callbacks.onReset?.()
     }, '重置记忆')
   );
   header.append(actions);
   container.append(header);
 
-  container.append(createEl('div', { style: { display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '16px' } },
-    statCard('累计生成', stats.generations, '#38bdf8'),
-    statCard('覆盖题材', stats.distinctThemes, '#34d399'),
-    statCard('记忆资产', stats.trackedAssets, '#fbbf24'),
-    statCard('资产调用', stats.totalUses, '#f472b6'),
-    statCard('锻造新装备', stats.forgedCount, '#a78bfa'),
-    statCard('晋升主力', stats.promotedCount, '#f59e0b')
+  container.append(createEl('div', { class: 'card__body' },
+    createEl('div', { style: { display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '18px' } },
+      statCard('累计生成', stats.generations, 'var(--info)'),
+      statCard('覆盖题材', stats.distinctThemes, 'var(--ok)'),
+      statCard('记忆资产', stats.trackedAssets, 'var(--accent)'),
+      statCard('资产调用', stats.totalUses, 'var(--violet)'),
+      statCard('锻造新装备', stats.forgedCount, 'var(--violet)'),
+      statCard('晋升主力', stats.promotedCount, 'var(--warn)')
+    ),
+
+    createEl('div', { class: 'grid grid--2' },
+      buildListBox('⭐ 高分主力资产 (记忆权重 Top 8)', 'var(--info)', stats.top.length === 0
+        ? '暂无记录，生成一部影片后即可看到学习成果。'
+        : null,
+        stats.top.map(item => {
+          const asset = callbacks.registry?.byId?.get(item.id);
+          return { name: `${item.id} · ${asset?.nameZh || asset?.name || '资产'}`, meta: `${item.count} 次 · 权重 ${item.score}` };
+        })),
+      buildListBox('⚒️ 锻造炉产出的现代化装备 (最近 8 件)', 'var(--violet)', (ledger?.forged || []).length === 0
+        ? '尚未锻造新装备。输入现代/未来战争题材（如「无人机蜂群突袭」）即可触发。'
+        : null,
+        (ledger?.forged || []).slice(-8).reverse().map(asset => ({
+          name: `${asset.id} · ${asset.nameZh || asset.name}`,
+          meta: asset.series || 'shared',
+          metaCls: 'badge badge--violet'
+        })))
+    )
   ));
+}
 
-  const cols = createEl('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '14px' } });
-
-  // 高分主力资产
-  const topBox = createEl('div', { style: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', padding: '14px 16px' } },
-    createEl('div', { style: { color: '#38bdf8', fontWeight: '700', fontSize: '13px', marginBottom: '10px' } }, '⭐ 高分主力资产 (记忆权重 Top 8)')
+function buildListBox(title, color, emptyText, rows) {
+  const box = createEl('div', { class: 'panel' },
+    createEl('div', { style: { color, fontWeight: '700', fontSize: '13px', marginBottom: '10px' } }, title)
   );
-  if (stats.top.length === 0) {
-    topBox.append(createEl('div', { style: { color: '#64748b', fontSize: '12px' } }, '暂无记录，生成一部影片后即可看到学习成果。'));
-  } else {
-    for (const item of stats.top) {
-      const asset = callbacks.registry?.byId?.get(item.id);
-      topBox.append(createEl('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px dashed rgba(255,255,255,0.05)' } },
-        createEl('span', { style: { fontSize: '12px', color: '#e2e8f0' } }, `${item.id} · ${asset?.nameZh || asset?.name || '资产'}`),
-        createEl('span', { style: { fontSize: '11px', color: '#94a3b8' } }, `${item.count} 次 · 权重 ${item.score}`)
-      ));
-    }
+  if (emptyText) {
+    box.append(createEl('div', { style: { color: 'var(--text-3)', fontSize: '12.5px', lineHeight: '1.5' } }, emptyText));
+    return box;
   }
-  cols.append(topBox);
-
-  // 锻造资产
-  const forgedBox = createEl('div', { style: { background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.07)', borderRadius: '8px', padding: '14px 16px' } },
-    createEl('div', { style: { color: '#a78bfa', fontWeight: '700', fontSize: '13px', marginBottom: '10px' } }, '⚒️ 锻造炉产出的现代化装备 (最近 8 件)')
-  );
-  const forged = (ledger?.forged || []).slice(-8).reverse();
-  if (forged.length === 0) {
-    forgedBox.append(createEl('div', { style: { color: '#64748b', fontSize: '12px' } }, '尚未锻造新装备。输入现代/未来战争题材（如「无人机蜂群突袭」）即可触发。'));
-  } else {
-    for (const asset of forged) {
-      forgedBox.append(createEl('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '5px 0', borderBottom: '1px dashed rgba(255,255,255,0.05)' } },
-        createEl('span', { style: { fontSize: '12px', color: '#e2e8f0' } }, `${asset.id} · ${asset.nameZh || asset.name}`),
-        createEl('span', { style: { fontSize: '11px', color: '#a78bfa', background: 'rgba(167,139,250,0.12)', padding: '1px 8px', borderRadius: '10px' } }, asset.series || 'shared')
-      ));
-    }
+  for (const row of rows) {
+    box.append(createEl('div', { class: 'row' },
+      createEl('span', { class: 'row__name', style: { fontSize: '12.5px' } }, row.name),
+      createEl('span', { class: row.metaCls || 'row__meta' }, row.meta)
+    ));
   }
-  cols.append(forgedBox);
-
-  container.append(cols);
+  return box;
 }
