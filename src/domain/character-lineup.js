@@ -100,6 +100,7 @@ function selectFactionTemplate(era = 'Modern', theme = '') {
 
 /**
  * 从镜头序列中提取角色，并自动补齐为完整正反双阵营名册
+ * 极致防御性设计：自动从 shots、era、theme 中综合推导时代，确保输出永远合法有效
  * @param {Array} shots 分镜脚本数组
  * @param {object|null} registry 资产注册表（可选）
  * @param {string} era 影片时代标签
@@ -107,25 +108,41 @@ function selectFactionTemplate(era = 'Modern', theme = '') {
  * @returns {{ coalition: Array, opposing: Array }} 正反双阵营角色列表
  */
 export function extractCharacterLineup(shots = [], registry = null, era = 'Modern', theme = '') {
-  const template = selectFactionTemplate(era, theme);
+  // 智能推断时代：若未显式指定时代，尝试从镜头中的角色/载具 ID 中感知
+  let inferredEra = era || 'Modern';
+  if (!era || era === 'Modern') {
+    const rawShots = Array.isArray(shots) ? shots : [];
+    for (const s of rawShots) {
+      const subs = Array.isArray(s?.subjects) ? s.subjects : [];
+      for (const id of subs) {
+        if (typeof id === 'string') {
+          if (id.startsWith('CHR-1') || id.startsWith('VEH-1') || id.startsWith('AIR-1')) inferredEra = 'WWII';
+          if (id.startsWith('CHR-7') || id.startsWith('AIR-7') || id.startsWith('ENV-7')) inferredEra = 'Orbital';
+          if (id.startsWith('CHR-63') || id.startsWith('AIR-62') || id.startsWith('VEH-62')) inferredEra = 'Modern High-Tech';
+        }
+      }
+    }
+  }
+
+  const template = selectFactionTemplate(inferredEra, theme);
 
   // 从模板生成完整的正方阵营，每个角色附带唯一 id 和阵营标识
-  const coalition = template.coalition.map((c, idx) => ({
+  const coalition = (template?.coalition || []).map((c, idx) => ({
     id: `CHR-C${String(idx + 1).padStart(2, '0')}`,
-    callsign: c.callsign,
-    name: c.name,
-    role: c.role,
-    outfit: c.outfit,
+    callsign: c.callsign || `HERO-${idx + 1}`,
+    name: c.name || `正方角色 ${idx + 1}`,
+    role: c.role || '特战行动员',
+    outfit: c.outfit || '标准战术装备',
     faction: 'coalition'
   }));
 
   // 从模板生成完整的反方阵营
-  const opposing = template.opposing.map((c, idx) => ({
+  const opposing = (template?.opposing || []).map((c, idx) => ({
     id: `CHR-O${String(idx + 1).padStart(2, '0')}`,
-    callsign: c.callsign,
-    name: c.name,
-    role: c.role,
-    outfit: c.outfit,
+    callsign: c.callsign || `FOE-${idx + 1}`,
+    name: c.name || `反派角色 ${idx + 1}`,
+    role: c.role || '敌对行动员',
+    outfit: c.outfit || '敌方武装配置',
     faction: 'opposing'
   }));
 
@@ -134,30 +151,51 @@ export function extractCharacterLineup(shots = [], registry = null, era = 'Moder
 
 /**
  * 生成【正反派双排站位 + 代号名牌标签】的全员合影定妆照生图 Prompt
- * @param {{ coalition: Array, opposing: Array }} factions 双阵营角色数据
+ * 极致兼容性设计：支持传入 { coalition, opposing } 阵营对象，也兼容传入纯数组 characters
+ * @param {object|Array} factions 双阵营角色数据或角色数组
  * @param {string} filmTheme 影片主题
  * @param {string} era 时代
  * @param {string} aspectRatio 画幅比例
  * @returns {object} 包含 promptEn, promptZh, characterCount, factions, aspectRatio
  */
 export function generateLineupPrompt(factions = { coalition: [], opposing: [] }, filmTheme = '', era = 'Modern', aspectRatio = '16:9') {
-  // 兜底：如果传入空阵营，用 Modern 模板补齐
-  if ((!factions.coalition || factions.coalition.length === 0) && (!factions.opposing || factions.opposing.length === 0)) {
-    factions = extractCharacterLineup([], null, era, filmTheme);
+  let normalizedFactions = { coalition: [], opposing: [] };
+
+  // 兼容模式 1：如果传入的是纯平铺数组
+  if (Array.isArray(factions)) {
+    const half = Math.ceil(factions.length / 2);
+    normalizedFactions.coalition = factions.slice(0, half).map((c, i) => ({
+      ...c,
+      callsign: c.callsign || `ALPHA-${i + 1}`,
+      faction: 'coalition'
+    }));
+    normalizedFactions.opposing = factions.slice(half).map((c, i) => ({
+      ...c,
+      callsign: c.callsign || `ENEMY-${i + 1}`,
+      faction: 'opposing'
+    }));
+  } else if (factions && typeof factions === 'object') {
+    normalizedFactions.coalition = Array.isArray(factions.coalition) ? factions.coalition : [];
+    normalizedFactions.opposing = Array.isArray(factions.opposing) ? factions.opposing : [];
   }
 
-  const allChars = [...factions.coalition, ...factions.opposing];
+  // 兜底补齐：若完全为空，用模板填满
+  if (normalizedFactions.coalition.length === 0 && normalizedFactions.opposing.length === 0) {
+    normalizedFactions = extractCharacterLineup([], null, era, filmTheme);
+  }
+
+  const allChars = [...normalizedFactions.coalition, ...normalizedFactions.opposing];
   const totalCount = allChars.length;
-  const coalitionCount = factions.coalition.length;
-  const opposingCount = factions.opposing.length;
+  const coalitionCount = normalizedFactions.coalition.length;
+  const opposingCount = normalizedFactions.opposing.length;
 
   // 正方角色逐一描述（含代号名牌）
-  const coalitionDesc = factions.coalition.map((c, idx) =>
+  const coalitionDesc = normalizedFactions.coalition.map((c, idx) =>
     `Front Row Position ${idx + 1}: "${c.name}" (callsign [${c.callsign}], ${c.role}), wearing ${c.outfit}. A small white printed nameplate label at their feet reads "[${c.callsign}]".`
   ).join(' ');
 
   // 反方角色逐一描述（含代号名牌）
-  const opposingDesc = factions.opposing.map((c, idx) =>
+  const opposingDesc = normalizedFactions.opposing.map((c, idx) =>
     `Back Row Position ${idx + 1}: "${c.name}" (callsign [${c.callsign}], ${c.role}), wearing ${c.outfit}. A small white printed nameplate label at their feet reads "[${c.callsign}]".`
   ).join(' ');
 
@@ -177,10 +215,10 @@ export function generateLineupPrompt(factions = { coalition: [], opposing: [] },
     `在纯净中性灰影棚背景前，${totalCount} 位乐高人仔角色分两排正面全身站立于收藏展示台上。`,
     ``,
     `🔵 前排（正方联军 · ${coalitionCount} 人）：`,
-    ...factions.coalition.map((c, idx) => `  ${idx + 1}. 【${c.name}】代号 [${c.callsign}] · ${c.role} · ${c.outfit}`),
+    ...normalizedFactions.coalition.map((c, idx) => `  ${idx + 1}. 【${c.name}】代号 [${c.callsign}] · ${c.role} · ${c.outfit}`),
     ``,
     `🔴 后排（反方势力 · ${opposingCount} 人）：`,
-    ...factions.opposing.map((c, idx) => `  ${idx + 1}. 【${c.name}】代号 [${c.callsign}] · ${c.role} · ${c.outfit}`),
+    ...normalizedFactions.opposing.map((c, idx) => `  ${idx + 1}. 【${c.name}】代号 [${c.callsign}] · ${c.role} · ${c.outfit}`),
     ``,
     `每个角色脚下的展示台上有白色代号名牌标签 [CALLSIGN]，正方底座为深蓝色，反方底座为暗红色。`,
     `棚拍柔光箱，脚底微弱阴影，35mm 移轴微距摄影，真实 ABS 塑料注塑反光与微观接缝细节清晰可见。`
@@ -188,7 +226,7 @@ export function generateLineupPrompt(factions = { coalition: [], opposing: [] },
 
   return {
     characterCount: totalCount,
-    factions,
+    factions: normalizedFactions,
     promptEn,
     promptZh,
     aspectRatio

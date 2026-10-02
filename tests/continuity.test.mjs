@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { validateContinuityChain, enforceContinuityChain, DAMAGE_HIERARCHY } from '../src/domain/continuity.js';
+import { continuityRepairWarnings } from '../src/ui/render.js';
 
 test('Continuity: empty shots list is ok', () => {
   const result = validateContinuityChain([], null);
@@ -57,6 +58,54 @@ test('Continuity: character variant regression raises VARIANT_REGRESSION', () =>
   const result = validateContinuityChain(shots, null);
   assert.equal(result.ok, false);
   assert.ok(result.violations.some(v => v.code === 'VARIANT_REGRESSION'));
+});
+
+test('Continuity: enforceContinuityChain preserves authored screenDirection and damageState', () => {
+  // 回归用例：早期实现会无条件用运行态覆盖作者设定，
+  // 导致整片轴向恒为 left-to-right、战损永远到不了 destroyed。
+  const authored = [
+    { phase: 'establish', subjects: ['VEH-101'], screenDirection: 'towards-camera', damageState: 'clean', action: 'A' },
+    { phase: 'build', subjects: ['VEH-101'], screenDirection: 'left-to-right', damageState: 'weathered', action: 'B' },
+    { phase: 'resolve', subjects: ['VEH-101'], screenDirection: 'away-from-camera', damageState: 'destroyed', action: 'C' }
+  ];
+  const out = enforceContinuityChain(authored);
+  assert.deepEqual(out.map(s => s.screenDirection), ['towards-camera', 'left-to-right', 'away-from-camera']);
+  assert.deepEqual(out.map(s => s.damageState), ['clean', 'weathered', 'destroyed']);
+  assert.equal(validateContinuityChain(out).ok, true);
+});
+
+test('Continuity: damage state can never regress even if a later shot asks for a lighter state', () => {
+  const authored = [
+    { phase: 'climax', subjects: ['VEH-101'], damageState: 'damaged', action: 'A' },
+    { phase: 'resolve', subjects: ['VEH-101'], damageState: 'clean', action: 'B' }
+  ];
+  const out = enforceContinuityChain(authored);
+  assert.equal(out[1].damageState, 'damaged');
+  assert.equal(validateContinuityChain(out).ok, true);
+});
+
+test('Continuity: illegal axis reversal is auto-repaired to a neutral on-axis beat', () => {
+  const authored = [
+    { phase: 'build', subjects: ['CHR-401'], screenDirection: 'left-to-right', action: 'A' },
+    { phase: 'climax', subjects: ['CHR-401'], screenDirection: 'right-to-left', action: 'B' }
+  ];
+  const out = enforceContinuityChain(authored);
+  assert.equal(out[1].screenDirection, 'neutral');
+  assert.equal(out[1].axisRepairedFrom, 'right-to-left');
+  // 修复后的链条必须是合法的，而不是把违规留给用户
+  assert.equal(validateContinuityChain(out).ok, true);
+});
+
+test('Continuity: repaired authored axis direction is surfaced as a visible warning', () => {
+  const warnings = continuityRepairWarnings([
+    { screenDirection: 'left-to-right' },
+    { screenDirection: 'neutral', axisRepairedFrom: 'right-to-left' }
+  ]);
+  assert.equal(warnings.length, 1);
+  assert.equal(warnings[0].code, 'AXIS_DIRECTION_AUTO_REPAIRED');
+  assert.equal(warnings[0].severity, 'warning');
+  assert.match(warnings[0].message, /right-to-left.*neutral/);
+  assert.match(warnings[0].message, /确认.*创作意图/);
 });
 
 test('Continuity: 180-degree axis jump raises AXIS_JUMP_ACROSS_LINE', () => {

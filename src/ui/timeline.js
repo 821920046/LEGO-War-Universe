@@ -139,7 +139,9 @@ function renderShotCard(shot, index, registry, onSelect, onCopyKeyframe) {
   const arrow = DIR_ARROWS[dir] || '·';
   const damage = shot.damageState || 'weathered';
   const damageBadge = DAMAGE_BADGES[damage] || DAMAGE_BADGES.weathered;
-  const hasRef = !!(shot.referenceFrame || index > 0);
+  // 只认真实的参考帧锚点。此前写成 `referenceFrame || index > 0`，
+  // 会让所有非首镜都显示已锁帧图标，即便该镜头根本没绑定前序尾帧。
+  const hasRef = !!shot.referenceFrame;
 
   const subjectNames = (shot.subjects || []).map(id => {
     if (registry) {
@@ -151,6 +153,16 @@ function renderShotCard(shot, index, registry, onSelect, onCopyKeyframe) {
 
   const card = el('div', {
     class: 'tl-card',
+    // 卡片是纯 div + onClick，键盘用户完全无法触达；补上语义与 Tab 焦点
+    role: 'button',
+    tabindex: '0',
+    title: `${shotLabel} · 点击编辑镜头`,
+    onKeydown: (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        onSelect?.(index, shot);
+      }
+    },
     style: {
       borderLeft: `4px solid ${phaseColor}`,
       background: '#0d1b2a',
@@ -289,10 +301,13 @@ export function exportToCapCutCSV(shots = [], registry = null, filmTheme = '未�
   let currentSecond = 0;
   const shotDuration = 8; // 8秒定格
 
+  // 标准时间码 HH:MM:SS:FF。时位此前被写死为 00，长片（>150 镜）会溢出。
+  const pad = (n) => String(n).padStart(2, '0');
   const formatTC = (sec) => {
-    const m = String(Math.floor(sec / 60)).padStart(2, '0');
-    const s = String(sec % 60).padStart(2, '0');
-    return `00:${m}:${s}:00`;
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    return `${pad(h)}:${pad(m)}:${pad(s)}:00`;
   };
 
   shots.forEach((s, idx) => {
@@ -333,5 +348,6 @@ export function exportToCapCutCSV(shots = [], registry = null, filmTheme = '未�
   a.href = url;
   a.download = `${filmTheme.replace(/[\\/:*?"<>|]/g, '_')}_剪映分镜导入表.csv`;
   a.click();
-  URL.revokeObjectURL(url);
+  // 同步 revoke 会在部分浏览器上赶在下载真正开始前销毁 blob
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
 }

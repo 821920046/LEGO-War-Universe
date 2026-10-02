@@ -31,6 +31,44 @@ const PHASE_ORDER = {
 };
 
 /**
+ * 时代兼容分组。
+ * 时代校验的目的只有一个：防止画面出现肉眼可见的穿帮（谢尔曼坦克开进现代城市）。
+ * 因此「现代」与「现代高科技」是同一时期的不同题材，混用并不构成穿帮；
+ * 而「二战」装备出现在现代场景才是真正必须拦下的错误。
+ */
+const ERA_COMPATIBILITY = {
+  'Modern': ['Modern', 'Modern High-Tech'],
+  'Modern High-Tech': ['Modern', 'Modern High-Tech'],
+  'Gulf War': ['Gulf War', 'Iraq War'],
+  'Iraq War': ['Gulf War', 'Iraq War'],
+  'WWII': ['WWII', 'Pacific'],
+  'Pacific': ['WWII', 'Pacific'],
+  'Cold War': ['Cold War'],
+  'Orbital': ['Orbital']
+};
+
+function isEraCompatible(assetSeries, targetEra) {
+  if (!targetEra) return true;
+  if (!assetSeries || assetSeries === 'shared') return true;
+  if (assetSeries === targetEra) return true;
+  const group = ERA_COMPATIBILITY[targetEra];
+  return Array.isArray(group) ? group.includes(assetSeries) : false;
+}
+
+/**
+ * 时代不一致的严重度分级。
+ * 主体（人仔 / 载具 / 武器）携带强烈的时代视觉特征，不一致即为穿帮 → error。
+ * 环境（沙漠、山地、海岸）本身几乎没有时代特征，且资产库各时代覆盖极不均衡
+ * （Modern 有 45 个环境，Modern High-Tech 只有 1 个），不一致仅作提示 → warning。
+ */
+const ERA_SEVERITY_BY_KIND = {
+  character: 'error',
+  vehicle: 'error',
+  weapon: 'error',
+  environment: 'warning'
+};
+
+/**
  * 校验单镜头规范 (ShotSpec)
  * @param {object} s 镜头规范对象
  * @param {object} r 资产注册表
@@ -46,7 +84,7 @@ export function validateShotSpec(s, r, intent = {}) {
   const checkAsset = (id, expectedKind, field) => {
     const a = r.byId.get(id);
     if (!a) {
-      violations.push({ code: 'UNKNOWN_ID', field, id });
+      violations.push({ code: 'UNKNOWN_ID', field, id, severity: 'error' });
       return null;
     }
     if (expectedKind && a.kind !== expectedKind) {
@@ -54,12 +92,20 @@ export function validateShotSpec(s, r, intent = {}) {
         code: 'INVALID_KIND',
         field,
         expected: expectedKind,
-        actual: a.kind
+        actual: a.kind,
+        severity: 'error'
       });
       return null;
     }
-    if (intent.era && a.series !== 'shared' && a.series !== intent.era) {
-      violations.push({ code: 'ERA_MISMATCH', field, id, era: a.series, targetEra: intent.era });
+    if (intent.era && !isEraCompatible(a.series, intent.era)) {
+      violations.push({
+        code: 'ERA_MISMATCH',
+        field,
+        id,
+        era: a.series,
+        targetEra: intent.era,
+        severity: ERA_SEVERITY_BY_KIND[a.kind] || 'warning'
+      });
     }
     return a;
   };
@@ -72,7 +118,7 @@ export function validateShotSpec(s, r, intent = {}) {
 
   // 2. 主体配额与检索
   if (!Array.isArray(s.subjects) || s.subjects.length < 1 || s.subjects.length > 3) {
-    violations.push({ code: 'SUBJECT_QUOTA' });
+    violations.push({ code: 'SUBJECT_QUOTA', severity: 'error' });
   } else {
     for (const subId of s.subjects) {
       const asset = checkAsset(subId, null, 'subjects');
@@ -81,13 +127,13 @@ export function validateShotSpec(s, r, intent = {}) {
   }
 
   // 3. 特效与音频配额
-  if ((s.fx || []).length > 3) violations.push({ code: 'FX_QUOTA' });
-  if ((s.audio || []).length > 2) violations.push({ code: 'AUDIO_QUOTA' });
+  if ((s.fx || []).length > 3) violations.push({ code: 'FX_QUOTA', severity: 'error' });
+  if ((s.audio || []).length > 2) violations.push({ code: 'AUDIO_QUOTA', severity: 'error' });
 
   // 4. 动作描述必填
   const actionText = String(s.action || '').trim();
   if (!actionText) {
-    violations.push({ code: 'MISSING_ACTION' });
+    violations.push({ code: 'MISSING_ACTION', severity: 'error' });
   }
 
   // 5. 阵营冲突校验 (Faction Conflict)
@@ -105,7 +151,8 @@ export function validateShotSpec(s, r, intent = {}) {
         violations.push({
           code: 'FACTION_CONFLICT_INVALID',
           field: 'action',
-          message: '对立阵营实体同框时，动作必须体现对抗或交战交互，禁止无冲突或协同动作。'
+          message: '对立阵营实体同框时，动作必须体现对抗或交战交互，禁止无冲突或协同动作。',
+          severity: 'error'
         });
       }
     }
@@ -123,7 +170,8 @@ export function validateShotSpec(s, r, intent = {}) {
           violations.push({
             code: 'VEHICLE_MOTION_INCOMPATIBLE',
             field: 'environment',
-            message: `地面载具 [${subject.id}] 不能在无搭载平台的开阔海域环境运行。`
+            message: `地面载具 [${subject.id}] 不能在无搭载平台的开阔海域环境运行。`,
+            severity: 'error'
           });
         }
       }
@@ -132,8 +180,9 @@ export function validateShotSpec(s, r, intent = {}) {
         violations.push({
           code: 'VEHICLE_MOTION_INCOMPATIBLE',
           field: 'environment',
-          message: `潜艇载具 [${subject.id}] 无法在陆地或荒漠环境中部署。`
-        });
+            message: `潜艇载具 [${subject.id}] 无法在陆地或荒漠环境中部署。`,
+            severity: 'error'
+          });
       }
     }
   }
@@ -145,7 +194,8 @@ export function validateShotSpec(s, r, intent = {}) {
       violations.push({
         code: 'ENVIRONMENT_WEATHER_CONFLICT',
         field: 'weather',
-        message: '干旱沙漠环境与暴风雪气象存在物理逻辑冲突。'
+        message: '干旱沙漠环境与暴风雪气象存在物理逻辑冲突。',
+        severity: 'error'
       });
     }
   }
@@ -183,7 +233,8 @@ export function validateFilmPlan(plan, r) {
       violations.push({
         code: 'NARRATIVE_PHASE_DISORDER',
         shotIndex: i,
-        message: `镜头 S${String(i + 1).padStart(3, '0')} 出现叙事阶段严重倒退（在结局 resolve 后突现 establish 铺垫），需显式声明 flashback。`
+        message: `镜头 S${String(i + 1).padStart(3, '0')} 出现叙事阶段严重倒退（在结局 resolve 后突现 establish 铺垫），需显式声明 flashback。`,
+        severity: 'error'
       });
     }
     if (currentScore > highestPhaseScore) {
@@ -197,9 +248,22 @@ export function validateFilmPlan(plan, r) {
     violations.push(...contResult.violations);
   }
 
+  // 统一补齐 severity 并分级。
+  // ok 只表示「没有阻断级错误」——提示级问题不应把整份分镜判为非法，
+  // 否则一次转译就会在界面上刷出十几条红色警告，真正的穿帮反而被淹没。
+  const errors = [];
+  const warnings = [];
+  for (const v of violations) {
+    const severity = v.severity === 'warning' ? 'warning' : 'error';
+    const item = { ...v, severity };
+    (severity === 'warning' ? warnings : errors).push(item);
+  }
+
   return {
-    ok: violations.length === 0,
+    ok: errors.length === 0,
     value: plan,
-    violations
+    violations: [...errors, ...warnings],
+    errors,
+    warnings
   };
 }

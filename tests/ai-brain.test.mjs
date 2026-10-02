@@ -11,7 +11,9 @@ test('AI Brain: alignShotsToLego infers valid continuous shot parameters', () =>
   const aligned = alignShotsToLego(raw);
   assert.equal(aligned.length, 2);
   assert.equal(aligned[0].phase, 'establish');
-  assert.equal(aligned[0].screenDirection, 'left-to-right');
+  // lego-aligner 显式为 establish 设定骑轴朝向；连续性引擎必须保留作者设定，
+  // 而不是用运行态 left-to-right 覆盖。
+  assert.equal(aligned[0].screenDirection, 'towards-camera');
   assert.equal(aligned[1].phase, 'build');
   assert.equal(aligned[1].damageState, 'weathered');
   assert.equal(aligned[1].referenceFrame, 'shot_1_end_frame');

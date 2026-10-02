@@ -5,12 +5,15 @@ import { validateFilmPlan } from '../domain/shot-spec.js';
 import { transpileMovieToLego, CINEMA_DATABASE } from '../domain/cinema-homage.js';
 import { callAiBrain } from '../domain/ai-brain.js';
 import { extractCharacterLineup, generateLineupPrompt } from '../domain/character-lineup.js';
+import { checkContentGovernance } from '../domain/governance.js';
 import { ProjectStore } from './project-store.js';
 import { renderTimeline, exportToCapCutCSV } from './timeline.js';
 import { renderShotEditor } from './shot-editor.js';
 import { renderReviewQueue } from './review-queue.js';
 import { renderAssetManager } from './asset-manager.js';
-import { renderPlan, renderProjectTabs, text, createEl } from './render.js';
+import { renderPlan, renderProjectTabs, renderViolations, continuityRepairWarnings, text, createEl } from './render.js';
+import { toast, confirmDialog, promptDialog } from './feedback.js';
+import { loadCustomAssets, applyCustomAssets } from './custom-assets.js';
 
 const $ = id => document.getElementById(id);
 const fallback = JSON.parse($('lwu-data').textContent);
@@ -20,6 +23,58 @@ let currentStore = null;
 let currentProject = null;
 let activeRegistry = null;
 let activeProfile = null;
+let transpiling = false;
+
+/**
+ * 统一的持久化入口。
+ * 保存失败必须在界面上明确告知，否则用户会以为改动已经落盘。
+ */
+async function persist() {
+  const result = await storeManager.saveAll(currentStore);
+  if (!result.ok) toast(result.error, 'error', 6000);
+  return result.ok;
+}
+
+function setProgress(message, visible = true) {
+  const progressEl = $('transpile-progress');
+  if (!progressEl) return;
+  progressEl.style.display = visible ? 'block' : 'none';
+  if (message) progressEl.textContent = message;
+}
+
+/**
+ * 对一段文本执行内容治理，返回是否需要中止后续生成
+ * @returns {object|null} 命中阻断时返回 governance 结果，否则 null
+ */
+function applyGovernance(rawText, { source = '主题' } = {}) {
+  const governance = checkContentGovernance(rawText);
+
+  if (governance.status === 'blocked') {
+    text($('intent'), `❌ 已被内容安全策略阻断：${governance.reasons.join('；')}`);
+    $('intent').className = 'bad';
+    $('violations').replaceChildren(
+      createEl('div', { style: { color: '#ff5252', padding: '12px', background: 'rgba(255,82,82,0.1)', borderRadius: '6px' } },
+        `触发阻断规则: ${governance.flags.join(', ')}。请修改${source}以符合微缩军事安全规范。`)
+    );
+    toast(`已被内容安全策略阻断：${governance.reasons.join('；')}`, 'error', 6000);
+    return governance;
+  }
+
+  if (governance.status === 'review_required') {
+    currentProject.reviewQueue = currentProject.reviewQueue || [];
+    currentProject.reviewQueue.unshift({
+      id: `rev_${Date.now()}`,
+      theme: rawText,
+      flags: governance.flags,
+      reasons: governance.reasons,
+      createdAt: new Date().toISOString()
+    });
+    text($('intent'), `⚠ 已转入人工审核队列：${governance.reasons.join('；')}`);
+    $('intent').className = 'warn';
+  }
+
+  return null;
+}
 
 async function boot() {
   const [manifest, external, profiles] = await Promise.all([
@@ -29,7 +84,21 @@ async function boot() {
   ]);
 
   activeRegistry = createRegistry(external, profiles, { references: [] });
-  text($('manifest'), `构建 ${manifest.projectVersion} · 认证资产 ${manifest.assetCount} · 签名 ${manifest.assetSha256.slice(0, 12)} · 免费大模型大脑全自动就绪`);
+
+  // 用户录入的自定义资产并入运行时注册表，使其可被检索、校验与编译
+  const customApplied = applyCustomAssets(activeRegistry, loadCustomAssets());
+
+  text($('manifest'), `构建 ${manifest.projectVersion} · 认证资产 ${manifest.assetCount} · 签名 ${manifest.assetSha256.slice(0, 12)}`);
+
+  // 资产数量必须以实际注册表为准：写死的数字会随资产库扩充或自定义录入而失真
+  const totalAssets = activeRegistry.byId.size;
+  if ($('asset-manager-btn')) {
+    $('asset-manager-btn').textContent =
+      `🧱 乐高资产库 (${totalAssets}${customApplied.added ? ` · 自定义 ${customApplied.added}` : ''})`;
+  }
+  if ($('ai-brain-status')) {
+    $('ai-brain-status').textContent = '🧠 云端 AI 导演大脑：待调用（不可用时将自动回退本地引擎）';
+  }
 
   // 初始化模型 Profile 选项
   $('profile').replaceChildren();
@@ -56,6 +125,7 @@ async function boot() {
 
   renderTabs();
   bindGlobalEvents();
+  bindDrawerEscapeKeys();
   renderCurrentProject();
 }
 
@@ -68,22 +138,36 @@ function renderTabs() {
       renderTabs();
       renderCurrentProject();
     },
-    onCreate: () => {
-      const name = prompt('请输入新影片名称：', `大片企划 ${currentStore.projects.length + 1}`);
+    onCreate: async () => {
+      const name = await promptDialog({
+        title: '新建影片工程',
+        label: '影片名称',
+        defaultValue: `大片企划 ${currentStore.projects.length + 1}`,
+        placeholder: '例如：诺曼底登陆 8 镜版'
+      });
       if (!name) return;
       currentStore = storeManager.createProject(currentStore, name);
       currentProject = storeManager.getCurrentProject(currentStore);
-      storeManager.saveAll(currentStore);
+      await persist();
       renderTabs();
       renderCurrentProject();
+      toast(`已创建影片工程「${name}」`, 'success');
     },
-    onDelete: (id) => {
-      if (!confirm('确定删除该影片工程吗？')) return;
+    onDelete: async (id) => {
+      const project = currentStore.projects.find(p => p.id === id);
+      const ok = await confirmDialog({
+        title: '删除影片工程',
+        message: `确定删除「${project?.name || '未命名影片'}」吗？该工程的全部镜头与审核记录将一并移除，且无法撤销。`,
+        confirmText: '删除',
+        danger: true
+      });
+      if (!ok) return;
       currentStore = storeManager.deleteProject(currentStore, id);
       currentProject = storeManager.getCurrentProject(currentStore);
-      storeManager.saveAll(currentStore);
+      await persist();
       renderTabs();
       renderCurrentProject();
+      toast('影片工程已删除', 'info');
     }
   });
 }
@@ -184,11 +268,14 @@ function renderDirectorNotesPanel(movieName, data) {
 
 /**
  * 渲染单个阵营的角色卡片网格
+ * 极致防御性设计：确保 chars 为空或非数组时安全退出，绝不抛错
  * @param {HTMLElement} container 容器元素
  * @param {Array} chars 角色数组
  * @param {'coalition'|'opposing'} faction 阵营类型
  */
 function renderFactionCards(container, chars, faction) {
+  if (!container || !Array.isArray(chars) || chars.length === 0) return;
+
   const isCoalition = faction === 'coalition';
   const borderColor = isCoalition ? 'rgba(56, 189, 248, 0.35)' : 'rgba(239, 68, 68, 0.35)';
   const accentColor = isCoalition ? '#38bdf8' : '#f87171';
@@ -196,6 +283,7 @@ function renderFactionCards(container, chars, faction) {
   const nameplateColor = isCoalition ? '#60a5fa' : '#fb923c';
 
   for (const c of chars) {
+    if (!c) continue;
     const card = createEl('div', {
       style: {
         background: 'rgba(255, 255, 255, 0.03)',
@@ -208,11 +296,11 @@ function renderFactionCards(container, chars, faction) {
       }
     },
       createEl('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center' } },
-        createEl('strong', { style: { color: '#ffd07a', fontSize: '13px' } }, `${isCoalition ? '🛡️' : '⚔️'} ${c.name}`),
-        createEl('span', { style: { background: tagBg, color: accentColor, fontSize: '10px', padding: '1px 6px', borderRadius: '10px', fontWeight: '700' } }, c.role)
+        createEl('strong', { style: { color: '#ffd07a', fontSize: '13px' } }, `${isCoalition ? '🛡️' : '⚔️'} ${c.name || '战术角色'}`),
+        createEl('span', { style: { background: tagBg, color: accentColor, fontSize: '10px', padding: '1px 6px', borderRadius: '10px', fontWeight: '700' } }, c.role || '战斗员')
       ),
-      createEl('div', { style: { color: '#cbd5e1', fontSize: '11px', lineHeight: '1.4' } }, `服装装具：${c.outfit}`),
-      // 底部代号名牌标签 — 醒目展示，方便视频生成时调用
+      createEl('div', { style: { color: '#cbd5e1', fontSize: '11px', lineHeight: '1.4' } }, `服装装具：${c.outfit || '标准作战配置'}`),
+      // 底部代号名牌标签 — 醒目展示，方便视频生成时直接调用对应角色
       createEl('div', {
         style: {
           marginTop: '6px',
@@ -227,7 +315,7 @@ function renderFactionCards(container, chars, faction) {
           color: nameplateColor,
           letterSpacing: '0.08em'
         }
-      }, `🏷️ [${c.callsign}]`)
+      }, `🏷️ [${c.callsign || 'AGENT'}]`)
     );
     container.appendChild(card);
   }
@@ -235,7 +323,7 @@ function renderFactionCards(container, chars, faction) {
 
 /**
  * 渲染全片全角色定妆表与全家福控制台 (置顶于分镜脚本之前)
- * 自动生成正反双阵营完整名册，每个角色附带代号名牌
+ * 极致防御设计：杜绝任何内部异常阻断后续时间线与分镜脚本生成
  */
 function renderCharacterLineupPanel(project) {
   const section = $('character-lineup-section');
@@ -248,81 +336,94 @@ function renderCharacterLineupPanel(project) {
 
   section.style.display = 'block';
 
-  // 1. 提取完整正反双阵营角色名册
-  const theme = project.theme || project.name || '好莱坞大片';
-  const era = project.intent?.era || 'Modern';
-  const ar = project.aspectRatio || '16:9';
-  const factions = extractCharacterLineup(project.shots, activeRegistry, era, theme);
-  const lineupData = generateLineupPrompt(factions, theme, era, ar);
+  try {
+    // 1. 提取完整正反双阵营角色名册（双层防御：确保输出必为合法对象）
+    const theme = project.theme || project.name || '好莱坞大片';
+    const era = project.intent?.era || project.directorNotes?.era || 'Modern';
+    const ar = project.aspectRatio || '16:9';
+    const factions = extractCharacterLineup(project.shots, activeRegistry, era, theme);
+    const lineupData = generateLineupPrompt(factions, theme, era, ar);
 
-  // 2. 渲染双阵营角色卡片网格（蓝色正方 + 红色反方）
-  const grid = $('character-roster-grid');
-  grid.replaceChildren();
+    // 2. 渲染双阵营角色卡片网格（蓝色前排正方 + 红色后排反方）
+    const grid = $('character-roster-grid');
+    if (grid) {
+      grid.replaceChildren();
 
-  // 🔵 正方联军标题
-  const coalitionHeader = createEl('div', {
-    style: {
-      gridColumn: '1 / -1',
-      padding: '6px 14px',
-      background: 'rgba(37, 99, 235, 0.15)',
-      borderLeft: '4px solid #3b82f6',
-      borderRadius: '4px',
-      color: '#60a5fa',
-      fontSize: '13px',
-      fontWeight: '800',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '6px'
+      const coalitionList = Array.isArray(factions?.coalition) ? factions.coalition : [];
+      const opposingList = Array.isArray(factions?.opposing) ? factions.opposing : [];
+
+      // 🔵 前排站位 · 正方特战小队
+      const coalitionHeader = createEl('div', {
+        style: {
+          gridColumn: '1 / -1',
+          padding: '6px 14px',
+          background: 'rgba(37, 99, 235, 0.15)',
+          borderLeft: '4px solid #3b82f6',
+          borderRadius: '4px',
+          color: '#60a5fa',
+          fontSize: '13px',
+          fontWeight: '800',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px'
+        }
+      }, `🔵 前排站位 (Front Row) · 正义主角特战小队 (每位角色脚踏专属代号名牌 · ${coalitionList.length} 人)`);
+      grid.appendChild(coalitionHeader);
+      renderFactionCards(grid, coalitionList, 'coalition');
+
+      // 🔴 后排站位 · 敌对武装反派势力
+      const opposingHeader = createEl('div', {
+        style: {
+          gridColumn: '1 / -1',
+          padding: '6px 14px',
+          background: 'rgba(185, 28, 28, 0.15)',
+          borderLeft: '4px solid #ef4444',
+          borderRadius: '4px',
+          color: '#f87171',
+          fontSize: '13px',
+          fontWeight: '800',
+          marginTop: '8px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '6px'
+        }
+      }, `🔴 后排站位 (Elevated Back Row) · 敌对武装反派势力 (每位角色脚踏专属代号名牌 · ${opposingList.length} 人)`);
+      grid.appendChild(opposingHeader);
+      renderFactionCards(grid, opposingList, 'opposing');
     }
-  }, `🔵 正方联军阵营 (Coalition Forces) — ${factions.coalition.length} 名角色`);
-  grid.appendChild(coalitionHeader);
-  renderFactionCards(grid, factions.coalition, 'coalition');
 
-  // 🔴 反方势力标题
-  const opposingHeader = createEl('div', {
-    style: {
-      gridColumn: '1 / -1',
-      padding: '6px 14px',
-      background: 'rgba(185, 28, 28, 0.15)',
-      borderLeft: '4px solid #ef4444',
-      borderRadius: '4px',
-      color: '#f87171',
-      fontSize: '13px',
-      fontWeight: '800',
-      marginTop: '8px',
-      display: 'flex',
-      alignItems: 'center',
-      gap: '6px'
+    // 3. 填充提示词（防御性检查）
+    if ($('lineup-prompt-en')) $('lineup-prompt-en').value = lineupData?.promptEn || '';
+    if ($('lineup-prompt-zh')) text($('lineup-prompt-zh'), lineupData?.promptZh || '');
+
+    // 4. 更新参考图上传预览状态
+    const previewWrap = $('lineup-preview-wrap');
+    const placeholder = $('lineup-upload-placeholder');
+    const imgPreview = $('lineup-image-preview');
+    const anchorStatus = $('lineup-anchor-status');
+
+    if (project.lineupImage) {
+      if (imgPreview) imgPreview.src = project.lineupImage;
+      if (previewWrap) previewWrap.style.display = 'block';
+      if (placeholder) placeholder.style.display = 'none';
+      if (anchorStatus) {
+        anchorStatus.textContent = '✔ 🔒 全局角色视觉锚点已锁定';
+        anchorStatus.style.background = 'rgba(52, 211, 153, 0.15)';
+        anchorStatus.style.color = '#34d399';
+        anchorStatus.style.borderColor = 'rgba(52, 211, 153, 0.3)';
+      }
+    } else {
+      if (previewWrap) previewWrap.style.display = 'none';
+      if (placeholder) placeholder.style.display = 'block';
+      if (anchorStatus) {
+        anchorStatus.textContent = '⏳ 待生成/上传全家福参考图';
+        anchorStatus.style.background = 'rgba(245, 158, 11, 0.15)';
+        anchorStatus.style.color = '#f59e0b';
+        anchorStatus.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+      }
     }
-  }, `🔴 反方敌对势力 (Opposing Forces) — ${factions.opposing.length} 名角色`);
-  grid.appendChild(opposingHeader);
-  renderFactionCards(grid, factions.opposing, 'opposing');
-
-  // 3. 填充提示词
-  $('lineup-prompt-en').value = lineupData.promptEn;
-  text($('lineup-prompt-zh'), lineupData.promptZh);
-
-  // 4. 更新参考图上传预览状态
-  const previewWrap = $('lineup-preview-wrap');
-  const placeholder = $('lineup-upload-placeholder');
-  const imgPreview = $('lineup-image-preview');
-  const anchorStatus = $('lineup-anchor-status');
-
-  if (project.lineupImage) {
-    imgPreview.src = project.lineupImage;
-    previewWrap.style.display = 'block';
-    placeholder.style.display = 'none';
-    anchorStatus.textContent = '✔ 🔒 全局角色视觉锚点已锁定';
-    anchorStatus.style.background = 'rgba(52, 211, 153, 0.15)';
-    anchorStatus.style.color = '#34d399';
-    anchorStatus.style.borderColor = 'rgba(52, 211, 153, 0.3)';
-  } else {
-    previewWrap.style.display = 'none';
-    placeholder.style.display = 'block';
-    anchorStatus.textContent = '⏳ 待生成/上传全家福参考图';
-    anchorStatus.style.background = 'rgba(245, 158, 11, 0.15)';
-    anchorStatus.style.color = '#f59e0b';
-    anchorStatus.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+  } catch (err) {
+    console.warn('全角色定妆看板渲染异常（已安全容灾，不影响分镜脚本生成）:', err);
   }
 }
 
@@ -330,33 +431,52 @@ function renderCharacterLineupPanel(project) {
  * 执行电影深度转译（无缝调用后台免费大模型与智能兜底）
  */
 async function executeMovieTranspile(movieQuery) {
+  // 防重复提交：转译是一次昂贵的远端调用，连点会造成并发请求与结果互相覆盖
+  if (transpiling) {
+    toast('正在转译中，请稍候…', 'warn', 2200);
+    return;
+  }
+
+  const btn = $('transpile-movie-btn');
   const requestedShots = Number($('shots-cinema')?.value || $('shots')?.value) || 4;
   const selectedAr = $('aspect-ratio-cinema')?.value || $('aspect-ratio')?.value || '16:9';
-  const progressEl = $('transpile-progress');
 
-  if (progressEl) {
-    progressEl.style.display = 'block';
-    progressEl.textContent = '🚀 正在唤醒后台免费 AI 导演大脑进行视听拉片与转译…';
+  // 内容治理必须与自由模式一致地作用于转译输入。
+  // 此前该路径把 governance 硬编码为 passed，等于默认模式完全没有安全拦截。
+  if (applyGovernance(movieQuery, { source: '影片名' })) return;
+
+  transpiling = true;
+  if (btn) {
+    btn.disabled = true;
+    btn.style.filter = 'grayscale(0.6)';
+    btn.style.cursor = 'progress';
   }
+  setProgress('🚀 正在唤醒后台免费 AI 导演大脑进行视听拉片与转译…');
 
   try {
     const result = await callAiBrain({
       query: movieQuery,
       requestedShots,
-      onProgress: (msg) => {
-        if (progressEl) progressEl.textContent = msg;
-      }
+      onProgress: (msg) => setProgress(msg)
     });
 
-    if (progressEl) {
-      progressEl.style.display = 'none';
+    // 大模型产出的分镜文本同样必须过治理：输入合规不代表输出合规
+    const generatedText = (result.shots || []).map(s => `${s.action || ''} ${s.radioVoice || ''}`).join('\n');
+    if (applyGovernance(generatedText, { source: '分镜内容' })) {
+      setProgress('', false);
+      return;
     }
 
-    // 同步两边的主题文本与参数
+    setProgress('', false);
+
+    // 真实回显本次实际使用的引擎，而不是无条件宣称"云端大脑就绪"
+    if ($('ai-brain-status')) {
+      $('ai-brain-status').textContent = `🧠 本次引擎：${result.engine || '未知'}`;
+    }
+
     $('theme').value = result.themeZh;
     currentProject.theme = result.themeZh;
 
-    // 注入画面比例并更新镜头
     result.shots.forEach(s => { s.aspectRatio = selectedAr; });
     currentProject.shots = result.shots;
     currentProject.intent = {
@@ -365,27 +485,31 @@ async function executeMovieTranspile(movieQuery) {
       theme: result.themeZh,
       confidence: 1.0,
       safetyTags: [],
-      governance: { status: 'passed', flags: [], reasons: [] }
+      // 治理结论必须由实际检查结果得出，不能写死为 passed
+      governance: checkContentGovernance(`${movieQuery}\n${generatedText}`)
     };
     currentProject.aspectRatio = selectedAr;
     currentProject.directorNotes = result;
     currentProject.matchedMovie = result.matchedMovie;
-    storeManager.saveAll(currentStore);
+    await persist();
 
-    // 渲染好莱坞电影全景视听解构看板
     renderDirectorNotesPanel(result.matchedMovie, result);
 
     text($('intent'), `🎬 已成功解构并转译《${result.matchedMovie}》！${result.shots.length} 镜好莱坞视听分镜已生成 [${result.engine || 'AI'}]。`);
     $('intent').className = 'ok';
 
     refreshOutputs();
-
-    // 平滑滚动到置顶的角色定妆看板
     $('character-lineup-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   } catch (err) {
-    if (progressEl) {
-      progressEl.textContent = `转译异常: ${err.message}`;
-      setTimeout(() => { progressEl.style.display = 'none'; }, 4000);
+    setProgress(`转译异常: ${err.message}`);
+    toast(`转译失败：${err.message}`, 'error', 5000);
+    setTimeout(() => setProgress('', false), 4000);
+  } finally {
+    transpiling = false;
+    if (btn) {
+      btn.disabled = false;
+      btn.style.filter = '';
+      btn.style.cursor = '';
     }
   }
 }
@@ -439,7 +563,8 @@ function bindGlobalEvents() {
   $('transpile-movie-btn').onclick = () => {
     const query = $('movie-input').value.trim();
     if (!query) {
-      alert('请输入要转译的电影名（例如：壮志凌云、地心引力、黑鹰坠落）！');
+      toast('请输入要转译的电影名（例如：壮志凌云、地心引力、黑鹰坠落）', 'warn');
+      $('movie-input')?.focus();
       return;
     }
     executeMovieTranspile(query);
@@ -471,21 +596,28 @@ function bindGlobalEvents() {
     $('shots-cinema').value = $('shots').value;
   };
 
-  function applyAspectRatioChange(ar) {
+  async function applyAspectRatioChange(ar) {
     if (currentProject && currentProject.shots) {
       currentProject.shots.forEach(s => { s.aspectRatio = ar; });
       currentProject.aspectRatio = ar;
-      storeManager.saveAll(currentStore);
+      await persist();
       refreshOutputs();
     }
   }
 
   // 5. 复制全家福生图 Prompt 按钮
-  $('copy-lineup-prompt-btn').onclick = () => {
+  $('copy-lineup-prompt-btn').onclick = async () => {
     const promptText = $('lineup-prompt-en').value;
-    if (!promptText) return;
-    navigator.clipboard?.writeText(promptText);
-    alert('已成功复制【全角色同框大合影生图 Prompt】到剪贴板！\n\n可直接粘贴至 Midjourney / FLUX / DALL-E 中生成全员定妆大合照。生成完毕后请将图片上传到右侧，作为全片全局主控参考图。');
+    if (!promptText) {
+      toast('暂无可复制的全家福 Prompt，请先生成分镜', 'warn');
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(promptText);
+      toast('已复制全家福生图 Prompt。生成完毕后请把图片上传到右侧，作为全片全局主控参考图。', 'success', 5000);
+    } catch {
+      toast('浏览器拒绝了剪贴板访问，请手动选中文本框内容后复制。', 'error', 5000);
+    }
   };
 
   // 6. 全家福参考图上传与拖拽事件
@@ -521,69 +653,88 @@ function bindGlobalEvents() {
     if (file) handleLineupImageFile(file);
   };
 
-  $('remove-lineup-img-btn').onclick = (e) => {
+  $('remove-lineup-img-btn').onclick = async (e) => {
     e.stopPropagation();
-    if (!confirm('确定更换或清除当前全家福参考图吗？')) return;
+    const ok = await confirmDialog({
+      title: '清除全家福参考图',
+      message: '确定更换或清除当前全家福参考图吗？清除后全片将失去全局角色视觉锚点。',
+      confirmText: '清除',
+      danger: true
+    });
+    if (!ok) return;
     currentProject.lineupImage = null;
-    storeManager.saveAll(currentStore);
+    await persist();
     renderCharacterLineupPanel(currentProject);
+    toast('已清除全家福参考图', 'info');
   };
 
-  function handleLineupImageFile(file) {
+  /**
+   * 全家福参考图会被以 base64 dataURL 直接写进 localStorage。
+   * 一张 4000px 的手机照片转 base64 后可达数 MB，会瞬间撑爆 5MB 配额，
+   * 导致所有工程数据一起写不进去。因此入库前必须先降采样。
+   */
+  const MAX_ANCHOR_DIM = 1024;
+  const MAX_ANCHOR_BYTES = 700 * 1024;
+
+  function downscaleImage(dataUrl) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, MAX_ANCHOR_DIM / Math.max(img.width, img.height));
+        const canvas = document.createElement('canvas');
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d')?.drawImage(img, 0, 0, canvas.width, canvas.height);
+        let out = canvas.toDataURL('image/jpeg', 0.82);
+        // 仍然过大则继续压质量，避免单点拖垮整个存储
+        if (out.length > MAX_ANCHOR_BYTES) out = canvas.toDataURL('image/jpeg', 0.6);
+        resolve(out);
+      };
+      img.onerror = () => resolve(dataUrl);
+      img.src = dataUrl;
+    });
+  }
+
+  async function handleLineupImageFile(file) {
     if (!file.type.startsWith('image/')) {
-      alert('请上传图片格式文件 (PNG / JPG / WEBP)！');
+      toast('请上传图片格式文件 (PNG / JPG / WEBP)', 'warn');
       return;
     }
     const reader = new FileReader();
-    reader.onload = () => {
-      currentProject.lineupImage = reader.result;
-      storeManager.saveAll(currentStore);
+    reader.onload = async () => {
+      const optimized = await downscaleImage(String(reader.result));
+      currentProject.lineupImage = optimized;
+      const saved = await persist();
       renderCharacterLineupPanel(currentProject);
-      alert('全角色全家福参考图上传成功！\n已成功锁定为整部视频所有镜头的全局视觉基准！');
+      if (saved) {
+        toast('全家福参考图已锁定为全片全局视觉基准', 'success');
+      }
     };
+    reader.onerror = () => toast('图片读取失败，请重试', 'error');
     reader.readAsDataURL(file);
   }
 
   // 7. 自由模式生成常规分镜计划
-  $('plan').onclick = () => {
+  $('plan').onclick = async () => {
     const themeText = $('theme').value.trim();
     if (!themeText) {
-      alert('请输入影片主题描述！');
+      toast('请输入影片主题描述', 'warn');
+      $('theme')?.focus();
       return;
     }
 
     const requestedShots = Number($('shots').value) || 4;
     const profileId = $('profile').value;
 
-    const { intent, plan, warnings, governance } = planFilm({
+    if (applyGovernance(themeText, { source: '主题' })) return;
+
+    const { intent, plan, warnings } = planFilm({
       theme: themeText,
       requestedShots,
       profileId
     }, activeRegistry);
 
-    // 内容治理前置分流
-    if (governance.status === 'blocked') {
-      text($('intent'), `❌ 已被内容安全策略阻断：${governance.reasons.join('；')}`);
-      $('intent').className = 'bad';
-      $('violations').replaceChildren(
-        createEl('div', { style: { color: '#ff5252', padding: '12px', background: 'rgba(255,82,82,0.1)', borderRadius: '6px' } },
-          `触发阻断规则: ${governance.flags.join(', ')}。请修改主题以符合微缩军事安全规范。`)
-      );
-      return;
-    }
-
-    if (governance.status === 'review_required') {
-      currentProject.reviewQueue = currentProject.reviewQueue || [];
-      currentProject.reviewQueue.unshift({
-        id: `rev_${Date.now()}`,
-        theme: themeText,
-        flags: governance.flags,
-        reasons: governance.reasons,
-        createdAt: new Date().toISOString()
-      });
-      text($('intent'), `⚠ 已转入人工审核队列：${governance.reasons.join('；')}`);
-      $('intent').className = 'warn';
-    } else {
+    if (intent.governance.status !== 'blocked' && intent.governance.status !== 'review_required') {
       text($('intent'), intent.needsConfirmation
         ? `需确认年代：${warnings.join('；')}`
         : `年代：${intent.era || '未指定'} · 任务：${intent.task} · 状态：合规放行`);
@@ -601,7 +752,7 @@ function bindGlobalEvents() {
     currentProject.matchedMovie = null;
     $('director-notes-panel').style.display = 'none';
 
-    storeManager.saveAll(currentStore);
+    await persist();
     renderCurrentProject();
   };
 
@@ -615,16 +766,19 @@ function bindGlobalEvents() {
     a.href = url;
     a.download = `${currentProject.name || 'lwu-film'}.json`;
     a.click();
-    URL.revokeObjectURL(url);
+    // 立即 revoke 会在部分浏览器上赶在下载开始前销毁 blob，延后释放
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    toast('工程 JSON 已导出', 'success');
   };
 
   // 9. 导出剪映分镜表 CSV
   $('export-csv-btn').onclick = () => {
     if (!currentProject || !currentProject.shots || currentProject.shots.length === 0) {
-      alert('当前影片暂无镜头，请先选择一部电影或生成分镜计划！');
+      toast('当前影片暂无镜头，请先选择一部电影或生成分镜计划', 'warn');
       return;
     }
     exportToCapCutCSV(currentProject.shots, activeRegistry, currentProject.theme || currentProject.name);
+    toast('剪映分镜表 CSV 已导出', 'success');
   };
 
   // 10. 打开乐高资产库抽屉
@@ -640,16 +794,16 @@ function bindGlobalEvents() {
     const content = await file.text();
     const result = await storeManager.import(content);
     if (result.violations) {
-      alert(`导入失败: ${result.violations.map(v => v.code).join(', ')}`);
+      toast(`导入失败：${result.violations.map(v => v.code).join(', ')}`, 'error', 5000);
       return;
     }
     currentStore.projects.push(result.project);
     currentStore.currentProjectId = result.project.id;
     currentProject = result.project;
-    await storeManager.saveAll(currentStore);
+    const saved = await persist();
     renderTabs();
     renderCurrentProject();
-    alert('工程导入成功！');
+    if (saved) toast('工程导入成功', 'success');
     $('import-file').value = '';
   };
 }
@@ -658,47 +812,69 @@ function refreshOutputs() {
   if (!currentProject) return;
   const p = activeProfile || activeRegistry.profileById.get($('profile').value);
 
-  // 1. 置顶渲染全片全角色定妆表与全家福控制台
-  renderCharacterLineupPanel(currentProject);
+  // 1. 置顶渲染全片全角色定妆表与全家福控制台（独立容灾隔离）
+  try {
+    renderCharacterLineupPanel(currentProject);
+  } catch (err) {
+    console.error('渲染全角色定妆表异常:', err);
+  }
 
   // 2. 渲染双轨视听时间线（含首帧与音轨）
-  renderTimeline($('timeline-container'), currentProject.shots || [], activeRegistry, (idx, shot) => {
-    openShotEditor(idx, shot);
-  }, (prompt) => {
-    navigator.clipboard?.writeText(prompt);
-    alert('已成功复制 35mm 定格首帧参考图 Prompt 到剪贴板！\n可直接粘贴至 FLUX / Midjourney 中生成关键帧图片。');
-  });
+  try {
+    renderTimeline($('timeline-container'), currentProject.shots || [], activeRegistry, (idx, shot) => {
+      openShotEditor(idx, shot);
+    }, async (keyframePrompt) => {
+      try {
+        await navigator.clipboard.writeText(keyframePrompt);
+        toast('已复制 35mm 定格首帧参考图 Prompt，可直接粘贴至 FLUX / Midjourney 生成关键帧', 'success');
+      } catch {
+        toast('浏览器拒绝了剪贴板访问，请手动复制。', 'error');
+      }
+    });
+  } catch (err) {
+    console.error('渲染时间线异常:', err);
+  }
 
-  // 3. 渲染已编译输出
-  renderPlan($('output'), { shots: currentProject.shots || [] }, compileShot, activeRegistry, p, (idx, shot) => {
-    openShotEditor(idx, shot);
-  });
+  // 3. 渲染已编译输出（分镜脚本）
+  try {
+    renderPlan($('output'), { shots: currentProject.shots || [] }, compileShot, activeRegistry, p, (idx, shot) => {
+      openShotEditor(idx, shot);
+    });
+  } catch (err) {
+    console.error('渲染编译分镜异常:', err);
+  }
 
-  // 4. 校验违规
-  const valResult = validateFilmPlan({ shots: currentProject.shots || [], intent: currentProject.intent || {} }, activeRegistry);
-  $('violations').replaceChildren();
-  if (!valResult.ok) {
-    for (const v of valResult.violations) {
-      const msg = createEl('div', {
-        style: { color: '#ff9292', padding: '6px 12px', background: 'rgba(255,146,146,0.08)', borderRadius: '4px', marginBottom: '6px', fontSize: '13px' }
-      }, `⚠ 规则警告 [${v.code}] ${v.message || ''}`);
-      $('violations').appendChild(msg);
-    }
+  // 4. 校验违规（按严重度分级渲染）
+  try {
+    const valResult = validateFilmPlan({ shots: currentProject.shots || [], intent: currentProject.intent || {} }, activeRegistry);
+    const axisRepairWarnings = continuityRepairWarnings(currentProject.shots || []);
+    renderViolations($('violations'), {
+      ...valResult,
+      warnings: [...(valResult.warnings || []), ...axisRepairWarnings]
+    });
+  } catch (err) {
+    console.warn('分镜规则校验跳过:', err);
   }
 
   // 5. 渲染审核队列
-  renderReviewQueue($('review-container'), currentProject.reviewQueue || [], {
-    onApprove: (item) => {
-      currentProject.reviewQueue = currentProject.reviewQueue.filter(q => q.id !== item.id);
-      storeManager.saveAll(currentStore);
-      refreshOutputs();
-    },
-    onReject: (item) => {
-      currentProject.reviewQueue = currentProject.reviewQueue.filter(q => q.id !== item.id);
-      storeManager.saveAll(currentStore);
-      refreshOutputs();
-    }
-  });
+  try {
+    renderReviewQueue($('review-container'), currentProject.reviewQueue || [], {
+      onApprove: async (item) => {
+        currentProject.reviewQueue = currentProject.reviewQueue.filter(q => q.id !== item.id);
+        await persist();
+        refreshOutputs();
+        toast('已批准放行', 'success');
+      },
+      onReject: async (item) => {
+        currentProject.reviewQueue = currentProject.reviewQueue.filter(q => q.id !== item.id);
+        await persist();
+        refreshOutputs();
+        toast('已驳回该题材', 'info');
+      }
+    });
+  } catch (err) {
+    console.warn('审核队列渲染跳过:', err);
+  }
 }
 
 function renderCurrentProject() {
@@ -721,16 +897,31 @@ function openShotEditor(index, shot) {
     index,
     activeRegistry,
     currentProject.intent || {},
-    (updated) => {
+    async (updated) => {
       currentProject.shots[index] = updated;
-      storeManager.saveAll(currentStore);
+      await persist();
       refreshOutputs();
       $('editor-drawer').style.display = 'none';
+      toast('镜头修改已应用', 'success');
     },
     () => {
       $('editor-drawer').style.display = 'none';
     }
   );
+}
+
+/**
+ * 抽屉必须能用 ESC 关闭：它们是 position:fixed 浮层，
+ * 没有关闭快捷键时，键盘用户会被困在抽屉里。
+ */
+function bindDrawerEscapeKeys() {
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    for (const id of ['editor-drawer', 'asset-drawer']) {
+      const drawer = $(id);
+      if (drawer && drawer.style.display !== 'none') drawer.style.display = 'none';
+    }
+  });
 }
 
 boot().catch(err => {

@@ -125,7 +125,29 @@ export function validateContinuityChain(shots = [], registry = null) {
 }
 
 /**
+ * 判断两个相邻镜头轴向是否构成非法越轴（180 度线反转）
+ * 中性轴（neutral / 迎面 / 远离）不参与判定，因为它们在摄影学上本就是合法的重新建轴镜头。
+ */
+function isAxisReversal(prev, next) {
+  if (!prev || !next) return false;
+  if (prev === 'neutral' || next === 'neutral') return false;
+  return (
+    (prev === 'left-to-right' && next === 'right-to-left') ||
+    (prev === 'right-to-left' && next === 'left-to-right')
+  );
+}
+
+/**
  * 自动填充并传播连续性状态，确保镜头链条自洽
+ *
+ * 契约（两条，缺一不可）：
+ *   1. 填充 —— 缺失的连续性状态必须被推导出来，使链条完整可编译。
+ *   2. 尊重 —— 已被作者显式设定的状态不得被覆盖；只能在其基础上单调推进。
+ *
+ * 早期实现只做到了「填充」，且是破坏性填充：用运行态无条件覆盖作者设定的
+ * screenDirection / damageState，导致整片轴向恒为 left-to-right、战损永远到不了
+ * destroyed。本实现修正为「作者设定优先 + 单调推进 + 非法越轴自动修复」。
+ *
  * @param {Array<object>} rawShots 原始镜头规划
  * @returns {Array<object>} 具备强制连续性状态的镜头序列
  */
@@ -145,6 +167,39 @@ export function enforceContinuityChain(rawShots = []) {
     if (s.phase === 'climax' && runningDamage !== 'destroyed') {
       runningDamage = 'damaged';
       runningVariant = 'battle-worn';
+    }
+
+    // 作者显式设定的状态：首镜作为基线直接采纳，后续镜头只允许单调推进
+    const authoredDamage = s.damageState || s.continuityOut?.damageState;
+    const authoredVariant = s.variant || s.continuityOut?.variant;
+    let authoredDirection = s.screenDirection || s.continuityIn?.screenDirection;
+
+    if (i === 0) {
+      if (authoredDamage && DAMAGE_HIERARCHY[authoredDamage] !== undefined) {
+        runningDamage = authoredDamage;
+      }
+      if (authoredVariant) runningVariant = authoredVariant;
+      if (SCREEN_DIRECTIONS.has(authoredDirection)) runningDirection = authoredDirection;
+    } else {
+      // 战损不可逆：只接受更严重的档位，回退一律拒绝
+      if (
+        authoredDamage &&
+        DAMAGE_HIERARCHY[authoredDamage] !== undefined &&
+        DAMAGE_HIERARCHY[authoredDamage] > DAMAGE_HIERARCHY[runningDamage]
+      ) {
+        runningDamage = authoredDamage;
+      }
+      if (authoredVariant) runningVariant = authoredVariant;
+
+      if (SCREEN_DIRECTIONS.has(authoredDirection)) {
+        // 越轴修复：直接反转会破坏 180 度轴线。摄影学上唯一的合法跨越方式
+        // 是经由一个骑轴（neutral）镜头重新建轴，因此降级为 neutral 而非告警。
+        if (isAxisReversal(runningDirection, authoredDirection)) {
+          s.axisRepairedFrom = authoredDirection;
+          authoredDirection = 'neutral';
+        }
+        runningDirection = authoredDirection;
+      }
     }
 
     const continuityIn = {

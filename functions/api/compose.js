@@ -8,12 +8,38 @@ const registry = createRegistry(assets, profiles, { references: [] });
 const allowed = new Set(['theme', 'projectId', 'assetManifestVersion', 'mode', 'requestedShots', 'rhythm', 'profileId']);
 
 // 简易滑动窗口限流状态
+// 注意：Cloudflare Workers 的模块级 Map 只在单个 isolate 内有效，且随时可能被回收，
+// 因此这里只是「尽力而为」的单点保护。更重要的是必须定期清理过期条目：
+// 早期实现只增不删，任何访问过的来源都会永久驻留，构成明确的内存泄漏 / 内存耗尽型 DoS 面。
 const rateLimits = new Map();
 const RATE_LIMIT_WINDOW_MS = 60 * 1000;
 const RATE_LIMIT_MAX = 30;
+const RATE_LIMIT_MAX_TRACKED = 5000;
+let lastSweep = 0;
+
+function sweepExpired(now) {
+    for (const [key, record] of rateLimits) {
+        if (now - record.windowStart > RATE_LIMIT_WINDOW_MS) rateLimits.delete(key);
+    }
+    lastSweep = now;
+}
 
 function checkRateLimit(clientId) {
     const now = Date.now();
+
+    // 周期性清理 + 容量硬上限，双重保证 Map 不会无界增长
+    if (now - lastSweep > RATE_LIMIT_WINDOW_MS) sweepExpired(now);
+    if (rateLimits.size > RATE_LIMIT_MAX_TRACKED) sweepExpired(now);
+    if (rateLimits.size > RATE_LIMIT_MAX_TRACKED) {
+        // 极端情况下（全部条目都在窗口内）丢弃最早写入的一批，保住 isolate 内存
+        const overflow = rateLimits.size - RATE_LIMIT_MAX_TRACKED;
+        let dropped = 0;
+        for (const key of rateLimits.keys()) {
+            if (dropped++ >= overflow) break;
+            rateLimits.delete(key);
+        }
+    }
+
     let record = rateLimits.get(clientId);
     if (!record || (now - record.windowStart) > RATE_LIMIT_WINDOW_MS) {
         record = { count: 0, windowStart: now };

@@ -48,3 +48,25 @@ test('Governance check historical conflict', () => {
     const result = checkContentGovernance('二战诺曼底登陆');
     assert.equal(result.status, 'passed');
 });
+
+test('Governance normalizes full-width, spaced, punctuated, and zero-width evasions', () => {
+    for (const text of ['ＴＲＵＭＰ', 't r u m p', 't.r.u.m.p', 'tr\u200Bump', 'b1den']) {
+        const result = checkContentGovernance(text);
+        assert.equal(result.status, 'blocked', `expected block for ${JSON.stringify(text)}`);
+        assert.ok(result.flags.includes('REAL_POLITICAL_FIGURE'));
+    }
+});
+
+test('Governance detects common Cyrillic lookalike substitutions', () => {
+    const result = checkContentGovernance('trumр'); // Cyrillic р in place of Latin p
+    assert.equal(result.status, 'blocked');
+    assert.ok(result.flags.includes('REAL_POLITICAL_FIGURE'));
+});
+
+test('Governance normalizes spaced Chinese terms without changing result contract', () => {
+    const result = checkContentGovernance('斩 首');
+    assert.equal(result.status, 'blocked');
+    assert.ok(result.flags.includes('GRAPHIC_VIOLENCE_AND_HARM'));
+    assert.ok(Array.isArray(result.reasons));
+    assert.ok(Array.isArray(result.matchedRules));
+});

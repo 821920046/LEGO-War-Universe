@@ -68,12 +68,33 @@ export class ProjectStore {
 
   /**
    * 保存所有工程
+   *
+   * 关键约束：localStorage 是有限配额（通常 5MB）且写满会抛 QuotaExceededError。
+   * 早期实现直接 setItem 且不处理异常，调用方也都不 await，
+   * 结果是配额一满，所有工程数据静默丢失、界面却毫无提示。
+   * 这里改为返回显式的成功/失败结果，由调用方负责告知用户。
+   *
    * @param {object} store 多工程容器
+   * @returns {Promise<{ ok: boolean, store: object, error?: string }>}
    */
   async saveAll(store) {
     store.projects.forEach(p => { p.updatedAt = new Date().toISOString(); });
-    this.storage?.setItem(this.key, JSON.stringify(store));
-    return store;
+    if (!this.storage) {
+      return { ok: false, store, error: '当前环境不支持本地存储，本次修改不会被保存。' };
+    }
+    try {
+      this.storage.setItem(this.key, JSON.stringify(store));
+      return { ok: true, store };
+    } catch (err) {
+      const quotaHit = err?.name === 'QuotaExceededError' || /quota/i.test(String(err?.message || ''));
+      return {
+        ok: false,
+        store,
+        error: quotaHit
+          ? '本地存储空间已满，本次修改未能保存。请删除部分影片工程，或移除已上传的全家福参考图后重试。'
+          : `保存失败：${err?.message || '未知错误'}`
+      };
+    }
   }
 
   /**

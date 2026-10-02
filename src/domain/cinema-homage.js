@@ -24,7 +24,8 @@ export const CINEMA_DATABASE = [
     creatorTips: '【前3秒吸睛钩子】第一镜头切忌平淡，开场就是座舱仪表剧烈红光与发动机喷火特写，瞬间拉满完播率。',
     assets: {
       subjects: ['AIR-620', 'CHR-401'],
-      environment: 'ENV-001',
+      // 峡谷/山地超低空突防：ENV-001 是中东沙漠，会让编译出的 Prompt 与「峡谷」动作自相矛盾
+      environment: 'ENV-408',
       camera: 'CAM-004',
       lighting: 'LGT-001',
       colorGrade: 'CLR-001'
@@ -85,8 +86,11 @@ export const CINEMA_DATABASE = [
     legoAdaptation: '通过乐高砖块搭建破败水泥公寓楼，在地上散落大量灰色单凸点积木充当混凝土碎块，使用低角度微距镜头捕捉士兵塑料战术背心上的微观泥垢洗色。',
     creatorTips: '【纪实感拉片】镜头永远不要居中摆放，多利用断墙、燃烧的油桶作为前景遮挡，让观众觉得摄影师也是趴在战壕里的士兵。',
     assets: {
-      subjects: ['AIR-004', 'CHR-401', 'CHR-601'],
-      environment: 'ENV-004',
+      // AIR-004 属海湾战争系列，放进 Modern 题材属实穿帮；
+      // 改用 Modern 的 UH-60M 黑鹰，既合时代也正是本片标志机型
+      subjects: ['AIR-408', 'CHR-401', 'CHR-601'],
+      // 摩加迪沙城市巷战：ENV-004 是航母飞行甲板，与「城市街道索降」完全不符
+      environment: 'ENV-401',
       camera: 'CAM-002',
       lighting: 'LGT-002',
       colorGrade: 'CLR-002'
@@ -114,7 +118,8 @@ export const CINEMA_DATABASE = [
         phase: 'climax',
         shotType: '残骸依托360度环形阻击 (Perimeter Defense)',
         action: '被困特战队员依托冒烟的直升机机体残骸建立360度防线，子弹在积木装甲上溅起火星，医护兵冒死将重伤飞行员拖入死角包扎。',
-        screenDirection: 'right-to-left',
+        // 环形防御是原地固守，没有横向运动轴；标为中性轴才是准确的
+        screenDirection: 'neutral',
         damageState: 'damaged',
         audioCue: '连续密集枪火射击声 · 破片飞溅反弹音',
         radioVoice: '【无线电】子弹打光了！弹药箱告急！我们守不住这个街角了！'
@@ -210,7 +215,8 @@ export const CINEMA_DATABASE = [
     creatorTips: '【外骨骼动作要领】每个落脚点和开火动作必须有强烈的“后坐力缓冲”定格顿挫，不要平滑划过，顿挫感是机械力量感的源泉。',
     assets: {
       subjects: ['CHR-630', 'VEH-620'],
-      environment: 'ENV-001',
+      // 泥泞滩头空降：ENV-001 是沙漠，与「滩头/战壕」动作冲突
+      environment: 'ENV-613',
       camera: 'CAM-003',
       lighting: 'LGT-002',
       colorGrade: 'CLR-002'
@@ -238,7 +244,8 @@ export const CINEMA_DATABASE = [
         phase: 'climax',
         shotType: '零距离近身硬撼重装殉爆 (Point-Blank Mechanical Duel)',
         action: '敌方重型机械从沙土中暴起扑杀，特战队员用外骨骼机械臂硬生生抗住钢爪冲击，肩扛重炮零距离抵住敌人核心全速连射引发毁灭殉爆。',
-        screenDirection: 'right-to-left',
+        // 零距离贴身角力是原地对抗，没有横向运动轴
+        screenDirection: 'neutral',
         damageState: 'damaged',
         audioCue: '金属剧烈形变尖锐摩擦声 · 贴身炮火近距轰鸣震裂音',
         radioVoice: '【无线电】去死吧！开火！全弹发射！'
@@ -271,7 +278,8 @@ export const CINEMA_DATABASE = [
     legoAdaptation: '利用大批量深灰基础砖堆叠倾斜支撑架构呈现工业发动机基座，人仔搭配重型防寒面罩与微型火石推车，用蓝白色透明发光件在底部打出等离子火焰。',
     creatorTips: '【工业史诗感拉片】人一定要小，机械一定要大！把乐高人仔放在画面最底部的微小角落，上方留出80%画面给耸入云霄的工业钢铁结构。',
     assets: {
-      subjects: ['CHR-701', 'VEH-005', 'ENV-701'],
+      // ENV-701 是环境资产，此前被误列入 subjects，会被编译进「Subject(s)」描述里
+      subjects: ['CHR-701', 'AIR-701'],
       environment: 'ENV-701',
       camera: 'CAM-001',
       lighting: 'LGT-001',
@@ -424,7 +432,8 @@ export const CINEMA_DATABASE = [
         phase: 'climax',
         shotType: '悬崖绝壁炸毁铁丝网暗堡 (Bangalore Torpedo Breach)',
         action: '工兵冒死匍匐至绝壁铁丝网死角拼装班加罗尔爆破筒，火柴擦亮引信引爆，伴随冲天沙泥将暗堡工事撕开关键突破缺口。',
-        screenDirection: 'right-to-left',
+        // 沿海滩继续向内陆推进，与上一镜同向；反向会构成非法越轴
+        screenDirection: 'left-to-right',
         damageState: 'damaged',
         audioCue: '近距离巨响爆破震鸣 · 随后是长达两秒的高频生理耳鸣声',
         radioVoice: '【呼号】缺口打开了！跟上上尉！冲上去夺取战壕！'
@@ -457,7 +466,8 @@ export const CINEMA_DATABASE = [
     legoAdaptation: '用成百上千个微缩无名士兵人仔在白色积木长堤上排成长龙，头顶掠过灰色喷火战斗机，海面浮动微缩木纹平底渔船，营造极致的空旷与渺小。',
     creatorTips: '【紧迫感拉片】用恒定加速的“秒针滴答声”作为全片BGM骨架，哪怕画面只是士兵静止站在海边，秒针声也能死死抓紧观众心脏。',
     assets: {
-      subjects: ['CHR-101', 'VEH-103', 'AIR-001'],
+      // AIR-001 是海湾战争的 F-15，放进二战题材属实穿帮；改用二战的 P-51
+      subjects: ['CHR-101', 'VEH-103', 'AIR-101'],
       environment: 'ENV-101',
       camera: 'CAM-001',
       lighting: 'LGT-001',

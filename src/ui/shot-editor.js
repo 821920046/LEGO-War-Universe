@@ -7,6 +7,24 @@
 import { validateShotSpec } from '../domain/shot-spec.js';
 import { DAMAGE_HIERARCHY, SCREEN_DIRECTIONS } from '../domain/continuity.js';
 
+/** 与时间线保持一致的中文标签。此前编辑器直接暴露英文枚举，与时间线显示割裂。 */
+const DAMAGE_LABELS = {
+  clean: '全新 / 出厂状态',
+  weathered: '风化做旧',
+  damaged: '战损',
+  destroyed: '摧毁残骸'
+};
+
+const DIRECTION_LABELS = {
+  'left-to-right': '从左向右 →',
+  'right-to-left': '从右向左 ←',
+  'towards-camera': '迎向镜头 ↑',
+  'away-from-camera': '远离镜头 ↓',
+  neutral: '中性 / 骑轴 ·'
+};
+
+const MAX_SUBJECTS = 3;
+
 /**
  * 创建 DOM 元素
  */
@@ -115,13 +133,49 @@ export function renderShotEditor(container, shot, shotIndex, registry, intent = 
     }, working.action || '')
   );
 
-  // 主体选择（最多3个，目前展示第一个）
-  const subjectSelect = labeledSelect(
-    '主体 (Subject)',
-    [{ value: '', label: '-- 选择 --' }, ...assetOptions('character'), ...assetOptions('vehicle')],
-    working.subjects?.[0] || '',
-    (val) => { working.subjects = val ? [val] : []; runValidation(); }
-  );
+  // 主体选择（最多 3 个）
+  // 此前只渲染第一个主体，且提交时把 subjects 整个替换成 [val]，
+  // 编辑任何多主体镜头（如「坦克 + 步兵」）都会静默丢掉其余主体。
+  const subjectOptions = [{ value: '', label: '-- 移除该主体 --' }, ...assetOptions('character'), ...assetOptions('vehicle')];
+  const subjectsBox = el('div', { style: { marginBottom: '12px' } });
+
+  function renderSubjects() {
+    subjectsBox.replaceChildren();
+    subjectsBox.appendChild(
+      el('label', { style: { color: '#90a4ae', fontSize: '12px', marginBottom: '4px', display: 'block' } },
+        `主体 (Subject) · ${(working.subjects || []).length}/${MAX_SUBJECTS}`)
+    );
+
+    (working.subjects || []).forEach((sid, i) => {
+      subjectsBox.appendChild(labeledSelect(
+        `主体 ${i + 1}`,
+        subjectOptions,
+        sid,
+        (val) => {
+          const next = [...(working.subjects || [])];
+          if (val) next[i] = val;
+          else next.splice(i, 1);
+          working.subjects = next;
+          renderSubjects();
+          runValidation();
+        }
+      ));
+    });
+
+    if ((working.subjects || []).length < MAX_SUBJECTS) {
+      subjectsBox.appendChild(el('button', {
+        style: {
+          background: 'transparent', border: '1px dashed #38bdf8', color: '#38bdf8',
+          borderRadius: '4px', padding: '6px 12px', fontSize: '12px', cursor: 'pointer', width: '100%'
+        },
+        onClick: () => {
+          working.subjects = [...(working.subjects || []), ''];
+          renderSubjects();
+          runValidation();
+        }
+      }, '+ 增加主体'));
+    }
+  }
 
   // 环境、摄像机、灯光、色彩
   const envSelect = labeledSelect('环境 (Environment)', assetOptions('environment'), working.environment, (val) => { working.environment = val; runValidation(); });
@@ -130,11 +184,11 @@ export function renderShotEditor(container, shot, shotIndex, registry, intent = 
   const colorSelect = labeledSelect('色彩 (Color Grade)', assetOptions('colorGrade'), working.colorGrade, (val) => { working.colorGrade = val; runValidation(); });
 
   // 损伤状态
-  const damageOptions = Object.keys(DAMAGE_HIERARCHY).map(k => ({ value: k, label: k }));
+  const damageOptions = Object.keys(DAMAGE_HIERARCHY).map(k => ({ value: k, label: `${DAMAGE_LABELS[k] || k} (${k})` }));
   const damageSelect = labeledSelect('损伤状态', damageOptions, working.damageState || 'weathered', (val) => { working.damageState = val; runValidation(); });
 
   // 屏幕方向
-  const dirOptions = [...SCREEN_DIRECTIONS].map(d => ({ value: d, label: d }));
+  const dirOptions = [...SCREEN_DIRECTIONS].map(d => ({ value: d, label: `${DIRECTION_LABELS[d] || d} (${d})` }));
   const dirSelect = labeledSelect('屏幕轴线方向', dirOptions, working.screenDirection || 'left-to-right', (val) => { working.screenDirection = val; runValidation(); });
 
   // 应用按钮
@@ -145,8 +199,9 @@ export function renderShotEditor(container, shot, shotIndex, registry, intent = 
 
   const panel = el('div', {
     style: { background: '#101722', border: '1px solid #1e3a5f', borderRadius: '8px', padding: '20px', maxHeight: '80vh', overflowY: 'auto' }
-  }, header, violationsBox, actionArea, subjectSelect, envSelect, camSelect, lightSelect, colorSelect, damageSelect, dirSelect, applyBtn);
+  }, header, violationsBox, actionArea, subjectsBox, envSelect, camSelect, lightSelect, colorSelect, damageSelect, dirSelect, applyBtn);
 
   container.appendChild(panel);
+  renderSubjects();
   runValidation();
 }
