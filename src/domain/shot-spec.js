@@ -17,8 +17,25 @@ const HOSTILE_PAIRS = [
   ['Coalition', 'Opposing Force']
 ];
 
-const COMBAT_ACTION_REGEX = /(?:combat|engage|fire|firing|shoot|clash|vs|ambush|intercept|capture|assault|suppress|交战|开火|对抗|拦截|伏击|对峙|突袭|压制)/i;
-const COOPERATIVE_ACTION_REGEX = /(?:together|cooperate|escort|wingman|side by side|并肩|护航|编队协同|共同作战)/i;
+/**
+ * 「交战语义」判定正则。
+ *
+ * 必须导出为单一事实来源：任何「把敌方角色补进镜头」的逻辑都要用它来把关，
+ * 否则补进去的镜头会在校验阶段报 FACTION_CONFLICT_INVALID（对立阵营同框却无对抗动作）。
+ */
+export const COMBAT_ACTION_REGEX = /(?:combat|engage|fire|firing|shoot|clash|vs|ambush|intercept|capture|assault|suppress|交战|开火|对抗|拦截|伏击|对峙|突袭|压制)/i;
+export const COOPERATIVE_ACTION_REGEX = /(?:together|cooperate|escort|wingman|side by side|并肩|护航|编队协同|共同作战)/i;
+
+/**
+ * 对立阵营同框时，这段动作是否构成「合法对抗」。
+ *
+ * 校验器与「补入敌方」逻辑共用这一个判定，避免两处正则各写一份而漂移：
+ * 一旦不一致，补进去的镜头会直接在校验阶段报错，用户看到的是红色阻断提示。
+ */
+export function hasHostileFraming(actionText) {
+  const text = String(actionText || '');
+  return COMBAT_ACTION_REGEX.test(text) && !COOPERATIVE_ACTION_REGEX.test(text);
+}
 
 const PHASE_ORDER = {
   opening: 0,
@@ -47,7 +64,7 @@ const ERA_COMPATIBILITY = {
   'Orbital': ['Orbital']
 };
 
-function isEraCompatible(assetSeries, targetEra) {
+export function isEraCompatible(assetSeries, targetEra) {
   if (!targetEra) return true;
   if (!assetSeries || assetSeries === 'shared') return true;
   if (assetSeries === targetEra) return true;
@@ -147,7 +164,7 @@ export function validateShotSpec(s, r, intent = {}) {
       }
     }
     if (isHostile) {
-      if (COOPERATIVE_ACTION_REGEX.test(actionText) || !COMBAT_ACTION_REGEX.test(actionText)) {
+      if (!hasHostileFraming(actionText)) {
         violations.push({
           code: 'FACTION_CONFLICT_INVALID',
           field: 'action',

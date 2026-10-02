@@ -14,9 +14,9 @@ import { transpileMovieToLego } from './cinema-homage.js';
 
 /**
  * 调度 AI 大脑（优先后台免费大模型服务，无缝自动容灾降级）
- * @param {{ query: string, requestedShots?: number, onProgress?: (msg: string) => void }} params
+ * @param {{ query: string, requestedShots?: number, registry?: object|null, onProgress?: (msg: string) => void }} params
  */
-export async function callAiBrain({ query, requestedShots = 4, onProgress = null }) {
+export async function callAiBrain({ query, requestedShots = 4, registry = null, onProgress = null }) {
   if (onProgress) onProgress('正在构建题材资产目录并连接后台免费 AI 导演大脑 (Groq / OpenRouter / Gemini)…');
 
   try {
@@ -39,9 +39,11 @@ export async function callAiBrain({ query, requestedShots = 4, onProgress = null
     console.warn('后台 /api/ai-brain 接口不可达或处于离线纯静态模式，转由前端内置引擎直接出片:', err);
   }
 
-  // 离线环境或后端未就绪时，前端内置高保真引擎秒级响应
+  // 离线环境或后端未就绪时，前端内置高保真引擎秒级响应。
+  // 必须把注册表传进去：否则本地兜底路径挑不出真实资产、也就没有角色代号，
+  // 与「角色从资产库里挑」的产品诉求直接冲突。
   if (onProgress) onProgress('云端大脑不可用，正在调用内置本地资产引擎生成影片脚本…');
-  const localResult = transpileMovieToLego(query, requestedShots);
+  const localResult = transpileMovieToLego(query, requestedShots, registry);
   return {
     ...localResult,
     isAiGenerated: false,

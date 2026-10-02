@@ -51,22 +51,123 @@ const LOOKALIKE_MAP = {
 };
 const LEET_MAP = { '0': 'o', '1': 'i', '3': 'e', '4': 'a', '5': 's', '7': 't', '@': 'a', '$': 's' };
 
+/** 英文词形归一规则：把 torture / tortured / tortures 收敛到同一词干，长后缀优先 */
+const STEM_RULES = [
+  [/ations?$/, 'at'],
+  [/at(?:ed|ing)$/, 'at'],
+  [/ings?$/, ''],
+  [/ions?$/, ''],
+  [/ers?$/, ''],
+  [/ed$/, ''],
+  [/es$/, ''],
+  [/s$/, ''],
+  [/e$/, '']
+];
+
+function stemWord(word) {
+  for (const [re, to] of STEM_RULES) {
+    if (!re.test(word)) continue;
+    const stem = word.replace(re, to);
+    if (stem.length >= 3) return stem;
+  }
+  return word;
+}
+
 /**
- * 归一化匹配文本，降低全角字符、插空格/标点、零宽字符及常见同形字符的绕过概率。
- * 这是字符串规则的纵深防护，不是语义分类器，也不能防御任意改写或编码攻击。
+ * 归一化为「词元序列」，并**刻意保留词元边界**。
+ *
+ * 第一性原则（为什么不能直接把空格标点全删掉）：
+ * 早期实现先 `replace(/[\s\p{P}\p{S}]+/g, '')` 再 `includes(term)`。这会把相邻单词粘在一起，
+ * 于是 "multi-spectrum panoramic" 变成 "...spectrumpanoramic..."，中间凭空出现了 "trump"，
+ * 整段合法的资产描述被误判为「真实政治人物」而 502 拦截。
+ * 同理 "crisis" 含 "isis"、"computing" 含 "putin"，都是同类误伤。
+ *
+ * 现在改为两层匹配（见 matchesRule）：
+ *   1. 词元级匹配（含词干还原）—— 覆盖绝大多数正常表达；
+ *   2. **完整词元拼接**匹配 —— 覆盖「t r u m p」「p.u.t.i.n」这类插分隔符绕过。
+ * 第 2 层要求命中的词元被完整覆盖，因此不会再把两个长单词的碎片误拼成敏感词。
  */
-function normalizeForMatching(value) {
+function normalizeTokens(value) {
   return String(value || '')
     .normalize('NFKC')
     .toLowerCase()
     .replace(/[\u200B-\u200D\u2060\uFEFF]/g, '')
     .replace(/[аерсхуктвнміјαορικτν]/gu, char => LOOKALIKE_MAP[char] || char)
     .replace(/[013457@$]/g, char => LEET_MAP[char] || char)
-    .replace(/[\s\p{P}\p{S}]+/gu, '');
+    .split(/[\s\p{P}\p{S}]+/u)
+    .filter(Boolean);
 }
 
-function matchesRule(rule, normalizedInput) {
-  return rule.terms.some(term => normalizedInput.includes(normalizeForMatching(term)));
+/** 预归一化一份可复用的匹配视图，避免对同一段文本反复分词 */
+function normalizeText(value) {
+  const tokens = normalizeTokens(value);
+  const tokenStarts = [];
+  const tokenStems = new Set();
+  let compact = '';
+  for (const tok of tokens) {
+    tokenStarts.push(compact.length);
+    compact += tok;
+    tokenStems.add(tok);
+    tokenStems.add(stemWord(tok));
+  }
+  return { tokens, tokenStarts, tokenStems, compact };
+}
+
+/** 是否含非 ASCII 字符（中日韩等无空格语言按子串匹配） */
+const NON_ASCII_RE = /[^\x00-\x7F]/;
+
+/**
+ * ASCII 词条匹配：
+ *   1. 某个词元本身（或其词干）等于词条 —— 正常表达；
+ *   2. 词条恰好由「一段连续且被完整覆盖的词元」拼成 —— 插分隔符绕过。
+ *
+ * 第 2 层额外加了两条防误伤约束：
+ *   - 单字词条（trump / putin / isis）被拆开时，必须出现「长度为 1 的词元」，
+ *     这才是真正的逐字插分隔符绕过；否则 "put in place" 会被误判成 "putin"。
+ *   - 多词词条（al-qaeda / nuclear launch / xi jinping）本身就跨词，允许按词边界拆开。
+ */
+function matchesAsciiTerm(term, view, { isPhrase = false } = {}) {
+  if (view.tokenStems.has(term) || view.tokenStems.has(stemWord(term))) return true;
+
+  const { tokens, tokenStarts, compact } = view;
+  let from = 0;
+  for (;;) {
+    const idx = compact.indexOf(term, from);
+    if (idx === -1) return false;
+    const end = idx + term.length;
+
+    let first = -1;
+    let last = -1;
+    for (let t = 0; t < tokens.length; t++) {
+      const s = tokenStarts[t];
+      const e = s + tokens[t].length;
+      if (first === -1 && e > idx) first = t;
+      if (s < end) last = t;
+    }
+
+    const fullyCovered = first !== -1 && last !== -1
+      && tokenStarts[first] === idx
+      && tokenStarts[last] + tokens[last].length === end;
+
+    if (fullyCovered) {
+      let hasSingleCharToken = false;
+      for (let t = first; t <= last; t++) {
+        if (tokens[t].length === 1) { hasSingleCharToken = true; break; }
+      }
+      if (isPhrase || hasSingleCharToken) return true;
+    }
+    from = idx + 1;
+  }
+}
+
+function matchesRule(rule, view) {
+  return rule.terms.some(rawTerm => {
+    const termTokens = normalizeTokens(rawTerm);
+    if (termTokens.length === 0) return false;
+    const term = termTokens.join('');
+    if (NON_ASCII_RE.test(term)) return view.compact.includes(term);
+    return matchesAsciiTerm(term, view, { isPhrase: termTokens.length > 1 });
+  });
 }
 
 /**
@@ -90,10 +191,10 @@ export function checkContentGovernance(text) {
     };
   }
 
-  const normalizedInput = normalizeForMatching(input);
+  const view = normalizeText(input);
   const blockedMatches = [];
   for (const rule of BLOCKED_RULES) {
-    if (matchesRule(rule, normalizedInput)) {
+    if (matchesRule(rule, view)) {
       blockedMatches.push({ category: rule.category, reason: rule.reason });
     }
   }
@@ -109,7 +210,7 @@ export function checkContentGovernance(text) {
 
   const reviewMatches = [];
   for (const rule of REVIEW_RULES) {
-    if (matchesRule(rule, normalizedInput)) {
+    if (matchesRule(rule, view)) {
       reviewMatches.push({ category: rule.category, reason: rule.reason });
     }
   }

@@ -70,3 +70,83 @@ test('Governance normalizes spaced Chinese terms without changing result contrac
     assert.ok(Array.isArray(result.reasons));
     assert.ok(Array.isArray(result.matchedRules));
 });
+
+test('Governance does not fuse adjacent words into a false positive', () => {
+    // 早期实现先把空格标点全部删掉再 includes，导致：
+    //   "multi-spectrum panoramic" → "...spectrumpanoramic..." 里凭空出现 "trump"
+    //   "crisis" 含 "isis"、"computing" 含 "putin"
+    // 合法内容被误判为真实政治人物，整条生成链路 502。
+    const falsePositives = [
+        'tactical high-cut helmet with integrated multi-spectrum panoramic night vision goggles',
+        'crisis response operation',
+        'high-performance computing cluster',
+        'the trumpet sounded at dawn',
+        'put in place a new doctrine'
+    ];
+    for (const text of falsePositives) {
+        assert.equal(checkContentGovernance(text).status, 'passed', `误伤: ${text}`);
+    }
+});
+
+test('Governance still catches separator-inserted evasion for single-word terms', () => {
+    // 逐字插分隔符是真实存在的绕过手法，必须继续拦截
+    for (const text of ['t r u m p', 't.r.u.m.p', 'p u t i n']) {
+        assert.equal(checkContentGovernance(text).status, 'blocked', `漏检: ${text}`);
+    }
+});
+
+test('Governance matches multi-word terms across word boundaries', () => {
+    for (const text of ['al qaeda network', 'al-qaeda network', 'xi jinping speech']) {
+        assert.equal(checkContentGovernance(text).status, 'blocked', `漏检: ${text}`);
+    }
+});
+
+test('Governance handles common English morphology without over-blocking', () => {
+    assert.equal(checkContentGovernance('genocides').status, 'blocked');
+    assert.equal(checkContentGovernance('tortured prisoners').status, 'blocked');
+    assert.equal(checkContentGovernance('decapitated').status, 'blocked');
+});
+
+// ---------------------------------------------------------------------------
+// 对抗审查补测：同形字 / 全角 / leet 绕过面，以及资产描述误伤面。
+// 这些用例来自「对抗审查」阶段对治理引擎的系统性攻击，属永久回归护栏。
+// ---------------------------------------------------------------------------
+
+test('Governance blocks homoglyph, full-width and leet evasions', () => {
+    const evasions = [
+        'рutin',        // 西里尔 р 冒充拉丁 p
+        'putіn',        // 西里尔 і 冒充拉丁 i
+        'put1n',        // leet：1 -> i
+        'ｔｒｕｍｐ',      // 全角字母（NFKC 归一后应命中）
+        'аl-qaeda'      // 西里尔 а 冒充拉丁 a
+    ];
+    for (const text of evasions) {
+        assert.equal(
+            checkContentGovernance(text).status,
+            'blocked',
+            '漏检同形/全角/leet 绕过: ' + JSON.stringify(text)
+        );
+    }
+});
+
+test('Governance does not fire on legitimate asset descriptions (误伤面回归)', () => {
+    // 背景：早期实现把空格标点全部删掉再 includes(term)，导致
+    // "multi-spectrum panoramic" 粘成 "...spectrumpanoramic..." 内含 "trump"，
+    // 整段合法资产描述被误判为真实政治人物、整个 API 直接 502。
+    const safe = [
+        'multi-spectrum panoramic surveillance array',
+        'crisis response unit',
+        'quantum computing datalink node',
+        'brass trumpet signal corps',
+        'armour crew reloading main gun',
+        'leadership crew of a tank',
+        'method of entry via robotic platform',
+        'specialist operator with CBRN training',
+        'aerial reconnaissance drone swarm',
+        'screwdriver set in the toolbag'
+    ];
+    for (const text of safe) {
+        const r = checkContentGovernance(text);
+        assert.equal(r.status, 'passed', '误伤合法描述: ' + text + ' -> ' + r.status + ' / ' + r.flags.join(','));
+    }
+});

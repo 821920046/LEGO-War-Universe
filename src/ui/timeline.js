@@ -5,6 +5,7 @@
  */
 
 import { compileKeyframeImage } from '../domain/image-compiler.js';
+import { labelFor, aliasLabel } from '../domain/roster.js';
 
 const PHASE_COLORS = {
   establish: '#3FB950',
@@ -84,8 +85,8 @@ function deriveAudioCues(shot, registry) {
 /**
  * 渲染首帧定格缩略图卡片
  */
-function renderKeyframeThumb(shot, registry, onCopyKeyframePrompt) {
-  const kf = compileKeyframeImage(shot, registry);
+function renderKeyframeThumb(shot, registry, onCopyKeyframePrompt, roster = null) {
+  const kf = compileKeyframeImage(shot, registry, roster);
 
   const thumb = el('div', { class: 'tl-thumb' },
     el('span', { style: { fontSize: '17px', opacity: '.85' } }, '📷'),
@@ -107,7 +108,7 @@ function renderKeyframeThumb(shot, registry, onCopyKeyframePrompt) {
 /**
  * 渲染单个视频卡片
  */
-function renderShotCard(shot, index, registry, onSelect, onCopyKeyframe) {
+function renderShotCard(shot, index, registry, onSelect, onCopyKeyframe, roster = null) {
   const shotLabel = `S${String(index + 1).padStart(3, '0')}`;
   const phase = shot.phase || 'build';
   const phaseColor = PHASE_COLORS[phase] || 'var(--text-3)';
@@ -119,13 +120,15 @@ function renderShotCard(shot, index, registry, onSelect, onCopyKeyframe) {
   // 会让所有非首镜都显示已锁帧图标，即便该镜头根本没绑定前序尾帧。
   const hasRef = !!shot.referenceFrame;
 
+  // 有真实名册时优先显示「【代号】角色名」，让分镜卡片与视频脚本里的称呼完全一致
   const subjectNames = (shot.subjects || []).map(id => {
+    if (roster?.byId?.has(id)) return aliasLabel(roster, id);
     if (registry) {
       const a = registry.byId.get(id);
       return a ? (a.nameZh || a.name) : id;
     }
     return id;
-  }).join(', ');
+  }).join(' · ');
 
   const card = el('div', {
     class: 'tl-card',
@@ -149,7 +152,7 @@ function renderShotCard(shot, index, registry, onSelect, onCopyKeyframe) {
       el('span', { class: 'tl-card__phase', style: { color: phaseColor } }, phase)
     ),
     // 首帧定格占位图
-    renderKeyframeThumb(shot, registry, onCopyKeyframe),
+    renderKeyframeThumb(shot, registry, onCopyKeyframe, roster),
     // 主体
     el('div', { class: 'tl-card__subjects' }, subjectNames || '无主体'),
     // 动作摘要
@@ -183,7 +186,7 @@ function renderAudioCard(shot, registry) {
 /**
  * 渲染完整双轨时间线
  */
-export function renderTimeline(container, shots = [], registry = null, onSelectShot = null, onCopyKeyframe = null) {
+export function renderTimeline(container, shots = [], registry = null, onSelectShot = null, onCopyKeyframe = null, roster = null) {
   container.replaceChildren();
 
   if (shots.length === 0) {
@@ -207,7 +210,7 @@ export function renderTimeline(container, shots = [], registry = null, onSelectS
     if (i > 0) {
       videoRow.appendChild(el('span', { class: 'tl-link' }, '─'));
     }
-    videoRow.appendChild(renderShotCard(shots[i], i, registry, onSelectShot, onCopyKeyframe));
+    videoRow.appendChild(renderShotCard(shots[i], i, registry, onSelectShot, onCopyKeyframe, roster));
   }
   trackWrap.appendChild(videoRow);
 
@@ -231,10 +234,25 @@ export function renderTimeline(container, shots = [], registry = null, onSelectS
 }
 
 /**
+ * 单元格防公式注入。
+ *
+ * 第一性原则：Excel / WPS 打开 CSV 时，**带引号并不能阻止公式解析** ——
+ * `"=1+1"` 会被还原成 `=1+1` 并按公式求值。而本表里的「动作脚本 / 生图 Prompt」
+ * 在云端模式下来自大模型，属于不可信输入；一旦模型吐出 `=HYPERLINK(...)` 之类的文本，
+ * 用户一打开表格就会执行。因此在最前面补一个单引号，强制 Excel 按文本处理
+ * （Excel 会隐藏这个前导单引号，不影响观感）。
+ */
+const FORMULA_PREFIX_RE = /^[=+\-@\t\r]/;
+const neutralizeCell = (value) => {
+  const s = String(value ?? '');
+  return FORMULA_PREFIX_RE.test(s) ? `'${s}` : s;
+};
+
+/**
  * 导出剪映 / CapCut / Premiere 分镜脚本 CSV
  * 显式带 UTF-8 BOM，防止 Excel / 剪映打开中文乱码
  */
-export function exportToCapCutCSV(shots = [], registry = null, filmTheme = '未命名电影') {
+export function exportToCapCutCSV(shots = [], registry = null, filmTheme = '未命名电影', roster = null) {
   const rows = [
     ['镜头号', '剧作阶段', '画幅比例', '时长(秒)', '时间码入点', '时间码出点', '屏幕轴向', '主体装备', '中文动作分镜脚本', '音效配音建议', '首帧静态图Prompt(生图)', '视频动态Prompt(生视频)']
   ];
@@ -258,12 +276,13 @@ export function exportToCapCutCSV(shots = [], registry = null, filmTheme = '未�
     currentSecond += shotDuration;
 
     const subjects = (s.subjects || []).map(id => {
+      if (roster?.byId?.has(id)) return labelFor(roster, id);
       const a = registry?.byId?.get(id);
       return a ? `${a.nameZh || a.name} (${id})` : id;
     }).join('; ');
 
     const cues = deriveAudioCues(s, registry).join(' / ');
-    const kf = compileKeyframeImage(s, registry);
+    const kf = compileKeyframeImage(s, registry, roster);
 
     rows.push([
       shotLabel,
@@ -282,7 +301,7 @@ export function exportToCapCutCSV(shots = [], registry = null, filmTheme = '未�
   });
 
   // 转为 CSV 文本并加 \uFEFF BOM
-  const csvContent = '\uFEFF' + rows.map(r => r.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\r\n');
+  const csvContent = '\uFEFF' + rows.map(r => r.map(cell => `"${neutralizeCell(cell).replace(/"/g, '""')}"`).join(',')).join('\r\n');
   const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

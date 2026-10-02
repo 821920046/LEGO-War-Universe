@@ -179,6 +179,13 @@ export function generateLineupPrompt(factions = { coalition: [], opposing: [] },
     normalizedFactions.opposing = Array.isArray(factions.opposing) ? factions.opposing : [];
   }
 
+  // 全家福 = 人仔合影，载具绝不能混进来。
+  // 早期把真实名册直接喂进来时，载具被当成「distinct LEGO minifigures」计数，
+  // 生成出来的 Prompt 会要求模型画一架人仔大小的直升机，全家福直接废掉。
+  const onlyMinifigures = list => list.filter(c => c && c.kind !== 'vehicle');
+  normalizedFactions.coalition = onlyMinifigures(normalizedFactions.coalition);
+  normalizedFactions.opposing = onlyMinifigures(normalizedFactions.opposing);
+
   // 兜底补齐：若完全为空，用模板填满
   if (normalizedFactions.coalition.length === 0 && normalizedFactions.opposing.length === 0) {
     normalizedFactions = extractCharacterLineup([], null, era, filmTheme);
