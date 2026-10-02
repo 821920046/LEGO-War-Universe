@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "3.5",
+  "schemaVersion": "3.6",
   "project": {
     "name": "LEGO War Universe",
     "code": "LWU",
@@ -1952,6 +1952,1042 @@
         "flight deck jersey over a dry suit with a sensor operator harness",
         "sonobuoy launcher tube slung across the back, headset with a coiled cable",
         "focused expression, authentic LEGO plastic texture, consistent proportions"
+      ]
+    },
+    {
+      "id": "CHR-104",
+      "name": "Soviet Red Army Rifleman",
+      "nameZh": "苏军红军步兵",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Infantry",
+      "kw": "苏军 苏联 红军 步兵 莫斯科 斯大林格勒 soviet russian red army infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark olive-green SSsh-40 steel helmet",
+        "khaki gymnastyorka torso print with leather shoulder boards and belt webbing",
+        "light skin, brown eyebrows, hardened determined expression",
+        "equipment: Mosin-Nagant rifle, canvas ammo pouches, entrenching tool",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-105",
+      "name": "Soviet Political Commissar",
+      "nameZh": "苏军政委",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Command",
+      "kw": "苏军 政委 指挥 政治委员 soviet commissar command officer",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark olive-green peaked service cap with a red star",
+        "khaki tunic torso print with a red-star政委 armband and a brown leather map case",
+        "light skin, black eyebrows, stern unyielding expression, short moustache",
+        "equipment: TT-33 pistol in a holster, folded map, whistle on a lanyard",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-106",
+      "name": "Soviet Tank Commander",
+      "nameZh": "苏军坦克车长",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Armor",
+      "kw": "苏军 坦克 车长 装甲 乘员 soviet tank commander armor crew",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "black padded tanker helmet with a leather strap and goggles pushed up",
+        "dark olive tanker overalls torso print with a webbing belt",
+        "light skin, brown eyebrows, focused sooty expression",
+        "equipment: PPSh-41 submachine gun, binoculars, tanker gloves",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-107",
+      "name": "British Infantry (WWII)",
+      "nameZh": "英军步兵（二战）",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Infantry",
+      "kw": "英军 步兵 二战 英国 british infantry tommy",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "khaki steel Brodie helmet with a chin strap",
+        "khaki battledress blouse torso print with webbing braces and a gas-mask satchel",
+        "light skin, brown eyebrows, calm steady expression",
+        "equipment: Lee-Enfield No.4 rifle, bayonet scabbard, entrenching tool",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-108",
+      "name": "RAF Fighter Pilot",
+      "nameZh": "英国皇家空军飞行员",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Aviation",
+      "kw": "英军 皇家空军 飞行员 战机 raf pilot aviation spitfire",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "tan leather flying helmet with round goggles and a boom microphone",
+        "dark blue RAF service dress torso print with rank stripes and an Irvin flying jacket collar",
+        "light skin, brown eyebrows, alert expression, silk scarf at the neck",
+        "equipment: oxygen mask hanging loose, flying gloves, map case",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-109",
+      "name": "US Army Ranger",
+      "nameZh": "美军游骑兵",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Special Forces",
+      "kw": "美军 游骑兵 突击 特种 ranger assault infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive-green M1 steel helmet with a net and scrim leaves",
+        "olive-drab M1943 field jacket torso print with webbing and assault vest pouches",
+        "light skin, brown eyebrows, grim determined expression, unshaven",
+        "equipment: M1 Garand rifle, combat knife, rope coil",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-110",
+      "name": "German Panzergrenadier",
+      "nameZh": "德军装甲掷弹兵",
+      "series": "WWII",
+      "faction": "Axis",
+      "unit": "Infantry",
+      "kw": "德军 装甲掷弹兵 步兵 纳粹 german panzergrenadier infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "field-grey Stahlhelm with a decal shield",
+        "field-grey uniform torso print with a grey-green assault pack and Y-straps",
+        "light skin, brown eyebrows, tense hardened expression",
+        "equipment: Kar98k rifle, stick grenade tucked in the belt, water bottle",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-111",
+      "name": "German Panzer Commander",
+      "nameZh": "德军坦克车长",
+      "series": "WWII",
+      "faction": "Axis",
+      "unit": "Armor",
+      "kw": "德军 坦克 车长 装甲 panzer commander armor crew",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "black Panzer wrap-around field cap with a pink piping",
+        "black panzer jacket torso print with a grey shirt and a Knight's Cross at the collar",
+        "light skin, brown eyebrows, cold confident expression",
+        "equipment: MP40 submachine gun, binoculars, leather gloves",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-112",
+      "name": "German Fallschirmjager",
+      "nameZh": "德军伞兵",
+      "series": "WWII",
+      "faction": "Axis",
+      "unit": "Airborne",
+      "kw": "德军 伞兵 空降 降下猎兵 german fallschirmjager paratrooper airborne",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "field-grey jump helmet with a rim and a chin cup",
+        "grey-green jump smock torso print with a Luftwaffe eagle and a bandolier",
+        "light skin, brown eyebrows, sharp watchful expression",
+        "equipment: FG42 automatic rifle, knee pads, gravity knife",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-113",
+      "name": "French Resistance Fighter",
+      "nameZh": "法国抵抗组织战士",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Irregular",
+      "kw": "法国 抵抗组织 游击 平民 french resistance irregular partisan",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark grey civilian beret and a short collarless jacket",
+        "civilian jacket torso print with a red-and-blue armband and a chest harness",
+        "light skin, brown eyebrows, wary expression, stubble",
+        "equipment: Sten submachine gun, bicycle pump, satchel",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-202",
+      "name": "US Marine Rifleman",
+      "nameZh": "美国海军陆战队步枪手",
+      "series": "Pacific",
+      "faction": "Allies",
+      "unit": "Infantry",
+      "kw": "美军 海军陆战队 步兵 太平洋 us marine infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive-green M1 steel helmet with a reversible camouflage cover",
+        "olive-drab herringbone twill utility uniform torso print with a webbing belt and suspenders",
+        "light skin, brown eyebrows, grim determined expression, sweat-stained",
+        "equipment: M1 Garand rifle, canteen, machete scabbard",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-203",
+      "name": "Imperial Japanese Army Soldier",
+      "nameZh": "日本帝国陆军士兵",
+      "series": "Pacific",
+      "faction": "Axis",
+      "unit": "Infantry",
+      "kw": "日军 帝国 陆军 士兵 太平洋 japanese ija infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "khaki field cap with a neck flap and a small yellow star badge",
+        "khaki wool uniform torso print with a leather belt and puttees",
+        "light skin, black eyebrows, hardened resolute expression",
+        "equipment: Arisaka Type 38 rifle with a bayonet, ammo pouches, haversack",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-204",
+      "name": "IJN Naval Aviator",
+      "nameZh": "日本海军航空兵飞行员",
+      "series": "Pacific",
+      "faction": "Axis",
+      "unit": "Aviation",
+      "kw": "日军 海军 飞行员 零式 航空兵 japanese naval aviator zero",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "brown leather flying helmet with goggles and a headphone strap",
+        "dark green flight suit torso print with a life vest and rank insignia",
+        "light skin, black eyebrows, focused expression, hachimaki headband",
+        "equipment: oxygen mask, flying gloves, kneeboard",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-205",
+      "name": "IJA Company Officer",
+      "nameZh": "日军中队指挥官",
+      "series": "Pacific",
+      "faction": "Axis",
+      "unit": "Command",
+      "kw": "日军 军官 指挥 武士刀 japanese officer command",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "khaki peaked service cap with a star badge",
+        "khaki officer uniform torso print with a leather Sam Browne belt and collar rank tabs",
+        "light skin, black eyebrows, severe expression, thin moustache",
+        "equipment: Nambu pistol in a holster, ornate officer's katana at the hip, binoculars",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-206",
+      "name": "USMC Corpsman",
+      "nameZh": "美军海军医护兵（太平洋）",
+      "series": "Pacific",
+      "faction": "Allies",
+      "unit": "Medical",
+      "kw": "美军 医护兵 卫生员 救护 corpsman medical",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive-green M1 steel helmet with a large white circle and red cross",
+        "olive-drab utility uniform torso print with a red-cross armband and a webbing belt",
+        "light skin, brown eyebrows, calm urgent expression",
+        "equipment: medical satchel with a red cross, bandage roll, canteen",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-207",
+      "name": "USMC Flamethrower Operator",
+      "nameZh": "美军海军陆战队喷火兵",
+      "series": "Pacific",
+      "faction": "Allies",
+      "unit": "Engineer",
+      "kw": "美军 喷火器 火焰 工兵 flamethrower engineer",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive-green M1 steel helmet with a camouflage cover and a face veil",
+        "olive-drab utility torso print with a heavy backpack tank and rubber hose over the shoulder",
+        "light skin, brown eyebrows, tense concentrated expression behind the veil",
+        "equipment: M2 flamethrower wand with a pistol grip and nozzle",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-208",
+      "name": "USMC Scout Sniper",
+      "nameZh": "美军侦察狙击手（太平洋）",
+      "series": "Pacific",
+      "faction": "Allies",
+      "unit": "Recon / Sniper",
+      "kw": "美军 狙击手 侦察 丛林 sniper scout recon",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive-green M1 steel helmet with a scrim net and local foliage",
+        "olive-drab utility uniform torso print with a camouflage poncho and a slung pack",
+        "light skin, brown eyebrows, patient still expression, mud-camouflaged face",
+        "equipment: scoped Springfield rifle, camouflage ghillie strips, binoculars",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-302",
+      "name": "Soviet Motor Rifleman",
+      "nameZh": "苏军摩托化步兵",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "unit": "Infantry",
+      "kw": "苏军 苏联 步兵 华约 冷战 soviet motor rifle warsaw pact",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "steel SSh-60 helmet with a red star badge",
+        "olive-green field uniform torso print with a webbing belt and chest pouches",
+        "light skin, brown eyebrows, hard-set expression",
+        "equipment: AK-47 rifle, gas-mask bag, entrenching spade",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-303",
+      "name": "Soviet Political Officer",
+      "nameZh": "苏军政治委员（冷战）",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "unit": "Command",
+      "kw": "苏军 政委 军官 华约 soviet political officer command",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive service cap with a red band and a star cockade",
+        "olive tunic torso print with a red-star armband and a brown leather map case",
+        "light skin, black eyebrows, severe composed expression",
+        "equipment: Makarov pistol, rolled map tube, whistle",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-304",
+      "name": "Soviet Tank Commander",
+      "nameZh": "苏军坦克车长（冷战）",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "unit": "Armor",
+      "kw": "苏军 坦克 车长 华约 装甲 soviet tank commander",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "black cloth tanker helmet with goggles and a throat-mic cord",
+        "dark olive tanker coveralls torso print with a webbing belt",
+        "light skin, brown eyebrows, sooty focused expression",
+        "equipment: AKS-74U short rifle, binoculars, tanker gloves",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-305",
+      "name": "East German Border Guard",
+      "nameZh": "东德边防军士兵",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "unit": "Infantry",
+      "kw": "东德 边防军 士兵 柏林墙 east german border guard",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "grey-green steel helmet with a national badge",
+        "grey-green uniform torso print with a leather belt and a shoulder strap",
+        "light skin, brown eyebrows, rigid watchful expression",
+        "equipment: AK-47 slung, binoculars, leashed guard dog beside him",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-306",
+      "name": "Soviet Reconnaissance Sniper",
+      "nameZh": "苏军侦察狙击手",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "unit": "Recon / Sniper",
+      "kw": "苏军 狙击手 侦察 华约 soviet sniper recon",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive field cap with a camouflage veil and snow scrim",
+        "olive-green camouflage smock torso print with a webbing harness and a rucksack",
+        "light skin, brown eyebrows, patient still expression, camouflage paint on the face",
+        "equipment: scoped SVD rifle, angled spotting scope, camouflage netting",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-307",
+      "name": "US Infantry (Cold War)",
+      "nameZh": "美军步兵（冷战）",
+      "series": "Cold War",
+      "faction": "NATO",
+      "unit": "Infantry",
+      "kw": "美军 步兵 冷战 北约 nato infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive-green PASGT kevlar helmet with a fabric cover",
+        "olive-drab BDU torso print with a fragmentation vest and webbing",
+        "light skin, brown eyebrows, alert expression",
+        "equipment: M16A1 rifle, canteen, radio handset",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-308",
+      "name": "US Armoured Cavalry Officer",
+      "nameZh": "美军装甲骑兵军官（冷战）",
+      "series": "Cold War",
+      "faction": "NATO",
+      "unit": "Armor",
+      "kw": "美军 装甲 骑兵 军官 北约 nato armor cavalry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive CVC tanker helmet with boom microphone and goggles",
+        "olive Nomex coveralls torso print with a chest holster and rank chevrons",
+        "light skin, brown eyebrows, calm professional expression",
+        "equipment: .45 pistol, map case, binoculars",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-309",
+      "name": "British Rhine Army Rifleman",
+      "nameZh": "英军莱茵军团步枪手",
+      "series": "Cold War",
+      "faction": "NATO",
+      "unit": "Infantry",
+      "kw": "英军 莱茵军团 步兵 北约 british rhine army",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive steel helmet with a disruptive-pattern cover",
+        "olive DPM camouflage smock torso print with a webbing belt and pouches",
+        "light skin, brown eyebrows, steady expression",
+        "equipment: L1A1 SLR rifle, bayonet, respirator haversack",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-310",
+      "name": "Mi-24 Hind Pilot",
+      "nameZh": "苏军米-24 飞行员",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "unit": "Aviation",
+      "kw": "苏军 米24 雌鹿 飞行员 直升机 soviet hind pilot helicopter",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark olive flight helmet with a tinted visor and boom microphone",
+        "dark olive flight suit torso print with a chest harness and a survival vest",
+        "light skin, brown eyebrows, focused expression",
+        "equipment: flight gloves, kneeboard chart, makarov holster",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-008",
+      "name": "US Marine (Iraq)",
+      "nameZh": "美国海军陆战队员（伊拉克）",
+      "series": "Iraq War",
+      "faction": "Coalition",
+      "unit": "Infantry",
+      "kw": "美军 海军陆战队 伊拉克 步兵 us marine iraq infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "desert-tan PASGT kevlar helmet with a fabric cover",
+        "desert tan-and-brown DCU camouflage torso print with an Interceptor body armour vest",
+        "light skin, brown eyebrows, dust-covered intense expression",
+        "equipment: M4 carbine with an optic, radio, hydration pack",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-009",
+      "name": "Iraqi Republican Guard Soldier",
+      "nameZh": "伊拉克共和国卫队士兵",
+      "series": "Iraq War",
+      "faction": "Opposing Force",
+      "unit": "Infantry",
+      "kw": "伊拉克 共和国卫队 士兵 敌军 iraqi republican guard",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark green steel helmet and a red beret badge",
+        "olive-green uniform torso print with a red shoulder patch and a webbing belt",
+        "olive skin, black eyebrows, tense expression, moustache",
+        "equipment: AKM rifle, chest magazine pouches, canteen",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-010",
+      "name": "Insurgent Sniper",
+      "nameZh": "反美武装狙击手",
+      "series": "Iraq War",
+      "faction": "Opposing Force",
+      "unit": "Recon / Sniper",
+      "kw": "武装分子 狙击手 反美 伊拉克 insurgent sniper",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "black knit balaclava and a shemagh wrapped around the shoulders",
+        "civilian dishdasha torso print with a leather chest rig and magazine pouches",
+        "olive skin, black eyebrows, hidden eyes behind wraparound sunglasses",
+        "equipment: SVD marksman rifle, sand-coloured gloves, a rucksack",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-011",
+      "name": "Coalition Patrol Leader",
+      "nameZh": "联军巡逻队长（伊拉克）",
+      "series": "Iraq War",
+      "faction": "Coalition",
+      "unit": "Command",
+      "kw": "联军 巡逻 队长 指挥 伊拉克 patrol leader command",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "desert-tan PASGT helmet with a night-vision mount",
+        "desert DCU torso print with body armour, a chest radio pouch and rank chevrons",
+        "light skin, brown eyebrows, calm authoritative expression",
+        "equipment: M4 carbine, tactical map board, handheld radio",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-012",
+      "name": "Coalition Combat Medic",
+      "nameZh": "联军战斗医护兵（伊拉克）",
+      "series": "Iraq War",
+      "faction": "Coalition",
+      "unit": "Medical",
+      "kw": "联军 医护兵 救护 伊拉克 combat medic",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "desert-tan PASGT helmet with a red-cross band",
+        "desert DCU torso print with body armour and a red-cross medical pouch",
+        "light skin, brown eyebrows, urgent focused expression",
+        "equipment: aid bag with a red cross, casualty card, shears",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-703",
+      "name": "Opposing Orbital Marine",
+      "nameZh": "敌方轨道陆战队员",
+      "series": "Orbital",
+      "faction": "Opposing Force",
+      "unit": "Orbital Marines",
+      "kw": "敌方 轨道 陆战队 太空 orbital marine enemy",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark grey sealed combat helmet with a wide slit visor and an antenna stub",
+        "dark charcoal vacuum-rated hardsuit torso print with chest plates and a red armband",
+        "hidden face behind a dark visor, deliberate menacing posture",
+        "equipment: coil rifle, thruster pack, magnetic boot soles",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-704",
+      "name": "Orbital Fortress Commander",
+      "nameZh": "轨道要塞指挥官（敌方）",
+      "series": "Orbital",
+      "faction": "Opposing Force",
+      "unit": "Command",
+      "kw": "敌方 轨道 指挥官 要塞 orbital commander enemy",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark grey officer helmet with a crest ridge and a status light strip",
+        "dark charcoal uniform torso print with rank bars and a command harness",
+        "hidden face behind a visor, rigid bearing, a data slate at the hip",
+        "equipment: sidearm, encrypted command slate, shoulder beacon",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-705",
+      "name": "Opposing Orbital Marksman",
+      "nameZh": "敌方轨道狙击手",
+      "series": "Orbital",
+      "faction": "Opposing Force",
+      "unit": "Recon / Sniper",
+      "kw": "敌方 轨道 狙击手 太空 orbital sniper marksman",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark grey form-fitting helmet with a long sensor brow and a scope link",
+        "charcoal camouflage hardsuit torso print with matte panels and a low-profile pack",
+        "hidden face behind a visor, still hunched firing posture",
+        "equipment: long magnetic-anchor marksman rifle, stabilising monopods",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-706",
+      "name": "EVA Maintenance Technician",
+      "nameZh": "舱外维修技师",
+      "series": "Orbital",
+      "faction": "Coalition",
+      "unit": "Space Operations",
+      "kw": "舱外 维修 技师 太空 eva technician",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "white EVA helmet with a gold-tinted sun visor and work lamps on the brim",
+        "white EVA suit torso print with blue shoulder stripes and tool tethers",
+        "light skin, brown eyebrows, focused expression through the visor",
+        "equipment: tool belt with tethered wrenches, safety tether hook, chest control panel",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-707",
+      "name": "Orbital Assault Craft Pilot",
+      "nameZh": "轨道突击艇驾驶员",
+      "series": "Orbital",
+      "faction": "Coalition",
+      "unit": "Space Operations",
+      "kw": "轨道 突击艇 驾驶员 飞行员 orbital pilot",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "white pressure helmet with a clear bubble visor and a comms boom",
+        "white-and-blue flight suit torso print with a chest harness and mission patches",
+        "light skin, brown eyebrows, calm alert expression",
+        "equipment: control yoke gloves, mission data pad, emergency oxygen bottle",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-708",
+      "name": "Orbital Corpsman",
+      "nameZh": "轨道陆战队医务兵",
+      "series": "Orbital",
+      "faction": "Coalition",
+      "unit": "Medical",
+      "kw": "轨道 医务兵 救护 太空 orbital corpsman medical",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "white helmet with a red-cross flash and a lamp mount",
+        "white medical hardsuit torso print with a red-cross armband and a trauma pouch",
+        "light skin, brown eyebrows, urgent focused expression",
+        "equipment: trauma kit, pressure cuff, sealed casualty bag",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
       ]
     }
   ],
@@ -6183,6 +7219,1798 @@
         "console windows glowing inside, cable spools and a generator trailer alongside",
         "authentic LEGO plastic texture, consistent scale, same brick construction, high detail"
       ]
+    },
+    {
+      "id": "VEH-104",
+      "name": "T-34/85 Medium Tank",
+      "nameZh": "T-34/85 中型坦克",
+      "class": "ground",
+      "series": "WWII",
+      "faction": "Allies",
+      "kw": "苏军 坦克 t34 中型 装甲 soviet tank armor",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO T-34/85 medium tank",
+        "dark olive-green bricks",
+        "sloped glacis, hexagonal turret with a long 85mm gun, Christie large road wheels",
+        "welded seam lines and track links",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-105",
+      "name": "IS-2 Heavy Tank",
+      "nameZh": "IS-2 斯大林重型坦克",
+      "class": "ground",
+      "series": "WWII",
+      "faction": "Allies",
+      "kw": "苏军 重型坦克 is2 斯大林 装甲 soviet heavy tank",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO IS-2 Joseph Stalin heavy tank",
+        "dark olive-green bricks",
+        "high cast turret with a huge 122mm gun and a muzzle brake, wide tracks",
+        "spare track links hung on the hull side",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-106",
+      "name": "Cromwell Cruiser Tank",
+      "nameZh": "克伦威尔巡洋坦克",
+      "class": "ground",
+      "series": "WWII",
+      "faction": "Allies",
+      "kw": "英军 坦克 克伦威尔 巡洋 british tank cruiser cromwell",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Cromwell cruiser tank",
+        "olive-drab bricks",
+        "flat riveted hull, boxy turret with a 75mm gun, Christie suspension",
+        "rapid-identification white star markings",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-107",
+      "name": "Churchill AVRE",
+      "nameZh": "丘吉尔 AVRE 工程坦克",
+      "class": "ground",
+      "series": "WWII",
+      "faction": "Allies",
+      "kw": "英军 丘吉尔 工程坦克 架桥 british churchill avre engineer",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Churchill AVRE assault engineer tank",
+        "khaki-olive bricks",
+        "long slab-sided hull with side pannier doors, large petard mortor barrel at the front",
+        "fascine bundle and trackway carried on the engine deck",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-108",
+      "name": "Panther Medium Tank",
+      "nameZh": "豹式中型坦克",
+      "class": "ground",
+      "series": "WWII",
+      "faction": "Axis",
+      "kw": "德军 豹式 坦克 装甲 german panther tank",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Panther Ausf. G medium tank",
+        "dark yellow and dark grey camouflage bricks",
+        "well-sloped glacis, narrow mantlet with a long 75mm gun, interleaved road wheels",
+        "schurzen side skirts and a turret number",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-109",
+      "name": "Tiger II King Tiger",
+      "nameZh": "虎王重型坦克",
+      "class": "ground",
+      "series": "WWII",
+      "faction": "Axis",
+      "kw": "德军 虎王 重型坦克 装甲 german king tiger tank",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Tiger II King Tiger heavy tank",
+        "dark yellow and dark grey camouflage bricks",
+        "long sloped hull, thick turret with a very long 88mm gun, wide combat tracks",
+        "zimmerit paste texture rendered as fine brick relief",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-110",
+      "name": "Panzer IV Ausf. H",
+      "nameZh": "四号中型坦克 H型",
+      "class": "ground",
+      "series": "WWII",
+      "faction": "Axis",
+      "kw": "德军 四号坦克 装甲 panzer iv german tank",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Panzer IV Ausf. H medium tank",
+        "dark yellow and olive-green camouflage bricks",
+        "boxy hull, flat turret with a long 75mm gun, schurzen side skirt plates",
+        "spare road wheels racked on the rear",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-111",
+      "name": "88mm Flak 36 Anti-Aircraft Gun",
+      "nameZh": "88毫米高射炮",
+      "class": "ground",
+      "series": "WWII",
+      "faction": "Axis",
+      "kw": "德军 88炮 高射炮 防空 german flak 88 anti aircraft",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO 88mm Flak 36 dual-purpose gun",
+        "dark grey and dark yellow bricks",
+        "long slender barrel on a cruciform carriage, folding outriggers, gun shield",
+        "ammo crate stack and a seated crew position",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-112",
+      "name": "Sherman Firefly",
+      "nameZh": "谢尔曼萤火虫坦克",
+      "class": "ground",
+      "series": "WWII",
+      "faction": "Allies",
+      "kw": "谢尔曼 萤火虫 坦克 英军 sherman firefly tank",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Sherman Firefly tank",
+        "olive-drab bricks",
+        "Sherman hull with a 17-pounder long gun and a counterweight at the turret rear",
+        "white star markings and stowage boxes",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-113",
+      "name": "M3 Half-Track",
+      "nameZh": "M3 半履带装甲运兵车",
+      "class": "ground",
+      "series": "WWII",
+      "faction": "Allies",
+      "kw": "半履带 运兵车 装甲 m3 halftrack",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO M3 half-track armoured personnel carrier",
+        "olive-drab bricks",
+        "front wheels and rubber LEGO tracks at the rear, open-topped compartment with bench seats",
+        "a pintle-mounted machine gun and stowage racks",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-103",
+      "name": "Supermarine Spitfire",
+      "nameZh": "喷火式战斗机",
+      "class": "aircraft",
+      "series": "WWII",
+      "faction": "Allies",
+      "kw": "英军 喷火 战斗机 制空 spitfire fighter raf",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Supermarine Spitfire fighter",
+        "blue-grey upper and pale sky-blue underside bricks",
+        "distinctive elliptical wings, slim fuselage, bubble canopy, elliptical tail",
+        "roundel markings and a three-blade propeller",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-104",
+      "name": "Messerschmitt Bf 109",
+      "nameZh": "Bf-109 战斗机",
+      "class": "aircraft",
+      "series": "WWII",
+      "faction": "Axis",
+      "kw": "德军 bf109 战斗机 制空 german fighter luftwaffe",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Messerschmitt Bf 109 fighter",
+        "grey-green and light blue camouflage bricks",
+        "narrow fuselage, squared-off wingtips, framed canopy, single fin",
+        "balkenkreuz markings and a spinner with a propeller",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-105",
+      "name": "Junkers Ju 87 Stuka",
+      "nameZh": "Ju-87 斯图卡俯冲轰炸机",
+      "class": "aircraft",
+      "series": "WWII",
+      "faction": "Axis",
+      "kw": "德军 斯图卡 俯冲轰炸机 stuka dive bomber",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Junkers Ju 87 Stuka dive bomber",
+        "dark green and grey splinter camouflage bricks",
+        "inverted gull wings, fixed spatted landing gear, long greenhouse canopy",
+        "siren-driven dive brakes and a bomb swayed out under the fuselage",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-106",
+      "name": "Focke-Wulf Fw 190",
+      "nameZh": "Fw-190 战斗机",
+      "class": "aircraft",
+      "series": "WWII",
+      "faction": "Axis",
+      "kw": "德军 fw190 战斗机 制空 german fighter",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Focke-Wulf Fw 190 fighter",
+        "grey and dark green mottled camouflage bricks",
+        "radial engine cowling, wide-track landing gear, bubble canopy, rounded wingtips",
+        "balkenkreuz and a yellow theatre band",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-107",
+      "name": "P-47 Thunderbolt",
+      "nameZh": "P-47 雷电战斗机",
+      "class": "aircraft",
+      "series": "WWII",
+      "faction": "Allies",
+      "kw": "美军 p47 雷电 战斗机 thunderbolt fighter",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO P-47 Thunderbolt fighter",
+        "bare polished aluminium-grey bricks with olive anti-glare panels",
+        "huge radial engine, bubble canopy, clipped elliptical wings, eight-rocket rails",
+        "invasion stripes on the wings and fuselage",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-108",
+      "name": "B-24 Liberator",
+      "nameZh": "B-24 解放者轰炸机",
+      "class": "aircraft",
+      "series": "WWII",
+      "faction": "Allies",
+      "kw": "美军 b24 解放者 轰炸机 liberator bomber",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO B-24 Liberator heavy bomber",
+        "olive-drab upper and light grey underside bricks",
+        "high shoulder-mounted Davis wing, twin tail fins, long slab fuselage",
+        "open bomb bay doors and waist gun positions",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-101",
+      "name": "Bismarck-class Battleship",
+      "nameZh": "俾斯麦号战列舰",
+      "class": "ship",
+      "series": "WWII",
+      "faction": "Axis",
+      "kw": "德军 俾斯麦 战列舰 舰队 german battleship bismarck",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Bismarck-class battleship",
+        "grey and dark grey bricks",
+        "long hull with a tall tapered tower mast, four twin 380mm turrets, flared bow",
+        "seaplane catapult aft and a swastika-free plain ensign",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-201",
+      "name": "M4A2 Sherman (USMC)",
+      "nameZh": "M4A2 谢尔曼（陆战队）",
+      "class": "ground",
+      "series": "Pacific",
+      "faction": "Allies",
+      "kw": "美军 谢尔曼 坦克 陆战队 usmc sherman tank",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO M4A2 Sherman tank in US Marine markings",
+        "olive-drab bricks",
+        "rounded cast hull, 75mm gun turret, applique armour plates welded on the hull sides",
+        "a large white star and a name stencilled on the glacis",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-202",
+      "name": "LVT-4 Amtrac",
+      "nameZh": "LVT 两栖履带登陆车",
+      "class": "ground",
+      "series": "Pacific",
+      "faction": "Allies",
+      "kw": "两栖 登陆车 履带 抢滩 lvt amtrac landing",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO LVT-4 amtrac amphibious landing vehicle",
+        "olive-drab bricks",
+        "open boxy cargo bay, bow ramp lowered, paddle-blade tracks along the sponsons",
+        "a bow machine gun and troops crouched inside",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-203",
+      "name": "Type 97 Chi-Ha Tank",
+      "nameZh": "九七式中战车",
+      "class": "ground",
+      "series": "Pacific",
+      "faction": "Axis",
+      "kw": "日军 九七式 坦克 装甲 japanese chi-ha tank",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Type 97 Chi-Ha medium tank",
+        "dark green and khaki camouflage bricks",
+        "small cramped turret with a short 57mm gun, riveted hull, bell-crank suspension",
+        "a small antenna frame around the turret and a rising-sun flag pennant",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-204",
+      "name": "Type 95 Ha-Go Light Tank",
+      "nameZh": "九五式轻战车",
+      "class": "ground",
+      "series": "Pacific",
+      "faction": "Axis",
+      "kw": "日军 九五式 轻坦克 japanese ha-go light tank",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Type 95 Ha-Go light tank",
+        "dark green and sand camouflage bricks",
+        "tiny one-man turret, riveted box hull, small bell-crank bogies",
+        "thin tracks and a rear-mounted machine gun",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-205",
+      "name": "Type 1 Ho-Ni Self-Propelled Gun",
+      "nameZh": "一式自行火炮",
+      "class": "ground",
+      "series": "Pacific",
+      "faction": "Axis",
+      "kw": "日军 自行火炮 装甲 japanese self propelled gun",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Type 1 Ho-Ni self-propelled gun",
+        "dark green and khaki bricks",
+        "open-topped casemate with a 75mm gun, riveted frontal shield plate",
+        "thin side armour and a folded rear crew step",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-203",
+      "name": "Aichi D3A Val Dive Bomber",
+      "nameZh": "九九式舰上爆击机",
+      "class": "aircraft",
+      "series": "Pacific",
+      "faction": "Axis",
+      "kw": "日军 九九式 舰爆 俯冲轰炸机 japanese val dive bomber",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Aichi D3A Val carrier dive bomber",
+        "dark green upper and pale grey underside bricks",
+        "low elliptical wings, fixed spatted gear, long canopy, dive brakes extended",
+        "red hinomaru roundels and a single bomb under the fuselage",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-204",
+      "name": "Mitsubishi G4M Betty",
+      "nameZh": "一式陆上攻击机",
+      "class": "aircraft",
+      "series": "Pacific",
+      "faction": "Axis",
+      "kw": "日军 一式 陆攻 轰炸机 japanese betty bomber",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Mitsubishi G4M Betty land-attack bomber",
+        "dark green upper and light grey underside bricks",
+        "long slim fuselage, wide wings with integral fuel tanks, twin engines, long canopy",
+        "hinomaru roundels and a torpedo slung under the belly",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-205",
+      "name": "Nakajima B5N Kate",
+      "nameZh": "九七式舰上攻击机",
+      "class": "aircraft",
+      "series": "Pacific",
+      "faction": "Axis",
+      "kw": "日军 九七式 舰攻 鱼雷机 japanese kate torpedo bomber",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Nakajima B5N Kate carrier attack bomber",
+        "silver-grey and dark green camouflage bricks",
+        "three-seat long canopy, folding wingtips, single radial engine, fixed tailwheel",
+        "a torpedo carried under the fuselage and hinomaru roundels",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-206",
+      "name": "F6F Hellcat",
+      "nameZh": "F6F 地狱猫战斗机",
+      "class": "aircraft",
+      "series": "Pacific",
+      "faction": "Allies",
+      "kw": "美军 地狱猫 战斗机 舰载机 hellcat navy fighter",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO F6F Hellcat carrier fighter",
+        "glossy sea-blue upper and white underside bricks",
+        "broad low wings, big radial cowling, bubble canopy, wide landing gear",
+        "white star-and-bar roundels and six wing rocket rails",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-207",
+      "name": "SBD Dauntless",
+      "nameZh": "SBD 无畏俯冲轰炸机",
+      "class": "aircraft",
+      "series": "Pacific",
+      "faction": "Allies",
+      "kw": "美军 sbd 无畏 俯冲轰炸机 dauntless dive bomber",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO SBD Dauntless dive bomber",
+        "blue-grey upper and light grey underside bricks",
+        "perforated split flaps deployed, long greenhouse canopy, fixed tailwheel gear",
+        "a centreline bomb on the swayed cradle and star roundels",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-208",
+      "name": "PBY Catalina",
+      "nameZh": "PBY 卡塔琳娜水上飞机",
+      "class": "aircraft",
+      "series": "Pacific",
+      "faction": "Allies",
+      "kw": "美军 卡塔琳娜 水上飞机 巡逻 catalina flying boat",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO PBY Catalina flying boat",
+        "sea-blue and white bricks",
+        "high parasol wing on pylons, boat hull with a beaching gear, waist gun blisters",
+        "a raked bow and a hullborne wake",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-209",
+      "name": "Aichi E13A Jake",
+      "nameZh": "零式水上侦察机",
+      "class": "aircraft",
+      "series": "Pacific",
+      "faction": "Axis",
+      "kw": "日军 水上侦察机 零式侦察 japanese seaplane recon",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Aichi E13A Jake reconnaissance seaplane",
+        "dark green upper and silver underside bricks",
+        "single float and outrigger floats, low wing, long tandem canopy",
+        "hinomaru roundels and a defensive rear gun",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-203",
+      "name": "Shokaku-class Carrier",
+      "nameZh": "翔鹤级航空母舰",
+      "class": "ship",
+      "series": "Pacific",
+      "faction": "Axis",
+      "kw": "日军 翔鹤 航母 舰队 japanese carrier shokaku",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Shokaku-class aircraft carrier",
+        "dark grey and green-splinter deck camouflage bricks",
+        "long flight deck with an island offset to starboard, deck-edge lift, parked aircraft",
+        "a rising-sun roundel at the bow and anti-aircraft gun galleries",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-204",
+      "name": "Akagi Aircraft Carrier",
+      "nameZh": "赤城号航空母舰",
+      "class": "ship",
+      "series": "Pacific",
+      "faction": "Axis",
+      "kw": "日军 赤城 航母 舰队 japanese carrier akagi",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Akagi aircraft carrier",
+        "grey hull with a wooden-planked flight deck in tan bricks",
+        "flush deck with a small island, red sun disc painted at the bow, stacked funnel",
+        "parked aircraft along the deck edge and a wake astern",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-205",
+      "name": "Fletcher-class Destroyer",
+      "nameZh": "弗莱彻级驱逐舰",
+      "class": "ship",
+      "series": "Pacific",
+      "faction": "Allies",
+      "kw": "美军 弗莱彻 驱逐舰 舰队 american destroyer fletcher",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Fletcher-class destroyer",
+        "navy-blue and haze-grey measure camouflage bricks",
+        "flush deck with five single 5-inch gun mounts, torpedo tube banks, tripod mast",
+        "depth charge racks at the stern and a white bow wave",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-206",
+      "name": "Iowa-class Battleship",
+      "nameZh": "衣阿华级战列舰",
+      "class": "ship",
+      "series": "Pacific",
+      "faction": "Allies",
+      "kw": "美军 衣阿华 战列舰 舰队 american battleship iowa",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Iowa-class battleship",
+        "haze-grey bricks",
+        "long raked hull, three triple 16-inch turrets, tall lattice mast, twin funnels",
+        "a seaplane catapult and a broad white wake",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-303",
+      "name": "T-55 Main Battle Tank",
+      "nameZh": "T-55 主战坦克",
+      "class": "ground",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "kw": "苏军 t55 坦克 华约 装甲 soviet tank warsaw pact",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO T-55 main battle tank",
+        "olive-green bricks",
+        "cast dome turret with a 100mm gun, sloping glacis, five road wheels",
+        "external fuel drums at the rear and a red star marking",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-304",
+      "name": "BMP-1 Infantry Fighting Vehicle",
+      "nameZh": "BMP-1 步兵战车",
+      "class": "ground",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "kw": "苏军 bmp1 步战车 华约 soviet ifv",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO BMP-1 infantry fighting vehicle",
+        "olive-green bricks",
+        "low wedge-shaped hull with a small one-man turret and a 73mm smoothbore, firing ports along the sides",
+        "a rear troop hatch and an ATGM launch rail over the barrel",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-305",
+      "name": "BTR-60 Armoured Personnel Carrier",
+      "nameZh": "BTR-60 装甲输送车",
+      "class": "ground",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "kw": "苏军 btr60 装甲输送车 华约 soviet apc wheeled",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO BTR-60 wheeled armoured personnel carrier",
+        "olive-green bricks",
+        "boat-shaped hull on eight small wheels, small conical turret with a machine gun",
+        "a bow ramp and side firing ports",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-306",
+      "name": "2S1 Gvozdika Self-Propelled Howitzer",
+      "nameZh": "2S1 石竹自行榴弹炮",
+      "class": "ground",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "kw": "苏军 自行火炮 榴弹炮 华约 soviet self propelled howitzer",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO 2S1 Gvozdika self-propelled howitzer",
+        "olive-green bricks",
+        "tracked chassis with a wide flat turret and a long 122mm howitzer, prominent muzzle brake",
+        "a dozer blade at the bow and stacked ammo crates",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-307",
+      "name": "M60 Patton",
+      "nameZh": "M60 巴顿主战坦克",
+      "class": "ground",
+      "series": "Cold War",
+      "faction": "NATO",
+      "kw": "美军 m60 巴顿 坦克 北约 nato patton tank",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO M60 Patton main battle tank",
+        "olive-drab bricks",
+        "large slab-sided turret with a 105mm gun, sharply sloping glacis, three support rollers",
+        "a big commander's cupola and a searchlight mount",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-308",
+      "name": "M1 Abrams (Early)",
+      "nameZh": "M1 艾布拉姆斯坦克（早期型）",
+      "class": "ground",
+      "series": "Cold War",
+      "faction": "NATO",
+      "kw": "美军 m1 坦克 北约 nato abrams tank",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO early M1 Abrams main battle tank",
+        "olive-drab bricks",
+        "angular low turret with a 105mm gun, flat composite hull, six road wheels",
+        "a bustle rack at the turret rear and a NATO star marking",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-309",
+      "name": "Challenger 1 Main Battle Tank",
+      "nameZh": "挑战者1 主战坦克",
+      "class": "ground",
+      "series": "Cold War",
+      "faction": "NATO",
+      "kw": "英军 挑战者 坦克 北约 british challenger tank",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Challenger 1 main battle tank",
+        "olive-drab bricks",
+        "heavily sloped composite turret with a 120mm rifled gun, long hull, six road wheels",
+        "applique armour blocks and stowage bins along the skirt",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-310",
+      "name": "M113 Armoured Personnel Carrier",
+      "nameZh": "M113 装甲输送车",
+      "class": "ground",
+      "series": "Cold War",
+      "faction": "NATO",
+      "kw": "美军 m113 装甲输送车 北约 nato apc",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO M113 armoured personnel carrier",
+        "olive-drab bricks",
+        "aluminium box hull with a sloped nose, rear ramp, roof hatch with a ring-mounted machine gun",
+        "trim vane on the glacis and a white NATO star",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-303",
+      "name": "Mikoyan MiG-21",
+      "nameZh": "米格-21 战斗机",
+      "class": "aircraft",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "kw": "苏军 米格21 战斗机 华约 soviet mig21 fighter",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Mikoyan-Gurevich MiG-21 fighter",
+        "bare silver-grey bricks",
+        "delta wing with a large shock cone nose intake, swept tail fin, bubble canopy",
+        "a red star marking and a centreline drop tank",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-304",
+      "name": "Sukhoi Su-27 Flanker",
+      "nameZh": "苏-27 侧卫战斗机",
+      "class": "aircraft",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "kw": "苏军 su27 侧卫 战斗机 华约 soviet flanker fighter",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Sukhoi Su-27 Flanker air-superiority fighter",
+        "blue-grey and pale grey bricks",
+        "blended wing-body planform, twin canted tails, twin engines, bubble canopy",
+        "a long-range missile rail and a red-bordered star roundel",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-305",
+      "name": "Mil Mi-24 Hind",
+      "nameZh": "米-24 雌鹿武装直升机",
+      "class": "helicopter",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "kw": "苏军 米24 雌鹿 武装直升机 华约 soviet hind attack helicopter",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Mil Mi-24 Hind attack helicopter",
+        "olive-green and sand camouflage bricks",
+        "tandem bubble cockpits under a greenhouse canopy, stub wings with rocket pods, five-blade rotor",
+        "a chin-mounted cannon and troop compartment behind the cockpits",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-306",
+      "name": "F-4 Phantom II",
+      "nameZh": "F-4 鬼怪II 战斗机",
+      "class": "aircraft",
+      "series": "Cold War",
+      "faction": "NATO",
+      "kw": "美军 f4 鬼怪 战斗机 北约 nato phantom fighter",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO McDonnell Douglas F-4 Phantom II",
+        "grey upper and white underside bricks",
+        "twin engines with drooping tailplanes, cranked wings, tandem bubble canopies",
+        "external drop tanks and a Sparrow missile rail",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-307",
+      "name": "F-111 Aardvark",
+      "nameZh": "F-111 土豚战斗轰炸机",
+      "class": "aircraft",
+      "series": "Cold War",
+      "faction": "NATO",
+      "kw": "美军 f111 土豚 轰炸机 北约 nato strike bomber",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO General Dynamics F-111 Aardvark strike aircraft",
+        "dark grey-green bricks",
+        "variable-sweep wings swept forward, side-by-side crew capsule, long slender fuselage",
+        "a terrain-following radome and underwing pylons",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-308",
+      "name": "UH-1 Iroquois Huey",
+      "nameZh": "UH-1 休伊直升机",
+      "class": "helicopter",
+      "series": "Cold War",
+      "faction": "NATO",
+      "kw": "美军 uh1 休伊 直升机 北约 nato huey helicopter",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Bell UH-1 Iroquois Huey helicopter",
+        "olive-drab bricks",
+        "slim pod fuselage with a rounded cockpit bubble, two-blade rotor, skid landing gear",
+        "door gunners at the open cabin doors and a red-cross marking",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-301",
+      "name": "Kilo-class Submarine",
+      "nameZh": "基洛级常规潜艇",
+      "class": "submarine",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "kw": "苏军 基洛级 潜艇 华约 soviet kilo submarine",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Kilo-class diesel-electric submarine",
+        "dark grey-green bricks",
+        "teardrop hull with a rounded sail, diving planes, six torpedo tubes at the bow",
+        "surfaced with water washing over the casing",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-302",
+      "name": "Kiev-class Aircraft Carrying Cruiser",
+      "nameZh": "基辅级载机巡洋舰",
+      "class": "ship",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "kw": "苏军 基辅级 载机巡洋舰 航母 华约 soviet kiev carrier",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Kiev-class aircraft-carrying cruiser",
+        "dark grey and olive bricks",
+        "angled flight deck to port with a huge starboard island and a raked missile deck at the bow",
+        "parked Yak aircraft and a red star on the island",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-303",
+      "name": "Los Angeles-class Attack Submarine",
+      "nameZh": "洛杉矶级攻击核潜艇",
+      "class": "submarine",
+      "series": "Cold War",
+      "faction": "NATO",
+      "kw": "美军 洛杉矶级 核潜艇 北约 nato los angeles submarine",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Los Angeles-class nuclear attack submarine",
+        "dark grey bricks",
+        "cylindrical hull with a tall sail and diving planes, pump-jet shroud at the stern",
+        "surfaced through a swell with water streaming off the casing",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-304",
+      "name": "Kitty Hawk-class Carrier",
+      "nameZh": "小鹰级航空母舰",
+      "class": "ship",
+      "series": "Cold War",
+      "faction": "NATO",
+      "kw": "美军 小鹰级 航母 北约 nato kitty hawk carrier",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Kitty Hawk-class supercarrier",
+        "haze-grey bricks with a dark deck",
+        "long angled flight deck with four catapults, island to starboard, four arrestor wires",
+        "parked aircraft along the deck edge and a white wake astern",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-006",
+      "name": "M998 Humvee",
+      "nameZh": "M998 悍马越野车",
+      "class": "ground",
+      "series": "Iraq War",
+      "faction": "Coalition",
+      "kw": "美军 悍马 humvee 越野车 车队 iraq convoy",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO M998 Humvee utility vehicle",
+        "desert tan bricks",
+        "wide low body, roll cage, ring-mounted machine gun above the co-driver",
+        "sand tyres, a radio antenna and dust streaks",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-007",
+      "name": "MRAP Armoured Vehicle",
+      "nameZh": "MRAP 防雷装甲车",
+      "class": "ground",
+      "series": "Iraq War",
+      "faction": "Coalition",
+      "kw": "美军 mrap 防雷 装甲车 mine resistant",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO MRAP mine-resistant ambush-protected vehicle",
+        "desert tan bricks",
+        "tall V-hull with tiny armoured windows, sloped bonnet, remote weapon station on the roof",
+        "heavy tyres and a rear troop ramp",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-008",
+      "name": "Stryker Armoured Vehicle",
+      "nameZh": "斯特赖克轮式装甲车",
+      "class": "ground",
+      "series": "Iraq War",
+      "faction": "Coalition",
+      "kw": "美军 斯特赖克 装甲车 stryker wheeled",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Stryker wheeled armoured vehicle",
+        "desert tan bricks",
+        "slab-sided eight-wheeled hull with a slat armour cage and a remote weapon station",
+        "a rear ramp and a dust-covered windscreen",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-009",
+      "name": "Iraqi T-72 Tank",
+      "nameZh": "伊拉克 T-72 坦克",
+      "class": "ground",
+      "series": "Iraq War",
+      "faction": "Opposing Force",
+      "kw": "伊拉克 t72 坦克 敌军 iraqi tank",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO Iraqi T-72 main battle tank",
+        "sand-yellow bricks",
+        "low cast turret with a 125mm gun, boxy hull, reactive armour bricks on the front",
+        "dust-caked tracks and a canvas sun shade",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-010",
+      "name": "Insurgent Technical Gun Truck",
+      "nameZh": "武装皮卡技术车",
+      "class": "ground",
+      "series": "Iraq War",
+      "faction": "Opposing Force",
+      "kw": "武装 皮卡 技术车 机枪 武装分子 technical gun truck",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO technical gun truck",
+        "weathered white and sand bricks",
+        "pickup truck with a heavy machine gun on a welded pintle in the bed, extra jerrycans",
+        "sand tyres, a hand-painted marking and dust streaks down the flanks",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-007",
+      "name": "AH-64D Apache Longbow",
+      "nameZh": "AH-64D 长弓阿帕奇",
+      "class": "helicopter",
+      "series": "Iraq War",
+      "faction": "Coalition",
+      "kw": "美军 阿帕奇 长弓 武装直升机 apache attack helicopter",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO AH-64D Apache Longbow attack helicopter",
+        "desert tan and olive bricks",
+        "tandem cockpits, mast-mounted radar dome above the rotor, stub wings with rocket pods",
+        "a chin chain gun and a Hellfire launching rail",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-008",
+      "name": "MQ-1 Predator Drone",
+      "nameZh": "MQ-1 捕食者无人机",
+      "class": "drone",
+      "series": "Iraq War",
+      "faction": "Coalition",
+      "kw": "美军 捕食者 无人机 侦察 drone predator",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO MQ-1 Predator unmanned aerial vehicle",
+        "pale grey bricks",
+        "slender fuselage with a bulbous satellite nose, long glider-like wings, inverted V tail",
+        "a sensor ball under the chin and a Hellfire rail under the wing",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-702",
+      "name": "Orbital Tracked Assault Vehicle",
+      "nameZh": "轨道履带突击车",
+      "class": "ground",
+      "series": "Orbital",
+      "faction": "Coalition",
+      "kw": "轨道 突击车 履带 装甲 orbital assault vehicle",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO orbital tracked assault vehicle",
+        "light grey and blue bricks",
+        "sealed low hull with magnetic clamp tracks, a turret ring and sensor mast",
+        "radiator panels folded along the flanks and a dust-free vacuum finish",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "VEH-703",
+      "name": "Opposing Orbital Self-Propelled Gun",
+      "nameZh": "敌方轨道自行火炮",
+      "class": "ground",
+      "series": "Orbital",
+      "faction": "Opposing Force",
+      "kw": "敌方 轨道 自行火炮 装甲 orbital gun enemy",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO opposing orbital self-propelled gun",
+        "charcoal and dark red bricks",
+        "long recoilless barrel on a sealed chassis, deployable anchor legs, an angular shield",
+        "a targeting array and exhaust vents along the rear deck",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-702",
+      "name": "Orbital Superiority Fighter",
+      "nameZh": "轨道制空战斗机",
+      "class": "aircraft",
+      "series": "Orbital",
+      "faction": "Coalition",
+      "kw": "轨道 战斗机 制空 太空 orbital fighter",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO orbital superiority fighter",
+        "white and light blue bricks",
+        "slender wedge fuselage, canted fins, vector nozzles and a flush canopy",
+        "wingtip rails and a squadron flash on the nose",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-703",
+      "name": "Opposing Orbital Interceptor",
+      "nameZh": "敌方轨道截击机",
+      "class": "aircraft",
+      "series": "Orbital",
+      "faction": "Opposing Force",
+      "kw": "敌方 轨道 截击机 敌机 orbital interceptor enemy",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO opposing orbital interceptor",
+        "charcoal and deep red bricks",
+        "aggressive forward-swept wings, twin spike intakes, dark slit canopy",
+        "a red squadron band and missile bay doors along the belly",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "AIR-704",
+      "name": "Lunar Landing Craft",
+      "nameZh": "月面着陆艇",
+      "class": "aircraft",
+      "series": "Orbital",
+      "faction": "Coalition",
+      "kw": "月面 着陆器 登陆 月球 lunar lander",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO lunar landing craft",
+        "pale grey and gold-foil bricks",
+        "angular descent stage with four landing legs, an ascent cabin and a docking hatch",
+        "a nozzle bell and gold thermal foil panels",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
+    },
+    {
+      "id": "SHP-701",
+      "name": "Opposing Orbital Cruiser",
+      "nameZh": "敌方轨道巡洋舰",
+      "class": "ship",
+      "series": "Orbital",
+      "faction": "Opposing Force",
+      "kw": "敌方 轨道 巡洋舰 战舰 orbital cruiser enemy warship",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO opposing orbital cruiser",
+        "charcoal and dark red bricks",
+        "long armoured spine with a prow ram, sponson gun batteries and radiator wings",
+        "a red prow stripe and running lights along the hull",
+        "consistent scale, consistent markings, same brick construction, high detail"
+      ]
     }
   ],
   "weapons": [
@@ -6847,6 +9675,482 @@
         "very long slender steel casing with a hardened pointed nose and tail fins",
         "impact dust column above a concrete bunker roof, rebar exposed"
       ]
+    },
+    {
+      "id": "WPN-101",
+      "name": "M1 Garand Rifle",
+      "nameZh": "M1 加兰德半自动步枪",
+      "series": "WWII",
+      "kw": "加兰德 步枪 美军 garand rifle",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO M1 Garand semi-automatic rifle",
+        "long wooden stock and handguard in brown bricks, blued steel barrel and receiver",
+        "en-bloc clip loaded at the top, leather sling along the stock"
+      ]
+    },
+    {
+      "id": "WPN-102",
+      "name": "Thompson Submachine Gun",
+      "nameZh": "汤普森冲锋枪",
+      "series": "WWII",
+      "kw": "汤普森 冲锋枪 芝加哥打字机 tommy gun smg",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO Thompson submachine gun",
+        "vertical foregrip, drum magazine, wooden stock and pistol grip in brown bricks",
+        "finned barrel and a sling swivel on the stock"
+      ]
+    },
+    {
+      "id": "WPN-103",
+      "name": "MP40 Submachine Gun",
+      "nameZh": "MP40 冲锋枪",
+      "series": "WWII",
+      "kw": "德军 mp40 冲锋枪 施迈瑟 german smg",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO MP40 submachine gun",
+        "folding metal stock, straight box magazine, ribbed receiver tube",
+        "thin blued barrel shroud and a simple bakelite grip"
+      ]
+    },
+    {
+      "id": "WPN-104",
+      "name": "Karabiner 98k",
+      "nameZh": "Kar98k 毛瑟步枪",
+      "series": "WWII",
+      "kw": "德军 98k 毛瑟 步枪 狙击 kar98k mauser rifle",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO Karabiner 98k bolt-action rifle",
+        "long brown wooden stock, turned-down bolt handle, rear tangent sight",
+        "leather sling and a bayonet lug at the muzzle"
+      ]
+    },
+    {
+      "id": "WPN-105",
+      "name": "MG42 General-Purpose Machine Gun",
+      "nameZh": "MG42 通用机枪",
+      "series": "WWII",
+      "kw": "德军 mg42 机枪 通用 german machine gun",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO MG42 general-purpose machine gun",
+        "perforated barrel shroud, belt feed hanging from the receiver, bipod folded forward",
+        "a spare barrel tube and ammo box beside it on the ground"
+      ]
+    },
+    {
+      "id": "WPN-106",
+      "name": "Panzerfaust",
+      "nameZh": "铁拳反坦克榴弹发射器",
+      "series": "WWII",
+      "kw": "德军 铁拳 反坦克 panzerfaust anti tank",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO Panzerfaust disposable anti-tank launcher",
+        "thin launch tube with a large oversize warhead at the front",
+        "simple folding rear sight and a warning decal on the tube"
+      ]
+    },
+    {
+      "id": "WPN-107",
+      "name": "M1 Bazooka",
+      "nameZh": "巴祖卡火箭筒",
+      "series": "WWII",
+      "kw": "美军 巴祖卡 火箭筒 反坦克 bazooka",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO M1 bazooka rocket launcher",
+        "two-part long tube with a shoulder rest and a pistol grip, blast shield at the rear",
+        "a rocket with fins protruding from the muzzle"
+      ]
+    },
+    {
+      "id": "WPN-108",
+      "name": "Mk 2 Fragmentation Grenade",
+      "nameZh": "Mk2 手榴弹",
+      "series": "WWII",
+      "kw": "手榴弹 破片 mk2 grenade",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO Mk 2 fragmentation grenade",
+        "segmented oval body in olive-green bricks with a safety lever",
+        "a small pull ring and a cloud of dust around it"
+      ]
+    },
+    {
+      "id": "WPN-109",
+      "name": "PPSh-41 Submachine Gun",
+      "nameZh": "波波沙 PPSh-41 冲锋枪",
+      "series": "WWII",
+      "kw": "苏军 波波沙 ppsh 冲锋枪 soviet smg",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO PPSh-41 submachine gun",
+        "drum magazine, perforated barrel shroud, wooden stock in brown bricks",
+        "rough stamped-metal look with a simple blade foresight"
+      ]
+    },
+    {
+      "id": "WPN-110",
+      "name": "Bren Light Machine Gun",
+      "nameZh": "布伦轻机枪",
+      "series": "WWII",
+      "kw": "英军 布伦 轻机枪 bren gun",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO Bren light machine gun",
+        "top-mounted curved magazine, conical flash hider, folding bipod",
+        "wooden carry handle over the barrel and a sling"
+      ]
+    },
+    {
+      "id": "WPN-201",
+      "name": "Arisaka Type 38 Rifle",
+      "nameZh": "三八式步枪（有坂）",
+      "series": "Pacific",
+      "kw": "日军 三八式 步枪 arisaka rifle",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO Arisaka Type 38 bolt-action rifle",
+        "very long slender barrel, brown wooden stock, distinctive bolt cover",
+        "a bayonet fixed at the muzzle and a leather sling"
+      ]
+    },
+    {
+      "id": "WPN-202",
+      "name": "Type 99 Light Machine Gun",
+      "nameZh": "九九式轻机枪",
+      "series": "Pacific",
+      "kw": "日军 九九式 轻机枪 japanese light machine gun",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO Type 99 light machine gun",
+        "top-mounted curved magazine, finned barrel, folding bipod, wooden stock",
+        "a blade front sight and a shoulder rest pad"
+      ]
+    },
+    {
+      "id": "WPN-203",
+      "name": "Nambu Type 14 Pistol",
+      "nameZh": "南部十四式手枪",
+      "series": "Pacific",
+      "kw": "日军 南部 手枪 japanese nambu pistol",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO Nambu Type 14 pistol",
+        "slim blued slide and a thin wooden grip panel, small magazine",
+        "a lanyard loop at the grip heel and a leather holster beside it"
+      ]
+    },
+    {
+      "id": "WPN-204",
+      "name": "M1 Carbine",
+      "nameZh": "M1 卡宾枪",
+      "series": "Pacific",
+      "kw": "美军 卡宾枪 m1 carbine",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO M1 carbine",
+        "short lightweight stock in brown bricks, slim barrel, 15-round magazine",
+        "a webbing sling and a canvas cartridge belt on the stock"
+      ]
+    },
+    {
+      "id": "WPN-205",
+      "name": "M2 Flamethrower",
+      "nameZh": "M2 火焰喷射器",
+      "series": "Pacific",
+      "kw": "美军 火焰喷射器 m2 flamethrower",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO M2 flamethrower",
+        "backpack tank with two pressure cylinders, rubber hose to a wand with a pistol grip",
+        "a jet of flame erupting from the nozzle and scorched ground beneath"
+      ]
+    },
+    {
+      "id": "WPN-301",
+      "name": "AK-47 Assault Rifle",
+      "nameZh": "AK-47 突击步枪",
+      "series": "Cold War",
+      "kw": "苏军 ak47 突击步枪 华约 ak assault rifle",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO AK-47 assault rifle",
+        "curved banana magazine, wooden forend and stock in brown bricks, blued receiver",
+        "a prominent front sight hood and a sling along the stock"
+      ]
+    },
+    {
+      "id": "WPN-302",
+      "name": "M16A1 Rifle",
+      "nameZh": "M16A1 步枪",
+      "series": "Cold War",
+      "kw": "美军 m16 步枪 北约 nato rifle",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO M16A1 rifle",
+        "black plastic stock and handguard, thin barrel with a birdcage flash hider, carry handle",
+        "a 20-round magazine and a webbing sling"
+      ]
+    },
+    {
+      "id": "WPN-303",
+      "name": "RPG-7 Launcher",
+      "nameZh": "RPG-7 火箭筒",
+      "series": "Cold War",
+      "kw": "rpg7 火箭筒 反坦克 rocket launcher",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO RPG-7 shoulder-fired anti-tank launcher",
+        "long slim tube with a flared blast cone at the rear and a wooden heat guard",
+        "a finned rocket protruding from the muzzle and a shoulder sling"
+      ]
+    },
+    {
+      "id": "WPN-304",
+      "name": "Dragunov SVD Marksman Rifle",
+      "nameZh": "德拉贡诺夫 SVD 狙击步枪",
+      "series": "Cold War",
+      "kw": "苏军 svd 德拉贡诺夫 狙击 sniper marksman rifle",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO Dragunov SVD designated marksman rifle",
+        "skeleton wooden stock, long thin barrel with a slotted flash hider, scope mounted on the rail",
+        "a 10-round magazine and a cheek rest"
+      ]
+    },
+    {
+      "id": "WPN-305",
+      "name": "9K32 Strela-2 MANPADS",
+      "nameZh": "箭-2 便携式防空导弹",
+      "series": "Cold War",
+      "kw": "防空导弹 肩扛 便携式 manpads strela",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO 9K32 Strela-2 man-portable air-defence system",
+        "thin launch tube with a grip stock and a small sight unit, a missile with a glass dome nose",
+        "a battery coolant unit clipped to the tube and a shoulder strap"
+      ]
+    },
+    {
+      "id": "WPN-008",
+      "name": "M4 Carbine",
+      "nameZh": "M4 卡宾枪",
+      "series": "Iraq War",
+      "kw": "美军 m4 卡宾枪 伊拉克 carbine",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO M4 carbine",
+        "short barrelled rifle with a telescopic stock and a detachable carry handle",
+        "an optic and a vertical foregrip, a 30-round magazine and a sling"
+      ]
+    },
+    {
+      "id": "WPN-009",
+      "name": "AKM Assault Rifle",
+      "nameZh": "AKM 突击步枪",
+      "series": "Iraq War",
+      "kw": "akm 突击步枪 伊拉克 武装分子 akm rifle",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO AKM assault rifle",
+        "stamped receiver with a slant muzzle brake, wooden stock and handguard in brown bricks",
+        "a curved magazine and a worn leather sling"
+      ]
+    },
+    {
+      "id": "WPN-010",
+      "name": "PKM General-Purpose Machine Gun",
+      "nameZh": "PKM 通用机枪",
+      "series": "Iraq War",
+      "kw": "pkm 机枪 通用 伊拉克 machine gun",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO PKM general-purpose machine gun",
+        "long ribbed barrel, stamped receiver, belt box clipped under the receiver",
+        "a bipod, a wooden butt and a canvas belt draped over the top"
+      ]
+    },
+    {
+      "id": "WPN-011",
+      "name": "Improvised Explosive Device",
+      "nameZh": "简易爆炸装置（IED）",
+      "series": "Iraq War",
+      "kw": "ied 路边炸弹 简易爆炸 iraq roadside bomb",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO buried improvised explosive device",
+        "a stack of artillery shell cans buried at the roadside with a disturbed patch of gravel",
+        "a command wire running to a kerb and faint tyre marks over the fill"
+      ]
+    },
+    {
+      "id": "WPN-701",
+      "name": "Orbital Railgun",
+      "nameZh": "轨道电磁轨道炮",
+      "series": "Orbital",
+      "kw": "轨道炮 电磁 太空 railgun orbital",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO orbital railgun emplacement",
+        "two long parallel rail barrels on a powered turret with capacitor banks behind",
+        "a blue-white discharge arc crawling along the rails and recoil bracing"
+      ]
+    },
+    {
+      "id": "WPN-702",
+      "name": "Space Torpedo",
+      "nameZh": "太空鱼雷",
+      "series": "Orbital",
+      "kw": "鱼雷 太空 导弹 轨道 space torpedo",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO space torpedo",
+        "slim cylindrical body with a hardened penetrator nose and cruciform thruster fins",
+        "cold-gas attitude jets firing and a guidance dome glowing at the tip"
+      ]
+    },
+    {
+      "id": "WPN-703",
+      "name": "Directed-Energy Cannon",
+      "nameZh": "定向能激光炮",
+      "series": "Orbital",
+      "kw": "激光 定向能 太空 炮 laser cannon",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO directed-energy laser cannon",
+        "a focusing emitter head on a gimballed mount with cooling fins and a power conduit",
+        "a coherent bright beam with hot glare and scorched plating at the focal point"
+      ]
+    },
+    {
+      "id": "WPN-704",
+      "name": "Orbital Mine",
+      "nameZh": "轨道空雷",
+      "series": "Orbital",
+      "kw": "空雷 轨道 地雷 太空 orbital mine",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO orbital mine",
+        "a spiked sphere with sensor studs and small manoeuvring thrusters",
+        "a blinking status light and a tether anchor for station-keeping"
+      ]
     }
   ],
   "props": [
@@ -7397,6 +10701,159 @@
         "LEGO submarine periscope and sensor masts",
         "cluster of black masts and a periscope head rising from the sail",
         "water sheeting off the masts, small radar and antenna housings at the tips"
+      ]
+    },
+    {
+      "id": "PRP-101",
+      "name": "Sandbag Emplacement and Hedgehog",
+      "nameZh": "沙包掩体与反坦克拒马",
+      "series": "WWII",
+      "kw": "沙包 掩体 拒马 工事 sandbag hedgehog emplacement",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO sandbag emplacement with a Czech hedgehog anti-tank obstacle",
+        "stacked sandbag courses in tan bricks forming a firing step",
+        "welded steel-angle hedgehog and a coil of barbed wire in front of it"
+      ]
+    },
+    {
+      "id": "PRP-102",
+      "name": "Barbed Wire and Dragon's Teeth",
+      "nameZh": "铁丝网与防坦克三角锥",
+      "series": "WWII",
+      "kw": "铁丝网 三角锥 障碍 防线 barbed wire dragon teeth",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO anti-tank barrier line of dragon's teeth with barbed wire",
+        "rows of concrete pyramids in grey bricks, wire entanglements strung between posts",
+        "signpost with a stencilled warning"
+      ]
+    },
+    {
+      "id": "PRP-201",
+      "name": "Coconut Log Bunker",
+      "nameZh": "椰木日军碉堡",
+      "series": "Pacific",
+      "kw": "日军 碉堡 椰木 工事 japanese bunker coconut",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO Japanese island bunker of stacked coconut logs and coral sand",
+        "chinked log courses with a narrow dark firing slit and a camouflage net",
+        "a machine gun barrel protruding and sandbags piled at the mouth"
+      ]
+    },
+    {
+      "id": "PRP-202",
+      "name": "Pontoon Causeway",
+      "nameZh": "浮桥栈桥登陆设施",
+      "series": "Pacific",
+      "kw": "浮桥 栈桥 登陆 码头 pontoon causeway",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO pontoon causeway running from the beach into the surf",
+        "steel pontoon sections bolted into a roadway, steel matting and fender piles",
+        "surf washing over the near end and tyre marks along the decking"
+      ]
+    },
+    {
+      "id": "PRP-301",
+      "name": "Border Fence and Watchtower",
+      "nameZh": "边境铁丝网与观察塔",
+      "series": "Cold War",
+      "kw": "边境 铁丝网 观察塔 防线 border fence watchtower",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO inner-German border fence with a watchtower",
+        "expanded-metal fence panels in grey bricks with coil barbed wire along the top",
+        "a concrete watchtower with dark slit windows and a searchlight mount"
+      ]
+    },
+    {
+      "id": "PRP-302",
+      "name": "Anti-Tank Concrete Blocks",
+      "nameZh": "反坦克水泥障碍群",
+      "series": "Cold War",
+      "kw": "反坦克 水泥 障碍 防线 anti tank concrete blocks",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO anti-tank concrete barrier line",
+        "rows of tapered concrete blocks and steel rails driven into a grass verge",
+        "a gravel patrol track and a yellow-and-red warning marker"
+      ]
+    },
+    {
+      "id": "PRP-011",
+      "name": "Hesco Bastion Wall",
+      "nameZh": "防爆墙与沙袋工事",
+      "series": "Iraq War",
+      "kw": "防爆墙 沙袋 工事 掩体 hesco bastion sandbag",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO Hesco bastion wall and sandbag sangar",
+        "cubic wire-mesh gabion baskets filled with sand in tan bricks, stacked two courses high",
+        "a sandbag machine-gun nest with an observation slit and a camo net over the top"
+      ]
+    },
+    {
+      "id": "PRP-012",
+      "name": "EVA Manipulator Arm",
+      "nameZh": "舱外维修机械臂",
+      "series": "Orbital",
+      "kw": "机械臂 舱外 维修 太空 eva manipulator arm",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO EVA manipulator arm",
+        "segmented boom with jointed elbows, an end-effector claw and a camera head",
+        "a mounting collar and a tethered operator console beside it"
+      ]
+    },
+    {
+      "id": "PRP-013",
+      "name": "Zero-G Restraint Rig",
+      "nameZh": "失重固定支架",
+      "series": "Orbital",
+      "kw": "失重 固定 支架 太空 zero gravity restraint",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO zero-g restraint rig",
+        "handrail posts, foot loops and a tensioned strap running along a bulkhead",
+        "velcro patches and a floating tool pouch clipped to a tether"
       ]
     }
   ],
@@ -8094,6 +11551,210 @@
         "fleet air-defence intercept barrage",
         "multiple missiles streaking upward on divergent trails from several ships",
         "bursts of proximity-fused flak puffing across the sky above the formation"
+      ]
+    },
+    {
+      "id": "FX-101",
+      "name": "Cannon Tracer Fire",
+      "nameZh": "机炮曳光弹雨",
+      "series": "WWII",
+      "kw": "曳光弹 机炮 弹雨 空战 tracer cannon fire",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "streams of cannon tracer fire crossing the frame",
+        "bright orange tracer streaks with smoking grey trails, flick wingtip vortices",
+        "brief muzzle flashes and a puff of black smoke as a target is hit"
+      ]
+    },
+    {
+      "id": "FX-102",
+      "name": "Tank Brew-Up Explosion",
+      "nameZh": "坦克殉爆",
+      "series": "WWII",
+      "kw": "坦克 殉爆 爆炸 炮塔 tank brew up explosion",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "a tank brewing up with a violent secondary explosion",
+        "the turret blown clear on a rising column of orange fire and black oil smoke",
+        "shrapnel sparks, ejected hatches, a fireball reflecting on the ground"
+      ]
+    },
+    {
+      "id": "FX-103",
+      "name": "Artillery Muzzle Flash",
+      "nameZh": "大口径炮口焰",
+      "series": "WWII",
+      "kw": "炮口焰 炮击 火炮 轰击 artillery muzzle flash",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "heavy artillery muzzle flash and concussion",
+        "huge orange-white flash tongue, expanding dust rings kicked up from the ground",
+        "smoke column curling from the muzzle brake"
+      ]
+    },
+    {
+      "id": "FX-201",
+      "name": "Dive Bomber Bomb Run",
+      "nameZh": "舰载机俯冲投弹",
+      "series": "Pacific",
+      "kw": "俯冲 投弹 轰炸 空袭 dive bomber bomb",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "dive bomber release and bomb run",
+        "the aircraft pulling out of a steep dive, a single bomb tumbling away with fins",
+        "smoke puff trail, whistling rush, then a distant geyser of water and smoke"
+      ]
+    },
+    {
+      "id": "FX-202",
+      "name": "Naval Gunfire Splash",
+      "nameZh": "舰炮射击水柱",
+      "series": "Pacific",
+      "kw": "舰炮 水柱 炮击 溅射 naval gunfire splash",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "naval gunfire impact splashes marching across the water",
+        "towering white water columns with grey smoke puffs at each impact",
+        "spray sheets blowing downwind across the lagoon"
+      ]
+    },
+    {
+      "id": "FX-203",
+      "name": "Ship Torpedo Hit",
+      "nameZh": "舰船中雷黑烟",
+      "series": "Pacific",
+      "kw": "鱼雷 中雷 舰船 黑烟 torpedo hit smoke",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "a ship struck by a torpedo with a rising column of oil smoke",
+        "a white water spout at the impact point, then heavy black funnel smoke climbing",
+        "listing hull and debris flung into the air"
+      ]
+    },
+    {
+      "id": "FX-301",
+      "name": "Armoured Column Dust Cloud",
+      "nameZh": "装甲集群扬尘推进",
+      "series": "Cold War",
+      "kw": "装甲 集群 扬尘 推进 tank column dust",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "an armoured column advancing under a huge dust cloud",
+        "tanks silhouetted in a rolling brown-grey dust haze, sun disc burning through it",
+        "track dust plumes and exhaust smoke trailing behind each vehicle"
+      ]
+    },
+    {
+      "id": "FX-302",
+      "name": "Rocket Salvo Launch",
+      "nameZh": "火箭弹齐射尾焰",
+      "series": "Cold War",
+      "kw": "火箭 齐射 尾焰 发射 rocket salvo",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "multiple rocket launcher firing a salvo",
+        "rockets streaking away on bright white-orange trails with expanding smoke puffs",
+        "dust kicked up around the launcher and recoil smoke hanging in the air"
+      ]
+    },
+    {
+      "id": "FX-009",
+      "name": "Roadside Bomb Blast",
+      "nameZh": "路边炸弹爆炸",
+      "series": "Iraq War",
+      "kw": "路边炸弹 爆炸 冲击波 roadside ied blast",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "roadside bomb detonation against a vehicle",
+        "an orange fireball and a fast-expanding ring of grey dust and grit",
+        "debris tumbling through the smoke, a black smoke column climbing"
+      ]
+    },
+    {
+      "id": "FX-010",
+      "name": "Urban Gunfight Dust",
+      "nameZh": "城市枪战扬尘",
+      "series": "Iraq War",
+      "kw": "城市 枪战 扬尘 巷战 urban gunfight dust",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "urban firefight kicking dust off concrete",
+        "spurts of concrete dust where rounds strike, weapons smoke hanging at each muzzle",
+        "sunbeams full of stirred grit and ricochet sparks"
+      ]
+    },
+    {
+      "id": "FX-701",
+      "name": "Vacuum Explosion Flash",
+      "nameZh": "真空爆炸闪光",
+      "series": "Orbital",
+      "kw": "真空 爆炸 闪光 太空 vacuum explosion flash",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "vacuum detonation flash with no fireball",
+        "a brief intense white flash and an expanding spherical shell of debris",
+        "no smoke, only venting vapour crystals glittering in the sunlight"
+      ]
+    },
+    {
+      "id": "FX-702",
+      "name": "Hull Breach Venting",
+      "nameZh": "舱体破口喷射气流",
+      "series": "Orbital",
+      "kw": "舱体 破口 气流 泄压 hull breach venting",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "hull breach venting atmosphere into vacuum",
+        "a roaring jet of expanding vapour crystals and torn insulation streaming outward",
+        "emergency foam sealing the ragged edges, frost forming on the torn metal"
       ]
     }
   ],
@@ -9193,6 +12854,397 @@
         "long concrete runway with taxiway turnoffs and hardened aircraft shelters",
         "a bomber on alert beside its shelter, runway lights stretching into the distance"
       ]
+    },
+    {
+      "id": "ENV-104",
+      "name": "Stalingrad Ruins",
+      "nameZh": "斯大林格勒废墟",
+      "series": "WWII",
+      "kw": "斯大林格勒 废墟 城市 巷战 stalingrad ruins rubble",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "bombed-out Stalingrad city block, collapsed brick apartment shells and exposed floor slabs",
+        "twisted brick rebar, blown-out windows, drifting ash and smoke, overcast grey light"
+      ]
+    },
+    {
+      "id": "ENV-105",
+      "name": "Berlin Street Ruins",
+      "nameZh": "柏林废墟街道",
+      "series": "WWII",
+      "kw": "柏林 废墟 街道 城市 berlin ruins street",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "Berlin street in ruins, cratered cobblestones, burnt-out facades and a tangle of tram cables",
+        "dust haze, brick dust, heavy grey overcast, cinematic desaturation"
+      ]
+    },
+    {
+      "id": "ENV-106",
+      "name": "Ardennes Snow Forest",
+      "nameZh": "阿登森林雪原",
+      "series": "WWII",
+      "kw": "阿登 森林 雪地 冬季 ardennes snow forest winter",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "Ardennes pine forest under deep snow, frosted trunks and buried track marks",
+        "flat white overcast light, drifting snowflakes, frozen breath in the air"
+      ]
+    },
+    {
+      "id": "ENV-107",
+      "name": "North African Desert Outpost",
+      "nameZh": "北非沙漠绿洲阵地",
+      "series": "WWII",
+      "kw": "北非 沙漠 绿洲 阵地 afrika desert",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "North African desert outpost, ochre sand, low mud-brick walls and a lone palm oasis",
+        "heat shimmer, blowing sand, harsh high sun and hard shadows"
+      ]
+    },
+    {
+      "id": "ENV-108",
+      "name": "Siegfried Line Bunkers",
+      "nameZh": "齐格菲防线碉堡群",
+      "series": "WWII",
+      "kw": "齐格菲 防线 碉堡 工事 siegfried line bunker",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "Siegfried Line fortification belt, concrete bunkers and dragon's-teeth anti-tank blocks",
+        "concrete slitted embrasures, cold damp air, low grey cloud"
+      ]
+    },
+    {
+      "id": "ENV-204",
+      "name": "Iwo Jima Volcanic Beach",
+      "nameZh": "硫磺岛火山灰滩头",
+      "series": "Pacific",
+      "kw": "硫磺岛 滩头 火山灰 黑沙滩 iwo jima volcanic beach",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "Iwo Jima landing beach of fine black volcanic ash, terraced slopes and drifting steam",
+        "grey-black sand, rough surf, pall of smoke from the high ground, dull overcast sky"
+      ]
+    },
+    {
+      "id": "ENV-205",
+      "name": "Guadalcanal Jungle",
+      "nameZh": "瓜达尔卡纳尔热带丛林",
+      "series": "Pacific",
+      "kw": "瓜岛 丛林 雨林 热带 guadalcanal jungle tropical",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "dense tropical jungle with broad leaves, lianas and a muddy trace through the undergrowth",
+        "dappled humid light shafts, mist between the trunks, dripping foliage"
+      ]
+    },
+    {
+      "id": "ENV-206",
+      "name": "Coral Reef Lagoon",
+      "nameZh": "珊瑚礁泻湖浅滩",
+      "series": "Pacific",
+      "kw": "珊瑚礁 泻湖 浅滩 环礁 coral reef lagoon atoll",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "turquoise coral reef lagoon with a bone-white sand bar and a wrecked landing craft",
+        "brilliant tropical sun, clear shallow water, breaking surf on the reef crest"
+      ]
+    },
+    {
+      "id": "ENV-207",
+      "name": "Midway Atoll",
+      "nameZh": "中途岛环礁",
+      "series": "Pacific",
+      "kw": "中途岛 环礁 机场 midway atoll airfield",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "Midway atoll with a coral runway, revetment berms and scattered low buildings",
+        "harsh equatorial light, pale coral dust, gooney birds wheeling over the lagoon"
+      ]
+    },
+    {
+      "id": "ENV-208",
+      "name": "Japanese Island Cave Position",
+      "nameZh": "日军岛屿坑道阵地",
+      "series": "Pacific",
+      "kw": "日军 坑道 洞窟 阵地 岛屿 japanese cave bunker island",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "carved coral cave position with a camouflaged firing slit and stacked ammo crates",
+        "deep black shadow inside, harsh daylight cutting in through the slit, dust motes in the beam"
+      ]
+    },
+    {
+      "id": "ENV-304",
+      "name": "Berlin Wall Checkpoint",
+      "nameZh": "柏林墙检查站",
+      "series": "Cold War",
+      "kw": "柏林墙 检查站 冷战 哨卡 berlin wall checkpoint",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "Berlin Wall crossing with concrete segments, a raised watchtower and a barrier boom",
+        "flat cold daylight, wet cobblestones, searchlight mount and coil of wire on top"
+      ]
+    },
+    {
+      "id": "ENV-305",
+      "name": "Eastern Bloc Industrial City",
+      "nameZh": "东欧工业城市街区",
+      "series": "Cold War",
+      "kw": "东欧 城市 工业 街区 冷战 eastern bloc city",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "grey pre-fab apartment blocks and a factory chimney, cracked paving and a tram line",
+        "drab concrete palette, low cloud, thin smoke, cinematic desaturation"
+      ]
+    },
+    {
+      "id": "ENV-306",
+      "name": "Arctic Listening Post",
+      "nameZh": "北极冰原监听哨站",
+      "series": "Cold War",
+      "kw": "北极 冰原 哨站 雪地 arctic listening post snow",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "arctic listening post of corrugated huts and a tall lattice mast on a snowfield",
+        "flat white-out light, drifting ice crystals, buried cable runs and fuel drums"
+      ]
+    },
+    {
+      "id": "ENV-307",
+      "name": "West German Air Base Hardstand",
+      "nameZh": "西德空军基地机堡",
+      "series": "Cold War",
+      "kw": "空军基地 机堡 跑道 西德 air base hardstand",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "West German air base dispersal with concrete blast pens, taxiway markings and fuel bowsers",
+        "cold blue-grey light, wet apron reflections, low haze"
+      ]
+    },
+    {
+      "id": "ENV-308",
+      "name": "Central European Forest Ambush",
+      "nameZh": "中欧森林伏击地带",
+      "series": "Cold War",
+      "kw": "森林 伏击 中欧 林地 european forest ambush",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "mixed Central European woodland with a dirt track and a camouflaged vehicle hide",
+        "soft dappled light through bare trunks, damp leaf litter, low mist"
+      ]
+    },
+    {
+      "id": "ENV-008",
+      "name": "Fallujah Street",
+      "nameZh": "费卢杰城区街道",
+      "series": "Iraq War",
+      "kw": "费卢杰 城市 街道 巷战 fallujah street urban",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "Fallujah street of sand-coloured concrete blocks, shuttered shopfronts and rubble barricades",
+        "harsh desert sun, dust haze, hanging power cables, pockmarked walls"
+      ]
+    },
+    {
+      "id": "ENV-009",
+      "name": "Baghdad Checkpoint",
+      "nameZh": "巴格达街道与检查站",
+      "series": "Iraq War",
+      "kw": "巴格达 检查站 城市 街道 baghdad checkpoint",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "Baghdad thoroughfare with a checkpoint of concrete barriers, sandbags and a guard post",
+        "heat shimmer, blowing litter and dust, palm trees against a pale sky"
+      ]
+    },
+    {
+      "id": "ENV-010",
+      "name": "Euphrates Riverbank",
+      "nameZh": "幼发拉底河沿岸绿洲",
+      "series": "Iraq War",
+      "kw": "幼发拉底 河流 绿洲 沿岸 euphrates riverbank",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "Euphrates riverbank with date palms, reed beds and a mud-brick village across the water",
+        "still hazy afternoon light, irrigation channels, dust on the reeds"
+      ]
+    },
+    {
+      "id": "ENV-011",
+      "name": "Iraq Forward Operating Base",
+      "nameZh": "美军前进作战基地（伊拉克）",
+      "series": "Iraq War",
+      "kw": "前进基地 作战基地 伊拉克 军营 forward operating base",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "coalition forward operating base with Hesco bastion walls, guard towers and tent rows",
+        "harsh sun on white concrete dust, generators humming, helicopter dust on the pad"
+      ]
+    },
+    {
+      "id": "ENV-703",
+      "name": "Lunar Base Surface",
+      "nameZh": "月面基地",
+      "series": "Orbital",
+      "kw": "月面 月球 基地 低重力 lunar base surface",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "lunar base surface of grey regolith, pressurised dome modules and landing pads",
+        "harsh unfiltered sunlight with jet-black shadows, distant Earth low over the horizon"
+      ]
+    },
+    {
+      "id": "ENV-704",
+      "name": "Orbital Shipyard Truss",
+      "nameZh": "轨道船坞桁架",
+      "series": "Orbital",
+      "kw": "轨道 船坞 桁架 太空 orbital shipyard truss",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "orbital shipyard of open lattice trusses, a half-built hull and parked work pods",
+        "hard sunlight against deep space black, tool lights, drifting debris chips"
+      ]
+    },
+    {
+      "id": "ENV-705",
+      "name": "Station Core Module",
+      "nameZh": "空间站核心舱（失重）",
+      "series": "Orbital",
+      "kw": "空间站 核心舱 失重 舱内 station core zero gravity",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "station core module interior with handrails, instrument bays and a viewing cupola",
+        "cool cabin lighting, floating dust and loose straps, Earth filling the viewport"
+      ]
+    },
+    {
+      "id": "ENV-706",
+      "name": "Asteroid Mining Station",
+      "nameZh": "小行星采矿站",
+      "series": "Orbital",
+      "kw": "小行星 采矿站 轨道 asteroid mining",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "asteroid mining station clamped to a jagged rock face with drill rigs and ore hoppers",
+        "harsh raking sunlight, deep black shadow, slow tumbling rock and dust plumes"
+      ]
     }
   ],
   "cameras": [
@@ -9581,6 +13633,74 @@
         "very distant near-orthographic view with the horizon curving at the frame edge",
         "target complex tiny at the centre of a huge landscape, thin haze layer below"
       ]
+    },
+    {
+      "id": "CAM-101",
+      "name": "Beachhead Low Tracking",
+      "nameZh": "滩头低角度推进跟拍",
+      "series": "WWII",
+      "kw": "滩头 登陆 跟拍 低角度 beachhead tracking",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "low tracking shot pushing along a beachhead",
+        "camera at knee height beside the soldiers as they advance, water and sand spraying at the lens",
+        "obstacles sliding past in the foreground, smoke drifting over the frame"
+      ]
+    },
+    {
+      "id": "CAM-201",
+      "name": "Dive Bomber Follow",
+      "nameZh": "俯冲轰炸跟随镜头",
+      "series": "Pacific",
+      "kw": "俯冲 轰炸 跟随 空战 dive bomber follow",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "steep dive tracking shot following a bomber down",
+        "camera locked just behind the tail as the target grows in frame, dive brakes fluttering",
+        "swaying horizon, then the release and a violent pull-out"
+      ]
+    },
+    {
+      "id": "CAM-301",
+      "name": "Armoured Column Aerial Push",
+      "nameZh": "装甲纵队航拍推进",
+      "series": "Cold War",
+      "kw": "航拍 装甲 纵队 推进 aerial column",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "aerial tracking shot pushing along an armoured column",
+        "camera drifting just above the treeline as the column winds along a valley road",
+        "dust trail threading through the frame, vehicles bobbing in and out of cover"
+      ]
+    },
+    {
+      "id": "CAM-102",
+      "name": "Zero-G Drift Follow",
+      "nameZh": "失重舱内漂浮跟随",
+      "series": "Orbital",
+      "kw": "失重 漂浮 跟随 舱内 zero gravity drift follow",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "drifting follow shot through a weightless module",
+        "camera floating slowly past handrails, rotating slightly as it tracks the figure",
+        "loose straps and debris drifting past the lens in the foreground"
+      ]
     }
   ],
   "lighting": [
@@ -9896,6 +14016,125 @@
         "fleet night navigation lighting",
         "red and green running lights and white masthead lamps across the formation",
         "light trails reflecting in black water, deck glow along each hull"
+      ]
+    },
+    {
+      "id": "LGT-101",
+      "name": "Fire-Lit Night Sky",
+      "nameZh": "战火映照的夜空",
+      "series": "WWII",
+      "kw": "夜战 火光 照明 战场 fire lit night",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "battlefield night lit by burning buildings",
+        "flickering orange key light from below, cool blue moonlight fill, deep black shadows",
+        "smoke drifting through the light shafts, embers rising"
+      ]
+    },
+    {
+      "id": "LGT-102",
+      "name": "Overcast Battlefield Daylight",
+      "nameZh": "阴天战场散射光",
+      "series": "WWII",
+      "kw": "阴天 散射 白天 战场 overcast daylight",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "flat overcast battlefield daylight",
+        "soft shadowless diffusion from a grey cloud deck, muted desaturated tones",
+        "slight cold cast with no strong direction"
+      ]
+    },
+    {
+      "id": "LGT-201",
+      "name": "Jungle and Surf Light",
+      "nameZh": "丛林斑驳与海滩强光",
+      "series": "Pacific",
+      "kw": "丛林 斑驳 阳光 海滩 jungle surf light",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "jungle dappled light against glaring beach sun",
+        "hot patches of direct sun through the canopy, deep green shade between them",
+        "brilliant specular glare off wet sand and surf at the jungle edge"
+      ]
+    },
+    {
+      "id": "LGT-301",
+      "name": "Eastern Bloc Overcast Grey",
+      "nameZh": "东欧阴天冷战灰调",
+      "series": "Cold War",
+      "kw": "阴天 灰调 东欧 冷战 overcast grey eastern bloc",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "flat Eastern Bloc overcast daylight",
+        "cold grey key light with no direction, desaturated concrete palette",
+        "low cloud ceiling and a faint haze in the distance"
+      ]
+    },
+    {
+      "id": "LGT-009",
+      "name": "Desert Noon Hard Sun",
+      "nameZh": "沙漠正午硬光",
+      "series": "Iraq War",
+      "kw": "沙漠 正午 硬光 强光 desert noon hard sun",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "desert noon hard sun",
+        "brutal overhead key light with short deep shadows and bleached highlights",
+        "dust-laden air scattering the light and heat shimmer at the horizon"
+      ]
+    },
+    {
+      "id": "LGT-010",
+      "name": "Station Cold Work Light",
+      "nameZh": "空间站冷白工作灯",
+      "series": "Orbital",
+      "kw": "空间站 冷白 工作灯 舱内 station work light",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "cold white station work lighting",
+        "flat cool-white panels with hard falloff and dark shadows between them",
+        "instrument glow and a coloured status strip reflected on the hull"
+      ]
+    },
+    {
+      "id": "LGT-011",
+      "name": "Hard Sunlight and Black Shadow",
+      "nameZh": "硬边阳光切割阴影",
+      "series": "Orbital",
+      "kw": "硬光 阳光 阴影 太空 hard sunlight shadow",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "unfiltered orbital sunlight with absolute shadow",
+        "razor-sharp terminator between blinding white surfaces and pitch-black void",
+        "no atmospheric scattering, specular glints off visors and hulls"
       ]
     }
   ],
@@ -10489,6 +14728,176 @@
         "underwater depth charge explosion",
         "muffled crump followed by a pressure wave thudding against the hull",
         "bubble roar rushing past, sonar operator wincing at the noise"
+      ]
+    },
+    {
+      "id": "AUD-101",
+      "name": "WWII Piston Fighter Flyby",
+      "nameZh": "二战螺旋桨战机掠过",
+      "series": "WWII",
+      "kw": "战机 螺旋桨 掠过 空战 piston fighter flyby",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "radial-engine piston fighter roar tearing overhead",
+        "mechanical supercharger whine over a deep propeller wash",
+        "the doppler drop as it recedes into the distance"
+      ]
+    },
+    {
+      "id": "AUD-102",
+      "name": "Tank Tracks and 88 Gunfire",
+      "nameZh": "坦克履带与88炮轰鸣",
+      "series": "WWII",
+      "kw": "坦克 履带 炮击 88炮 tank tracks gunfire",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "steel tank tracks clattering and squealing over uneven ground",
+        "a harsh 88mm gun crack with a concussive slap",
+        "servo whine and spent brass ringing on the hull floor"
+      ]
+    },
+    {
+      "id": "AUD-201",
+      "name": "Dive Bomber Scream",
+      "nameZh": "俯冲轰炸机尖啸",
+      "series": "Pacific",
+      "kw": "俯冲 尖啸 轰炸机 dive bomber scream",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "dive bomber howl building to a scream",
+        "airframe whistle rising in pitch, then a rush and a distant detonation",
+        "the low grumble of the pull-out and the engine note receding"
+      ]
+    },
+    {
+      "id": "AUD-202",
+      "name": "Jungle Ambience and Night Assault",
+      "nameZh": "丛林虫鸣与夜袭喊杀",
+      "series": "Pacific",
+      "kw": "丛林 虫鸣 夜袭 喊杀 jungle night assault",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "dense jungle ambience with a night assault rising",
+        "cicada and insect chorus under shouted orders and rapid rifle fire",
+        "boots crashing through wet undergrowth and bamboo"
+      ]
+    },
+    {
+      "id": "AUD-301",
+      "name": "Cold War Diesel Armour",
+      "nameZh": "冷战坦克柴油轰鸣",
+      "series": "Cold War",
+      "kw": "坦克 柴油 引擎 履带 diesel tank engine",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "cold-war diesel armour column passing",
+        "deep diesel engine throb and clattering steel track links",
+        "turbine whine and the grind of a gear change"
+      ]
+    },
+    {
+      "id": "AUD-302",
+      "name": "MiG Afterburner Pass",
+      "nameZh": "米格战机加力掠过",
+      "series": "Cold War",
+      "kw": "米格 战机 加力 掠过 jet afterburner flyby",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "MiG fighter afterburner pass",
+        "sharp cracking afterburner roar building then tearing overhead",
+        "the doppler tail-off as it recedes beyond the treeline"
+      ]
+    },
+    {
+      "id": "AUD-013",
+      "name": "Urban Firefight and Sirens",
+      "nameZh": "城区交火与警报",
+      "series": "Iraq War",
+      "kw": "城区 交火 枪声 警报 urban firefight siren",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "urban firefight with distant sirens",
+        "cracking rifle fire echoing between concrete walls, shouted commands",
+        "spent brass tinkling on the ground and a siren wailing further off"
+      ]
+    },
+    {
+      "id": "AUD-014",
+      "name": "Convoy Radio Chatter",
+      "nameZh": "车队无线电通话",
+      "series": "Iraq War",
+      "kw": "车队 无线电 通话 convoy radio chatter",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "convoy radio chatter over engine noise",
+        "clipped tactical traffic with squelch bursts, diesel engine throb under it",
+        "tyre hum on tarmac and wind noise through the window"
+      ]
+    },
+    {
+      "id": "AUD-015",
+      "name": "Pressure Leak and Alarm",
+      "nameZh": "舱内警报与泄压嘶声",
+      "series": "Orbital",
+      "kw": "警报 泄压 舱内 嘶声 pressure leak alarm",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "cabin alarm with a pressure leak",
+        "urgent repeating klaxon under a rising hiss of escaping atmosphere",
+        "structure creaking and a bulkhead door slamming shut"
+      ]
+    },
+    {
+      "id": "AUD-016",
+      "name": "Vacuum Exterior Silence",
+      "nameZh": "真空外部静默",
+      "series": "Orbital",
+      "kw": "真空 静默 外部 太空 vacuum silence",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "near-silence of the vacuum exterior",
+        "only faint suit-life-support hum and the dull thud of boots through magnetic soles",
+        "a distant thruster chirp and the slow creak of a hull cooling"
       ]
     }
   ],

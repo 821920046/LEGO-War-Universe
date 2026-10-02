@@ -5,6 +5,8 @@ import profiles from '../02_Assets/model-profiles.json' with { type: 'json' };
 import schema from '../02_Assets/assets.schema.json' with { type: 'json' };
 import { createRegistry } from '../src/domain/registry.js';
 import { validateForgedAsset } from '../src/domain/asset-forge.js';
+import { isEraCompatible } from '../src/domain/shot-spec.js';
+import { sideOf } from '../src/domain/roster.js';
 
 const registry = createRegistry(assets, profiles, { references: [] });
 
@@ -49,6 +51,30 @@ test('Asset manager data: 现代战争扩充包已并入注册表', () => {
     'environments', 'cameras', 'lighting', 'colorGrades', 'audio'];
   const pack = GROUPS.flatMap(g => assets[g] || []).filter(a => a.origin === 'modern-warfare-pack');
   assert.ok(pack.length >= 130, `现代战争扩充包应 >= 130 项，实际 ${pack.length}`);
-  assert.equal(assets.schemaVersion, '3.5');
+  assert.equal(assets.schemaVersion, '3.6');
   assert.ok(registry.byKind.get('vehicle').some(a => a.class === 'submarine'));
+});
+
+test('Asset manager data: 历史与轨道战争扩充包已并入注册表', () => {
+  const GROUPS = ['characters', 'vehicles', 'weapons', 'props', 'fx',
+    'environments', 'cameras', 'lighting', 'colorGrades', 'audio'];
+  const all = GROUPS.flatMap(g => assets[g] || []);
+  const pack = all.filter(a => a.origin === 'historical-warfare-pack');
+  assert.ok(pack.length >= 150, `历史与轨道战争扩充包应 >= 150 项，实际 ${pack.length}`);
+
+  // 补全前的实测基线与本次修复目标（把一次性人工检查变成可回归断言）：
+  //   WWII 可用载具 9 → 42；Pacific 唯一的敌军是德军士兵（太平洋战场出现德国兵）；
+  //   Cold War 敌军 0、Orbital 敌军 0（enemyFallback=true，整部片子没有反派）。
+  // 「每个时代都必须有反派」这条最关键：它一旦破，成片就只剩单方面行动，没有对抗。
+  const eras = ['WWII', 'Pacific', 'Cold War', 'Gulf War', 'Iraq War', 'Modern', 'Orbital'];
+  for (const era of eras) {
+    const veh = registry.byKind.get('vehicle').filter(a => isEraCompatible(a.series, era) && a.class);
+    const wpn = registry.byKind.get('weapon').filter(a => isEraCompatible(a.series, era));
+    assert.ok(veh.length >= 7, `${era} 可用载具应 >= 7，实际 ${veh.length}`);
+    assert.ok(wpn.length >= 5, `${era} 可用武器应 >= 5，实际 ${wpn.length}`);
+
+    const chars = registry.byKind.get('character').filter(a => isEraCompatible(a.series, era));
+    const foes = chars.filter(a => sideOf(a) === 'opposing');
+    assert.ok(foes.length >= 1, `${era} 必须有可用的敌军角色，否则整部片子没有反派`);
+  }
 });

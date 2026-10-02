@@ -404,6 +404,42 @@ const DOMAIN_RULES = [
 ];
 
 /**
+ * 战区互斥规则（仅作用于 WWII / Pacific）。
+ *
+ * 存在的意义：`ERA_COMPATIBILITY` 允许 WWII ⇄ Pacific 互借资产（二者同属二战），
+ * 但**战区不能混**。资产库补全日军/美军陆战队之前，太平洋题材唯一的敌军是德军士兵，
+ * 于是「中途岛航母对决」里出现了德国兵 —— 这是比装备单一严重得多的硬穿帮。
+ *
+ * 判定刻意保守：**只有资产与题材双方都带明确战区标记、且两者冲突时才剔除**。
+ * 北非、缅甸这类中立题材不带标记，德军（隆美尔的非洲军团）仍可正常上镜。
+ */
+const THEATER_RULES = [
+  {
+    key: 'european',
+    re: /德军|德意志|国防军|党卫|german|wehrmacht|fallschirm|panzer|panther|tiger|诺曼底|斯大林格勒|柏林|阿登|欧洲|东线|西线|normandy|stalingrad|berlin|ardennes|europe/i
+  },
+  {
+    key: 'pacific',
+    re: /日本|日军|帝国海军|帝国陆军|ijn|ija|japanese|zero|零式|翔鹤|赤城|大和|武藏|太平洋|瓜岛|硫磺岛|中途岛|瓜达尔卡纳尔|冲绳|塞班|iwo|midway|guadalcanal|okinawa|saipan|pacific/i
+  }
+];
+
+/** 文本 → 战区；无明确标记返回 null（null 表示「不参与互斥」）。 */
+export function theaterOf(text) {
+  const hay = String(text || '');
+  if (!hay.trim()) return null;
+  for (const rule of THEATER_RULES) {
+    if (rule.re.test(hay)) return rule.key;
+  }
+  return null;
+}
+
+/** 资产的战区标记取自这些字段（与 domainScore / themeMatch 的取材保持一致）。 */
+function assetText(a) {
+  return `${a?.unit || ''} ${a?.name || ''} ${a?.nameZh || ''} ${a?.kw || ''}`;
+}
+
+/**
  * 判定一段文本（题材 / 战场环境）属于哪个战场域。
  * @returns {{ key: string, classes: string[], re: RegExp }|null}
  */
@@ -442,13 +478,14 @@ function normalizeMatchText(value) {
   return String(value || '').toLowerCase().replace(/[\s\-_/·.,()（）【】[\]]+/g, '');
 }
 
-/** 最长公共子串长度（滚动数组，O(n·m)）。资产与题材都很短，开销可忽略。 */
-function longestCommonSubstr(a, b) {
-  if (!a || !b) return 0;
+/** 最长公共子串（滚动数组，O(n·m)）。资产与题材都很短，开销可忽略。 */
+function longestCommonSubstrFull(a, b) {
+  if (!a || !b) return { len: 0, str: '' };
   const m = a.length;
   const n = b.length;
   let prev = new Array(n + 1).fill(0);
   let best = 0;
+  let bestAt = 0;
   for (let i = 1; i <= m; i += 1) {
     const cur = new Array(n + 1).fill(0);
     const ai = a[i - 1];
@@ -456,12 +493,17 @@ function longestCommonSubstr(a, b) {
       if (ai === b[j - 1]) {
         const v = prev[j - 1] + 1;
         cur[j] = v;
-        if (v > best) best = v;
+        if (v > best) { best = v; bestAt = i; }
       }
     }
     prev = cur;
   }
-  return best;
+  return { len: best, str: best ? a.slice(bestAt - best, bestAt) : '' };
+}
+
+/** 最长公共子串长度。 */
+function longestCommonSubstr(a, b) {
+  return longestCommonSubstrFull(a, b).len;
 }
 
 /** 型号 token：F-22 / B-2 / M1A2 / SEPv3 / HIMARS 等带数字的型号标识。 */
@@ -521,24 +563,88 @@ export function themeMatch(asset, theme) {
   return score;
 }
 
+/**
+ * 阵营 / 国名停用词：题材里提到「伊拉克」，不等于点名了「伊拉克 T-72 坦克」。
+ *
+ * 没有这一层，敌方载具放行条件会被国名词轻易击穿 —— 实测「伊拉克战争费卢杰巷战」
+ * 会把伊军的 T-72 当成**英雄载具**推上镜头，这比不放行更糟。
+ */
+const FACTION_STOP_RE = /^(伊拉克|美军|苏军|联军|德军|日军|英军|俄军|法军|敌军|敌方|我军|中国|美国|俄罗斯|苏联|乌克兰|伊朗|朝鲜|韩国|以色列|阿富汗|叙利亚|越南|日本|德国|北约|华约|共和国卫队|陆战队|海军|空军|陆军|士兵|部队|载具|装备)$/;
+
+/**
+ * 题材是否**点名**了这件具体装备（而非仅仅提到它的阵营 / 类别）。
+ *
+ * 与 themeMatch 的分值不同，这里要的是布尔判定，用于决定敌方载具能否上英雄镜头。
+ * 判定：归一化后的最长公共子串长度 ≥ 3，且该子串不是阵营停用词。
+ *   · 「虎式坦克对决」  vs 「虎式坦克」      → 命中（子串「虎式坦克」）
+ *   · 「T-72 坦克战」    vs 「伊拉克 T-72 坦克」→ 命中（子串「t72坦克」）
+ *   · 「伊拉克战争费卢杰巷战」 vs 同上        → 不命中（子串「伊拉克」被停用）
+ */
+export function themeNamesAsset(asset, theme) {
+  const t = normalizeMatchText(theme);
+  const hay = normalizeMatchText(assetText(asset));
+  if (t.length < 2 || hay.length < 2) return false;
+  const m = longestCommonSubstrFull(hay, t);
+  if (m.len < 3) return false;
+  if (FACTION_STOP_RE.test(m.str)) return false;
+  return true;
+}
+
 
 /**
  * 类别多样性挑选：同类只取一个，避免「三部片子都是主战坦克」。
- * 不足时按原顺序补足，保证长度满足 maxVehicles。
+ *
+ * **域感知**是这里的关键。只认类别、不认战场域的版本会制造硬穿帮：
+ * 「二战北非沙漠装甲追击」是陆战域，却因为「每类取一个」被硬塞一艘埃塞克斯级航母；
+ * 「中途岛航母对决」是海战域，却被硬塞一辆克伦威尔巡洋坦克。
+ * 因此次序改为：域内类别每类一个 → 域内放开类别重复继续补 → 其余类别每类一个 → 原顺序兜底。
+ * 第二步是必需的：中途岛要的是三艘舰，不是「一舰一坦一机」的伪多样性。
+ *
+ * 域内一个候选都没有时（例如角色没有 class），行为与旧版完全一致。
  */
-function pickDiverse(pool, limit) {
+function pickDiverse(pool, limit, domain = null) {
   const out = [];
-  const usedClass = new Set();
-  for (const a of pool) {
-    if (out.length >= limit) break;
-    const cls = a?.class || a?.kind || 'other';
-    if (usedClass.has(cls)) continue;
-    usedClass.add(cls);
-    out.push(a);
+  const used = new Set();
+  const clsOf = (a) => a?.class || a?.kind || 'other';
+  const inDomain = (a) => !!domain && domain.classes.includes(a?.class);
+  let haveInDomain = false;
+
+  if (domain) {
+    for (const a of pool) {
+      if (out.length >= limit) break;
+      if (!inDomain(a)) continue;
+      haveInDomain = true;
+      const cls = clsOf(a);
+      if (used.has(cls)) continue;
+      used.add(cls);
+      out.push(a);
+    }
+    if (out.length < limit) {
+      for (const a of pool) {
+        if (out.length >= limit) break;
+        // out.includes 是必需的：第一步只登记了「类别」，不登记 ID，
+        // 少了这一判断会把同一艘航母推两次（中途岛实测出现「埃塞克斯 ×2」）。
+        if (!inDomain(a) || out.includes(a)) continue;
+        out.push(a);
+      }
+    }
   }
-  for (const a of pool) {
-    if (out.length >= limit) break;
-    if (!out.includes(a)) out.push(a);
+  if (!haveInDomain) used.clear();
+
+  if (out.length < limit) {
+    for (const a of pool) {
+      if (out.length >= limit) break;
+      const cls = clsOf(a);
+      if (used.has(cls) || out.includes(a)) continue;
+      used.add(cls);
+      out.push(a);
+    }
+  }
+  if (out.length < limit) {
+    for (const a of pool) {
+      if (out.length >= limit) break;
+      if (!out.includes(a)) out.push(a);
+    }
   }
   return out;
 }
@@ -561,12 +667,21 @@ export function selectCast(registry, { era = 'Modern', task = 'combat', theme = 
   // 海军题材选舰艇与潜艇、空战题材选飞机、战略题材选导弹与轰炸机、陆战题材选装甲与步兵。
   const domain = domainOfText(`${theme} ${setting}`);
 
+  // 战区互斥只在二战这个兼容组内生效：WWII ⇄ Pacific 可以互借，但不能跨战区借。
+  const guardTheater = (era === 'WWII' || era === 'Pacific');
+  const targetTheater = guardTheater ? theaterOf(`${theme} ${setting}`) : null;
+
   // 只收「与目标时代视觉兼容」的资产，避免挑出一个必然触发 ERA_MISMATCH 穿帮的演员
   // （例如给 Orbital 题材硬塞 Modern 装备）。亲和顺序仅用于排序偏好。
   const collect = (kind) => {
     const out = [];
     for (const a of (registry?.byKind?.get(kind) || [])) {
-      if (isEraCompatible(a.series, era)) out.push(a);
+      if (!isEraCompatible(a.series, era)) continue;
+      if (targetTheater) {
+        const at = theaterOf(assetText(a));
+        if (at && at !== targetTheater) continue;
+      }
+      out.push(a);
     }
     // 亲和度高的时代排在前面
     out.sort((a, b) => {
@@ -604,7 +719,7 @@ export function selectCast(registry, { era = 'Modern', task = 'combat', theme = 
 
   // 角色同样吃战场域：海军题材优先舰艇船员/潜水员，空战题材优先飞行员/引导员，
   // 否则「核潜艇」题材里上镜的仍会是步兵班长与核生化专家。
-  const heroes = pickDiverse(rank(bySide(characters, 'coalition')), maxHeroes);
+  const heroes = pickDiverse(rank(bySide(characters, 'coalition')), maxHeroes, null);
 
   const enemyPool = rank(bySide(characters, 'opposing'));
   // 该时代（含兼容时代）确实没有敌军角色时才会为空 —— 例如 Orbital 库里没有任何反派角色。
@@ -613,9 +728,16 @@ export function selectCast(registry, { era = 'Modern', task = 'combat', theme = 
   const enemies = enemyPool.slice(0, maxEnemies);
 
   // 载具：优先与已选英雄同阵营，保证镜头里不会出现「孤零零一辆敌车」的穿帮。
-  // 再按「战场域优先 + 类别多样性」挑选，避免三辆全是主战坦克、或题材是海军却派来飞机。
-  const vehiclePool = rank(bySide(vehicles, 'coalition'));
-  const chosenVehicles = pickDiverse(vehiclePool.length ? vehiclePool : rank(vehicles), maxVehicles);
+  //
+  // 唯一的例外是**题材点名**：用户写「大和号战列舰的最后一战」却看不到大和号，
+  // 等于库里有也白有 —— 虎式、零式、T-72、米格-29 这些敌方平台会被阵营过滤全部挡在门外，
+  // 中途岛、库尔斯克坦克对决这类题材根本拍不了。因此命中题材点名的敌方载具放行，
+  // 且因为 themeMatch 计入排序分，它会自然排到最前。
+  const namedByTheme = (a) => themeNamesAsset(a, theme);
+  const coalitionVehicles = bySide(vehicles, 'coalition');
+  const namedOpposing = vehicles.filter(a => sideOf(a) !== 'coalition' && namedByTheme(a));
+  const vehiclePool = rank(coalitionVehicles.concat(namedOpposing));
+  const chosenVehicles = pickDiverse(vehiclePool.length ? vehiclePool : rank(vehicles), maxVehicles, domain);
 
   return { heroes, enemies, vehicles: chosenVehicles, enemyFallback, era, domain: domain ? domain.key : null };
 }
