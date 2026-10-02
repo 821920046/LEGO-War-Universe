@@ -4,6 +4,9 @@
  */
 
 import { enforceContinuityChain } from './continuity.js';
+import { selectCast, buildRoster, rosterToJSON, sideOf, aliasLabel } from './roster.js';
+import { beatsForPhase, fillTemplate, seedOf, buildOriginality, diversifyShots, PHASES } from './narrative.js';
+import { parseIntent } from './intent.js';
 
 export const CINEMA_DATABASE = [
   {
@@ -582,11 +585,20 @@ export const CINEMA_DATABASE = [
 
 /**
  * 输入电影名字或关键词，进行好莱坞深度视听解构与乐高分镜转译
+ *
+ * 相对旧实现的关键修正：
+ *   - 旧版 count>4 时用 `beatIdx = floor(i/count*4)` 复制策展桥段，再给奇数镜加一句
+ *     「[特写延续]」，8 个镜头其实是 4 个桥段各复制一遍 —— 这正是用户反馈的「重复」。
+ *   - 新版把每个阶段扩成「策展原桥段 + 原创扩展节拍」的池子，同阶段内绝不重复；
+ *     主体也改为逐镜旋转窗口，不再全片共用一组资产。
+ *   - 参考片只贡献视听语言与戏剧母题，情节走向由 originality 层独立生成。
+ *
  * @param {string} query 电影名称或搜索词
  * @param {number} requestedShots 镜头数量 (4 / 8 / 12)
+ * @param {object} registry 资产注册表（可选；传入后才会补入真实敌军/载具并注入代号）
  * @returns {object} 包含完整的电影解构档案、导演视听语法拉片笔记、乐高分镜脚本
  */
-export function transpileMovieToLego(query, requestedShots = 4) {
+export function transpileMovieToLego(query, requestedShots = 4, registry = null) {
   const q = String(query || '').trim().toLowerCase();
 
   // 1. 精确与别名深度匹配
@@ -616,32 +628,131 @@ export function transpileMovieToLego(query, requestedShots = 4) {
     }
   }
 
-  // 3. 构建 4 / 8 / 12 镜头高密度剧本
-  const count = Number(requestedShots) || 4;
+  const count = Math.max(1, Math.min(150, Number(requestedShots) || 4));
   const baseShots = match.shots;
-  const shots = [];
+  const seed = seedOf(`${match.id}|${count}|${q}`);
+  const core = Array.isArray(match.assets.subjects) ? match.assets.subjects : [];
 
+  const assetOf = id => registry?.byId?.get(id) || null;
+  const nameOf = id => { const a = assetOf(id); return a ? (a.nameZh || a.name) : String(id); };
+
+  // 3. 从真实资产库补入载具与敌军。
+  //    敌军只会进入「含交战语义」的扩展节拍，否则会触发阵营冲突校验（对立阵营同框却无对抗动作）。
+  const cast = registry
+    ? selectCast(registry, { era: match.era, task: 'combat', theme: query })
+    : { heroes: [], enemies: [], vehicles: [], enemyFallback: true };
+  const enemyAssets = cast.enemies || [];
+  const hasEnemy = enemyAssets.length > 0;
+  const vehicleAssets = (cast.vehicles || []).filter(v => v && core.indexOf(v.id) === -1);
+  const hasSupport = core.length >= 2;
+
+  // 4. 每阶段的节拍池 = [策展原桥段, ...原创扩展节拍]
+  //    先按与主循环完全一致的公式算出「每阶段需要几个镜头」，据此请求**足量**扩展节拍。
+  //    早期实现固定 limit: 4，当某阶段镜头数超过 5 时 `[k-1]` 会取到 undefined，
+  //    于是那些镜头全部退化成复制策展桥段的同一句 action —— 又是一处「脚本重复」。
+  const phaseCounts = [0, 0, 0, 0];
   for (let i = 0; i < count; i++) {
-    const beatIdx = Math.floor((i / count) * baseShots.length);
-    const b = baseShots[beatIdx];
-    const isSubShot = (count > 4 && i % 2 === 1);
+    phaseCounts[Math.min(3, Math.floor((i * 4) / count))]++;
+  }
+  const expansionCache = new Map();
+  const expansionFor = (phase, k) => {
+    if (!expansionCache.has(phase)) {
+      const pi = PHASES.indexOf(phase);
+      // 该阶段除策展镜头（k=0）外还需要几个扩展镜头
+      const need = Math.max(1, (phaseCounts[pi] || 1) - 1);
+      expansionCache.set(phase, beatsForPhase(phase, {
+        seed,
+        hasEnemy,
+        hasSupport,
+        hasVehicle: vehicleAssets.length > 0,
+        limit: need
+      }));
+    }
+    return expansionCache.get(phase)[k - 1] || null;
+  };
 
-    shots.push({
+  // 逐镜主体：旋转窗口，让每个镜头的主体集合都不同（旧版全片共用同一组资产）
+  const rotateSubjects = (i) => {
+    if (core.length === 0) return [];
+    const size = 1 + (i % Math.min(3, core.length));
+    const start = i % core.length;
+    const out = [];
+    for (let k = 0; k < size; k++) out.push(core[(start + k) % core.length]);
+    return [...new Set(out)].slice(0, 3);
+  };
+
+  const screenDirections = ['left-to-right', 'towards-camera', 'neutral', 'left-to-right'];
+  // 逐阶段游标：复用上方已算好的 phaseCounts（表示「每阶段总镜头数」），这里只做计数用
+  const phaseCursor = [0, 0, 0, 0];
+
+  // 5a. 第一遍：只定主体（文本里的代号依赖最终演员集合）
+  const drafts = [];
+  for (let i = 0; i < count; i++) {
+    const pi = Math.min(3, Math.floor((i * 4) / count));
+    const phase = PHASES[pi];
+    const k = phaseCursor[pi]++;
+    const curated = baseShots[Math.min(pi, baseShots.length - 1)];
+    const expansion = k === 0 ? null : expansionFor(phase, k);
+
+    let subjects;
+    if (expansion && (expansion.focus === 'clash' || expansion.focus === 'enemy') && hasEnemy) {
+      const foe = enemyAssets[(k + i) % enemyAssets.length].id;
+      subjects = [...new Set([foe, ...rotateSubjects(i).slice(0, 2)])].slice(0, 3);
+    } else if (expansion && expansion.focus === 'vehicle' && vehicleAssets.length > 0) {
+      const veh = vehicleAssets[(k + i) % vehicleAssets.length].id;
+      subjects = [...new Set([veh, ...rotateSubjects(i).slice(0, 1)])].slice(0, 3);
+    } else {
+      subjects = rotateSubjects(i);
+    }
+    if (subjects.length === 0) subjects = core.slice(0, 1);
+
+    drafts.push({ i, pi, phase, curated, expansion, subjects });
+  }
+
+  // 5b. 由最终主体集合求名册，保证动作文本里的代号与 UI 名册/编译 Prompt 完全一致
+  const roster = buildRoster(drafts.map(d => ({ subjects: d.subjects })), registry);
+  const labelOf = id => aliasLabel(roster, id, nameOf(id));
+
+  // 5c. 第二遍：生成文本
+  const shots = drafts.map(({ i, pi, phase, curated, expansion, subjects }) => {
+    const heroId = subjects.find(id => sideOf(assetOf(id)) !== 'opposing') || subjects[0];
+    const enemyId = subjects.find(id => sideOf(assetOf(id)) === 'opposing');
+    const vehicleId = subjects.find(id => assetOf(id)?.kind === 'vehicle');
+
+    const ctx = {
+      heroCallsign: labelOf(heroId),
+      supportCallsign: labelOf(subjects[1] || heroId),
+      enemyCallsign: enemyId ? labelOf(enemyId) : '【敌方】',
+      vehicle: vehicleId ? labelOf(vehicleId) : '载具',
+      env: nameOf(match.assets.environment),
+      weather: match.era === 'Orbital' ? '深空微尘' : '硝烟'
+    };
+
+    return {
       shotId: `shot_${i + 1}`,
-      phase: b.phase,
-      shotType: isSubShot ? `[特写延续] 紧跟细节` : b.shotType,
-      action: isSubShot ? `【微观特写】${b.action}，摄影机推近乐高塑料注塑合缝线与微震。` : b.action,
-      screenDirection: b.screenDirection,
-      damageState: b.damageState,
-      audioCue: b.audioCue,
-      radioVoice: b.radioVoice,
-      subjects: match.assets.subjects,
+      phase,
+      beatId: expansion ? expansion.id : `${match.id}-beat-${pi}`,
+      shotType: expansion ? expansion.shotType : curated.shotType,
+      action: expansion ? fillTemplate(expansion.action, ctx) : curated.action,
+      screenDirection: expansion ? screenDirections[i % screenDirections.length] : curated.screenDirection,
+      damageState: expansion ? expansion.damageState : curated.damageState,
+      audioCue: expansion ? fillTemplate(expansion.audioCue || '', ctx) : curated.audioCue,
+      radioVoice: expansion ? fillTemplate(expansion.radioVoice || '', ctx) : curated.radioVoice,
+      subjects,
       environment: match.assets.environment,
       camera: match.assets.camera,
       lighting: match.assets.lighting,
       colorGrade: match.assets.colorGrade
-    });
-  }
+    };
+  });
+
+  // 6. 连续性链条 + 反重复兜底
+  const continuousShots = enforceContinuityChain(shots);
+  const diversified = diversifyShots(continuousShots);
+
+  // 7. 原创层：参考片只做视听致敬，情节独立生成
+  const intent = parseIntent(query);
+  const originality = buildOriginality({ theme: query, intent, reference: match, seed });
 
   return {
     matchedMovie: match.title,
@@ -655,7 +766,16 @@ export function transpileMovieToLego(query, requestedShots = 4) {
     legoAdaptation: match.legoAdaptation,
     creatorTips: match.creatorTips,
     themeZh: `【${match.title} · 好莱坞视听转译】${match.shots[0].action.slice(0, 35)}…`,
-    shots: enforceContinuityChain(shots),
-    assets: match.assets
+    shots: diversified.shots,
+    assets: match.assets,
+    originality,
+    roster: rosterToJSON(roster),
+    cast: {
+      heroes: (cast.heroes || []).map(a => a.id),
+      enemies: enemyAssets.map(a => a.id),
+      vehicles: vehicleAssets.map(a => a.id),
+      enemyFallback: cast.enemyFallback
+    },
+    repetitionFixed: diversified.fixed
   };
 }

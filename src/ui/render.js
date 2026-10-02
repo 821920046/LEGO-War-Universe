@@ -113,10 +113,36 @@ export function renderViolations(node, result) {
 
 /**
  * 渲染已编译的镜头输出列表
+ *
+ * @param {HTMLElement} node 容器
+ * @param {object} plan 分镜计划
+ * @param {Function} compile 编译函数 (shot, registry, profile, roster) => { prompt }
+ * @param {object} registry 资产注册表
+ * @param {object} profile 模型配置
+ * @param {Function} [onEditShot] 编辑回调
+ * @param {object|null} [roster] 角色名册（用于把代号写进编译出的视频脚本）
  */
-export function renderPlan(node, plan, compile, registry, profile, onEditShot = null) {
+export function renderPlan(node, plan, compile, registry, profile, onEditShot = null, roster = null) {
   node.replaceChildren();
   if (!plan || !plan.shots || plan.shots.length === 0) return;
+
+  // 本片阵容速览：一眼看到「哪些角色、什么代号」，与脚本正文完全一致
+  if (roster && Array.isArray(roster.all) && roster.all.length > 0) {
+    const strip = createEl('div', { class: 'panel', style: { marginBottom: '14px' } },
+      createEl('div', { class: 'field__label', style: { marginBottom: '8px' } },
+        `🎭 本片阵容（${roster.all.length}）· 代号已写入下方每一段视频脚本`)
+    );
+    const row = createEl('div', { style: { display: 'flex', flexWrap: 'wrap', gap: '6px' } });
+    for (const e of roster.all) {
+      const isFoe = e.side === 'opposing';
+      row.appendChild(createEl('span', {
+        class: `badge ${isFoe ? 'badge--danger' : 'badge--info'}`,
+        title: `${e.name} · ${e.role} · ${e.id}`
+      }, `${isFoe ? '⚔️' : '🛡️'} 【${e.callsign}】${e.name}`));
+    }
+    strip.appendChild(row);
+    node.appendChild(strip);
+  }
 
   for (const [i, shot] of plan.shots.entries()) {
     const card = createEl('div', { class: 'card', style: { marginBottom: '14px' } });
@@ -137,7 +163,7 @@ export function renderPlan(node, plan, compile, registry, profile, onEditShot = 
 
     const out = createEl('pre', { class: 'codeblock' });
     try {
-      out.textContent = compile(shot, registry, profile).prompt;
+      out.textContent = compile(shot, registry, profile, roster).prompt;
     } catch (err) {
       out.textContent = `编译失败: ${err.message}`;
       out.classList.add('bad');

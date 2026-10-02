@@ -34,9 +34,10 @@ function toStaticPose(actionText) {
  * 编译镜头首帧参考图 Prompt
  * @param {object} shot 镜头对象
  * @param {object} registry 资产注册表
+ * @param {object|null} [roster] 角色名册（可选；用于把代号/角色名写进首帧 Prompt）
  * @returns {{ prompt: string, negativePrompt: string, styleZh: string }}
  */
-export function compileKeyframeImage(shot, registry) {
+export function compileKeyframeImage(shot, registry, roster = null) {
   const parts = [...STATIC_STYLE_HEADER];
 
   // 1. 场景与环境
@@ -45,14 +46,18 @@ export function compileKeyframeImage(shot, registry) {
     parts.push(`Setting: ${env.name}, ${env.lines ? env.lines.slice(0, 2).join(', ') : ''}`);
   }
 
-  // 2. 主体角色与载具
+  // 2. 主体角色与载具（带代号，保证首帧与视频脚本用同一套角色身份）
   const subjectLines = [];
   for (const sid of shot.subjects || []) {
     const asset = registry?.byId?.get(sid);
     if (asset) {
+      const entry = roster?.byId?.get(sid);
+      const head = entry
+        ? `【${entry.callsign}】${entry.name} / ${asset.name} (${sid})`
+        : `${asset.name} (${sid})`;
       const damage = shot.damageState ? `[condition: ${shot.damageState}]` : '';
       const variant = shot.variant ? `[variant: ${shot.variant}]` : '';
-      subjectLines.push(`${asset.name} ${damage} ${variant}: ${asset.lines ? asset.lines[0] : ''}`);
+      subjectLines.push(`${head} ${damage} ${variant}: ${asset.lines ? asset.lines[0] : ''}`);
     }
   }
   if (subjectLines.length > 0) {

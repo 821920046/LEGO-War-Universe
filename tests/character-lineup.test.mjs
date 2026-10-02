@@ -60,3 +60,25 @@ test('Character Lineup: generates two-row lineup prompt with nameplate labels', 
   assert.ok(res.promptZh.includes('前排（正方联军'));
   assert.ok(res.promptZh.includes('后排（反方势力'));
 });
+
+test('Character Lineup: vehicles never leak into the minifigure lineup prompt', () => {
+  // 真实名册会同时包含人仔与载具；载具若被当成 minifigure 计数，
+  // 生成的合影 Prompt 会要求模型画一架人仔大小的直升机。
+  const factions = {
+    coalition: [
+      { id: 'CHR-401', kind: 'character', callsign: 'BASILISK', name: '特种部队队员', role: 'Special Forces', outfit: 'plate carrier' },
+      { id: 'AIR-601', kind: 'vehicle', callsign: 'CARRION', name: 'HH-60W 铺路鹰', role: '载具', outfit: 'four-blade rotor' }
+    ],
+    opposing: [
+      { id: 'CHR-412', kind: 'character', callsign: 'VULTURE', name: '便携防空导弹射手', role: 'Air Defense', outfit: 'launch tube' }
+    ]
+  };
+  const res = generateLineupPrompt(factions, '测试片', 'Modern', '9:16');
+
+  assert.equal(res.characterCount, 2, '只应统计人仔，不含载具');
+  assert.ok(!res.promptEn.includes('CARRION'), '载具代号不得出现在人仔全家福 Prompt 中');
+  assert.ok(!res.promptEn.includes('HH-60W'));
+  assert.ok(res.promptEn.includes('2 distinct LEGO minifigures'));
+  assert.ok(res.promptEn.includes('[BASILISK]'));
+  assert.ok(res.promptEn.includes('[VULTURE]'));
+});

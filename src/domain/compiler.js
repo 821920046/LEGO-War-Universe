@@ -5,12 +5,17 @@ import { validateShotSpec } from './shot-spec.js';
 
 /**
  * 编译单镜头为 Google Flow (Veo) 可用的提示词字符串
+ *
+ * 角色代号（callsign）会被写进 Subject(s) 行：这是「角色名字必须出现在视频脚本中」
+ * 的落地点 —— 喂给视频模型的就是这段文本，代号必须真的在里面，而不只是 UI 装饰。
+ *
  * @param {object} s 镜头规范对象（应携带连续性状态）
  * @param {object} r 资产注册表
  * @param {object} p 模型配置（profile）
+ * @param {object|null} [roster] 角色名册（可选；缺省时退化为纯资产描述，行为向后兼容）
  * @returns {{ prompt: string, promptZh: string }}
  */
-export function compileShot(s, r, p) {
+export function compileShot(s, r, p, roster = null) {
   if (!p) throw new Error('Profile required for compilation');
   const check = validateShotSpec(s, r, {});
   if (!check.ok) {
@@ -44,14 +49,30 @@ export function compileShot(s, r, p) {
   ].filter(Boolean).join(' ');
 
   const subjectLines = s.subjects
-    .map(id => `[${id}] ${(get(id).lines || []).join(', ')}`)
+    .map(id => {
+      const asset = get(id);
+      const entry = roster?.byId?.get(id);
+      // 代号 + 中英名 + 技术描述：既满足「脚本里出现角色名」，又不丢真实资产细节
+      const head = entry
+        ? `[${id}] 【${entry.callsign}】${entry.name}${asset.name && asset.name !== entry.name ? ` / ${asset.name}` : ''}`
+        : `[${id}]${asset.nameZh ? ` ${asset.nameZh}` : ''}`;
+      return `${head} — ${(asset.lines || []).join(', ')}`;
+    })
     .join('; ');
+
+  const castLine = roster && roster.all && roster.all.length
+    ? `Cast (must keep identical appearance across all shots): ${roster.all
+      .filter(e => s.subjects.includes(e.id))
+      .map(e => `【${e.callsign}】${e.name} (${e.id})`)
+      .join('; ')}.`
+    : null;
 
   const lines = [
     ...(r.styleBlock.lines || []),
     '',
     `Scene: ${(env.lines || []).join(', ')}.`,
     `Subject(s): ${subjectLines}.`,
+    castLine,
     `Action: ${s.action}`,
     '',
     `Camera: ${(camera.lines || []).join(', ')}.`,

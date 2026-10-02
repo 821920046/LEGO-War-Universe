@@ -4,6 +4,7 @@ import { compileShot } from '../domain/compiler.js';
 import { validateFilmPlan } from '../domain/shot-spec.js';
 import { transpileMovieToLego, CINEMA_DATABASE } from '../domain/cinema-homage.js';
 import { callAiBrain } from '../domain/ai-brain.js';
+import { buildRoster, rosterToJSON, rosterFromJSON } from '../domain/roster.js';
 import { extractCharacterLineup, generateLineupPrompt } from '../domain/character-lineup.js';
 import { checkContentGovernance } from '../domain/governance.js';
 import { ProjectStore } from './project-store.js';
@@ -105,6 +106,25 @@ async function persist() {
   const result = await storeManager.saveAll(currentStore);
   if (!result.ok) toast(result.error, 'error', 6000);
   return result.ok;
+}
+
+/**
+ * 统一的名册解析入口（角色代号 = 一部片子的演员身份，只能冻结一次）。
+ *
+ * 为什么要「继承」而不是「重算」：生成链路是
+ *   规划器写台词（内含代号）→ 自我进化往镜头里补资产 → UI 重新聚合名册。
+ * 若每次都按当前集合重算，补进来的新资产会把老资产挤出原代号，
+ * 结果就是台词写着 GHOST、定妆表却变成 FALCON —— 视频生成直接串戏。
+ * 因此这里始终以 currentProject.roster 为基准，只给「全新 ID」分配新代号。
+ *
+ * @returns {object|null} 名册对象（含 byId Map）
+ */
+function ensureRoster() {
+  if (!currentProject) return null;
+  const prior = rosterFromJSON(currentProject.roster);
+  const roster = buildRoster(currentProject.shots || [], activeRegistry, { prior });
+  currentProject.roster = rosterToJSON(roster);
+  return roster;
 }
 
 function setProgress(message, visible = true) {
@@ -338,12 +358,16 @@ function renderFactionCards(container, chars, faction) {
 
   for (const c of chars) {
     if (!c) continue;
+    // 真实名册会带资产 ID 与系列，标注出来才能证明「角色确实来自资产库」
+    const meta = [c.role, c.id, c.series && c.series !== 'shared' ? c.series : '']
+      .filter(Boolean).join(' · ');
     const card = createEl('div', { class: `rcard rcard--${variant}` },
       createEl('div', { class: 'rcard__top' },
         createEl('strong', { class: 'rcard__name' }, `${isCoalition ? '🛡️' : '⚔️'} ${c.name || '战术角色'}`),
         createEl('span', { class: `badge ${isCoalition ? 'badge--info' : 'badge--danger'}` }, c.role || '战斗员')
       ),
-      createEl('div', { class: 'rcard__outfit' }, `服装装具：${c.outfit || '标准作战配置'}`),
+      createEl('div', { class: 'rcard__outfit' }, `📦 资产：${meta || '—'}`),
+      createEl('div', { class: 'rcard__outfit' }, `🧵 装具：${c.outfit || '标准作战配置'}`),
       // 底部代号名牌标签 — 醒目展示，方便视频生成时直接调用对应角色
       createEl('div', { class: `rcard__tag rcard__tag--${variant}` }, `🏷️ [${c.callsign || 'AGENT'}]`)
     );
@@ -352,10 +376,51 @@ function renderFactionCards(container, chars, faction) {
 }
 
 /**
- * 渲染全片全角色定妆表与全家福控制台 (置顶于分镜脚本之前)
- * 极致防御设计：杜绝任何内部异常阻断后续时间线与分镜脚本生成
+ * 渲染原创立意卡（logline / 转折 / 开场钩子 / 致敬说明）。
+ * 这一层正是「像智能」与「照着电影抄」的分界线：参考片只贡献视听语言，情节独立生成。
  */
-function renderCharacterLineupPanel(project) {
+function renderOriginality(project) {
+  const box = $('lineup-originality');
+  if (!box) return;
+  box.replaceChildren();
+
+  const o = project?.originality;
+  if (!o || (!o.logline && !o.twist && !o.hook)) {
+    box.style.display = 'none';
+    return;
+  }
+  box.style.display = 'block';
+
+  const rows = [
+    ['🎯 立意 (Logline)', o.logline],
+    ['🌀 转折 (Twist)', o.twist],
+    ['⚡ 开场钩子 (Hook)', o.hook],
+    ['🎬 致敬说明 (Homage)', o.homageNote]
+  ].filter(([, v]) => v);
+
+  box.appendChild(
+    createEl('div', { class: 'panel', style: { marginBottom: '16px' } },
+      createEl('div', { class: 'field__label', style: { marginBottom: '8px', color: 'var(--accent-hi)' } },
+        '🧠 原创立意层（独立于参考片，避免照搬桥段）'),
+      ...rows.map(([k, v]) => createEl('div', { style: { fontSize: '12.5px', color: 'var(--text-2)', lineHeight: '1.6', marginBottom: '4px' } },
+        createEl('strong', { style: { color: 'var(--text)' } }, `${k}：`),
+        document.createTextNode(String(v))
+      ))
+    )
+  );
+}
+
+/**
+ * 渲染全片全角色定妆表与全家福控制台 (置顶于分镜脚本之前)
+ *
+ * 名册来源已被修正：早期实现无论生成什么片子，都从写死的 FACTION_TEMPLATES 里
+ * 取「幽灵队长 / 猎鹰狙击手」这套虚构角色 —— 与用户真正生成的分镜毫无关系。
+ * 现在一律以「本次分镜实际用到的真实资产」为准（roster），模板只在名册为空时作预览。
+ *
+ * @param {object} project 当前工程
+ * @param {object|null} roster ensureRoster() 的产物
+ */
+function renderCharacterLineupPanel(project, roster = null) {
   const section = $('character-lineup-section');
   if (!section) return;
 
@@ -367,12 +432,30 @@ function renderCharacterLineupPanel(project) {
   section.style.display = 'block';
 
   try {
-    // 1. 提取完整正反双阵营角色名册（双层防御：确保输出必为合法对象）
     const theme = project.theme || project.name || '好莱坞大片';
     const era = project.intent?.era || project.directorNotes?.era || 'Modern';
     const ar = project.aspectRatio || '9:16';
-    const factions = extractCharacterLineup(project.shots, activeRegistry, era, theme);
+
+    const realCoalition = Array.isArray(roster?.coalition) ? roster.coalition : [];
+    const realOpposing = Array.isArray(roster?.opposing) ? roster.opposing : [];
+
+    // 载具不能混进「人仔全家福」。
+    // generateLineupPrompt 会生成「N distinct LEGO minifigures」的合影 Prompt，
+    // 早期把载具也算进去，会要求模型画出一架「人仔大小的直升机」，全家福直接废掉。
+    const vehicles = Array.isArray(roster?.all) ? roster.all.filter(e => e.kind === 'vehicle') : [];
+    const charCoalition = realCoalition.filter(e => e.kind !== 'vehicle');
+    const charOpposing = realOpposing.filter(e => e.kind !== 'vehicle');
+
+    // 有真实名册 → 用真实名册；确实没有（例如全片只有环境/特效镜头）→ 用模板做「预览」并明确标注
+    const hasReal = charCoalition.length + charOpposing.length > 0;
+    const factions = hasReal
+      ? { coalition: charCoalition, opposing: charOpposing, isPreview: false }
+      : { ...extractCharacterLineup(project.shots, activeRegistry, era, theme), isPreview: true };
+
     const lineupData = generateLineupPrompt(factions, theme, era, ar);
+
+    // 原创立意层
+    renderOriginality(project);
 
     // 2. 渲染双阵营角色卡片网格（蓝色前排正方 + 红色后排反方）
     const grid = $('character-roster-grid');
@@ -382,9 +465,13 @@ function renderCharacterLineupPanel(project) {
       const coalitionList = Array.isArray(factions?.coalition) ? factions.coalition : [];
       const opposingList = Array.isArray(factions?.opposing) ? factions.opposing : [];
 
+      const sourceNote = factions.isPreview
+        ? '预览模板（生成分镜后将自动改为从资产库挑选的真实角色）'
+        : '来自资产库的真实资产';
+
       // 🔵 前排站位 · 正方特战小队
       const coalitionHeader = createEl('div', { class: 'roster-head roster-head--blue' },
-        `🔵 前排站位 (Front Row) · 正义主角特战小队 (每位角色脚踏专属代号名牌 · ${coalitionList.length} 人)`);
+        `🔵 前排站位 (Front Row) · 正义主角特战小队 (每位角色脚踏专属代号名牌 · ${coalitionList.length} 人 · ${sourceNote})`);
       grid.appendChild(coalitionHeader);
       renderFactionCards(grid, coalitionList, 'coalition');
 
@@ -392,7 +479,21 @@ function renderCharacterLineupPanel(project) {
       const opposingHeader = createEl('div', { class: 'roster-head roster-head--red', style: { marginTop: '8px' } },
         `🔴 后排站位 (Elevated Back Row) · 敌对武装反派势力 (每位角色脚踏专属代号名牌 · ${opposingList.length} 人)`);
       grid.appendChild(opposingHeader);
-      renderFactionCards(grid, opposingList, 'opposing');
+      if (opposingList.length === 0 && !factions.isPreview) {
+        grid.appendChild(createEl('div', { class: 'alert alert--warn' },
+          createEl('span', { class: 'alert__icon' }, '💡'),
+          createEl('span', {}, '该题材的资产库中暂无对立阵营角色，本片以单向行动叙事呈现（不硬塞会造成时代穿帮的敌人）。')
+        ));
+      } else {
+        renderFactionCards(grid, opposingList, 'opposing');
+      }
+
+      // 🚁 载具单独成组：同样有专属代号，但不计入人仔全家福
+      if (vehicles.length > 0) {
+        grid.appendChild(createEl('div', { class: 'roster-head', style: { marginTop: '8px' } },
+          `🚁 本片载具 (${vehicles.length} 台 · 拥有专属代号，不计入人仔全家福，需单独出定妆图)`));
+        renderFactionCards(grid, vehicles, 'coalition');
+      }
     }
 
     // 3. 填充提示词（防御性检查）
@@ -456,6 +557,9 @@ async function executeMovieTranspile(movieQuery) {
     const result = await callAiBrain({
       query: movieQuery,
       requestedShots,
+      // 把运行时注册表（含用户自定义 + 进化锻造资产）交给大脑：
+      // 本地兜底路径要靠它才能「从真实资产库里挑角色」并给出代号
+      registry: activeRegistry,
       onProgress: (msg) => setProgress(msg)
     });
 
@@ -487,6 +591,9 @@ async function executeMovieTranspile(movieQuery) {
       shots: result.shots
     });
     currentProject.shots = evolution.shots;
+    // 名册以本次生成的结果为基准冻结；进化补进来的新资产只会拿到新代号，不会挤走老代号
+    currentProject.roster = Array.isArray(result.roster) ? result.roster : null;
+    currentProject.originality = result.originality || null;
     currentProject.intent = {
       era: result.era || 'Modern',
       task: 'combat',
@@ -499,6 +606,7 @@ async function executeMovieTranspile(movieQuery) {
     currentProject.aspectRatio = selectedAr;
     currentProject.directorNotes = result;
     currentProject.matchedMovie = result.matchedMovie;
+    ensureRoster();
     await persist();
 
     renderDirectorNotesPanel(result.matchedMovie, result);
@@ -695,7 +803,7 @@ function bindGlobalEvents() {
     if (!ok) return;
     currentProject.lineupImage = null;
     await persist();
-    renderCharacterLineupPanel(currentProject);
+    renderCharacterLineupPanel(currentProject, ensureRoster());
     toast('已清除全家福参考图', 'info');
   };
 
@@ -736,7 +844,7 @@ function bindGlobalEvents() {
       const optimized = await downscaleImage(String(reader.result));
       currentProject.lineupImage = optimized;
       const saved = await persist();
-      renderCharacterLineupPanel(currentProject);
+      renderCharacterLineupPanel(currentProject, ensureRoster());
       if (saved) {
         toast('全家福参考图已锁定为全片全局视觉基准', 'success');
       }
@@ -787,10 +895,14 @@ function bindGlobalEvents() {
     currentProject.shots = evolution.shots;
     currentProject.theme = themeText;
     currentProject.intent = intent;
+    // 名册与原创立意随计划一起落库，供定妆表 / 编译 Prompt / CSV 共用同一套代号
+    currentProject.roster = Array.isArray(plan.roster) ? plan.roster : null;
+    currentProject.originality = plan.originality || null;
     currentProject.aspectRatio = selectedAr;
     currentProject.directorNotes = null;
     currentProject.matchedMovie = null;
     $('director-notes-panel').style.display = 'none';
+    ensureRoster();
 
     await persist();
     renderCurrentProject();
@@ -817,7 +929,12 @@ function bindGlobalEvents() {
       toast('当前影片暂无镜头，请先选择一部电影或生成分镜计划', 'warn');
       return;
     }
-    exportToCapCutCSV(currentProject.shots, activeRegistry, currentProject.theme || currentProject.name);
+    exportToCapCutCSV(
+      currentProject.shots,
+      activeRegistry,
+      currentProject.theme || currentProject.name,
+      ensureRoster()
+    );
     toast('剪映分镜表 CSV 已导出', 'success');
   };
 
@@ -863,9 +980,17 @@ function refreshOutputs() {
   if (!currentProject) return;
   const p = activeProfile || activeRegistry.profileById.get($('profile').value);
 
+  // 0. 先解析名册：定妆表、时间线卡片、编译 Prompt、CSV 必须共用同一套代号
+  let roster = null;
+  try {
+    roster = ensureRoster();
+  } catch (err) {
+    console.warn('角色名册解析失败（已降级为无代号渲染）:', err);
+  }
+
   // 1. 置顶渲染全片全角色定妆表与全家福控制台（独立容灾隔离）
   try {
-    renderCharacterLineupPanel(currentProject);
+    renderCharacterLineupPanel(currentProject, roster);
   } catch (err) {
     console.error('渲染全角色定妆表异常:', err);
   }
@@ -881,7 +1006,7 @@ function refreshOutputs() {
       } catch {
         toast('浏览器拒绝了剪贴板访问，请手动复制。', 'error');
       }
-    });
+    }, roster);
   } catch (err) {
     console.error('渲染时间线异常:', err);
   }
@@ -890,7 +1015,7 @@ function refreshOutputs() {
   try {
     renderPlan($('output'), { shots: currentProject.shots || [] }, compileShot, activeRegistry, p, (idx, shot) => {
       openShotEditor(idx, shot);
-    });
+    }, roster);
   } catch (err) {
     console.error('渲染编译分镜异常:', err);
   }
