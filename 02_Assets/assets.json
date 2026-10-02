@@ -5,7 +5,7 @@
     "code": "LWU",
     "bibleVersion": "2.1",
     "target": "Google Flow (Veo 3), 8-second cinematic shots, long-form war-film series",
-    "updated": "2026-08-04"
+    "updated": "2026-10-02"
   },
   "styleBlock": {
     "id": "STYLE-LWU",
@@ -1588,6 +1588,156 @@
       ],
       "referenceImage": "",
       "version": "1.0"
+    },
+    {
+      "id": "CHR-801",
+      "name": "Counter-UAS Electronic Warfare Operator",
+      "nameZh": "反无人机电子战操作员",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "反无人机 电子战 干扰 频谱 counter-uas electronic warfare jammer 无人机",
+      "lines": [
+        "LEGO minifigure counter-UAS electronic warfare operator in a grey tactical rig",
+        "carrying a brick-built anti-drone jammer rifle with a parabolic antenna and glowing signal LEDs",
+        "a ruggedized spectrum-analysis tablet showing a drone-tracking radar sweep, headset with boom mic",
+        "authentic LEGO plastic texture, consistent minifigure proportions"
+      ],
+      "faction": "NATO",
+      "unit": "Counter-UAS",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "damaged"
+      ]
+    },
+    {
+      "id": "CHR-802",
+      "name": "Cyber Warfare Command Officer",
+      "nameZh": "网络战指挥军官",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "网络战 黑客 赛博 数据 cyber hacker information warfare 指挥",
+      "lines": [
+        "LEGO minifigure cyber warfare officer in a navy uniform with a glowing circuit-print torso",
+        "surrounded by holographic brick-built data panels with scrolling code tiles",
+        "wearing a lightweight headset and a tactical keyboard gauntlet on one arm",
+        "authentic LEGO plastic texture, consistent minifigure proportions"
+      ],
+      "faction": "Coalition",
+      "unit": "Cyber Command",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "damaged"
+      ]
+    },
+    {
+      "id": "CHR-803",
+      "name": "Robotic Dog Handler",
+      "nameZh": "机器狗操作员",
+      "series": "Modern",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "机器狗 四足 机器人 无人平台 robot dog quadruped handler",
+      "lines": [
+        "LEGO minifigure robotic systems handler with a control gauntlet and a chest-mounted screen",
+        "standing beside a brick-built quadruped robot dog with a sensor head and a small payload rail",
+        "olive-drab tactical vest with tool pouches",
+        "authentic LEGO plastic texture, consistent minifigure proportions"
+      ],
+      "faction": "NATO",
+      "unit": "Robotics",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "damaged"
+      ]
+    },
+    {
+      "id": "CHR-804",
+      "name": "Urban Robotics Squad Leader",
+      "nameZh": "城市战机器人班长",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "城市战 机器人 班长 无人 巷战 urban robotics squad leader",
+      "lines": [
+        "LEGO minifigure urban robotics squad leader with a rugged exoskeleton-lite frame and armored plates",
+        "a wrist-mounted drone control display and a bullpup rifle",
+        "urban-grey camo with a glowing squad-status tile on the shoulder",
+        "authentic LEGO plastic texture, consistent minifigure proportions"
+      ],
+      "faction": "NATO",
+      "unit": "Robotic Infantry",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "damaged"
+      ]
+    },
+    {
+      "id": "CHR-805",
+      "name": "Hypersonic Weapon Operator",
+      "nameZh": "高超音速武器操作员",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "高超音速 导弹 操作员 发射 hypersonic missile operator launch",
+      "lines": [
+        "LEGO minifigure hypersonic weapon operator in an arctic-white technical coverall",
+        "a hardened launch-control tablet with a glowing authorization display",
+        "a headset and a shoulder patch showing a stylized missile emblem",
+        "authentic LEGO plastic texture, consistent minifigure proportions"
+      ],
+      "faction": "Coalition",
+      "unit": "Strategic Fires",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "damaged"
+      ]
+    },
+    {
+      "id": "CHR-806",
+      "name": "Orbital Marine",
+      "nameZh": "轨道陆战队员",
+      "series": "Orbital",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "太空 轨道 陆战队 零重力 orbital marine space zero-g",
+      "lines": [
+        "LEGO minifigure orbital marine in a white-and-orange vacuum-rated powered suit",
+        "sealed helmet with a gold reflective visor, magnetic boot plates, brick-built maneuvering thrusters",
+        "a compact gauss rifle with a glowing energy cell",
+        "authentic LEGO plastic texture, consistent minifigure proportions"
+      ],
+      "faction": "Coalition",
+      "unit": "Orbital Marines",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "damaged"
+      ]
     }
   ],
   "vehicles": [
@@ -3715,6 +3865,381 @@
         "consistent LEGO scale, crisp plastic studs and authentic decals"
       ],
       "kw": "无人机 蜂群 巡飞弹 自杀式无人机 自主打击 drone swarm uav loitering"
+    },
+    {
+      "id": "VEH-801",
+      "name": "Heavy Autonomous Combat UGV",
+      "nameZh": "重型无人战车",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "无人战车 重型 ugv 无人地面载具 unmanned ground vehicle 机器人",
+      "lines": [
+        "LEGO heavy unmanned ground combat vehicle with eight chunky rubber-tired wheels and no crew compartment",
+        "a remote weapon station with a 30mm autocannon and a mast-mounted sensor ball",
+        "sand-colored brick armor with anti-tank slat panels, visible studs and mold seams"
+      ],
+      "class": "ugv",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ]
+    },
+    {
+      "id": "VEH-802",
+      "name": "Directed Energy Air Defense Vehicle",
+      "nameZh": "定向能激光防空车",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "激光 定向能 防空 反无人机 laser directed energy dew air defense",
+      "lines": [
+        "LEGO wheeled air-defense vehicle carrying a high-energy laser turret with a large focusing lens",
+        "glowing blue-white emitter coils, cooling fins and capacitor banks with translucent energy tiles",
+        "a rotating radar panel on the rear deck, desert-tan armor plating, visible studs and mold seams"
+      ],
+      "class": "ground",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ]
+    },
+    {
+      "id": "VEH-803",
+      "name": "High-Power Microwave Counter-Drone Vehicle",
+      "nameZh": "高功率微波反无人机车",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "微波 电磁脉冲 反无人机 emp high power microwave counter drone",
+      "lines": [
+        "LEGO wheeled counter-drone vehicle with a large rectangular microwave emitter dish on a turret",
+        "concentric ring tiles radiating outward and a glowing amber capacitor stack",
+        "armored cabling and a heat-sink block, grey tactical paint, visible studs and mold seams"
+      ],
+      "class": "ground",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ]
+    },
+    {
+      "id": "VEH-804",
+      "name": "Mobile Electronic Warfare Vehicle",
+      "nameZh": "机动电子战车",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "电子战 干扰车 电磁 频谱 electronic warfare jammer spectrum",
+      "lines": [
+        "LEGO 8x8 electronic warfare vehicle with a telescoping sensor mast on the roof",
+        "brick-built jamming pods with blinking signal tiles and a fold-out operations shelter",
+        "cable reels and an antenna farm, green camouflage plates, visible studs and mold seams"
+      ],
+      "class": "ground",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ]
+    },
+    {
+      "id": "VEH-805",
+      "name": "Quadruped Robot Dog Team",
+      "nameZh": "四足机器狗班组",
+      "series": "Modern",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "机器狗 四足 机器人 无人平台 robot dog quadruped",
+      "lines": [
+        "LEGO squad of three quadruped robot dogs with sensor heads and small payload rails",
+        "each with articulated brick-built legs and a glowing status strip",
+        "olive-drab and black plastic, visible studs and mold seams"
+      ],
+      "class": "ugv",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ]
+    },
+    {
+      "id": "VEH-806",
+      "name": "Electromagnetic Railgun Test Vehicle",
+      "nameZh": "电磁轨道炮试验车",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "轨道炮 电磁炮 试验 railgun electromagnetic test",
+      "lines": [
+        "LEGO heavy tracked test vehicle mounting a long electromagnetic railgun on a reinforced turret",
+        "twin parallel rails with a glowing blue arc and a bulky capacitor breech",
+        "cooling vents and armored power conduits, grey test-livery panels, visible studs and mold seams"
+      ],
+      "class": "ground",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ]
+    },
+    {
+      "id": "VEH-807",
+      "name": "Loitering Munition Launcher Vehicle",
+      "nameZh": "巡飞弹发射车",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "巡飞弹 发射车 游荡弹药 loitering munition launcher",
+      "lines": [
+        "LEGO wheeled launcher truck with a boxy rack of stacked loitering-munition canisters",
+        "one munition in mid-launch with pop-out wings and a pusher propeller",
+        "olive-drab finish, outrigger stabilizers deployed, visible studs and mold seams"
+      ],
+      "class": "ground",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ]
+    },
+    {
+      "id": "AIR-801",
+      "name": "Loyal Wingman Combat Drone",
+      "nameZh": "忠诚僚机无人战机",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "忠诚僚机 无人战机 协同作战飞机 loyal wingman uav stealth drone",
+      "lines": [
+        "LEGO stealthy unmanned combat aircraft with a tailless cranked-kite wing and no cockpit",
+        "smooth matte-grey radar-absorbent brick skin with serrated weapon-bay edges",
+        "an internal bay with small air-to-air missiles and a single dorsal engine intake"
+      ],
+      "class": "aircraft",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ]
+    },
+    {
+      "id": "AIR-802",
+      "name": "Hypersonic Glide Vehicle",
+      "nameZh": "高超音速滑翔载具",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "高超音速 滑翔 乘波体 hypersonic glide vehicle hgv",
+      "lines": [
+        "LEGO hypersonic glide vehicle with a waverider lifting body and a sharp heat-shield nose",
+        "trailing a glowing orange plasma sheath made of translucent energy bricks",
+        "small control fins at the tail and a boost-glide booster mount on the belly"
+      ],
+      "class": "aircraft",
+      "faction": "Coalition",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ]
+    },
+    {
+      "id": "AIR-803",
+      "name": "VTOL Attack Gunship",
+      "nameZh": "垂直起降攻击炮艇机",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "垂直起降 炮艇机 vtol gunship 倾转旋翼",
+      "lines": [
+        "LEGO tiltrotor VTOL gunship with two large proprotor nacelles on the wingtips",
+        "a side-mounted 30mm chain gun and a chin sensor turret with a glowing lens",
+        "an open rear loading ramp and a troop cabin with brick seats"
+      ],
+      "class": "aircraft",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ]
+    },
+    {
+      "id": "AIR-804",
+      "name": "Airborne Electronic Attack Aircraft",
+      "nameZh": "电子战飞机",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "电子战飞机 干扰机 预警机 electronic attack jammer aircraft awacs",
+      "lines": [
+        "LEGO four-engine transport aircraft converted into an electronic-attack platform",
+        "a large rotodome on the spine and podded jammers under the wings",
+        "glowing signal tiles along the fuselage and a satellite-communications hump"
+      ],
+      "class": "aircraft",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ]
+    },
+    {
+      "id": "AIR-805",
+      "name": "Autonomous Cargo Resupply Drone",
+      "nameZh": "无人货运补给直升机",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "无人直升机 补给 货运无人机 cargo drone resupply 后勤",
+      "lines": [
+        "LEGO unmanned cargo helicopter with a large boxy fuselage and no cockpit",
+        "a slung cargo container with palletized supply crates and a belly hook",
+        "a four-blade rotor and orange high-visibility markings"
+      ],
+      "class": "helicopter",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ]
+    },
+    {
+      "id": "AIR-806",
+      "name": "Armed Reconnaissance Helicopter",
+      "nameZh": "察打一体武装侦察直升机",
+      "series": "Modern",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "武装直升机 侦察直升机 attack helo reconnaissance 阿帕奇",
+      "lines": [
+        "LEGO two-seat attack helicopter with a mast-mounted sight ball above the rotor",
+        "stub wings carrying rocket pods and anti-tank missiles",
+        "a chin-mounted chain gun and IR-suppressor exhaust nozzles, dark olive paint"
+      ],
+      "class": "helicopter",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ]
+    },
+    {
+      "id": "SHP-801",
+      "name": "Unmanned Surface Strike Vessel",
+      "nameZh": "无人水面攻击艇",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "无人艇 水面无人 usv unmanned surface 快艇",
+      "lines": [
+        "LEGO unmanned surface vessel with a trimaran hull and no bridge windows",
+        "a low angular sensor mast and a forward missile launcher",
+        "glowing navigation lights and a wake of translucent splash bricks"
+      ],
+      "class": "ship",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ]
+    },
+    {
+      "id": "SHP-802",
+      "name": "Extra-Large Unmanned Underwater Vehicle",
+      "nameZh": "超大型无人潜航器",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "潜航器 无人潜航 uuv submarine drone 水下无人",
+      "lines": [
+        "LEGO extra-large unmanned underwater vehicle with a torpedo-shaped hull and no sail windows",
+        "a pump-jet propulsor at the stern and a sensor array along the flanks",
+        "a tethered docking cradle and translucent bubble-trail bricks behind it"
+      ],
+      "class": "ship",
+      "faction": "NATO",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged",
+        "destroyed"
+      ]
     }
   ],
   "weapons": [
@@ -3940,6 +4465,174 @@
         "guide-wire spool at the tail"
       ],
       "version": "1.0"
+    },
+    {
+      "id": "WPN-801",
+      "name": "High-Energy Laser Cannon",
+      "nameZh": "高能激光炮",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "LEGO high-energy laser cannon with a long barrel of stacked translucent blue energy tiles",
+        "a large focusing lens at the muzzle and glowing capacitor coils along the receiver",
+        "a heavy turret mount and cooling fins, visible studs and mold seams"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "WPN-802",
+      "name": "High-Power Microwave Emitter",
+      "nameZh": "高功率微波武器",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "LEGO high-power microwave emitter shaped like a large rectangular dish on a turret mount",
+        "concentric ring tiles radiating outward and a glowing amber capacitor stack",
+        "thick armored cabling and a heat-sink block, visible studs and mold seams"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "WPN-803",
+      "name": "Electromagnetic Railgun",
+      "nameZh": "电磁轨道炮",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "LEGO electromagnetic railgun with two long parallel rails and a bulky capacitor breech",
+        "a glowing blue arc between the rails and a dart-like kinetic projectile",
+        "cooling vents and armored power conduits, visible studs and mold seams"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "WPN-804",
+      "name": "Hypersonic Cruise Missile",
+      "nameZh": "高超音速巡航导弹",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "LEGO hypersonic cruise missile with a waverider nose and a small scramjet inlet underneath",
+        "folding fins and a glowing exhaust plume of translucent orange bricks",
+        "grey body with red band markings, visible studs and mold seams"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "WPN-805",
+      "name": "Anti-Radiation Missile",
+      "nameZh": "反辐射导弹",
+      "series": "Modern",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "LEGO anti-radiation missile with a slender body and a wide-band radar-homing seeker nose",
+        "four mid-body fins and a ring of small control vanes at the tail",
+        "white body with a black seeker band and stencil markings"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "WPN-806",
+      "name": "Heavy Loitering Munition",
+      "nameZh": "重型巡飞弹",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "LEGO heavy loitering munition with a long slender fuselage and pop-out straight wings",
+        "a nose-mounted seeker ball with a glowing lens and a warhead section with red warning tiles",
+        "a launch-rail canister lying beside it, tan body, visible studs and mold seams"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "WPN-807",
+      "name": "Networked Smart Mine",
+      "nameZh": "网络化智能地雷",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "LEGO networked smart mine with a squat cylindrical body and a pop-up sensor mast",
+        "a cluster of small self-guided sub-munitions and glowing arming indicator tiles",
+        "camouflaged top plates and a short antenna, visible studs and mold seams"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "WPN-808",
+      "name": "Anti-Drone Directed Energy Rifle",
+      "nameZh": "反无人机定向能枪",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "LEGO anti-drone directed energy rifle with a bulky emitter head and a focusing lens",
+        "glowing energy-cell tiles along the receiver and a shoulder stock",
+        "a small tripod and a cable to a battery pack, visible studs and mold seams"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
     }
   ],
   "props": [
@@ -4228,6 +4921,132 @@
       "kw": "弹药箱 弹药 补给 堆放 ammunition crate stack",
       "lines": [
         "LEGO stack of olive ammunition crates with stencilled markings and open lids"
+      ]
+    },
+    {
+      "id": "PRP-801",
+      "name": "Portable Drone Jammer Gun",
+      "nameZh": "便携式无人机干扰枪",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "LEGO portable anti-drone jammer gun shaped like a bulky rifle with a flat panel antenna",
+        "glowing signal-bar tiles, a shoulder stock and a foregrip",
+        "a small battery pack with a cable to the emitter head"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "PRP-802",
+      "name": "Tactical Datalink Terminal",
+      "nameZh": "战术数据链终端",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "LEGO ruggedized tactical datalink terminal with a fold-out screen showing a glowing tactical map",
+        "a brick-built antenna and a keyboard with armored rubber corners",
+        "a rugged carrying case open beside it"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "PRP-803",
+      "name": "Man-Portable SATCOM Terminal",
+      "nameZh": "便携卫星通信终端",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "LEGO man-portable satellite communications terminal with a flat phased-array antenna",
+        "a tripod mount, glowing status tiles and a cable reel",
+        "an operator backpack power unit"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "PRP-804",
+      "name": "Holographic Tactical Sandbox",
+      "nameZh": "全息战术沙盘",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "LEGO holographic tactical sand table projecting a translucent blue 3D terrain grid above it",
+        "tiny glowing unit markers and arrow tiles on the projection",
+        "a console base with knobs and a rim of status lights"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "PRP-805",
+      "name": "Field Trauma Pod",
+      "nameZh": "战地急救舱",
+      "series": "Modern",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "LEGO field trauma pod with a fold-out stretcher and a rack of medical supply tiles",
+        "a glowing vital-signs monitor, IV stand and blood bags",
+        "stacked bandage and plasma crates with a red-cross marking"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "PRP-806",
+      "name": "Drone Launch Canister",
+      "nameZh": "无人机发射箱",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "LEGO honeycomb drone launch canister with stacked micro-drones in the cells",
+        "glowing status tiles on each cell and a cable harness to a control unit",
+        "a rugged frame with carry handles"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
       ]
     }
   ],
@@ -4629,6 +5448,132 @@
       "lines": [
         "photorealistic shower of white-hot sparks skittering off armour plate, glowing fragments bouncing",
         "scorch scuffs on the LEGO plating"
+      ]
+    },
+    {
+      "id": "FX-801",
+      "name": "Directed Energy Beam",
+      "nameZh": "定向能光束",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "photorealistic coherent blue-white laser beam with intense bloom and lens flare",
+        "air ionization haze along the beam path and a glowing molten impact point on LEGO bricks",
+        "volumetric light scattering, cinematic anamorphic flare"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "FX-802",
+      "name": "Electromagnetic Pulse Burst",
+      "nameZh": "电磁脉冲爆发",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "photorealistic electromagnetic pulse burst with expanding concentric cyan shock rings",
+        "arcing static electricity crawling over LEGO surfaces and a blown-out highlight in the center",
+        "volumetric haze and dust lifting off the ground"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "FX-803",
+      "name": "Hypersonic Shock Cone",
+      "nameZh": "高超音速音爆环",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "photorealistic hypersonic shock cone with a ring of condensed vapor around a fast-moving LEGO vehicle",
+        "a glowing orange plasma sheath trailing behind",
+        "heat distortion and trailing smoke ribbons"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "FX-804",
+      "name": "Drone Swarm Shadow",
+      "nameZh": "无人机蜂群掠影",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "photorealistic dense drone swarm darkening the sky like a moving shadow",
+        "hundreds of small quadcopter silhouettes with blinking navigation lights",
+        "dust and debris swirling upward from the rotor wash"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "FX-805",
+      "name": "Cyber Data Flood",
+      "nameZh": "网络战数据洪流",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "photorealistic cascading holographic data stream with glowing green code tiles",
+        "torn network-diagram graphics and glitch artifacts floating over LEGO equipment",
+        "volumetric projection light and lens distortion"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "FX-806",
+      "name": "Microwave Jamming Ripple",
+      "nameZh": "微波干扰波纹",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "photorealistic microwave interference ripple with faint concentric distortion waves",
+        "sparking electronics on LEGO vehicles and flickering signal tiles",
+        "heat shimmer and volumetric haze"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
       ]
     }
   ],
@@ -5465,6 +6410,116 @@
         "dim overhead fluorescent strip lights casting moody shadows on tactical operators"
       ],
       "kw": "地下掩体 指挥部 作战中心 高科技 电子战 控制室 bunker command center cyber operations"
+    },
+    {
+      "id": "ENV-801",
+      "name": "Future Megacity Ruins",
+      "nameZh": "未来都市废墟",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "未来都市 废墟 赛博城市 future city ruins 都市战",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, smoke and fire are photorealistic",
+        "shattered high-rise ruins with exposed steel frames and glowing broken signage",
+        "rubble-strewn streets, drifting smoke and ash, cold overcast light with neon accents"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "ENV-802",
+      "name": "Orbital Battle Station",
+      "nameZh": "轨道空间站战场",
+      "series": "Orbital",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "空间站 轨道 太空 space station orbital 零重力",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: station modules and props are LEGO elements with visible studs and seams, while stars and nebulae are photorealistic",
+        "modular white-and-grey station corridors with gold solar arrays and airlock hatches",
+        "deep black space beyond the viewports, hard unfiltered sunlight, floating debris bricks"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "ENV-803",
+      "name": "Arctic Research Outpost",
+      "nameZh": "极地研究哨站",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "极地 雪原 北极 arctic polar 冰原 雪",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: buildings, vehicles and props are LEGO elements with visible studs and seams, while snow and wind are photorealistic",
+        "modular polar research outpost with antenna masts and fuel bladders on a frozen plain",
+        "blowing snow, pale low sun, long blue shadows and ice haze on the horizon"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "ENV-804",
+      "name": "Open-Ocean Fleet Screen",
+      "nameZh": "远洋舰队阵位",
+      "series": "Modern",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "舰队 远洋 海战 fleet ocean naval 海面",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: ships and deck structures are LEGO elements with visible studs and seams, while ocean water and spray are photorealistic",
+        "open ocean with a screen of warships in formation under a vast sky",
+        "photoreal rolling swell, whitecaps and sea spray, dramatic cloud banks"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "ENV-805",
+      "name": "Hypersonic Test Range",
+      "nameZh": "高超音速试验靶场",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "kw": "靶场 试验 高超音速 test range hypersonic 沙漠",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: instrumentation vans, blockhouses and props are LEGO elements with visible studs and seams, while dust and heat haze are photorealistic",
+        "vast desert test range with tracking radar dishes and a scorched launch pad",
+        "heat shimmer, drifting dust and long shadows under a hard sky"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
     }
   ],
   "cameras": [
@@ -5691,6 +6746,66 @@
       "lines": [
         "camera rigged to the vehicle hood looking back at the cab, road vibration, 24mm lens"
       ]
+    },
+    {
+      "id": "CAM-801",
+      "name": "FPV Drone Dive",
+      "nameZh": "FPV 无人机俯冲",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "FPV drone first-person dive, aggressive downward rush toward the target, wide-angle 14mm lens",
+        "fast parallax, slight roll and vibration, kinetic high-speed motion blur"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "CAM-802",
+      "name": "Thermal Tracking Shot",
+      "nameZh": "热成像追踪镜头",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "thermal-imaging tracking shot, white-hot subjects against a cool dark background",
+        "smooth motorized pan following the target, slight sensor grain and scanline overlay"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "CAM-803",
+      "name": "Robotic Arm Macro Follow",
+      "nameZh": "机械臂微距跟拍",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "robotic-arm macro follow shot gliding inches from LEGO studs and mold seams",
+        "precise stabilized movement, shallow depth of field, tactile plastic texture in sharp detail"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
     }
   ],
   "lighting": [
@@ -5881,6 +6996,46 @@
       "kw": "甲板 泛光 舰上 夜间 deck floodlights carrier",
       "lines": [
         "cold sodium and white floodlights on a wet deck, strong speculars and long reflections"
+      ]
+    },
+    {
+      "id": "LGT-801",
+      "name": "EMP Cold Flash",
+      "nameZh": "电磁脉冲冷闪",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "sudden cold blue-white electromagnetic flash, hard rim light on LEGO edges",
+        "deep blue ambient with a blown-out white core and arcing highlights on plastic surfaces"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "LGT-802",
+      "name": "Holographic Console Glow",
+      "nameZh": "全息控制台辉光",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "soft volumetric cyan holographic glow from console screens",
+        "low-key ambient with colored practical light on minifigure faces and subtle atmospheric haze"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
       ]
     }
   ],
@@ -6263,6 +7418,82 @@
       "lines": [
         "distant artillery rumbling like thunder, faint window rattle"
       ]
+    },
+    {
+      "id": "AUD-801",
+      "name": "Directed Energy Charge",
+      "nameZh": "定向能充能啸叫",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "rising capacitor whine building to a sharp crack as the directed-energy weapon discharges"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "AUD-802",
+      "name": "EMP Low-Frequency Thump",
+      "nameZh": "电磁脉冲低频轰击",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "deep subsonic thump followed by a crackling static wash and the hum of dying electronics"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "AUD-803",
+      "name": "Drone Swarm Buzz",
+      "nameZh": "无人机蜂群嗡鸣",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "dense layered buzz of many small rotors, doppler-shifting as the swarm sweeps past"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
+    },
+    {
+      "id": "AUD-804",
+      "name": "Datalink Tone",
+      "nameZh": "数据链电子音",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "seed-pack",
+      "changelog": [
+        "1.0 modern warfare seed pack"
+      ],
+      "lines": [
+        "clean encrypted datalink chirps and soft UI blips over a low tactical radio hiss"
+      ],
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ]
     }
   ],
   "motions": {
@@ -6518,7 +7749,9 @@
     "Iraq War": "伊拉克战争",
     "Modern": "现代",
     "Pacific": "太平洋战场",
-    "WWII": "二战"
+    "WWII": "二战",
+    "Modern High-Tech": "现代高科技",
+    "Orbital": "近地轨道"
   },
   "factionLabelsZh": {
     "Allies": "同盟国",

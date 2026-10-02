@@ -1,0 +1,15 @@
+# Local agent / tooling state (never commit)
+.workbuddy-ai/
+.agents/
+
+# Environment files (use .env.example as the template)
+.env
+.env.local
+.env.*.local
+
+# Node / Python artifacts
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+Thumbs.db

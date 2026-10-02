@@ -91,3 +91,62 @@ test('Backend AI Brain: only echoes the exact configured CORS origin', async () 
   const unconfigured = await call({}, 'OPTIONS', { origin: 'https://attacker.example' });
   assert.equal(unconfigured.headers.get('access-control-allow-origin'), null);
 });
+
+test('Backend AI Brain: injects the real asset catalog into the provider prompt', async () => {
+  const originalFetch = globalThis.fetch;
+  let sentSystem = '';
+  let sentUser = '';
+  globalThis.fetch = async (url, options) => {
+    const body = JSON.parse(options.body);
+    sentSystem = body.messages.find(m => m.role === 'system')?.content || '';
+    sentUser = body.messages.find(m => m.role === 'user')?.content || '';
+    return new Response(JSON.stringify({
+      choices: [{ message: { content: JSON.stringify({
+        matchedMovie: '无人机战争',
+        shots: [{ phase: 'establish', action: '乐高无人机蜂群升空。', assets: { subjects: ['CHR-401'], environment: 'ENV-401', camera: 'CAM-401', lighting: 'LGT-001', colorGrade: 'CLR-001' } }]
+      }) } }]
+    }), { status: 200, headers: { 'content-type': 'application/json' } });
+  };
+  try {
+    const res = await call({ query: '无人机蜂群现代战争', requestedShots: 1 }, 'POST', {}, { GROQ_API_KEY: 'k' });
+    assert.equal(res.status, 200);
+    // 注入的目录必须是真实资产 ID，而不是空白想象
+    assert.match(sentSystem, /CHR-\d{3}=/);
+    assert.match(sentSystem, /【角色人仔】/);
+    assert.match(sentSystem, /可用真实资产清单/);
+    assert.match(sentUser, /assets 字段必须使用上方清单中的真实 ID/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('Backend AI Brain: drops hallucinated asset IDs and reports them', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({
+    choices: [{ message: { content: JSON.stringify({
+      matchedMovie: '测试片',
+      shots: [
+        { phase: 'establish', action: '乐高特战小队推进。', assets: { subjects: ['CHR-401'], environment: 'ENV-401', camera: 'CAM-401', lighting: 'LGT-001', colorGrade: 'CLR-001' } },
+        { phase: 'climax', action: '定向能激光与蜂群对轰。', assets: { subjects: ['CHR-630', 'ZZZ-999'], environment: 'ENV-640', camera: 'CAM-801', lighting: 'LGT-001', colorGrade: 'CLR-001', fx: ['FX-801'], audio: ['AUD-801'] } }
+      ],
+      proposedAssets: [{ name: 'Sonic Disruptor', nameZh: '声波压制器', group: 'weapons' }]
+    }) } }]
+  }), { status: 200, headers: { 'content-type': 'application/json' } });
+  try {
+    const res = await call({ query: '现代高科技无人机作战', requestedShots: 2 }, 'POST', {}, { GROQ_API_KEY: 'k' });
+    assert.equal(res.status, 200);
+    const data = await res.json();
+    assert.equal(data.isAiGenerated, true);
+    assert.ok(data.assetUsage.matched > 0);
+    assert.ok(data.assetUsage.unknown.includes('ZZZ-999'));
+    // 幻觉 ID 绝不能进入最终分镜
+    for (const shot of data.shots) {
+      assert.ok(!(shot.subjects || []).includes('ZZZ-999'));
+    }
+    assert.deepEqual(data.shots[1].subjects, ['CHR-630']);
+    assert.equal(data.proposedAssets.length, 1);
+    assert.equal(data.proposedAssets[0].nameZh, '声波压制器');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

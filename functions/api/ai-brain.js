@@ -9,6 +9,9 @@
 import { transpileMovieToLego } from '../../src/domain/cinema-homage.js';
 import { alignShotsToLego } from '../../src/domain/lego-aligner.js';
 import { checkContentGovernance } from '../../src/domain/governance.js';
+import { parseIntent } from '../../src/domain/intent.js';
+import { buildAssetCatalog, formatCatalogForPrompt, collectValidIds, resolveShotAssets } from '../../src/domain/asset-catalog.js';
+import { assets as ASSET_REGISTRY } from '../../src/domain/assets-data.js';
 
 // 简易限流配置
 // 注意：Cloudflare Workers 的模块级 Map 只在单个 isolate 内有效，且随时可能被回收，
@@ -109,9 +112,17 @@ function governResponse(responseBody, inputGovernance) {
   return { status: 200, body: responseBody };
 }
 
-const DIRECTOR_SYSTEM_PROMPT = `你是一位好莱坞顶级电影摄影指导与微缩定格动画导演（擅长诺兰、雷德利·斯科特、丹尼斯·维伦纽瓦的视听语言，精通乐高定格微缩物理美学）。
+const DIRECTOR_SYSTEM_PROMPT_HEADER = `你是一位好莱坞顶级电影摄影指导与微缩定格动画导演（擅长诺兰、雷德利·斯科特、丹尼斯·维伦纽瓦的视听语言，精通乐高定格微缩物理美学）。
 用户的输入可能是一部电影名称（如《长津湖》《阿凡达》《星际穿越》《狂怒》《黑客帝国》等），或者任意战术/科幻创意大纲。
 你的任务是将该内容深度解构并转译为一部乐高微缩定格大片分镜剧本。
+
+【最高优先级：必须使用真实资产 ID】
+下方是 LEGO War Universe 资产库中与本片题材最相关的真实资产清单（格式：ID=名称(时代)）。
+每一个镜头都必须从清单中挑选真实存在的 ID 填入 assets 字段，严禁编造清单以外的 ID。
+- subjects：1–3 个角色或载具 ID（从【角色人仔】【载具】里选）
+- environment / camera / lighting / colorGrade：各 1 个对应分组的 ID
+- fx / audio：各 0–3 / 0–2 个 ID（可选）
+如果题材所需的现代/未来战争装备在清单中确实不存在，请照常发挥想象力描写动作，并在顶层 proposedAssets 数组里给出建议新增的资产（含 name / nameZh / group / lines），但镜头里仍必须使用清单内最接近的真实 ID 兜底。
 
 你必须严格以合法的 JSON 格式输出，不要包含任何多余的开场白或解释。JSON 结构必须符合以下格式：
 {
@@ -127,6 +138,7 @@ const DIRECTOR_SYSTEM_PROMPT = `你是一位好莱坞顶级电影摄影指导与
   },
   "legoAdaptation": "如何用乐高微缩积木、微距景深、特技烟雾与真实塑料材质进行定格微缩还原的专业建议",
   "creatorTips": "给自媒体创作者提升前3秒完播率与声画对齐的实战拉片教学秘籍",
+  "proposedAssets": [],
   "shots": [
     {
       "phase": "establish",
@@ -135,10 +147,32 @@ const DIRECTOR_SYSTEM_PROMPT = `你是一位好莱坞顶级电影摄影指导与
       "screenDirection": "towards-camera",
       "damageState": "clean",
       "audioCue": "环境音效与伴随音乐描述",
-      "radioVoice": "【台词/无线电】核心角色对白或战术呼叫"
+      "radioVoice": "【台词/无线电】核心角色对白或战术呼叫",
+      "assets": {
+        "subjects": ["CHR-401"],
+        "environment": "ENV-001",
+        "camera": "CAM-001",
+        "lighting": "LGT-001",
+        "colorGrade": "CLR-001",
+        "fx": [],
+        "audio": []
+      }
     }
   ]
 }`;
+
+function buildDirectorSystemPrompt(catalogText, era) {
+  return `${DIRECTOR_SYSTEM_PROMPT_HEADER}
+
+【本片时代判定】${era || '未明确（默认 Modern 现代）'}
+
+【可用真实资产清单】
+${catalogText || '（资产库目录为空，请使用 CHR-401 / ENV-001 / CAM-001 / LGT-001 / CLR-001 作为兜底）'}`;
+}
+
+function buildUserPrompt(query, requestedShots) {
+  return `请深度解构并转译：${query}。输出正好 ${requestedShots} 个镜头的完整分镜（四阶段叙事：铺垫 establish -> 展开 build -> 决战 climax -> 尾声 resolve）。每个镜头的 assets 字段必须使用上方清单中的真实 ID。`;
+}
 
 function cleanAndParseJson(text) {
   if (!text || typeof text !== 'string') throw new Error('Empty AI response');
@@ -153,7 +187,7 @@ function cleanAndParseJson(text) {
 /**
  * 尝试调用 Groq 极速免费接口
  */
-async function callGroq(query, requestedShots, apiKey) {
+async function callGroq(systemPrompt, userPrompt, apiKey) {
   const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -163,8 +197,8 @@ async function callGroq(query, requestedShots, apiKey) {
     body: JSON.stringify({
       model: 'llama-3.3-70b-versatile',
       messages: [
-        { role: 'system', content: DIRECTOR_SYSTEM_PROMPT },
-        { role: 'user', content: `请深度解构并转译：${query}。输出正好 ${requestedShots} 个镜头的完整分镜（四阶段叙事：铺垫 establish -> 展开 build -> 决战 climax -> 尾声 resolve）。` }
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
       ],
       temperature: 0.7,
       response_format: { type: 'json_object' }
@@ -179,7 +213,7 @@ async function callGroq(query, requestedShots, apiKey) {
 /**
  * 尝试调用 OpenRouter 免费模型接口
  */
-async function callOpenRouter(query, requestedShots, apiKey) {
+async function callOpenRouter(systemPrompt, userPrompt, apiKey) {
   const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
     method: 'POST',
     headers: {
@@ -191,8 +225,8 @@ async function callOpenRouter(query, requestedShots, apiKey) {
     body: JSON.stringify({
       model: 'meta-llama/llama-3.3-70b-instruct:free',
       messages: [
-        { role: 'system', content: DIRECTOR_SYSTEM_PROMPT },
-        { role: 'user', content: `请深度解构并转译：${query}。输出正好 ${requestedShots} 个镜头的完整分镜（四阶段叙事：铺垫 establish -> 展开 build -> 决战 climax -> 尾声 resolve）。` }
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
       ],
       temperature: 0.7
     })
@@ -206,7 +240,7 @@ async function callOpenRouter(query, requestedShots, apiKey) {
 /**
  * 尝试调用 Google Gemini 免费接口 (通过 OpenAI 兼容端点)
  */
-async function callGemini(query, requestedShots, apiKey) {
+async function callGemini(systemPrompt, userPrompt, apiKey) {
   const res = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
     method: 'POST',
     headers: {
@@ -216,8 +250,8 @@ async function callGemini(query, requestedShots, apiKey) {
     body: JSON.stringify({
       model: 'gemini-1.5-flash',
       messages: [
-        { role: 'system', content: DIRECTOR_SYSTEM_PROMPT },
-        { role: 'user', content: `请深度解构并转译：${query}。输出正好 ${requestedShots} 个镜头的完整分镜（四阶段叙事：铺垫 establish -> 展开 build -> 决战 climax -> 尾声 resolve）。` }
+        { role: 'system', content: systemPrompt },
+        { role: 'user', content: userPrompt }
       ],
       temperature: 0.7,
       response_format: { type: 'json_object' }
@@ -288,13 +322,22 @@ export async function onRequest({ request, env = {} }) {
     }, 403, headers);
   }
 
+  // 依据题材解析时代，构建「与题材相关」的真实资产目录，注入 Prompt。
+  // 这是「AI 优先且必须使用资产库」的关键：模型拿到的是真实 ID，而不是空白想象。
+  const intent = parseIntent(query);
+  const catalog = buildAssetCatalog(ASSET_REGISTRY, { era: intent.era, keywords: query });
+  const catalogText = formatCatalogForPrompt(catalog);
+  const validIds = collectValidIds(ASSET_REGISTRY);
+  const systemPrompt = buildDirectorSystemPrompt(catalogText, intent.era);
+  const userPrompt = buildUserPrompt(query, requestedShots);
+
   let result = null;
   let usedEngine = 'None';
 
   // 1. 尝试 Groq 免费通道
   if (env.GROQ_API_KEY && !result) {
     try {
-      result = await callGroq(query, requestedShots, env.GROQ_API_KEY);
+      result = await callGroq(systemPrompt, userPrompt, env.GROQ_API_KEY);
       usedEngine = 'Groq (llama-3.3-70b-versatile)';
     } catch (e) {
       console.warn('Groq 调度跳过或失败:', e.message);
@@ -304,7 +347,7 @@ export async function onRequest({ request, env = {} }) {
   // 2. 尝试 OpenRouter 免费通道
   if (env.OPENROUTER_API_KEY && !result) {
     try {
-      result = await callOpenRouter(query, requestedShots, env.OPENROUTER_API_KEY);
+      result = await callOpenRouter(systemPrompt, userPrompt, env.OPENROUTER_API_KEY);
       usedEngine = 'OpenRouter (llama-3.3:free)';
     } catch (e) {
       console.warn('OpenRouter 调度跳过或失败:', e.message);
@@ -314,7 +357,7 @@ export async function onRequest({ request, env = {} }) {
   // 3. 尝试 Google Gemini 免费通道
   if (env.GEMINI_API_KEY && !result) {
     try {
-      result = await callGemini(query, requestedShots, env.GEMINI_API_KEY);
+      result = await callGemini(systemPrompt, userPrompt, env.GEMINI_API_KEY);
       usedEngine = 'Google Gemini (gemini-1.5-flash)';
     } catch (e) {
       console.warn('Gemini 调度跳过或失败:', e.message);
@@ -339,14 +382,39 @@ export async function onRequest({ request, env = {} }) {
       shots: local.shots,
       isAiGenerated: false,
       engine: 'Built-in Cinema Engine (本地高保真离线引擎)',
+      era: local.era || intent.era,
+      assetUsage: { catalogSize: validIds.size, matched: 0, unknown: [] },
+      proposedAssets: [],
       latencyMs
     };
     const governed = governResponse(responseBody, inputGovernance);
     return json(governed.body, governed.status, headers);
   }
 
-  // 5. 将大模型输出的分镜与乐高资产规范对齐
-  const alignedShots = alignShotsToLego(result.shots || [], {}, 'Modern');
+  // 5. 校验大模型返回的资产引用：只保留真实存在的 ID，非法 ID 降级为默认资产。
+  const rawShots = Array.isArray(result.shots) ? result.shots : [];
+  const unknownIds = new Set();
+  let matchedRefs = 0;
+  const sanitizedShots = rawShots.map(shot => {
+    const { refs, unknown } = resolveShotAssets(shot, validIds);
+    unknown.forEach(id => unknownIds.add(id));
+    matchedRefs += refs.subjects.length
+      + ['environment', 'camera', 'lighting', 'colorGrade'].filter(k => refs[k]).length
+      + refs.fx.length + refs.audio.length;
+    return {
+      ...shot,
+      subjects: refs.subjects.length ? refs.subjects : undefined,
+      environment: refs.environment || undefined,
+      camera: refs.camera || undefined,
+      lighting: refs.lighting || undefined,
+      colorGrade: refs.colorGrade || undefined,
+      fx: refs.fx,
+      audio: refs.audio
+    };
+  });
+
+  // 6. 与乐高资产规范对齐（含连续性链条强制注入）
+  const alignedShots = alignShotsToLego(sanitizedShots, {}, intent.era || 'Modern');
   const latencyMs = Date.now() - startTime;
 
   const responseBody = {
@@ -363,6 +431,14 @@ export async function onRequest({ request, env = {} }) {
     shots: alignedShots,
     isAiGenerated: true,
     engine: `Cloud Free AI (${usedEngine})`,
+    era: intent.era,
+    assetUsage: {
+      catalogSize: validIds.size,
+      matched: matchedRefs,
+      unknown: [...unknownIds]
+    },
+    // 模型建议新增、但资产库暂缺的现代/未来战争装备 —— 交给前端进化引擎锻造落地
+    proposedAssets: Array.isArray(result.proposedAssets) ? result.proposedAssets.slice(0, 8) : [],
     latencyMs
   };
   const governed = governResponse(responseBody, inputGovernance);

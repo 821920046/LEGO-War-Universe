@@ -7,6 +7,72 @@ import { enforceContinuityChain } from './continuity.js';
 
 export const CINEMA_DATABASE = [
   {
+    id: 'modern-drone-warfare',
+    title: '现代无人战争 (Modern Drone Warfare)',
+    aliases: [
+      '无人机战争', '无人战争', '蜂群', '巡飞弹', '现代战争', '高科技战争',
+      '电磁炮', '激光武器', '高超音速', '网络战', '机器人战争', '无人作战',
+      '无人机', 'drone war', 'modern warfare', 'drone', 'swarm'
+    ],
+    director: 'LWU 现代战争视听实验室',
+    year: '2026',
+    era: 'Modern High-Tech',
+    genre: '现代高科技无人化联合作战 / 体系破击',
+    dramaticConflict: '在卫星致盲、数据链被干扰的电磁黑域中，一支混编无人作战集群必须在敌方防空网重启前，用蜂群与巡飞弹撕开缺口，为有人部队打开一条走廊。',
+    visualGrammar: {
+      cameraMotion: 'FPV 无人机俯冲第一人称 · 长焦热成像追踪 · 机械臂微距跟随 · 数据链视角的多画面分割',
+      lightingTone: '冷蓝电子屏幕辉光与暖橙爆炸火光对撞，电磁脉冲冷白闪光瞬间过曝，烟尘中体积光强烈',
+      soundDesign: '旋翼蜂群高频嗡鸣、定向能充能啸叫、电磁脉冲低频轰击、数据链加密电子音，以及间歇的绝对静默'
+    },
+    legoAdaptation: '人仔与载具全部由乐高积木构成，透明件用作定向能光束与全息投影；电子战天线、无人机旋翼用细小机械组零件还原；爆炸与烟尘保持真实物理特效，与塑料颗粒质感形成强烈反差。',
+    creatorTips: '【前3秒钩子】开场即用一架 FPV 穿越机的第一人称俯冲，从云层直插城市峡谷，制造强代入感；随后切到热成像，用「无人的战争」这一反差抓住完播率。',
+    assets: {
+      subjects: ['CHR-630', 'VEH-620'],
+      environment: 'ENV-640',
+      camera: 'CAM-004',
+      lighting: 'LGT-001',
+      colorGrade: 'CLR-001'
+    },
+    shots: [
+      {
+        phase: 'establish',
+        shotType: '电磁黑域下的无人集群展开 (Swarm Deployment in the EM Blackout)',
+        action: '地下指挥掩体内，全息战术沙盘投射出蓝色战场网格，动力外骨骼指挥员戴上数据链头显；画面切至地面，蜂群无人机从发射舱中密集弹射升空，在灰暗天幕下组成攻击编队。',
+        screenDirection: 'left-to-right',
+        damageState: 'clean',
+        audioCue: '数据链加密电子音 · 蜂群旋翼密集嗡鸣由远及近',
+        radioVoice: '【无线电】数据链已加密，蜂群编队升空，目标坐标已上传。'
+      },
+      {
+        phase: 'build',
+        shotType: 'FPV 俯冲穿越与巡飞弹突防 (FPV Dive & Loitering Munition Run)',
+        action: 'FPV 无人机第一人称视角从高空俯冲穿过残破的高楼峡谷，翼下气流掀动地面灰尘；远处巡飞弹张开弹翼低空徘徊，锁定敌方雷达车后俯冲引爆，火球与塑料碎片四散。',
+        screenDirection: 'left-to-right',
+        damageState: 'weathered',
+        audioCue: '高速气流呼啸 · 巡飞弹俯冲尖锐呼啸与近距爆炸',
+        radioVoice: '【无线电】巡飞弹已捕获辐射源，放！全弹命中！'
+      },
+      {
+        phase: 'climax',
+        shotType: '定向能防空与电磁脉冲对轰 (Directed Energy Duel & EMP Burst)',
+        action: '敌方防空激光车射出蓝白色定向能光束横扫低空，一架无人机被瞬间熔穿坠落；外骨骼突击兵扛起高功率微波发射器，一道电磁脉冲波纹荡开，敌方正片无人机群如断线风筝般坠落。',
+        screenDirection: 'neutral',
+        damageState: 'damaged',
+        audioCue: '定向能充能啸叫到击发的爆裂声 · 电磁脉冲低频轰击',
+        radioVoice: '【无线电】电磁脉冲已释放！敌方蜂群全部失能！'
+      },
+      {
+        phase: 'resolve',
+        shotType: '数据链静默与走廊打开 (Datalink Silence, Corridor Open)',
+        action: '硝烟散去的城市街道上，幸存的无人机安静悬停，全息沙盘上一条绿色走廊被点亮；外骨骼指挥员摘下头显，抬头望向被晨光染成金色的废墟天际线。',
+        screenDirection: 'away-from-camera',
+        damageState: 'weathered',
+        audioCue: '蜂群嗡鸣逐渐远去 · 低沉而克制的电子配乐升华',
+        radioVoice: '【无线电】走廊已打开，有人部队可以进场了。战争结束了。'
+      }
+    ]
+  },
+  {
     id: 'top-gun-maverick',
     title: '壮志凌云：独行侠 (Top Gun: Maverick)',
     aliases: ['壮志凌云', 'top gun', '独行侠', 'maverick', '阿汤哥', '战斗机'],
@@ -531,12 +597,12 @@ export function transpileMovieToLego(query, requestedShots = 4) {
 
   // 2. 若未命中具体电影，智能推导电影视听原型
   if (!match) {
-    if (/太空|空间站|星际|流浪|宇宙|gravity|interstellar|space|三体/i.test(q)) {
+    if (/无人机|蜂群|巡飞|激光|定向能|电磁|高超音速|网络战|现代战争|高科技|机器人|无人作战|外骨骼|机甲|drone|swarm|laser|hypersonic|cyber|exoskeleton/i.test(q)) {
+      match = CINEMA_DATABASE.find(m => m.id === 'modern-drone-warfare');
+    } else if (/太空|空间站|星际|流浪|宇宙|gravity|interstellar|space|三体/i.test(q)) {
       match = CINEMA_DATABASE.find(m => m.id === 'gravity');
     } else if (/空战|战机|飞机|飞行员|top gun|dogfight|歼|战斗机/i.test(q)) {
       match = CINEMA_DATABASE.find(m => m.id === 'top-gun-maverick');
-    } else if (/外骨骼|机甲|科幻|未来|边缘|机甲|exoskeleton/i.test(q)) {
-      match = CINEMA_DATABASE.find(m => m.id === 'edge-of-tomorrow');
     } else if (/夜战|特战|突袭|暗夜|夜视|sicario|潜入|狙击/i.test(q)) {
       match = CINEMA_DATABASE.find(m => m.id === 'sicario');
     } else if (/诺曼底|二战|登陆|拯救|ryan|海滩/i.test(q)) {
