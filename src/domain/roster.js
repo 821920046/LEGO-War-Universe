@@ -224,21 +224,21 @@ const PERSONA_NAMES = {
 };
 
 /** 职务池（按兵种分）：让小队里每个人在故事里各司其职，而不是一排「作战员」 */
-const ROLE_LABELS = {
+export const ROLE_LABELS = {
   Infantry: ['突击队长', '步枪手', '机枪手', '爆破手', '副队长'],
   'Special Forces': ['小队指挥官', '突击手', '破门手', '狙击手', '通信兵'],
   Airborne: ['空降组长', '伞兵', '机枪手', '爆破手'],
   Armor: ['车长', '炮手', '驾驶员', '装填手'],
-  Aviation: ['长机飞行员', '僚机飞行员', '武器系统官', '地面引导员'],
-  'Naval Aviation': ['长机飞行员', '僚机飞行员', '后座武器官'],
+  Aviation: ['飞行队长', '僚机飞行员', '武器系统官', '地面引导员'],
+  'Naval Aviation': ['飞行队长', '僚机飞行员', '后座武器官'],
   Naval: ['舰长', '航海长', '损管长', '声呐兵'],
   Command: ['指挥官', '作战参谋', '通信官'],
   Medical: ['军医', '卫生员', '担架兵'],
-  Engineer: ['工兵', '爆破手', '架桥手'],
+  Engineer: ['工兵组长', '爆破手', '架桥手'],
   Reconnaissance: ['侦察组长', '观察手', '狙击手'],
   'Recon / Sniper': ['狙击组长', '观察手', '狙击手'],
   Irregular: ['抵抗组织联络员', '游击队员', '向导'],
-  JTAC: ['前沿引导员', '火力协调员'],
+  JTAC: ['引导组长', '火力协调员'],
   CSAR: ['救援组长', '随机医护', '绞车手'],
   EOD: ['排爆组长', '拆弹手', '机器人操作员'],
   CBRN: ['防化组长', '侦检员'],
@@ -251,10 +251,42 @@ const ROLE_LABELS = {
   'Strategic Fires': ['发射指挥员', '发射控制军官', '目标规划员'],
   'Strategic Aviation': ['机长', '副驾驶', '武器系统官'],
   'Strategic Rocket Forces': ['值班指挥官', '发射控制员'],
-  'Orbital Marines': ['轨道陆战队长', '突击手', '破门手']
+  'Orbital Marines': ['轨道陆战队长', '突击手', '破门手'],
+
+  // ── 以下键在 6.7.2 之前**缺失**，而资产里确实存在这些 unit ──
+  //
+  // 后果是静默的：`personaRoleOf()` 取不到池子就退化成 DEFAULT_ROLES，
+  // 于是「弹道导弹核潜艇艇长」在成片里显示成「队长」、「现代航母甲板调度员」也是「队长」。
+  // 最典型的是 `Navy` —— 资产用 `Navy`（6 个角色），ROLE_LABELS 却只写了 `Naval`（0 个角色），
+  // 两边永远对不上，所有海军角色的职务全部退化。下面是逐 unit 审计后的补齐。
+  //
+  // 约定：池子第 0 项必须是**指挥职务**，因为主角要承担 goal / plan / decision / close 四个节拍。
+  Navy: ['舰长', '副舰长', '航海长', '损管长', '声呐兵', '甲板调度长'],
+  'Navy Command': ['编队指挥官', '潜艇艇长', '作战参谋', '通信官'],
+  'Advanced Special Forces': ['特战队长', '突击手', '破门手', '狙击手', '通信兵'],
+  'Aviation / UAS': ['无人机指挥员', '飞控操作员', '传感器操作员', '地面引导员'],
+  'Counter-UAS': ['反无人机组长', '雷达操作员', '拦截操作员'],
+  'Cyber Command': ['网络战指挥官', '渗透操作员', '频谱分析员'],
+  Robotics: ['机器人组长', '机器人操作员', '维护技师'],
+  'Robotic Infantry': ['机器人步兵组长', '战斗机器人操作员', '维护技师'],
+  'Unmanned Command': ['无人集群指挥官', '任务规划员', '数据链操作员'],
+  'UAS Strike': ['无人机打击指挥员', '飞控操作员', '武器操作员'],
+  // 非战斗人员：他们本来就不该下命令，所以第 0 项是本职，不是指挥职务。
+  Media: ['战地记者', '摄影助理', '随军记者'],
+  Civilian: ['平民', '向导', '翻译']
 };
 
 const DEFAULT_ROLES = ['队长', '副队长', '机枪手', '爆破手', '通信兵', '医护兵'];
+
+/**
+ * 永远不该占据主角位的兵种。
+ *
+ * 主角承担全部指挥类节拍（goal / plan / decision / close），所以他必须是一个**能下命令的人**。
+ * 医疗兵不是 —— 他该在主角负伤时上场，而不是在镜头前布置战术。
+ * 修复前实测：26 个题材里有 3 个（中途岛航母对决 / 太平洋滩头两栖登陆 / 近地轨道卫星争夺战）
+ * 的主角是「军医」，成片读起来是「军医沃克指挥编队打掉敌方水面编队」。
+ */
+const NON_LEAD_UNITS = new Set(['Medical']);
 
 /** 从职务池里取一个本片尚未使用的职务（确定性：由下标决定起点，环形扫描） */
 function personaRoleOf(unit, idx, used) {
@@ -428,10 +460,17 @@ function priorCallsignMap(prior) {
  * @param {{ prior?: object|Array }} [options] prior = 上一版名册（对象或序列化数组）
  * @returns {{ coalition: Array, opposing: Array, neutral: Array, all: Array, byId: Map }}
  */
-export function buildRoster(shots = [], registry = null, { prior = null } = {}) {
+export function buildRoster(shots = [], registry = null, { prior = null, leadId = null } = {}) {
   const byId = new Map();
   const all = [];
   const list = Array.isArray(shots) ? shots : [];
+
+  // 主角 id 可以从 shots **反推**，不必由调用方额外持久化：
+  // 指挥类节拍（goal / plan / decision / close）恒定由主角承担，因此「任务简报那一镜的主体」
+  // 就是主角。这样规划器（传的是只有 subjects 的草稿，必须显式传 leadId）与 UI / 导出
+  // （传的是带 fn 的完整镜头）两条路径会得到同一个答案，不会出现
+  // 「脚本里是车长、定妆表里是装填手」这种口径分裂。
+  const resolvedLeadId = leadId || list.find(s => s?.fn === 'goal')?.subjects?.[0] || null;
 
   // 第一遍：按「首次出场顺序」收集演员（这个顺序对展示友好，但不参与代号分配）
   for (const shot of list) {
@@ -446,7 +485,7 @@ export function buildRoster(shots = [], registry = null, { prior = null } = {}) 
         id,
         callsign: '',
         side: sideOf(asset),
-        name: asset.nameZh || asset.name,
+        name: proseName(asset.nameZh || asset.name),
         nameEn: asset.name,
         role: asset.unit || (asset.kind === 'vehicle' ? '载具' : '作战员'),
         // 人物层：代号只是身份锚点，persona 才是「一个人」。
@@ -517,6 +556,30 @@ export function buildRoster(shots = [], registry = null, { prior = null } = {}) 
     // 由本方多数国籍推断出来的国籍要回填：定妆表才能显示「美军 / 伊军」，而不是一片空白
     if (!entry.nation && inferred) entry.nation = inferred;
   });
+
+  // 主角必须是**指挥职务**。
+  //
+  // 起因：职务在 ID 序里轮转分配，而主角是「战场域 + 题材点名度」排出来的，
+  // 两者毫不相干。于是实测出现「装填手沃尔科夫在炮塔上摊开地图：全车注意，任务已下达」
+  // 以及 logline 里的「装填手沃尔科夫带着小队进入…」—— 一个装填手在镜头前布置战术，
+  // 观众一眼就知道这是机器拼的。指挥类节拍（goal / plan / decision / close）全部由
+  // 主角承担，他的职务就必须配得上这件事。
+  //
+  // 修法是**交换**而不是覆盖：主角拿该兵种职务池里的第一位（车长 / 舰长 / 突击队长…），
+  // 原本占着这个职务的队友接过主角原来的职务 —— 既不产生重复，也不多占名额。
+  if (resolvedLeadId) {
+    const lead = byId.get(resolvedLeadId);
+    if (lead && lead.kind === 'character') {
+      const leaderPool = ROLE_LABELS[lead.unit] || DEFAULT_ROLES;
+      const wanted = leaderPool[0];
+      if (wanted && lead.personaRole !== wanted) {
+        const holder = all.find(e => e !== lead && e.side === lead.side && e.personaRole === wanted);
+        const previous = lead.personaRole;
+        lead.personaRole = wanted;
+        if (holder) holder.personaRole = previous;
+      }
+    }
+  }
 
   return {
     coalition: all.filter(e => e.side === 'coalition'),
@@ -596,6 +659,23 @@ export function rosterFromJSON(data) {
 export function displayNameOf(entry) {
   if (!entry) return '';
   return entry.persona || entry.name || entry.nameZh || String(entry.id ?? '') || '未知角色';
+}
+
+/**
+ * 资产名 → **正文可用名**。
+ *
+ * 库里为了区分同名资产会加括号后缀：「埃塞克斯级航母（二战）」「步兵班长(Modern)」
+ * 「联军战斗医护兵（伊拉克）」。这些后缀在**选型**时是有用的（否则两艘航母分不开），
+ * 但写进正文就是噪音 —— 「受损的埃塞克斯级航母（二战）在海面上缓缓调头」读起来
+ * 像目录条目，不像电影。
+ *
+ * 因此正文名一律剥掉**结尾**的括号后缀；剥完为空时回退原名，保证不会出现空标签。
+ * 只剥结尾：中间出现的括号通常是名称的一部分（如「F-35A (Block 4) 闪电II」）。
+ */
+function proseName(value) {
+  const raw = String(value || '').trim();
+  const stripped = raw.replace(/(?:[（(][^）)]*[）)]\s*)+$/g, '').trim();
+  return stripped || raw;
 }
 
 /**
@@ -686,21 +766,31 @@ const DOMAIN_RULES = [
   {
     key: 'naval',
     classes: ['ship', 'submarine'],
-    re: /navy|naval|\bship\b|fleet|carrier|destroyer|frigate|cruiser|submarine|warship|ocean|sea|maritime|amphibious|torpedo|sonar|海军|舰|航母|潜艇|驱逐舰|护卫舰|巡洋舰|舰队|海上|远海|深海|两栖|登陆舰|鱼雷|声纳|水雷/i,
+    // 6.7.2 补入 护航 / 编队 / 反潜 / 滩头 / 抢滩 / 登陆 / 海面：
+    // 此前这些词一个都不在表里，于是「诺曼底登陆抢滩」「护航编队反潜警戒」判不出战场域，
+    // 环境退化成「环境库第一项」（中东沙漠），载具也拿不到海军加分。
+    // `登陆` 与 `滩头` 归海军而不是陆军：抢滩片要的是登陆艇，不是坦克。
+    re: /navy|naval|\bship\b|fleet|carrier|destroyer|frigate|cruiser|submarine|warship|ocean|sea|maritime|amphibious|torpedo|sonar|海军|舰|航母|潜艇|驱逐舰|护卫舰|巡洋舰|舰队|海上|远海|深海|两栖|登陆舰|鱼雷|声纳|水雷|护航|编队|反潜|滩头|抢滩|登陆|海面|海战/i,
     // 角色专用关键词：海军题材里上镜的应该是舰员与潜水员，而不是步兵班长。
     charRe: /navy|naval|marine|sailor|deck|submarine|sonar|diver|coxswain|舰|艇|海军|船员|水兵|声呐|潜水|登陆/i
   },
   {
     key: 'air',
     classes: ['aircraft', 'helicopter', 'drone'],
-    re: /air ?force|aircraft|bomber|fighter|\bjet\b|airbase|airborne|aerial|air superiority|sortie|stealth|aviation|空军|轰炸机|轰炸|战斗机|战机|制空|空中|空袭|空战|僚机|加油机|预警机|侦察机|直升机|伞降|空降/i,
+    // 6.7.2 补入 无人机 / 蜂群 / 反无人机 / 跳伞 / 飞行员 / 机降：
+    // 「跳伞飞行员敌后营救」此前判不出战场域，营救题材拿不到直升机加分；
+    // 「无人机蜂群」「反无人机」也必须落在 air（本规则排在 strategic 之前，先命中先算）。
+    re: /air ?force|aircraft|bomber|fighter|\bjet\b|airbase|airborne|aerial|air superiority|sortie|stealth|aviation|空军|轰炸机|轰炸|战斗机|战机|制空|空中|空袭|空战|僚机|加油机|预警机|侦察机|直升机|伞降|空降|无人机|蜂群|反无人机|跳伞|飞行员|机降|伞兵|忠诚僚机|巡飞弹/i,
     // 角色专用关键词：制空题材里上镜的应该是飞行员与引导员，而不是战斗工兵与潜水员。
     charRe: /aviation|pilot|aviator|flight|aircrew|airborne|\bjtac\b|\bwso\b|\bcsar\b|\buas\b|air defense|counter-uas|航空|飞行|领航|伞降|空降|引导|防空/i
   },
   {
     key: 'strategic',
     classes: ['ground', 'ship', 'aircraft'],
-    re: /icbm|intercontinental|ballistic missile|missile silo|\bsilo\b|nuclear deterrent|strategic (?:strike|deterrence|rocket|bomber)|洲际|弹道导弹|发射井|战略打击|战略轰炸|核威慑|导弹基地|战略值班/i,
+    // 6.7.2 补入 高超音速 / 反导 / 中段拦截 / 电子战 / 网络战 / 电磁脉冲 / 指挥节点：
+    // 未来战争的核心原型（高超音速打击、电磁网络压制）此前没有战场域，装备与演员只能靠 ID 排序，
+    // 片子里会出现与题材无关的载具。`电子战` 归 strategic 而不是 air —— 它的目标是纵深指挥节点。
+    re: /icbm|intercontinental|ballistic missile|missile silo|\bsilo\b|nuclear deterrent|strategic (?:strike|deterrence|rocket|bomber)|洲际|弹道导弹|发射井|战略打击|战略轰炸|核威慑|导弹基地|战略值班|高超音速|反导|中段拦截|滑翔|电子战|网络战|电磁脉冲|赛博|指挥节点|数据链|干扰/i,
     // 这里**不能**写裸的 `strategic` / `command`：单位名 "Strategic Aviation"
     // （战略轰炸机机组）会把空战域的角色误判成战略火箭军，在制空题材里被跨域惩罚扣分，
     // 结果「B-2 轰炸敌方雷达站」的主角变成无人机操作员。只认真正与导弹/火箭连用的组合。
@@ -709,7 +799,10 @@ const DOMAIN_RULES = [
   {
     key: 'ground',
     classes: ['ground', 'ugv'],
-    re: /\btank\b|armou?r|infantry|urban|\bcity\b|street|convoy|artillery|装甲|坦克|步兵|巷战|城市|街区|车队|炮兵|阵地|堑壕/i,
+    // 6.7.2 补入 阿登 / 森林 / 雪原 / 渗透 / 桥梁 / 渡口 / 防线 / 战壕 / 村庄：
+    // 「阿登森林战斗」「敌后渗透破坏桥梁」此前判不出战场域，环境退化成中东沙漠。
+    // 同时补入 外骨骼 / 无人战车 / 机器人 / 机甲 / 使馆 / 撤侨 —— 未来陆战与撤侨题材的落点。
+    re: /\btank\b|armou?r|infantry|urban|\bcity\b|street|convoy|artillery|装甲|坦克|步兵|巷战|城市|街区|车队|炮兵|阵地|堑壕|阿登|森林|雪原|渗透|桥梁|渡口|防线|战壕|阻击|反击|村庄|村落|外骨骼|无人战车|机器人|机甲|使馆|大使馆|领事馆|撤侨|平民/i,
     // 这里**不能**写成 `\bcrew\b`：ARCHETYPE_RULES 已经踩过一次同样的坑
     // （"Armour Crew" 之外还有 "Carrier Deck Crew"）。写成 \bcrew\b 会让
     // 「航母甲板人员（黄衫）」在陆战题材里拿到 +10，把真正的飞行员挤出去。
@@ -774,6 +867,37 @@ export function domainOfText(text) {
  * 域关键词命中（+4）是弱信号，用来在同一类别内部排序（题材提到「潜艇」时，
  * 潜艇要排在驱逐舰前面）。
  */
+/**
+ * 兵种 → 战场域归属。
+ *
+ * 为什么需要这一层：`domainScore` 判角色靠的是**名字里的关键词**（charRe），而名字会骗人。
+ * 「USMC Flamethrower Operator」（美军海军陆战队喷火兵）的名字里有「海军陆战队」，
+ * 于是它在**航母对决**里拿到与舰长同分的海军域加分，实测「中途岛航母对决」的主角是
+ * 「工兵组长」—— 一场航母对决里没有舰长，主角是个工兵。
+ *
+ * 这是同一类坑的第三次出现（前两次：`\bcrew\b` 把航母甲板兵判成装甲车组、
+ * 「战斗工兵」与「战斗机」共享「战斗」二字把飞行员挤掉）。关键词匹配攒到第三个反例时，
+ * 就该换成一张显式的兵种→域对照表 —— 名字可以骗人，`unit` 字段不会。
+ *
+ * `'*'` 表示「任何战场域都成立」（指挥 / 参谋），`null` 表示不参与域加分。
+ */
+const UNIT_DOMAIN = {
+  Navy: 'naval', Naval: 'naval', 'Navy Command': 'naval', 'Naval Aviation': 'naval',
+  Aviation: 'air', 'Strategic Aviation': 'air', 'Aviation / UAS': 'air',
+  'Air Defense': 'air', 'Counter-UAS': 'air', JTAC: 'air', CSAR: 'air',
+  'Unmanned Command': 'air', 'UAS Strike': 'air',
+  Infantry: 'ground', Airborne: 'ground', Armor: 'ground', Engineer: 'ground',
+  'Special Forces': 'ground', 'Advanced Special Forces': 'ground',
+  Reconnaissance: 'ground', 'Recon / Sniper': 'ground', EOD: 'ground',
+  CBRN: 'ground', Irregular: 'ground', PMC: 'ground',
+  'Robotic Infantry': 'ground', Robotics: 'ground', 'Orbital Marines': 'ground',
+  'Orbital Infantry': 'orbital', 'Space Operations': 'orbital',
+  'Strategic Fires': 'strategic', 'Strategic Rocket Forces': 'strategic',
+  'Cyber Command': 'strategic', 'EW / Cyber': 'strategic',
+  Command: '*',
+  Medical: null, Logistics: null, Media: null, Civilian: null
+};
+
 function domainScore(asset, domain) {
   if (!domain) return 0;
   const hay = assetText(asset).toLowerCase();
@@ -786,6 +910,14 @@ function domainScore(asset, domain) {
   // 角色的域信号必须与载具的类别匹配同权（+10）：否则会被 themeMatch 里
   // 「战斗工兵」与「战斗机」共享的「战斗」二字（+6）盖过去，飞行员永远排不上来。
   if (re.test(hay)) score += (asset?.kind === 'character') ? 10 : 4;
+
+  // 兵种自带的域归属（+8）：比名字里的关键词更可靠，用来在「名字骗人」时把
+  // 真正的本域兵种顶上来。+8 足以压过跨域惩罚（-6）之后的净分（10 - 6 = 4），
+  // 又小于本域关键词满分（+10），因此不会盖过题材点名度。
+  if (asset?.kind === 'character') {
+    const ud = UNIT_DOMAIN[asset.unit];
+    if (ud === '*' || ud === domain.key) score += 8;
+  }
 
   // 跨域惩罚（只作用于角色）。
   //
@@ -1057,6 +1189,12 @@ export function selectCast(registry, { era = 'Modern', task = 'combat', theme = 
     const ta = taskAffinity(a, task) ? 0 : 1;
     const tb = taskAffinity(b, task) ? 0 : 1;
     if (ta !== tb) return ta - tb;
+    // 时代亲和：同样「能用」的演员里优先本片时代的。
+    // `collect()` 已经按亲和度过一遍，但 `rank()` 会重新排序把它冲掉 ——
+    // 结果是太平洋题材拿到 WWII 系列的海军军官（ID 更小），太平洋专有的资产永远轮不到。
+    const aa = affinity.indexOf(a.series) === -1 ? affinity.length : affinity.indexOf(a.series);
+    const ab = affinity.indexOf(b.series) === -1 ? affinity.length : affinity.indexOf(b.series);
+    if (aa !== ab) return aa - ab;
     return a.id < b.id ? -1 : (a.id > b.id ? 1 : 0);
   });
 
@@ -1100,6 +1238,16 @@ export function selectCast(registry, { era = 'Modern', task = 'combat', theme = 
   // 兵种多样性：小队里每人一个职务（队长 / 机枪手 / 爆破手 / 医护兵…），
   // 而不是一排「作战员」。这直接决定剧本里能不能写出「谁在做什么」。
   const heroes = pickDiverse(heroCandidates, maxHeroes, null, a => a?.unit || 'character');
+
+  // 主角必须是指挥职务：把非指挥兵种（医疗兵）从主角位挪走，让排在后面的指挥兵种顶上。
+  // 用「换位」而不是「丢弃」—— 医疗兵留在名册里，需要时照常上场救人。
+  if (heroes.length > 1 && NON_LEAD_UNITS.has(heroes[0]?.unit)) {
+    const idx = heroes.findIndex((h, i) => i > 0 && !NON_LEAD_UNITS.has(h?.unit));
+    if (idx > 0) {
+      const [promoted] = heroes.splice(idx, 1);
+      heroes.unshift(promoted);
+    }
+  }
 
   const enemyPool = rank(bySide(characters, 'opposing'));
   // 该时代（含兼容时代）确实没有敌军角色时才会为空 —— 例如 Orbital 库里没有任何反派角色。

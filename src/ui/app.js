@@ -893,16 +893,25 @@ function bindGlobalEvents() {
 
     if (applyGovernance(themeText, { source: '主题' })) return;
 
+    // 时代可由用户显式钉死。历史题材的年代识别永远只能是启发式的（库里没有一部
+    // 战役年表能覆盖所有写法），与其让它猜错，不如给用户一个否决权。
+    const eraOverride = $('era')?.value || 'auto';
+
     const { intent, plan, warnings } = planFilm({
       theme: themeText,
       requestedShots,
-      profileId
+      profileId,
+      era: eraOverride
     }, activeRegistry);
 
     if (intent.governance.status !== 'blocked' && intent.governance.status !== 'review_required') {
+      // 年代来源要显示出来：「识别为库尔斯克会战 → 二战」与「未识别，按现代处理」
+      // 是两种完全不同的可信度，用户必须能分辨。
+      const ERA_SOURCE = { override: '手动指定', battle: '识别为历史战役', explicit: '命中时代词', platform: '由装备型号推断' };
+      const sourceNote = ERA_SOURCE[intent.eraSource] ? `（${ERA_SOURCE[intent.eraSource]}）` : '';
       text($('intent'), intent.needsConfirmation
-        ? `需确认年代：${warnings.join('；')}`
-        : `年代：${intent.era || '未指定'} · 任务：${intent.task} · 状态：合规放行`);
+        ? `需确认年代：未识别出时代，将按现代处理 —— 可在右侧手动指定。${warnings.filter(w => w !== 'Era needs confirmation').join('；')}`
+        : `年代：${intent.era || '未指定'}${sourceNote} · 任务：${intent.task} · 状态：合规放行`);
       $('intent').className = intent.needsConfirmation ? 'warn' : 'ok';
     }
 

@@ -1,26 +1,40 @@
-import { parseIntent } from './intent.js';
+import { parseIntentWithOverrides } from './intent.js';
 import { enforceContinuityChain } from './continuity.js';
 import { isEraCompatible } from './shot-spec.js';
-import { selectCast, buildRoster, rosterToJSON, aliasLabel, domainOfText } from './roster.js';
+import { selectCast, buildRoster, rosterToJSON, aliasLabel, domainOfText, themeMatch } from './roster.js';
 import { selectBeats, renderTemplate, seedOf, buildOriginality, tagDramaticFunctions } from './narrative.js';
-import { buildStory, linkFor, detectArc, shotTypeFor } from './story.js';
+import { buildStory, linkFor, detectArc, shotTypeFor, weatherFor } from './story.js';
 
 /**
  * 依据时代、意图与关键词从注册表中筛选最适资产
  */
-const pick = (r, kind, intent, term = '', excludeTerm = '') => {
+const pick = (r, kind, intent, term = '', excludeTerm = '', theme = '') => {
   const all = r.byKind.get(kind) || [];
   const eraMatches = all.filter(a => a.series === intent.era);
   const pool = eraMatches.length > 0 ? eraMatches : all;
 
   if (term) {
     const termRegex = new RegExp(term, 'i');
-    const matched = pool.find(a => {
+    const exRegex = excludeTerm ? new RegExp(excludeTerm, 'i') : null;
+    const matched = pool.filter(a => {
       const full = `${a.name} ${a.nameZh || ''} ${a.kw || ''}`;
-      if (excludeTerm && new RegExp(excludeTerm, 'i').test(full)) return false;
+      if (exRegex && exRegex.test(full)) return false;
       return termRegex.test(full);
     });
-    if (matched) return matched;
+    if (matched.length > 0) {
+      // **题材点名的环境优先**。
+      //
+      // 没有这一层，`find` 会取「资产库数组里靠前的那个」—— 于是「库尔斯克坦克对决」
+      // 拿到的是 ENV-107 北非沙漠绿洲（它只是恰好排在 ENV-109 库尔斯克草原之前），
+      // 而库里明明有名字里就写着「库尔斯克」的环境。
+      // 用 themeMatch 做一次排序，题材里出现的字越多越靠前，其余保持原顺序（稳定排序）。
+      if (theme) {
+        const scored = matched.map(a => ({ a, s: themeMatch(a, theme) }));
+        scored.sort((x, y) => y.s - x.s);
+        if (scored[0].s > 0) return scored[0].a;
+      }
+      return matched[0];
+    }
   }
 
   if (excludeTerm) {
@@ -69,8 +83,10 @@ function vehicleFitsEnv(vehicle, env) {
  * @param {object} r 资产注册表
  * @returns {{ intent: object, plan: object, warnings: string[], governance: object }}
  */
-export function planFilm({ theme, requestedShots = 4, profileId }, r) {
-  const intent = parseIntent(theme);
+export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverride = null }, r) {
+  // 时代可以由用户在界面上显式钉死（历史题材的年代识别永远是启发式的，
+  // 给用户一个否决权比让它猜更可靠）。覆盖后 needsConfirmation 自动为 false。
+  const intent = parseIntentWithOverrides(theme, { era: eraOverride });
   const n = Math.max(1, Math.min(150, Number(requestedShots) || 4));
   const profile = r.profileById.get(profileId);
   if (!profile) throw new Error('Unknown profile');
@@ -92,36 +108,58 @@ export function planFilm({ theme, requestedShots = 4, profileId }, r) {
   }
 
   // 1. 环境自适应挑选（考虑气象物理兼容）
+  //
+  // 优先级：**气象物理约束 > 任务原型点名 > 显式战场设定 > 战场域**。
+  //
+  // 任务原型排在最前，是因为它最具体：「抢滩」要的是滩头而不是任何一片海，
+  // 「使馆撤侨」要的是院落而不是任何一条城市街道 —— 这两者都会同时命中 naval / urban
+  // 这类宽泛设定。原型不覆盖时，才退到设定与战场域。
+  //
+  // 没有这一层，era 为空的题材会退化成「环境库第一项」，于是空战片的环境写成
+  // 「中东沙漠」——正文里的 {place} 也跟着全错。
+  const ARC_ENV = {
+    'submarine-hunt': '深海|水下|海底|反潜|sea|ocean|underwater|submarine',
+    'fleet-ops': 'sea|ocean|远海|海域|海面|风暴|甲板|航母|舰队|fleet',
+    'air-superiority': '高空|云|机场|停机坪|跑道|sky|cloud|airbase|runway|山地|峡谷',
+    'strategic-strike': '发射|导弹|silo|基地|跑道|airbase|runway|沙漠|山地|target',
+    'beach-landing': '滩头|海滩|登陆|岛屿|海岸|beach|island|shore',
+    'armor-clash': '平原|草原|田野|沙漠|公路|村庄|开阔|plain|field|desert|highway|village',
+    'orbital-ops': '空间站|轨道|太空|失重|零重力|气闸|舱外|月面|station|orbital|zero-g',
+    'rescue-extract': '坠机|河谷|丛林|山地|森林|沼泽|jungle|river|mountain|forest|crash',
+    'urban-raid': '城市|街区|巷战|公寓|地铁|废墟|urban|city|street|metro',
+    // ── 6.7.2 新增原型 ──────────────────────────────────────────────
+    'counter-uas': '基地|阵地|机场|airbase|山地|城市|工业|urban',
+    'swarm-strike': '城市|基地|机场|工业|废墟|urban|city|airbase',
+    'hypersonic-strike': '发射|导弹|silo|靶场|基地|沙漠|山地|runway',
+    'ew-cyber': '地下|掩体|指挥|工业|bunker|urban|城市|港',
+    'mech-assault': '城市|废墟|街区|地下|urban|city|工业',
+    'embassy-evac': '使馆|大使馆|撤离|embassy|城市|街区|urban'
+  };
+
   let envTerm = '';
   let envExclude = '';
-  if (intent.setting === 'naval') {
-    // 反潜题材要「深海」，舰队题材才要「海面 / 甲板」。
-    // 否则「核潜艇在深海猎杀敌方舰队」会拿到「航母飞行甲板」当环境。
-    envTerm = arc.id === 'submarine-hunt'
-      ? '深海|水下|海底|sea|ocean|underwater'
-      : 'sea|carrier|ocean|远海|海域|海面|风暴|甲板|航母';
-  } else if (intent.weather === 'snow') {
-    envTerm = 'snow|arctic|winter|雪原|雪山';
-    envExclude = 'desert|沙丘|沙漠';
+  if (intent.weather === 'snow') {
+    // 气象是**物理约束**，优先级高于一切题材偏好：沙漠里不会下暴雪。
+    envTerm = 'snow|arctic|winter|雪原|雪山|雪地|冰原';
+    envExclude = 'desert|沙丘|沙漠|绿洲';
+  } else if (ARC_ENV[arc.id]) {
+    envTerm = ARC_ENV[arc.id];
+  } else if (intent.setting === 'naval') {
+    envTerm = 'sea|carrier|ocean|远海|海域|海面|风暴|甲板|航母';
   } else if (intent.setting === 'urban') {
     envTerm = 'urban|city|street|城市|巷战';
+  } else if (intent.setting === 'underground') {
+    envTerm = '地下|坑道|隧道|掩体|指挥|bunker|tunnel|metro|地铁';
   } else {
-    // 没有显式战场设定时，按**战场域**挑环境。
-    // 否则 era 为空的题材（如「F-22 高空制空巡逻」）会退化成「环境库第一项」，
-    // 于是空战片的环境写成「中东沙漠」——正文里的 {place} 也跟着全错。
     const dom = domainOfText(theme);
     if (dom?.key === 'orbital') envTerm = '空间站|轨道|太空|失重|零重力|气闸|舱外|月面|station|orbital|zero-g';
     else if (dom?.key === 'air') envTerm = 'air|sky|cloud|机场|停机坪|山地|峡谷|观察哨|高空';
-    else if (dom?.key === 'naval') {
-      envTerm = arc.id === 'submarine-hunt'
-        ? '深海|水下|海底|sea|ocean|underwater'
-        : 'sea|ocean|远海|海域|海面|风暴|甲板|航母';
-    }
+    else if (dom?.key === 'naval') envTerm = 'sea|ocean|远海|海域|海面|风暴|甲板|航母';
     else if (dom?.key === 'strategic') envTerm = 'silo|missile|基地|沙漠|山地|发射';
     else if (dom?.key === 'ground') envTerm = 'urban|city|desert|street|城市|巷战|沙漠|山地';
   }
 
-  const env = pick(r, 'environment', intent, envTerm, envExclude) || pick(r, 'environment', intent);
+  const env = pick(r, 'environment', intent, envTerm, envExclude, theme) || pick(r, 'environment', intent);
 
   // 2. 从真实资产库挑选演员（正反双方），并给出逐镜轮换的摄影机/灯光短名单
   // 必须把 theme 与 setting 都传进去：选角引擎据此判定「战场域」，
@@ -172,6 +210,11 @@ export function planFilm({ theme, requestedShots = 4, profileId }, r) {
   //   （{link} 因果连接词）。结构骨架仍然保留，因此既有的不变式全部不受影响。
   const story = buildStory({ theme, intent, cast, env, gates });
 
+  // 场景氛围词：按**战场域**取词池，域内按题材哈希确定性轮转。
+  // 此前是「雪 / 雨 / 夜，否则尘雾」，实测 20 个题材里 19 个都是尘雾，
+  // 而且尘雾是地面现象，被写到了海面、高空与轨道上。
+  const filmWeather = weatherFor({ domain: story.domain, intent, seed });
+
   // 3a. 第一遍：只确定逐镜「主体组合」+「正文内容」。
   // 动作文本里要写角色代号，而代号由「最终上镜的资产集合」决定，
   // 因此必须先定主体、再用 buildRoster 求代号、最后才生成文本。
@@ -193,7 +236,11 @@ export function planFilm({ theme, requestedShots = 4, profileId }, r) {
     const list = queues.get(fn) || (story.slots[fn] ? [...story.slots[fn]] : []);
     if (list.length === 0) return null;
     queues.set(fn, list);
-    const strict = wantFocus === 'vehicle' || wantFocus === 'clash' || wantFocus === 'enemy';
+    // `close` 是**收尾**，必须用本原型自己写的那一句，不能因为 focus 不匹配就丢掉。
+    // 此前 close 也走「保住 focus」的严格路径：结构节拍想要载具收尾、而原型写的是人物收尾时
+    // `findIndex` 落空 → 回退通用节拍模板，成片收尾于是变成
+    // 「衣阿华级战列舰载着归队的队员缓缓驶离太平洋」这种拼凑句（实测 20 个题材里 10 个）。
+    const strict = (wantFocus === 'vehicle' && fn !== 'close') || wantFocus === 'clash' || wantFocus === 'enemy';
     if (!strict) {
       let idx = list.findIndex(s => s.focus === wantFocus);
       if (idx === -1) idx = 0;
@@ -245,8 +292,11 @@ export function planFilm({ theme, requestedShots = 4, profileId }, r) {
       : heroes[i % Math.max(1, heroes.length)];
     const support = heroes[(i + 1) % Math.max(1, heroes.length)];
     const enemy = enemies[i % Math.max(1, enemies.length)];
+    // 收尾镜固定用**主载具**（vehicles[0] —— 选角引擎按「战场域 + 题材点名度」排出的那件），
+    // 而不是轮转游标：轮转会让收尾抽到本片的第 3 台装备，实测出现过
+    // 「F-22 制空巡逻」的收尾是 V-22 鱼鹰、「核潜艇深海猎杀」的收尾是反潜护卫舰。
     const vehicle = (focus === 'vehicle' && vehicles.length)
-      ? vehicles[(vehicleCursor++) % vehicles.length]
+      ? (beat.fn === 'close' ? vehicles[0] : vehicles[(vehicleCursor++) % vehicles.length])
       : null;
 
     let subjects;
@@ -273,7 +323,10 @@ export function planFilm({ theme, requestedShots = 4, profileId }, r) {
   });
 
   // 3b. 由最终主体集合求名册（代号与 buildRoster 在 UI 侧完全一致）
-  const roster = buildRoster(drafts.map(d => ({ subjects: d.subjects })), r);
+  //
+  // 必须把主角 id 传进去：名册要保证主角拿到**指挥职务**（车长 / 舰长 / 突击队长…），
+  // 否则会出现「装填手沃尔科夫在炮塔上摊开地图：全车注意，任务已下达」。
+  const roster = buildRoster(drafts.map(d => ({ subjects: d.subjects })), r, { leadId: heroes[0]?.id || null });
 
   const rawShots = drafts.map(({ beat, i, subjects, slot, action, audioCue, radioVoice, link }) => {
     const entryOf = id => roster.byId.get(id);
@@ -307,9 +360,7 @@ export function planFilm({ theme, requestedShots = 4, profileId }, r) {
       deadline: story.nouns.deadline,
       objective: story.nouns.objective,
       link,
-      weather: intent.weather === 'snow' ? '风雪'
-        : intent.weather === 'rain' ? '暴雨'
-          : intent.lightingCondition === 'night' ? '夜色' : '尘雾'
+      weather: filmWeather
     };
 
     const camera = cameras[i % cameras.length];
@@ -366,9 +417,19 @@ export function planFilm({ theme, requestedShots = 4, profileId }, r) {
   const leadRole = leadEntry?.personaRole || leadEntry?.role || '队长';
   // 「带着小队进入战场」里的动词按战场域取：潜艇是「潜入」、飞机是「飞向」。
   // 一句「突击手米勒带着小队进入太平洋」在潜艇片里是错的 —— 潜艇不下水。
-  const ENTER_VERB = { naval: '潜入', air: '飞向', strategic: '前出到', orbital: '进入' };
-  const enterVerb = ENTER_VERB[story.domain] || '进入';
-  const logline = `${story.premise}${leadRole}${leadName}带着小队${enterVerb}${story.nouns.place}；`
+  //
+  // 但 naval 这一个域里同时住着潜艇与水面舰艇，两者不能共用一个动词：
+  // 修复前「中途岛航母对决」的 logline 是「舰长佩德罗带着小队**潜入**太平洋」——
+  // 航母不会下潜。因此潜艇按**原型**单独取词（`submarine-hunt`），水面舰艇用「驶入」。
+  const ENTER_VERB = { naval: '驶入', air: '飞向', strategic: '前出到', orbital: '进入' };
+  const ARC_ENTER_VERB = { 'submarine-hunt': '潜入' };
+  const enterVerb = ARC_ENTER_VERB[story.arc] || ENTER_VERB[story.domain] || '进入';
+  // 移动从句的目标用**区域**（`locations[0]`），不用环境名。
+  // 环境名（「核潜艇控制舱」）已经出现在 premise 里，再写一次是重复；
+  // 而且它是「舱室」不是「区域」，「潜入核潜艇控制舱」读不通。
+  // 用 `locations[0]` 还顺带保证了 logline 与分镜正文指的是同一个地方。
+  const enterPlace = story.locations?.[0] || story.nouns.place;
+  const logline = `${story.premise}${leadRole}${leadName}带着小队${enterVerb}${enterPlace}；`
     + `而${String(originality.twist || '').replace(/。$/, '')}。`;
 
   const plan = {
