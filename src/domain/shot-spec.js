@@ -23,7 +23,7 @@ const HOSTILE_PAIRS = [
  * 必须导出为单一事实来源：任何「把敌方角色补进镜头」的逻辑都要用它来把关，
  * 否则补进去的镜头会在校验阶段报 FACTION_CONFLICT_INVALID（对立阵营同框却无对抗动作）。
  */
-export const COMBAT_ACTION_REGEX = /(?:combat|engage|fire|firing|shoot|clash|vs|ambush|intercept|capture|assault|suppress|交战|开火|对抗|拦截|伏击|对峙|突袭|压制)/i;
+export const COMBAT_ACTION_REGEX = /(?:combat|engage|fire|firing|shoot|clash|vs|ambush|intercept|capture|assault|suppress|交战|交火|开火|对抗|拦截|伏击|对峙|突袭|压制)/i;
 export const COOPERATIVE_ACTION_REGEX = /(?:together|cooperate|escort|wingman|side by side|并肩|护航|编队协同|共同作战)/i;
 
 /**

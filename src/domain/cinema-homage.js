@@ -778,6 +778,45 @@ export function transpileMovieToLego(query, requestedShots = 4, registry = null)
   const intent = parseIntent(query);
   const originality = buildOriginality({ theme: query, intent, reference: match, seed });
 
+  // 7b. logline 换成以人物为锚点。
+  //      buildOriginality 的默认写法主语是「主题」（「黑鹰坠落被投入一场高烈度正面交战」），
+  //      读起来像公告，不像故事；本地规划器路径早已改写，这里补齐，保证两条路径口径一致。
+  {
+    // 主角取「出场次数最多的我方人仔」而不是 cast.heroes[0]：
+    // 致敬路径的主体集合由每镜的策展桥段决定，selectCast 选出来的人未必真的上镜，
+    // 直接取 heroes[0] 会拿到一个名册里根本不存在的人（logline 里的姓名随即落空）。
+    const appearances = new Map();
+    for (const s of functioned.shots) {
+      for (const id of (s.subjects || [])) {
+        const e = roster.byId.get(id);
+        if (!e || e.kind !== 'character' || e.side !== 'coalition') continue;
+        appearances.set(id, (appearances.get(id) || 0) + 1);
+      }
+    }
+    let best = null;
+    for (const [id, n] of appearances) {
+      if (!best || n > best.n || (n === best.n && id < best.id)) best = { id, n };
+    }
+    const leadEntry = best ? roster.byId.get(best.id) : null;
+    const leadName = leadEntry ? (leadEntry.persona || leadEntry.name) : '';
+    const leadRole = leadEntry?.personaRole || leadEntry?.role || '队长';
+    const twist = String(originality.twist || '').replace(/。$/, '');
+    if (leadName) {
+      // 不直接引用 match.dramaticConflict：那是一整段梗概，塞进「被卷进…」会变成病句。
+      // 用「{时代}，{场景}。」做背景句 + 人物主句，与本地规划器的 logline 同构。
+      const eraZh = {
+        WWII: '二战', Pacific: '太平洋战场', 'Cold War': '冷战', 'Gulf War': '海湾战争',
+        'Iraq War': '伊拉克战争', Modern: '现代', 'Modern High-Tech': '现代高科技战场', Orbital: '近地轨道'
+      }[match.era] || '现代';
+      const place = nameOf(match.assets.environment) || '战场';
+      // 环境名与时代名互相包含时（「近地轨道，近地轨道空间站外壁…」）不再重复念一遍：
+      // 两者互相包含时**保留信息量更大的环境名**，而不是砍掉它只留时代名。
+      const bg = (eraZh.includes(place) || place.includes(eraZh)) ? place : `${eraZh}，${place}`;
+      originality.logline = `${bg}。${leadRole}${leadName}带着小队被卷进${match.title}式的一仗；`
+        + `而${twist}。`;
+    }
+  }
+
   return {
     matchedMovie: match.title,
     movieId: match.id,
