@@ -158,9 +158,10 @@ test('story: 时代词汇按时代取词，二战与五代机不共用同一套�
 
 /* ───────────────────────── 5. 不成拼凑 ───────────────────────── */
 
-test('story: 不同任务原型的正文不得逐字相同（收尾特写最多允许共用一句）', () => {
-  // 「收尾反应特写」是电影语言里的通用镜头，两个同战场域、不同原型的片子共用一句
-  // 可以接受；除此之外任何逐字重复都说明骨架又退回了「通用模板 + 换名词」。
+test('story: 不同任务原型的正文绝不逐字相同（含收尾特写）', () => {
+  // 收尾反应特写（reaction）此前是**共享质感节拍**，同战场域的两个原型可能抽到同一句。
+  // 6.7.1 起每个原型都单写了自己的 reaction，因此逐字重复应当是 0 ——
+  // 这条断言从「≤1 且只允许 reaction」收紧为「必须为 0」。
   const perArc = new Map();
   for (const theme of THEMES) {
     const { plan } = planFilm({ theme, requestedShots: 8, profileId: 'veo-3.1-lite' }, registry);
@@ -185,11 +186,10 @@ test('story: 不同任务原型的正文不得逐字相同（收尾特写最多�
         for (const a of actions) {
           if (!other.has(a)) continue;
           shared += 1;
-          assert.equal(fn, 'reaction',
-            `${arcs[i]} 与 ${arcs[j]} 在 ${fn} 节拍上逐字重复：${a}`);
+          assert.fail(`${arcs[i]} 与 ${arcs[j]} 在 ${fn} 节拍上逐字重复：${a}`);
         }
       }
-      assert.ok(shared <= 1,
+      assert.equal(shared, 0,
         `${arcs[i]} 与 ${arcs[j]} 共用了 ${shared} 句正文，骨架已经退回通用模板`);
     }
   }
@@ -226,6 +226,20 @@ test('story: 同一战场域的不同原型不得共用同一句质感节拍', (
   assert.ok(naval.length && air.length, '缺少 naval / air 样本');
   const shared = naval.filter(a => air.includes(a));
   assert.equal(shared.length, 0, `海军片与空战片共用正文：${shared.join(' / ')}`);
+});
+
+test('story: 轨道题材必须真的落进 orbital 战场域（此前该域不可达）', () => {
+  // 回归：DOMAIN_RULES 早期只有 naval / air / strategic / ground 四个域，
+  // 于是 story.js 里所有 domains:['orbital'] 的质感节拍是**不可达的死代码**，
+  // 轨道片一直在用陆战通用池（「镜头缓缓升起，…铺开成一片没有尽头的灰色」）。
+  const { plan } = planFilm({ theme: '轨道空间站失压事故', requestedShots: 8, profileId: 'veo-3.1-lite' }, registry);
+  assert.equal(plan.story.domain, 'orbital', '轨道题材必须识别出 orbital 战场域');
+  assert.equal(plan.story.arc, 'orbital-ops');
+
+  // 本域节拍必须真的被用上：轨道域的世界镜头写的是舱体外壁与地球弧线
+  const actions = plan.shots.map(s => s.action).join('\n');
+  assert.ok(/舱体外壁|地球的弧线|真空/.test(actions),
+    `轨道题材应当拿到本域质感节拍，实际正文：\n${actions}`);
 });
 
 /* ───────────────────────── 6. 选角一致性 ───────────────────────── */

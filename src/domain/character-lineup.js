@@ -1,157 +1,136 @@
 /**
- * LEGO War Universe - 全片全阵营角色定妆表引擎 v4.3 (Character Lineup Engine)
+ * LEGO War Universe - 全片全阵营角色定妆表引擎 v5.0 (Character Lineup Engine)
  * 功能：
- * 1. 按时代/体裁自动生成正反两大阵营完整角色名册（每阵营 4-6 人）
- * 2. 每个角色附带唯一代号名牌 (callsign)，用于视频生成时精准调用
- * 3. 编译【正反派双排站位 + 代号名牌标签】的全员合影生图 Prompt
- * 4. 锁死全片角色的服装、头盔、装备配色，杜绝视频中途换脸穿帮
+ * 1. 取本片实际出场的正反两大阵营角色名册（每人一个唯一代号）
+ * 2. 编译【正反派双排站位 + 代号名牌标签】的全员合影生图 Prompt
+ * 3. 锁死全片角色的服装、头盔、装备配色，杜绝视频中途换脸穿帮
+ *
+ * ── v5.0 的重大变化：不再自带一套写死的虚构角色模板 ──
+ *
+ * v4.x 在 FACTION_TEMPLATES 里手写了 Modern / Modern High-Tech / WWII / Orbital
+ * 四套「幽灵队长 / 猎鹰狙击手」阵容，并给每人编号 CHR-C01 / CHR-O01。于是同一部片子
+ * 里并存两套角色口径：
+ *   · 剧本正文与真实名册走 roster.js —— 真实资产 + persona 人名（「邓肯」）；
+ *   · 定妆表与全家福 Prompt 走 FACTION_TEMPLATES —— 虚构角色 + 单位类型当人名
+ *     （「弹道导弹核潜艇艇长」）。
+ * 后果有两层：定妆表可能展示一支**既不在资产库里、也不在本片里**的队伍；即便走真实
+ * 名册，全家福 Prompt 也会把「潜艇艇长」当成一个人的名字，让模型画出一个没有面孔的角色。
+ *
+ * v5.0 起本模块只做一件事：**把 roster.js 的选角结果适配成定妆表 / 全家福需要的形状**。
+ *   · 有分镜 → 聚合本片实际出场的真实资产（与剧本正文同源，同一个人同一个代号）；
+ *   · 无分镜 → 用 selectCast 按题材从资产库预选一支队伍。
+ * 两条路径都出自同一个选角引擎，因此永远不会出现「预览是幽灵队长、生成后变成邓肯」。
  */
 
-/**
- * 按时代/场景分类的阵营角色模板库
- * 每个模板提供一套"正方 (coalition)" + "反方 (opposing)" 完整阵容
- * 生成定妆照时会自动根据影片时代选用对应模板
- */
-const FACTION_TEMPLATES = {
-  'Modern': {
-    coalition: [
-      { callsign: 'GHOST',   name: '幽灵队长',   role: '特战小队指挥官',     outfit: '炭黑色战术背心与多地形迷彩作战服，四目全景夜视仪头盔，胸挂战术电台与荧光信号棒' },
-      { callsign: 'FALCON',  name: '猎鹰狙击手', role: '远程精确射手',       outfit: '丛林暗夜双面吉利伪装服，背负消音重型狙击步枪，护目镜反射微弱绿光' },
-      { callsign: 'REAPER',  name: '收割者',     role: '近战破门突击手',     outfit: '黑色防弹背心与膝垫护肘全套，手持霰弹枪与破门锤，面罩下仅露双眼' },
-      { callsign: 'DOC',     name: '军医',       role: '战地医护兵',         outfit: '多地形迷彩制服佩红十字臂章，背负急救医疗包与止血带，蓝色丁腈手套' },
-      { callsign: 'HOUND',   name: '猎犬',       role: '军犬训导员',         outfit: '沙棕色防撞盔配耳麦，腰间系犬绳，身旁伴随穿战术犬衣的德牧军犬' },
-      { callsign: 'SIGNAL',  name: '信号官',     role: '通信与电子战专家',   outfit: '橄榄绿制服配便携干扰天线阵列，头戴耳麦无钢盔，笔记本电脑置于加固箱上' }
-    ],
-    opposing: [
-      { callsign: 'VIPER',   name: '毒蛇指挥',   role: '敌方作战指挥官',     outfit: '深橄榄绿军官制服佩军衔章，腰挎手枪皮套，手持战术双筒望远镜' },
-      { callsign: 'JACKAL',  name: '豺狼突击手', role: '武装突击步枪手',     outfit: '深灰色头巾与民用夹克，胸挂弹匣挂袋，手持AK系步枪' },
-      { callsign: 'SCORPION',name: '毒蝎炮手',   role: '反装甲火箭射手',     outfit: '迷彩外套与弹药背心，肩扛RPG火箭筒，护目镜推至额头' },
-      { callsign: 'SHADOW',  name: '暗影',       role: '敌方狙击手',         outfit: '全身深色伪装布条裹缠，仅露一只瞄准眼，趴伏姿态持长管消音狙击步枪' },
-      { callsign: 'WRAITH',  name: '亡灵通讯员', role: '敌方通信协调员',     outfit: '灰色制服背负大功率电台天线，头戴耳机，手持无线电话筒' }
-    ]
-  },
-  'Modern High-Tech': {
-    coalition: [
-      { callsign: 'MAVERICK',name: '独行侠',     role: '王牌战斗机飞行员',   outfit: '橄榄绿飞行服与抗荷裤，带HUD瞄准单眼的飞行头盔，肩缝飞行中队臂章' },
-      { callsign: 'PHOENIX', name: '凤凰',       role: '僚机飞行员',         outfit: '深蓝色飞行服与救生背心，飞行头盔面罩反射座舱仪表光' },
-      { callsign: 'ROOSTER', name: '公鸡',       role: '武器系统官',         outfit: '卡其色飞行服，头盔贴有公鸡涂鸦标志，胸前挂载救生信标' },
-      { callsign: 'HALO',    name: '光环',       role: '地面引导控制员',     outfit: '沙色作战服配战术背心，手持激光目标指示器与通信手持机' },
-      { callsign: 'MERLIN',  name: '梅林教官',   role: '战术指挥教官',       outfit: '深色飞行员夹克与军帽，胸前佩勋章绶带，手持作战简报板' }
-    ],
-    opposing: [
-      { callsign: 'COBRA',   name: '眼镜蛇',     role: '敌方飞行指挥官',     outfit: '深灰色飞行服与暗色头盔，座舱盖反射红色警告灯光' },
-      { callsign: 'TALON',   name: '鹰爪防空手', role: '地对空导弹操作员',   outfit: '橄榄绿迷彩制服，肩扛便携式地空导弹发射管，紧张仰望天空' },
-      { callsign: 'HAMMER',  name: '铁锤',       role: '敌方地面装甲指挥',   outfit: '坦克车组制服与车载通话头盔，半身探出坦克舱盖' },
-      { callsign: 'RADAR',   name: '雷达兵',     role: '敌方防空雷达操作员', outfit: '灰绿色军服，坐在雷达屏幕前，耳戴通讯耳机，面部被屏幕绿光照亮' }
-    ]
-  },
-  'WWII': {
-    coalition: [
-      { callsign: 'CAPTAIN', name: '米勒上尉',   role: '游骑兵连长',         outfit: '橄榄绿M41野战夹克，带白色条纹M1钢盔，腰系军用皮带与水壶' },
-      { callsign: 'RANGER',  name: '莱恩伞兵',   role: '101空降师步枪手',   outfit: '美军空降兵伞兵服与网兜迷彩M1钢盔，手持M1加兰德步枪' },
-      { callsign: 'DUKE',    name: '公爵炮手',   role: '坦克车组炮手',       outfit: '橄榄棕色坦克车组连体服，CVC通话头盔，手持炮弹' },
-      { callsign: 'WINGS',   name: '飞翼',       role: '战斗机飞行员',       outfit: '棕色皮飞行夹克与飞行护目镜，白色丝巾，肩章飞行中队徽记' },
-      { callsign: 'MEDIC',   name: '十字军医',   role: '前线卫生员',         outfit: '橄榄绿制服袖带红十字标记，背负大号急救医疗箱，手持绷带' }
-    ],
-    opposing: [
-      { callsign: 'PANZER',  name: '装甲指挥',   role: '敌方坦克指挥官',     outfit: '黑色装甲兵制服佩铁十字勋章，半身探出虎式坦克炮塔，手持望远镜' },
-      { callsign: 'IRON',    name: '铁壁步兵',   role: '敌方机枪阵地射手',   outfit: '灰色野战服与钢盔，趴在沙袋掩体后操作MG42机枪' },
-      { callsign: 'WOLF',    name: '灰狼侦察兵', role: '敌方前线侦察兵',     outfit: '灰色迷彩斗篷与带伪装的钢盔，手持信号枪与地图' },
-      { callsign: 'BARON',   name: '男爵军官',   role: '敌方前线指挥军官',   outfit: '灰色军官制服佩军衔肩章，手持指挥棒与地图包，面容冷峻' }
-    ]
-  },
-  'Orbital': {
-    coalition: [
-      { callsign: 'ASTRO',   name: '轨道突击手',   role: '近地轨道空降特遣兵', outfit: '哑光深空黑抗辐射气密作战服，外挂小型姿态喷气背包，金色抗强光镀膜面罩' },
-      { callsign: 'EVA',     name: '舱外救援员',   role: '零重力工程与救生员', outfit: '纯白加厚舱外航天服，胸前高亮反光安全条，透明球形微缩航天头盔' },
-      { callsign: 'ORBIT',   name: '轨道工程师',   role: '空间站维修工程师',   outfit: '蓝色舱内工作服配多功能工具腰带，面罩上方装有头灯，手持电焊枪' },
-      { callsign: 'NOVA',    name: '新星指挥官',   role: '空间站舰长',         outfit: '深蓝色指挥官制服佩金色肩章，胸前挂载通讯徽章，手持全息战术板' },
-      { callsign: 'PULSE',   name: '脉冲医官',     role: '太空医疗急救官',     outfit: '白色医疗航天服配红十字荧光臂章，手持便携诊断仪，零重力急救包' }
-    ],
-    opposing: [
-      { callsign: 'DEBRIS',  name: '碎片幽灵',     role: '失控太空碎片威胁',   outfit: '被碎片击穿的破损航天服残骸，头盔裂纹中透出红色警告灯光' },
-      { callsign: 'VOID',    name: '虚空叛变者',   role: '叛变的空间站人员',   outfit: '灰色舱内服，面罩下表情阴鸷，手持改装的等离子焊枪作为武器' },
-      { callsign: 'STATIC',  name: '静电干扰手',   role: '敌方电子战操作员',   outfit: '深灰色航天服配电子干扰装置背包，面罩显示屏闪烁杂波信号' },
-      { callsign: 'GRAVITY', name: '引力囚徒',     role: '被困太空漂流者',     outfit: '破旧的橙色应急航天服，氧气管漂浮，头盔内面有凝结水雾' }
-    ]
+import { assets as embeddedAssets, profiles as embeddedProfiles } from './assets-data.js';
+import { createRegistry } from './registry.js';
+import { buildRoster, selectCast, displayNameOf, nationLabelOf } from './roster.js';
+
+/** 内嵌注册表缓存（与页面启动用的是同一份数据），仅在调用方没传 registry 时兜底 */
+let embeddedRegistryCache = null;
+
+function embeddedRegistry() {
+  if (embeddedRegistryCache) return embeddedRegistryCache;
+  try {
+    embeddedRegistryCache = createRegistry(embeddedAssets, embeddedProfiles, { references: [] });
+  } catch (err) {
+    // 内嵌数据损坏属于构建期问题，这里必须安全降级而不是拖崩定妆表
+    console.warn('定妆表：内嵌注册表构建失败，将返回空名册', err);
+    embeddedRegistryCache = null;
   }
-};
+  return embeddedRegistryCache;
+}
 
-/**
- * 根据时代/关键词自动选择最佳阵营模板
- * @param {string} era 影片时代标签（如 'Modern', 'WWII', 'Orbital'）
- * @param {string} theme 影片主题文本（用于关键词辅助匹配）
- * @returns {object} 选中的 FACTION_TEMPLATES 条目
- */
-function selectFactionTemplate(era = 'Modern', theme = '') {
-  const q = `${era} ${theme}`.toLowerCase();
-
-  // 优先按 era 直接匹配
-  if (FACTION_TEMPLATES[era]) return FACTION_TEMPLATES[era];
-
-  // 关键词辅助推断
-  if (/orbital|太空|空间站|宇宙|星际|外太空|零重力/i.test(q)) return FACTION_TEMPLATES['Orbital'];
-  if (/wwii|二战|诺曼底|太平洋|珍珠港|normandy|d-day/i.test(q)) return FACTION_TEMPLATES['WWII'];
-  if (/high.?tech|五代机|隐身|stealth|空战|战斗机|top.?gun/i.test(q)) return FACTION_TEMPLATES['Modern High-Tech'];
-
-  // 兜底使用现代模板
-  return FACTION_TEMPLATES['Modern'];
+/** 只有真正可用的注册表才接受；否则退回内嵌注册表 */
+function resolveRegistry(registry) {
+  return (registry && registry.byId && registry.byKind) ? registry : embeddedRegistry();
 }
 
 /**
- * 从镜头序列中提取角色，并自动补齐为完整正反双阵营名册
- * 极致防御性设计：自动从 shots、era、theme 中综合推导时代，确保输出永远合法有效
- * @param {Array} shots 分镜脚本数组
- * @param {object|null} registry 资产注册表（可选）
+ * 从本片实际出场的资产反推时代。
+ *
+ * 旧实现靠硬编码 ID 前缀猜测（`CHR-1xx` → WWII、`CHR-7xx` → Orbital、`CHR-63x` →
+ * Modern High-Tech）。这套前缀在 6.5 / 6.6 两轮扩容后已大面积失配（例如 CHR-63x
+ * 区间根本不存在），绝大多数情况下一个都命中不了，等于没有推断。
+ * 现在直接读资产的 `series` 字段取众数 —— 数据里写着什么就以什么为准，不再猜 ID。
+ *
+ * @returns {string|null} 出现次数最多的 series；无法判定返回 null
+ */
+function inferEraFromShots(shots, registry) {
+  const counts = new Map();
+  for (const s of (Array.isArray(shots) ? shots : [])) {
+    for (const id of (s?.subjects || [])) {
+      const series = registry?.byId?.get(id)?.series;
+      if (!series || series === 'shared') continue;
+      counts.set(series, (counts.get(series) || 0) + 1);
+    }
+  }
+  let best = null;
+  let bestN = 0;
+  for (const [key, n] of counts) {
+    if (n > bestN) { best = key; bestN = n; }
+  }
+  return best;
+}
+
+/**
+ * 取本片的正反双阵营角色名册。
+ *
+ * 返回的每一项都是注册表里**真实存在**的资产（含 id / callsign / persona / nation /
+ * outfit / kind），形状与 roster.js 的 buildRoster 产物完全一致，不再有 CHR-C01 这类
+ * 只存在于模板里的虚构 ID。
+ *
+ * @param {Array} shots 分镜脚本数组（可为空）
+ * @param {object|null} registry 资产注册表；缺省时使用内嵌注册表
  * @param {string} era 影片时代标签
  * @param {string} theme 影片主题文本
- * @returns {{ coalition: Array, opposing: Array }} 正反双阵营角色列表
+ * @returns {{ coalition: Array, opposing: Array, neutral: Array, all: Array, byId: Map, isPreview: boolean }}
  */
 export function extractCharacterLineup(shots = [], registry = null, era = 'Modern', theme = '') {
-  // 智能推断时代：若未显式指定时代，尝试从镜头中的角色/载具 ID 中感知
-  let inferredEra = era || 'Modern';
-  if (!era || era === 'Modern') {
-    const rawShots = Array.isArray(shots) ? shots : [];
-    for (const s of rawShots) {
-      const subs = Array.isArray(s?.subjects) ? s.subjects : [];
-      for (const id of subs) {
-        if (typeof id === 'string') {
-          if (id.startsWith('CHR-1') || id.startsWith('VEH-1') || id.startsWith('AIR-1')) inferredEra = 'WWII';
-          if (id.startsWith('CHR-7') || id.startsWith('AIR-7') || id.startsWith('ENV-7')) inferredEra = 'Orbital';
-          if (id.startsWith('CHR-63') || id.startsWith('AIR-62') || id.startsWith('VEH-62')) inferredEra = 'Modern High-Tech';
-        }
-      }
+  const empty = { coalition: [], opposing: [], neutral: [], all: [], byId: new Map(), isPreview: false };
+
+  const reg = resolveRegistry(registry);
+  if (!reg) return empty;
+
+  const list = Array.isArray(shots) ? shots : [];
+
+  // 路径一：本片已有分镜 —— 聚合实际出场角色。与剧本正文同源，同一个人同一个代号。
+  let roster = buildRoster(list, reg);
+  let isPreview = false;
+
+  // 路径二：没有分镜，或分镜里只有环境 / 特效 —— 按题材从资产库预选一支队伍。
+  // 预选同样走 selectCast → buildRoster，所以形状与真实名册一致，不会「预览一套、生成另一套」。
+  if (roster.all.length === 0) {
+    const inferred = (era && era !== 'Modern') ? era : (inferEraFromShots(list, reg) || era || 'Modern');
+    let cast = null;
+    try {
+      cast = selectCast(reg, { era: inferred, theme, task: 'combat' });
+    } catch (err) {
+      console.warn('定妆表：按题材预选角色失败，返回空名册', err);
+    }
+    const ids = cast
+      ? [...cast.heroes, ...cast.enemies, ...cast.vehicles].map(a => a?.id).filter(Boolean)
+      : [];
+    if (ids.length) {
+      roster = buildRoster([{ subjects: ids }], reg);
+      isPreview = true;
     }
   }
 
-  const template = selectFactionTemplate(inferredEra, theme);
-
-  // 从模板生成完整的正方阵营，每个角色附带唯一 id 和阵营标识
-  const coalition = (template?.coalition || []).map((c, idx) => ({
-    id: `CHR-C${String(idx + 1).padStart(2, '0')}`,
-    callsign: c.callsign || `HERO-${idx + 1}`,
-    name: c.name || `正方角色 ${idx + 1}`,
-    role: c.role || '特战行动员',
-    outfit: c.outfit || '标准战术装备',
-    faction: 'coalition'
-  }));
-
-  // 从模板生成完整的反方阵营
-  const opposing = (template?.opposing || []).map((c, idx) => ({
-    id: `CHR-O${String(idx + 1).padStart(2, '0')}`,
-    callsign: c.callsign || `FOE-${idx + 1}`,
-    name: c.name || `反派角色 ${idx + 1}`,
-    role: c.role || '敌对行动员',
-    outfit: c.outfit || '敌方武装配置',
-    faction: 'opposing'
-  }));
-
-  return { coalition, opposing };
+  return {
+    coalition: roster.coalition,
+    opposing: roster.opposing,
+    neutral: roster.neutral,
+    all: roster.all,
+    byId: roster.byId,
+    isPreview
+  };
 }
 
 /**
  * 生成【正反派双排站位 + 代号名牌标签】的全员合影定妆照生图 Prompt
  * 极致兼容性设计：支持传入 { coalition, opposing } 阵营对象，也兼容传入纯数组 characters
+ *
  * @param {object|Array} factions 双阵营角色数据或角色数组
  * @param {string} filmTheme 影片主题
  * @param {string} era 时代
@@ -183,12 +162,16 @@ export function generateLineupPrompt(factions = { coalition: [], opposing: [] },
   // 早期把真实名册直接喂进来时，载具被当成「distinct LEGO minifigures」计数，
   // 生成出来的 Prompt 会要求模型画一架人仔大小的直升机，全家福直接废掉。
   const onlyMinifigures = list => list.filter(c => c && c.kind !== 'vehicle');
-  normalizedFactions.coalition = onlyMinifigures(normalizedFactions.coalition);
-  normalizedFactions.opposing = onlyMinifigures(normalizedFactions.opposing);
+  const clean = () => {
+    normalizedFactions.coalition = onlyMinifigures(normalizedFactions.coalition);
+    normalizedFactions.opposing = onlyMinifigures(normalizedFactions.opposing);
+  };
+  clean();
 
-  // 兜底补齐：若完全为空，用模板填满
+  // 兜底补齐：若完全为空，按题材从资产库预选（同样出自 roster.js，不是虚构模板）
   if (normalizedFactions.coalition.length === 0 && normalizedFactions.opposing.length === 0) {
     normalizedFactions = extractCharacterLineup([], null, era, filmTheme);
+    clean();
   }
 
   const allChars = [...normalizedFactions.coalition, ...normalizedFactions.opposing];
@@ -196,15 +179,29 @@ export function generateLineupPrompt(factions = { coalition: [], opposing: [] },
   const coalitionCount = normalizedFactions.coalition.length;
   const opposingCount = normalizedFactions.opposing.length;
 
-  // 正方角色逐一描述（含代号名牌）
-  const coalitionDesc = normalizedFactions.coalition.map((c, idx) =>
-    `Front Row Position ${idx + 1}: "${c.name}" (callsign [${c.callsign}], ${c.role}), wearing ${c.outfit}. A small white printed nameplate label at their feet reads "[${c.callsign}]".`
+  // 角色描述统一走 displayNameOf：有 persona 就用人物姓名。
+  // 这里曾经直接用 `c.name`，于是 Prompt 写着 "弹道导弹核潜艇艇长" —— 模型会照着
+  // 画一个「职位」，而不是一张脸。全家福要的是人。
+  const describe = (c, idx) => {
+    const nation = nationLabelOf(c);
+    return {
+      position: idx + 1,
+      person: displayNameOf(c),
+      callsign: c.callsign || 'AGENT',
+      role: [c.role, c.series, nation].filter(Boolean).join(' / '),
+      outfit: c.outfit || '标准作战配置'
+    };
+  };
+
+  const coalitionRows = normalizedFactions.coalition.map(describe);
+  const opposingRows = normalizedFactions.opposing.map(describe);
+
+  const rowDesc = (rows, rowName) => rows.map(r =>
+    `${rowName} Position ${r.position}: "${r.person}" (callsign [${r.callsign}], ${r.role}), wearing ${r.outfit}. A small white printed nameplate label at their feet reads "[${r.callsign}]".`
   ).join(' ');
 
-  // 反方角色逐一描述（含代号名牌）
-  const opposingDesc = normalizedFactions.opposing.map((c, idx) =>
-    `Back Row Position ${idx + 1}: "${c.name}" (callsign [${c.callsign}], ${c.role}), wearing ${c.outfit}. A small white printed nameplate label at their feet reads "[${c.callsign}]".`
-  ).join(' ');
+  const coalitionDesc = rowDesc(coalitionRows, 'Front Row');
+  const opposingDesc = rowDesc(opposingRows, 'Back Row');
 
   // 纯英文高保真 Prompt (适用于 Midjourney v6 / FLUX.1 / DALL-E 3)
   const promptEn = [
@@ -222,10 +219,10 @@ export function generateLineupPrompt(factions = { coalition: [], opposing: [] },
     `在纯净中性灰影棚背景前，${totalCount} 位乐高人仔角色分两排正面全身站立于收藏展示台上。`,
     ``,
     `🔵 前排（正方联军 · ${coalitionCount} 人）：`,
-    ...normalizedFactions.coalition.map((c, idx) => `  ${idx + 1}. 【${c.name}】代号 [${c.callsign}] · ${c.role} · ${c.outfit}`),
+    ...coalitionRows.map(r => `  ${r.position}. 【${r.person}】代号 [${r.callsign}] · ${r.role} · ${r.outfit}`),
     ``,
     `🔴 后排（反方势力 · ${opposingCount} 人）：`,
-    ...normalizedFactions.opposing.map((c, idx) => `  ${idx + 1}. 【${c.name}】代号 [${c.callsign}] · ${c.role} · ${c.outfit}`),
+    ...opposingRows.map(r => `  ${r.position}. 【${r.person}】代号 [${r.callsign}] · ${r.role} · ${r.outfit}`),
     ``,
     `每个角色脚下的展示台上有白色代号名牌标签 [CALLSIGN]，正方底座为深蓝色，反方底座为暗红色。`,
     `棚拍柔光箱，脚底微弱阴影，35mm 移轴微距摄影，真实 ABS 塑料注塑反光与微观接缝细节清晰可见。`

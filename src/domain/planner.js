@@ -110,7 +110,8 @@ export function planFilm({ theme, requestedShots = 4, profileId }, r) {
     // 否则 era 为空的题材（如「F-22 高空制空巡逻」）会退化成「环境库第一项」，
     // 于是空战片的环境写成「中东沙漠」——正文里的 {place} 也跟着全错。
     const dom = domainOfText(theme);
-    if (dom?.key === 'air') envTerm = 'air|sky|cloud|机场|停机坪|山地|峡谷|观察哨|高空';
+    if (dom?.key === 'orbital') envTerm = '空间站|轨道|太空|失重|零重力|气闸|舱外|月面|station|orbital|zero-g';
+    else if (dom?.key === 'air') envTerm = 'air|sky|cloud|机场|停机坪|山地|峡谷|观察哨|高空';
     else if (dom?.key === 'naval') {
       envTerm = arc.id === 'submarine-hunt'
         ? '深海|水下|海底|sea|ocean|underwater'
