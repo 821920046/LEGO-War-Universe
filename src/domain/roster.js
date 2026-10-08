@@ -104,8 +104,30 @@ const NATION_RULES = [
   ['french', /法军|法国|自由法国|抵抗组织|french|resistance/i],
   // 海湾 / 伊拉克战争的反方是伊拉克：不写这一条，「伊拉克共和国卫队士兵」判定不出国籍，
   // 会被兜底池分到桥本（日式名字），与画面里的中东战场直接对不上。
-  ['iraqi', /伊拉克|共和国卫队|萨达姆|复兴党|iraqi|iraq|republican guard|saddam|baath/i],
-  ['us', /美军|美国|海军陆战队|陆战队|游骑兵|伞兵|usmc|\bus\b|american|u\.s\.|sherman|hellcat|dauntless|catalina|fletcher|iowa|patton|abrams|phantom|huey|thunderbolt|liberator/i]
+  // 伊拉克的**强标记**只保留真正指向政权的词：共和国卫队 / 萨达姆 / 复兴党。
+  // 裸的「伊拉克 / iraq」是弱标记（见 NATION_WEAK_RULES）—— 它既是国名也是战区名，
+  // 「联军战斗医护兵（伊拉克）」「US Marine (Iraq)」里的伊拉克指的是**战场**。
+  ['iraqi', /共和国卫队|萨达姆|复兴党|republican guard|saddam|baath/i],
+  // 这里**不能**写裸的 `海军陆战队` / `陆战队`：那不是美国专有的。
+  // 「敌方海军陆战队员（Adversary Naval Infantryman）」「轨道陆战队员（Orbital Marine）」
+  // 「轨道陆战队医务兵（Orbital Corpsman）」都会命中，于是敌方被标成美军、轨道兵被标成美军
+  // ——定妆表上直接出现「反方势力 · 美军」。真正属于美军的资产（美国海军陆战队员 /
+  // 美军海军陆战队喷火兵 / USMC Flamethrower Operator）都带 美国 / 美军 / usmc 标记，
+  // 由下面的显式标记命中即可。
+  ['us', /美军|美国|游骑兵|伞兵|美(?:国|军)海军陆战队|usmc|\bus\b|american|u\.s\.|sherman|hellcat|dauntless|catalina|fletcher|iowa|patton|abrams|phantom|huey|thunderbolt|liberator/i]
+];
+
+/**
+ * 弱国籍标记：既是国名、也是战区名的词。只在**非友军阵营**资产上才作数。
+ *
+ * 为什么必须分强弱：「伊拉克」在联军资产上指的是**战场** ——
+ * 「联军战斗医护兵（伊拉克）」＝在伊拉克作战的联军医护兵，「US Marine (Iraq)」同理。
+ * 若一律按国名处理，这两个都会被判成伊军，于是「伊拉克战争城市清剿」里
+ * 我方联军被标成伊军、与敌方同国籍（定妆表上直接自相矛盾）。
+ * 而在敌方资产上，「伊拉克指挥官」就是伊拉克指挥官 —— 此时弱标记成立。
+ */
+const NATION_WEAK_RULES = [
+  ['iraqi', /伊拉克|iraq/i]
 ];
 
 /**
@@ -115,11 +137,44 @@ const NATION_RULES = [
  */
 export function nationOf(asset) {
   if (!asset) return null;
-  const hay = `${asset.nameZh || ''} ${asset.name || ''} ${asset.kw || ''}`;
+  // 括号里的内容通常是**战场/战区**标注，不是国籍标注，先剥掉再做匹配。
+  const hay = `${asset.nameZh || ''} ${asset.name || ''} ${asset.kw || ''}`
+    .replace(/[（(][^）)]*[）)]/g, ' ');
+
+  // 第一轮：强标记（美军 / 德军 / 共和国卫队 …），与阵营无关，命中即可判定
   for (const [key, re] of NATION_RULES) {
     if (re.test(hay)) return key;
   }
+  // 第二轮：弱标记。友军阵营的「伊拉克」一定是战区，不作数。
+  if (!FRIENDLY_FACTIONS.has(asset.faction)) {
+    for (const [key, re] of NATION_WEAK_RULES) {
+      if (re.test(hay)) return key;
+    }
+  }
   return null;
+}
+
+/**
+ * 国籍键 → 中文短标签。用于定妆表卡片与全家福 Prompt。
+ *
+ * 为什么需要：国籍一致性（敌我分属不同国籍、同阵营内部统一）是 6.6.0 修掉的一类
+ * 穿帮，但界面上一直只显示 `series`（时代），用户无从核对「我方全是美军、敌方全是
+ * 伊军」这条约束是否真的生效。显示出来才能被验证。
+ */
+const NATION_LABELS_ZH = {
+  us: '美军',
+  british: '英军',
+  soviet: '苏军',
+  german: '德军',
+  japanese: '日军',
+  french: '法军',
+  iraqi: '伊军'
+};
+
+/** 国籍中文标签；无法判定时返回空串（调用方自行决定是否显示） */
+export function nationLabelOf(entry) {
+  const key = typeof entry === 'string' ? entry : entry?.nation;
+  return (key && NATION_LABELS_ZH[key]) || '';
 }
 
 /**
@@ -425,6 +480,14 @@ export function buildRoster(shots = [], registry = null, { prior = null } = {}) 
     neutral: null
   };
 
+  // 敌我同国籍是自相矛盾的：战争片的对立阵营按定义就不是同一个国家。
+  // 两侧由「本方多数国籍」推出来的国籍若撞在一起，说明至少一侧推错了 ——
+  // 此时放弃敌方的推断（退回 defaultOpposing 姓名池、不显示国籍）。
+  // 宁可留空，也不能在定妆表上把反方势力标成「美军」。
+  if (sideNation.coalition && sideNation.opposing && sideNation.coalition === sideNation.opposing) {
+    sideNation.opposing = null;
+  }
+
   // 第二遍：**按资产 ID 升序**分配代号。
   // 这一步必须与出场顺序无关，否则「规划器生成时算出的代号」会和「事后 buildRoster
   // 重新聚合时算出的代号」不一致 —— 分镜里写着 GHOST，定妆表里却变成 FALCON。
@@ -516,13 +579,33 @@ export function rosterFromJSON(data) {
 }
 
 /**
- * 生成「【代号】中文名 (真实ID)」标签。没有名册命中时原样返回 ID，
+ * 角色在界面上「叫什么」的唯一口径。
+ *
+ * 为什么必须只有一处：名册条目同时带着两个名字 —— `name`（资产名，如「弹道导弹
+ * 核潜艇艇长」，那是**单位类型**）与 `persona`（人物姓名，如「邓肯」）。剧本正文、
+ * 定妆表卡片、全家福生图 Prompt、时间轴导出如果各自决定用哪个，就会出现「剧本里
+ * 是邓肯、定妆表里是潜艇艇长」这种同片两套口径的串戏。6.7.0 引入 persona 后，
+ * 剧本层已统一，但定妆表与生图 Prompt 仍在使用 `name`，本函数即为收口点。
+ *
+ * 优先级：persona（一个具体的人）> name / nameZh（资产名）> id。
+ * 载具没有 persona，自然退回资产名，不需要特判。
+ *
+ * @param {object} entry 名册条目（buildRoster 产物）或任何带这些字段的对象
+ * @returns {string} 非空显示名
+ */
+export function displayNameOf(entry) {
+  if (!entry) return '';
+  return entry.persona || entry.name || entry.nameZh || String(entry.id ?? '') || '未知角色';
+}
+
+/**
+ * 生成「【代号】人物姓名 (真实ID)」标签。没有名册命中时原样返回 ID，
  * 保证任何调用点都不会因为缺名册而崩或显示空白。
  */
 export function labelFor(roster, id, { withId = true } = {}) {
   const entry = roster?.byId?.get(id);
   if (!entry) return String(id ?? '');
-  return `【${entry.callsign}】${entry.name}${withId ? ` (${id})` : ''}`;
+  return `【${entry.callsign}】${displayNameOf(entry)}${withId ? ` (${id})` : ''}`;
 }
 
 /** 只取代号；无名册命中时返回空串（便于调用方自行兜底） */
@@ -539,18 +622,27 @@ export function callsignOf(roster, id) {
 export function aliasLabel(roster, id, fallbackName = '') {
   const entry = roster?.byId?.get(id);
   if (!entry) return String(fallbackName || id || '');
-  return `【${entry.callsign}】${entry.persona || entry.name}`;
+  return `【${entry.callsign}】${displayNameOf(entry)}`;
 }
 
 /**
  * 把名册渲染成可注入 Prompt 的英文演员表行。
+ *
+ * 必须带上 persona：大模型要靠它写出「邓肯，你左边」这种一致的台词。早期只给
+ * `nameEn`（如 "Navy SEAL"），模型拿到的是兵种而不是人，写出来的对白自然也没有人。
+ * 格式保持 `[CALLSIGN] 人物名 "资产名" (ID) — 职务`，末尾三段是既有契约，不要动。
+ *
  * @param {object} roster buildRoster 的产物
  * @returns {string[]} 演员表行
  */
 export function rosterPromptLines(roster) {
   const lines = [];
   const fmt = (list) => list
-    .map(e => `[${e.callsign}] ${e.nameEn} (${e.id}) — ${e.role}`)
+    .map(e => {
+      const person = displayNameOf(e);
+      const asset = e.nameEn && e.nameEn !== person ? ` "${e.nameEn}"` : '';
+      return `[${e.callsign}] ${person}${asset} (${e.id}) — ${e.role}`;
+    })
     .join('; ');
   if (roster?.coalition?.length) lines.push(`COALITION CAST: ${fmt(roster.coalition)}`);
   if (roster?.opposing?.length) lines.push(`OPPOSING CAST: ${fmt(roster.opposing)}`);
@@ -580,6 +672,17 @@ export function taskAffinity(asset, task) {
  * re      —— 域识别正则，同时用于给单个资产打分（命中即说明它属于这个域）。
  */
 const DOMAIN_RULES = [
+  {
+    // 轨道域必须排在最前：`太空战机` 里含「战机」、`轨道轰炸机` 里含「轰炸机」，
+    // 若排在 air 之后会被 air 截走，于是轨道题材永远拿不到本域的镜头与演员。
+    // （此前 DOMAIN_RULES 根本没有 orbital，导致 story.js 里所有 domains:['orbital']
+    //   的质感节拍是**不可达的死代码**，轨道片一直在用陆战通用池。）
+    key: 'orbital',
+    classes: ['aircraft', 'ground', 'ship', 'drone', 'ugv'],
+    re: /orbital|astronaut|zero-?g|space ?(?:station|craft|marine|warfare|walk)|近地轨道|地球轨道|轨道|太空|航天|宇航|空间站|零重力|失重|气闸舱|舱外|月面/i,
+    // 角色专用关键词：轨道题材里上镜的应该是宇航员与轨道陆战队员，而不是地面步兵。
+    charRe: /orbital|astronaut|zero-?g|space|轨道|太空|航天|宇航|空间站|零重力|失重|舱外|月面/i
+  },
   {
     key: 'naval',
     classes: ['ship', 'submarine'],

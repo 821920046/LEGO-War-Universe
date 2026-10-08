@@ -4,7 +4,7 @@ import { compileShot } from '../domain/compiler.js';
 import { validateFilmPlan } from '../domain/shot-spec.js';
 import { transpileMovieToLego, CINEMA_DATABASE } from '../domain/cinema-homage.js';
 import { callAiBrain } from '../domain/ai-brain.js';
-import { buildRoster, rosterToJSON, rosterFromJSON } from '../domain/roster.js';
+import { buildRoster, rosterToJSON, rosterFromJSON, displayNameOf, nationLabelOf } from '../domain/roster.js';
 import { FUNCTION_LABELS } from '../domain/narrative.js';
 import { extractCharacterLineup, generateLineupPrompt } from '../domain/character-lineup.js';
 import { checkContentGovernance } from '../domain/governance.js';
@@ -359,12 +359,15 @@ function renderFactionCards(container, chars, faction) {
 
   for (const c of chars) {
     if (!c) continue;
+    // 姓名必须与剧本正文同口径：有 persona 就显示人物姓名（「邓肯」），
+    // 否则卡片标题会是「弹道导弹核潜艇艇长」这种单位类型 —— 定妆表上没有一个「人」。
+    const person = displayNameOf(c);
     // 真实名册会带资产 ID 与系列，标注出来才能证明「角色确实来自资产库」
-    const meta = [c.role, c.id, c.series && c.series !== 'shared' ? c.series : '']
+    const meta = [c.role, c.id, c.series && c.series !== 'shared' ? c.series : '', nationLabelOf(c)]
       .filter(Boolean).join(' · ');
     const card = createEl('div', { class: `rcard rcard--${variant}` },
       createEl('div', { class: 'rcard__top' },
-        createEl('strong', { class: 'rcard__name' }, `${isCoalition ? '🛡️' : '⚔️'} ${c.name || '战术角色'}`),
+        createEl('strong', { class: 'rcard__name' }, `${isCoalition ? '🛡️' : '⚔️'} ${person}`),
         createEl('span', { class: `badge ${isCoalition ? 'badge--info' : 'badge--danger'}` }, c.role || '战斗员')
       ),
       createEl('div', { class: 'rcard__outfit' }, `📦 资产：${meta || '—'}`),
@@ -467,11 +470,13 @@ function renderCharacterLineupPanel(project, roster = null) {
     const charCoalition = realCoalition.filter(e => e.kind !== 'vehicle');
     const charOpposing = realOpposing.filter(e => e.kind !== 'vehicle');
 
-    // 有真实名册 → 用真实名册；确实没有（例如全片只有环境/特效镜头）→ 用模板做「预览」并明确标注
+    // 有真实名册 → 用真实名册；确实没有（例如全片只有环境/特效镜头）→ 按题材从资产库预选。
+    // 注意：预选不再是「写死的虚构模板」，而是 selectCast 从真实资产库里挑的一支队，
+    // 与生成分镜后得到的名册同源同形状，因此不存在「预览一套、生成另一套」。
     const hasReal = charCoalition.length + charOpposing.length > 0;
     const factions = hasReal
       ? { coalition: charCoalition, opposing: charOpposing, isPreview: false }
-      : { ...extractCharacterLineup(project.shots, activeRegistry, era, theme), isPreview: true };
+      : extractCharacterLineup(project.shots, activeRegistry, era, theme);
 
     const lineupData = generateLineupPrompt(factions, theme, era, ar);
 
@@ -487,7 +492,7 @@ function renderCharacterLineupPanel(project, roster = null) {
       const opposingList = Array.isArray(factions?.opposing) ? factions.opposing : [];
 
       const sourceNote = factions.isPreview
-        ? '预览模板（生成分镜后将自动改为从资产库挑选的真实角色）'
+        ? '按题材从资产库预选（生成分镜后将以实际出场角色为准）'
         : '来自资产库的真实资产';
 
       // 🔵 前排站位 · 正方特战小队

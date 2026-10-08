@@ -8,8 +8,10 @@ import {
   FRIENDLY_FACTIONS, ENEMY_FACTIONS, sideOf, fnv1a, archetypeOf,
   assignCallsign, buildRoster, rosterToJSON, rosterFromJSON,
   labelFor, aliasLabel, callsignOf, selectCast, rosterPromptLines,
+  displayNameOf, nationLabelOf, nationOf,
   domainOfText, themeMatch, taskAffinity
 } from '../src/domain/roster.js';
+import { parseIntent } from '../src/domain/intent.js';
 
 const registry = createRegistry(assets, profiles, { references: [] });
 
@@ -147,6 +149,109 @@ test('roster: prompt lines list both sides in English for the LLM', () => {
   assert.ok(lines.some(l => l.startsWith('COALITION CAST:')));
   assert.ok(lines.some(l => l.startsWith('OPPOSING CAST:')));
   for (const l of lines) assert.match(l, /\[[A-Z0-9-]+\] .+ \([A-Z]+-\d+\) — .+/);
+
+  // 演员表必须带上人物姓名：模型拿到「兵种」写不出有人味的对白，拿到「人名」才行。
+  for (const e of roster.all) {
+    if (e.kind !== 'character') continue;
+    assert.ok(e.persona, `${e.id} 应有人物姓名`);
+    assert.ok(lines.some(l => l.includes(e.persona)), `演员表应包含人名「${e.persona}」`);
+  }
+});
+
+test('roster: displayNameOf 是全站唯一的角色显示名口径', () => {
+  const roster = buildRoster([{ subjects: ['CHR-401'] }], registry);
+  const entry = roster.byId.get('CHR-401');
+
+  // 有 persona 时必须用 persona（人物姓名），而不是 name（单位类型）
+  assert.equal(displayNameOf(entry), entry.persona);
+  assert.notEqual(displayNameOf(entry), entry.name);
+
+  // 载具没有 persona，自然退回资产名 —— 不需要调用方特判
+  assert.equal(displayNameOf({ name: 'HH-60W 铺路鹰' }), 'HH-60W 铺路鹰');
+  assert.equal(displayNameOf({ id: 'CHR-999' }), 'CHR-999');
+  assert.equal(displayNameOf(null), '');
+  assert.ok(displayNameOf({ nameZh: '美军步兵（二战）' }));
+
+  // labelFor / aliasLabel 必须与它同口径，否则时间轴导出又会退回单位类型
+  assert.ok(labelFor(roster, 'CHR-401').includes(entry.persona));
+  assert.ok(aliasLabel(roster, 'CHR-401').includes(entry.persona));
+});
+
+test('roster: nationLabelOf 把国籍键翻成中文短标签', () => {
+  assert.equal(nationLabelOf({ nation: 'us' }), '美军');
+  assert.equal(nationLabelOf({ nation: 'iraqi' }), '伊军');
+  assert.equal(nationLabelOf('soviet'), '苏军');
+  // 无法判定时返回空串，调用方自行决定是否显示（不能显示成 "null"）
+  assert.equal(nationLabelOf({ nation: null }), '');
+  assert.equal(nationLabelOf({}), '');
+  assert.equal(nationLabelOf(null), '');
+});
+
+/* ───────────────────── 6.7.1 国籍判定回归 ───────────────────── */
+
+test('roster: 友军阵营的「伊拉克」是战区，不是国籍', () => {
+  // 「联军战斗医护兵（伊拉克）」＝在伊拉克作战的联军医护兵。
+  // 早期把它当国名，于是「伊拉克战争城市清剿」里我方联军被标成伊军、与敌方同国籍。
+  assert.equal(nationOf({ nameZh: '联军战斗医护兵（伊拉克）', faction: 'Coalition' }), null);
+  assert.equal(nationOf({ nameZh: '联军巡逻队长（伊拉克）', faction: 'Coalition' }), null);
+  assert.equal(nationOf({ name: 'US Marine (Iraq)', nameZh: '美国海军陆战队员（伊拉克）', faction: 'Coalition' }), 'us');
+
+  // 敌方资产上的「伊拉克」才是国籍；指向政权的强标记与阵营无关
+  assert.equal(nationOf({ nameZh: '伊拉克指挥官', faction: 'Opposing Force' }), 'iraqi');
+  assert.equal(nationOf({ nameZh: '伊拉克共和国卫队士兵', faction: 'Opposing Force' }), 'iraqi');
+});
+
+test('roster: 裸「陆战队」不再被判成美军', () => {
+  // 「陆战队」不是美国专有：敌方海军陆战队员、轨道陆战队员都会被误判成美军。
+  assert.equal(nationOf({ nameZh: '敌方海军陆战队员', name: 'Adversary Naval Infantryman', faction: 'Opposing Force' }), null);
+  assert.equal(nationOf({ nameZh: '轨道陆战队员', name: 'Orbital Marine', faction: 'Coalition' }), null);
+  assert.equal(nationOf({ nameZh: '轨道陆战队医务兵', name: 'Orbital Corpsman', faction: 'Coalition' }), null);
+  // 真正带美国标记的仍然判得出来
+  assert.equal(nationOf({ nameZh: '美国海军陆战队步枪手', faction: 'Allies' }), 'us');
+  assert.equal(nationOf({ nameZh: '美军海军陆战队喷火兵', name: 'USMC Flamethrower Operator', faction: 'Allies' }), 'us');
+});
+
+test('roster: 敌我双方绝不出现同一个国籍', () => {
+  // 结构性不变量：战争片的对立阵营按定义不是同一个国家。
+  // 由「本方多数国籍」推出来的国籍若两侧撞车，敌方一侧必须放弃推断（宁可留空）。
+  const cases = [
+    '伊拉克战争城市清剿', '海湾战争夜战防空导弹阵地伏击', '诺曼底登陆抢滩',
+    '中途岛航母对决', '斯大林格勒巷战', '核潜艇深海猎杀', '轨道空间站失压事故'
+  ];
+  for (const theme of cases) {
+    const intent = parseIntent(theme);
+    const cast = selectCast(registry, {
+      era: intent.era || 'Modern', task: intent.task, theme, setting: intent.setting || ''
+    });
+    const ids = [...cast.heroes, ...cast.enemies].map(a => a.id);
+    const roster = buildRoster([{ subjects: ids }], registry);
+    const coal = new Set(roster.coalition.map(e => e.nation).filter(Boolean));
+    const opp = new Set(roster.opposing.map(e => e.nation).filter(Boolean));
+    for (const n of opp) {
+      assert.ok(!coal.has(n), `${theme}: 敌我双方都出现国籍「${nationLabelOf({ nation: n })}」`);
+    }
+  }
+});
+
+test('roster: 历史题材的敌我国籍仍然正确', () => {
+  const cases = [
+    { theme: '诺曼底登陆抢滩', friendly: 'us', enemy: 'german' },
+    { theme: '中途岛航母对决', friendly: 'us', enemy: 'japanese' },
+    { theme: '斯大林格勒巷战', friendly: 'soviet', enemy: 'german' },
+    { theme: '伊拉克战争城市清剿', friendly: 'us', enemy: 'iraqi' }
+  ];
+  for (const { theme, friendly, enemy } of cases) {
+    const intent = parseIntent(theme);
+    const cast = selectCast(registry, {
+      era: intent.era || 'Modern', task: intent.task, theme, setting: intent.setting || ''
+    });
+    const ids = [...cast.heroes, ...cast.enemies].map(a => a.id);
+    const roster = buildRoster([{ subjects: ids }], registry);
+    const coal = [...new Set(roster.coalition.map(e => e.nation).filter(Boolean))];
+    const opp = [...new Set(roster.opposing.map(e => e.nation).filter(Boolean))];
+    assert.deepEqual(coal, [friendly], `${theme}: 我方国籍应为 ${friendly}，实际 ${coal}`);
+    assert.deepEqual(opp, [enemy], `${theme}: 敌方国籍应为 ${enemy}，实际 ${opp}`);
+  }
 });
 
 /* ───────────────────── 现代战争资产扩充（6.5.0）回归 ───────────────────── */
