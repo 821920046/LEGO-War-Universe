@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGO War Universe · 剧本可观赏性改善对照 (6.7.0)</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c222b; --line:#272e38;
+    --fg:#e8ecf1; --muted:#98a3b2; --dim:#6f7a89;
+    --bad:#ff5f5f; --good:#35d07f; --accent:#ffb454; --link:#5eb1ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.65;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1440px;margin:0 auto;padding:40px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:30px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0;font-size:14px}
+  .quote{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1a1416;color:#e8d5d5;border-radius:0 8px 8px 0;font-size:14px}
+  h2{margin:44px 0 16px;font-size:20px;border-left:3px solid var(--accent);padding-left:12px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .card__t{color:var(--muted);font-size:12.5px;margin:0 0 12px;letter-spacing:.03em}
+  .card__row{display:flex;align-items:baseline;gap:10px;justify-content:space-between}
+  .num{font-size:30px;font-weight:650;font-variant-numeric:tabular-nums}
+  .num--bad{color:var(--bad)} .num--good{color:var(--good)}
+  .arrow{color:var(--dim)}
+  .card__f{color:var(--dim);font-size:12px;margin:8px 0 0}
+  .causes{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px}
+  .cause{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--bad);
+    border-radius:0 12px 12px 0;padding:16px 18px}
+  .cause h3{margin:0 0 8px;font-size:15px;color:var(--bad)}
+  .cause p{margin:0;color:var(--muted);font-size:13.5px}
+  .cause code{background:#0b0e12;padding:1px 6px;border-radius:4px;color:var(--accent);font-size:12.5px}
+  details.theme{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    margin-bottom:14px;overflow:hidden}
+  details.theme>summary{cursor:pointer;padding:15px 18px;display:flex;gap:16px;
+    align-items:baseline;flex-wrap:wrap;list-style:none}
+  details.theme>summary::-webkit-details-marker{display:none}
+  details.theme>summary::before{content:"▸";color:var(--accent);font-size:13px}
+  details.theme[open]>summary::before{content:"▾"}
+  .theme__name{font-weight:600;font-size:15.5px}
+  .theme__meta{color:var(--dim);font-size:12.5px;margin-left:auto}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:0;border-top:1px solid var(--line)}
+  .col{padding:18px}
+  .col--old{border-right:1px solid var(--line);background:#14171c}
+  .col__hd{margin:0 0 12px;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+  .col--old .col__hd{color:var(--bad)} .col--new .col__hd{color:var(--good)}
+  .logline{background:#0b0e12;border:1px solid var(--line);border-radius:8px;
+    padding:11px 13px;font-size:13px;color:#cfd7e2;margin:0 0 14px}
+  .shot{background:var(--panel2);border:1px solid var(--line);border-radius:9px;
+    padding:11px 13px;margin-bottom:9px}
+  .shot--bad{border-color:#5c2b2b;background:#1d1618}
+  .shot__hd{display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+  .shot__n{background:#2a323d;color:#cfd7e2;width:22px;height:22px;border-radius:5px;
+    display:grid;place-items:center;font-size:12px;font-variant-numeric:tabular-nums}
+  .chip{font-size:11px;padding:2px 8px;border-radius:999px;background:#232b35;color:var(--muted);
+    border:1px solid var(--line)}
+  .chip--fn{background:#2b2418;color:var(--accent);border-color:#463a20}
+  .chip--st{color:#8fb8dd;border-color:#24384d;background:#16222c}
+  .shot__dur{margin-left:auto;color:var(--dim);font-size:11.5px;font-variant-numeric:tabular-nums}
+  .shot__subj{margin:0 0 6px;font-size:12px;color:#8fb8dd}
+  .shot__act{margin:0 0 7px;font-size:13.5px}
+  .shot__vo,.shot__au{margin:0;font-size:12px;color:var(--muted);
+    font-family:"Cascadia Mono",Consolas,monospace}
+  .shot__vo b,.shot__au b{color:var(--dim);font-weight:500}
+  .shot__au{margin-top:3px;color:var(--dim)}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px}
+  @media(max-width:900px){.pair{grid-template-columns:1fr}.col--old{border-right:0;
+    border-bottom:1px solid var(--line)}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="kicker">LEGO War Universe · v6.7.0 剧本内核 Story Core</p>
+    <h1>剧本可观赏性改善对照</h1>
+    <p class="sub">同一批题材、同样 8 镜，修复前 <code>d139080</code> 与修复后 <code>d05b9aa</code> 的成片原文逐镜对照。</p>
+    <p class="quote">用户反馈：「这个项目生成的视频脚本完全没有什么可观赏的价值，内容太单一，就是简单的拼凑，没有剧情，需要改善优化。」</p>
+  </header>
+
+  <h2>一、量化对照</h2>
+  <div class="cards">
+    <div class="card">
+      <p class="card__t">有因果连接词的镜头</p>
+      <div class="card__row">
+        <span class="num num--bad">0%</span>
+        <span class="arrow">→</span>
+        <span class="num num--good">38%</span>
+      </div>
+      <p class="card__f">前一镜的结果必须导致后一镜。这是「一叠卡片」与「一条链」的分界。</p>
+    </div>
+    <div class="card">
+      <p class="card__t">出现具名人物的镜头</p>
+      <div class="card__row">
+        <span class="num num--bad">0%</span>
+        <span class="arrow">→</span>
+        <span class="num num--good">98%</span>
+      </div>
+      <p class="card__f">修复前 <code>{heroCallsign}</code> 展开是「动力外骨骼特战队员」——单位类型，不是人。</p>
+    </div>
+    <div class="card">
+      <p class="card__t">场景与题材打架（越少越好）</p>
+      <div class="card__row">
+        <span class="num num--bad">23</span>
+        <span class="arrow">→</span>
+        <span class="num num--good">0</span>
+      </div>
+      <p class="card__f">潜艇题材的镜头出现在沙漠/废墟里。修复前 48 镜中 23 镜场景错位。</p>
+    </div>
+    <div class="card">
+      <p class="card__t">总镜数（对照基准）</p>
+      <div class="card__row">
+        <span class="num">48</span>
+        <span class="arrow">＝</span>
+        <span class="num">48</span>
+      </div>
+      <p class="card__f">6 个题材 × 8 镜，两侧完全一致，差异只来自引擎本身。</p>
+    </div>
+  </div>
+
+  <h2>二、三条根因</h2>
+  <div class="causes">
+    <div class="cause">
+      <h3>A · 没有人物</h3>
+      <p>所有主角位插入的都是 <code>单位类型</code>：潜艇艇长、特战队员、坦克车长。观众记不住一个兵种，也就无从在乎。</p>
+    </div>
+    <div class="cause">
+      <h3>B · 没有因果</h3>
+      <p>节拍按戏剧弧线（铺陈→建立→高潮→收束）取用，第 3 镜的结果不会导致第 4 镜。片子是一叠并置的卡片。</p>
+    </div>
+    <div class="cause">
+      <h3>C · 没有题材</h3>
+      <p>所有动作句只插 <code>{env}</code>。二战片、现代片、海战片读起来是同一部片子，只是地名不同。</p>
+    </div>
+  </div>
+
+  <h2>三、逐题材成片对照</h2>
+  
+  <details class="theme" open>
+    <summary>
+      <span class="theme__name">诺曼底登陆抢滩</span>
+      <span class="theme__meta">修复前 场景冲突 0/8 镜 · 修复后 0/8 镜</span>
+    </summary>
+    <div class="pair">
+      <div class="col col--old">
+        <h4 class="col__hd">修复前 · d139080</h4>
+        <p class="logline">二战的开阔战场，诺曼底登陆抢滩被投入一场高烈度正面交战；他们必须在局势彻底失控之前达成目标，而主角必须在“完成任务”和“带回所有队友”之间做一次不可逆的选择。</p>
+        
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">1</span>
+      <span class="chip chip--fn">goal</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">任务简报中景 (Mission Briefing Medium)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">美军步兵（二战）</p>
+    <p class="shot__act">「九十秒后起爆，目标就在这片诺曼底海滩里。」【SABER】美军步兵（二战）把平面图摊在断墙上，手指压住红圈，尘雾从缺口灌进来。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】都听清楚了：进去，带人，出来。没有第二次机会。</p>
+    <p class="shot__au"><b>音效</b> 纸张压过碎石 · 远处低频轰鸣</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">2</span>
+      <span class="chip chip--fn">character</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">低声对话双人中景 (Low Exchange Two-Shot)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">苏军红军步兵 · 苏军坦克车长</p>
+    <p class="shot__act">「回去之后这顿算你的。」【DELTA】苏军坦克车长低声说。【TANGO】苏军红军步兵没笑，但点了下头。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】别废话，跟上。</p>
+    <p class="shot__au"><b>音效</b> 压低的交谈 · 装备轻响</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">3</span>
+      <span class="chip chip--fn">plan</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">临场改计划中景 (Plan B Medium)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">苏军坦克车长</p>
+    <p class="shot__act">「原路线封了。」【DELTA】苏军坦克车长把地图折起来，指向诺曼底海滩侧面，「走上面。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】改走二号路线，三分钟。</p>
+    <p class="shot__au"><b>音效</b> 地图折叠 · 战术口令</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">4</span>
+      <span class="chip chip--fn">contact</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">拐角遭遇手持近景 (Contact Handheld)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">英军步兵（二战） · 德军士兵</p>
+    <p class="shot__act">拐角。两米。【SEXTANT】英军步兵（二战）与【VECTOR】德军士兵同时抬枪开火，短促交火撕裂尘雾。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】接触！接触！两点钟方向，压制他们！</p>
+    <p class="shot__au"><b>音效</b> 突击步枪连射 · 弹壳落地脆响</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">5</span>
+      <span class="chip chip--fn">escalate</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">载具强突核心 (Vehicle Breach)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">希金斯登陆艇（LCVP） · 美军步兵（二战）</p>
+    <p class="shot__act">【SIERRA】希金斯登陆艇（LCVP）撞穿诺曼底海滩的路障直插核心，【SABER】美军步兵（二战）在颠簸中完成最后装填。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】撞进去了！准备下车强攻！</p>
+    <p class="shot__au"><b>音效</b> 撞击碎裂 · 装填机械咔嚓声</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">6</span>
+      <span class="chip chip--fn">clash</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">零距离对轰主视角 (Point-Blank Duel)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">苏军红军步兵 · 德军坦克车长</p>
+    <p class="shot__act">【TANGO】苏军红军步兵与【MERIDIAN】德军坦克车长在诺曼底海滩正面撞上，双方在几米内直接交战对轰，塑料零件与火星四散飞溅。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】就是现在！全体开火！</p>
+    <p class="shot__au"><b>音效</b> 全自动连射 · 弹壳与碎片四溅</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">7</span>
+      <span class="chip chip--fn">aftermath</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">最后清剿收束 (Final Sweep)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">德军士兵 · 苏军坦克车长</p>
+    <p class="shot__act">【VECTOR】德军士兵的残部仍据守诺曼底海滩一角负隅顽抗，【DELTA】苏军坦克车长率队发起最后的清剿突袭。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】最后一个火力点已清除，战区安全。</p>
+    <p class="shot__au"><b>音效</b> 短促点射 · 随后彻底安静</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">8</span>
+      <span class="chip chip--fn">reaction</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">反应镜头面部特写 (Reaction Close-Up)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">英军步兵（二战）</p>
+    <p class="shot__act">镜头怼在【SEXTANT】英军步兵（二战）的脸上，五秒。他什么都没说，但所有人都读懂了。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（静默）</p>
+    <p class="shot__au"><b>音效</b> 完全静音 · 只有远处的零星燃烧声</p>
+  </article>
+      </div>
+      <div class="col col--new">
+        <h4 class="col__hd">修复后 · d05b9aa</h4>
+        <p class="logline">二战，诺曼底海滩。必须在潮水转向前的三十分钟之内夺取滩头防御枢纽——否则后续梯队会被压在滩上打成筛子。突击队长米勒带着小队进入诺曼底海滩；而敌方指挥官曾是主角的教官，两人用同一套战术互相拆解。</p>
+        
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">1</span>
+      <span class="chip chip--fn">goal</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">任务简报中景 (Mission Briefing Medium)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">美军步兵（二战）</p>
+    <p class="shot__act">登陆艇在浪里起伏，【SABER】米勒把被海水泡软的地图按在膝盖上：「潮水转向前的三十分钟之内夺取滩头防御枢纽，否则后续梯队会被压在滩上打成筛子。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】各艇注意，潮水转向前的三十分钟准时放跳板。</p>
+    <p class="shot__au"><b>音效</b> 登陆艇柴油机低频 · 浪头拍打钢板 · 舱内无人说话</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">2</span>
+      <span class="chip chip--fn">character</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">双人调度 · 人物时刻特写 (Character Beat Close-Up)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">美军游骑兵 · 美军伞兵</p>
+    <p class="shot__act">【ANGEL】邓肯把一张被汗浸皱的照片塞回胸袋，低声说：「潮水转向前的三十分钟，够吗？」【SPECTRE】沃克没回答，只是把弹匣压紧。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（没有按下通话键）</p>
+    <p class="shot__au"><b>音效</b> 布料摩擦 · 金属弹匣入位的轻响</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">3</span>
+      <span class="chip chip--fn">plan</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">双人调度 · 临场计划中景 (Plan B Medium)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">美军步兵（二战） · 美军海军飞行员（二战）</p>
+    <p class="shot__act">「左翼是死区，右翼有暗礁。」【SABER】米勒在颠簸中用指北针标出两个坐标，「我们走中间那道浅滩。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】走中间，一分钟后放跳板。</p>
+    <p class="shot__au"><b>音效</b> 指北针开合 · 压低的交谈</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">4</span>
+      <span class="chip chip--fn">contact</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">双人对轰 · 首次接触手持近景 (Contact Handheld)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">美军海军飞行员（二战） · 德军士兵</p>
+    <p class="shot__act">计划定下了，跳板砸进浅水，第一排人还没站稳，【VECTOR】克劳斯的机枪就从崖顶炮位高处扫下来，水面瞬间被打成一片白，双方在滩头正面交战。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】压制点！崖顶！压制点！</p>
+    <p class="shot__au"><b>音效</b> 机枪连射 · 水花与弹壳声混成一片</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">5</span>
+      <span class="chip chip--fn">escalate</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">载具主导 · 压力升级跟拍 (Escalation Tracking)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">希金斯登陆艇（LCVP） · 美军步兵（二战）</p>
+    <p class="shot__act">刚接上火，【SIERRA】希金斯登陆艇（LCVP）的船首撞开反登陆障碍，【SABER】米勒借着艇体掩护把爆破筒塞进铁丝网桩，炸开一个能过人的缺口。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】缺口打开了！往里冲！</p>
+    <p class="shot__au"><b>音效</b> 金属撞击 · 爆破闷响</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">6</span>
+      <span class="chip chip--fn">clash</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">双人对轰 · 正面对轰主视角 (Point-Blank Duel)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">美军游骑兵 · 德军坦克车长</p>
+    <p class="shot__act">压力还在加码，【SPECTRE】沃克翻上崖沿，与【MERIDIAN】鲍尔在战壕里近距离交战，手榴弹在几步外炸开，泥土混着塑料碎片泼了两人一身。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】崖顶拿下！继续清剿！</p>
+    <p class="shot__au"><b>音效</b> 手榴弹爆响 · 近身搏斗的喘息</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">7</span>
+      <span class="chip chip--fn">aftermath</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">残局静默收尾 (Silent Aftermath)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">美军伞兵</p>
+    <p class="shot__act">炮位哑了。滩头的枪声一段段稀下来，【ANGEL】邓肯站在崖边看着后续梯队的登陆艇靠上沙滩。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】滩头已控制，后续梯队可以上岸。</p>
+    <p class="shot__au"><b>音效</b> 海风 · 远处零星枪声</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">8</span>
+      <span class="chip chip--fn">reaction</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">反应镜头面部特写 (Reaction Close-Up)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">美军海军飞行员（二战）</p>
+    <p class="shot__act">镜头怼在【ECHO】奥尔特加的脸上。他什么都没说，但所有人都读懂了。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（静默）</p>
+    <p class="shot__au"><b>音效</b> 完全静音 · 只有远处的零星燃烧声</p>
+  </article>
+      </div>
+    </div>
+  </details>
+  <details class="theme">
+    <summary>
+      <span class="theme__name">核潜艇深海猎杀</span>
+      <span class="theme__meta">修复前 场景冲突 7/8 镜 · 修复后 0/8 镜</span>
+    </summary>
+    <div class="pair">
+      <div class="col col--old">
+        <h4 class="col__hd">修复前 · d139080</h4>
+        <p class="logline">现代的开阔战场，核潜艇深海猎杀被投入一场高烈度正面交战；他们必须在局势彻底失控之前达成目标，而天气骤变让双方的精确制导同时失效，战斗被迫退回到最原始的距离。</p>
+        
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">1</span>
+      <span class="chip chip--fn">goal</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">任务简报中景 (Mission Briefing Medium)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">弹道导弹核潜艇艇长</p>
+    <p class="shot__act">「九十秒后起爆，目标就在这片中东沙漠里。」【CROSSBOW】弹道导弹核潜艇艇长把平面图摊在断墙上，手指压住红圈，尘雾从缺口灌进来。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】都听清楚了：进去，带人，出来。没有第二次机会。</p>
+    <p class="shot__au"><b>音效</b> 纸张压过碎石 · 远处低频轰鸣</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">2</span>
+      <span class="chip chip--fn">character</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">低声对话双人中景 (Low Exchange Two-Shot)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">战斗潜水员 · 潜艇声纳操作员</p>
+    <p class="shot__act">「回去之后这顿算你的。」【HORNET】潜艇声纳操作员低声说。【TANGO】战斗潜水员没笑，但点了下头。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】别废话，跟上。</p>
+    <p class="shot__au"><b>音效</b> 压低的交谈 · 装备轻响</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">3</span>
+      <span class="chip chip--fn">plan</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">临场改计划中景 (Plan B Medium)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">潜艇声纳操作员</p>
+    <p class="shot__act">「原路线封了。」【HORNET】潜艇声纳操作员把地图折起来，指向中东沙漠侧面，「走上面。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】改走二号路线，三分钟。</p>
+    <p class="shot__au"><b>音效</b> 地图折叠 · 战术口令</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">4</span>
+      <span class="chip chip--fn">contact</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">拐角遭遇手持近景 (Contact Handheld)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">海军陆战队步枪手 · 便携防空导弹射手</p>
+    <p class="shot__act">拐角。两米。【TIDE】海军陆战队步枪手与【VULTURE】便携防空导弹射手同时抬枪开火，短促交火撕裂尘雾。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】接触！接触！两点钟方向，压制他们！</p>
+    <p class="shot__au"><b>音效</b> 突击步枪连射 · 弹壳落地脆响</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">5</span>
+      <span class="chip chip--fn">escalate</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">载具强突核心 (Vehicle Breach)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">美国级两栖攻击舰 · 弹道导弹核潜艇艇长</p>
+    <p class="shot__act">【LANTERN】美国级两栖攻击舰撞穿中东沙漠的路障直插核心，【CROSSBOW】弹道导弹核潜艇艇长在颠簸中完成最后装填。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】撞进去了！准备下车强攻！</p>
+    <p class="shot__au"><b>音效</b> 撞击碎裂 · 装填机械咔嚓声</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">6</span>
+      <span class="chip chip--fn">clash</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">贴身缠斗微距 (Point-Blank Grapple)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">战斗潜水员 · 导弹发射控制军官</p>
+    <p class="shot__act">【TANGO】战斗潜水员与【MERIDIAN】导弹发射控制军官贴身缠斗、近身对抗，枪械被打飞后改用工程工具硬撼，尘雾中全是金属摩擦的尖啸。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】别管我，完成任务！</p>
+    <p class="shot__au"><b>音效</b> 金属剧烈摩擦 · 急促喘息</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">7</span>
+      <span class="chip chip--fn">aftermath</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">残骸之巅静默收尾 (Silent Aftermath)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">潜艇声纳操作员</p>
+    <p class="shot__act">中东沙漠还在烧。【HORNET】潜艇声纳操作员站在废墟顶端，把头盔摘了下来。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】阵地已肃清，任务完成。</p>
+    <p class="shot__au"><b>音效</b> 风声渐起 · 低沉克制的配乐</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">8</span>
+      <span class="chip chip--fn">reaction</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">互相搀扶撤离 (Extraction Walk)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">海军陆战队步枪手 · 弹道导弹核潜艇艇长</p>
+    <p class="shot__act">【TIDE】海军陆战队步枪手与【CROSSBOW】弹道导弹核潜艇艇长互相搀扶着穿过中东沙漠，身后是仍在燃烧的战场。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】所有人都带回来了，一个都没落下。</p>
+    <p class="shot__au"><b>音效</b> 沉重脚步 · 远处零星燃烧声</p>
+  </article>
+      </div>
+      <div class="col col--new">
+        <h4 class="col__hd">修复后 · d05b9aa</h4>
+        <p class="logline">现代，太平洋。必须在编队进入海峡前的两小时之内咬住并击沉敌方战略潜艇——否则己方编队会在进入海峡时被伏击。突击手哈里森带着小队潜入太平洋；而战场下方埋着双方都不敢引爆的东西，谁先动手谁先输。</p>
+        
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">1</span>
+      <span class="chip chip--fn">goal</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">任务简报中景 (Mission Briefing Medium)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">战斗潜水员</p>
+    <p class="shot__act">指挥舱里只有声呐的滴答声。【TANGO】哈里森指着海图上一片空白：「编队进入海峡前的两小时之内找到敌方战略潜艇，否则己方编队会在进入海峡时被伏击。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】全艇静默，只听声呐。</p>
+    <p class="shot__au"><b>音效</b> 声呐滴答 · 通风机低频 · 无人说话</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">2</span>
+      <span class="chip chip--fn">character</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">双人调度 · 人物时刻特写 (Character Beat Close-Up)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">潜艇声纳操作员 · 弹道导弹核潜艇艇长</p>
+    <p class="shot__act">【CROSSBOW】邓肯在声呐屏的余光里看了【HORNET】沃克一眼，低声说：「编队进入海峡前的两小时，够吗？」【HORNET】沃克没回答，只是把手按在冰凉的舱壁上，感受那台机器的心跳。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（没有按下通话键）</p>
+    <p class="shot__au"><b>音效</b> 声呐滴答 · 舱壁传导的机械低鸣</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">3</span>
+      <span class="chip chip--fn">plan</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">临场计划中景 (Plan B Medium)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">战斗潜水员</p>
+    <p class="shot__act">「关掉主动声呐，贴着跃变层走。」【TANGO】哈里森把航速降到最低，「谁先出声，谁先死。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】航向已定，保持静默。</p>
+    <p class="shot__au"><b>音效</b> 艇体受压的吱呀声 · 阀门轻响</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">4</span>
+      <span class="chip chip--fn">contact</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">双人对轰 · 首次接触手持近景 (Contact Handheld)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">海军陆战队步枪手 · 敌方核潜艇艇长</p>
+    <p class="shot__act">计划定下了，声呐兵的手停住了——接触。对方的螺旋桨音从海峡口另一侧压过来，距离比推算的近得多，【TIDE】米勒立刻下令转入交战航向。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】接触！方位零九零，距离三千！</p>
+    <p class="shot__au"><b>音效</b> 螺旋桨音由远及近 · 心跳被放大</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">5</span>
+      <span class="chip chip--fn">escalate</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">载具主导 · 压力升级跟拍 (Escalation Tracking)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">攻击核潜艇（上浮） · 战斗潜水员</p>
+    <p class="shot__act">刚接上火，【ZULU】攻击核潜艇（上浮）贴着跃变层缓慢机动，艇壳被水压压得呻吟，【TANGO】哈里森下令关掉最后一台非必要设备。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】深度两百，继续下潜，别出声。</p>
+    <p class="shot__au"><b>音效</b> 金属受压呻吟 · 设备逐台断电</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">6</span>
+      <span class="chip chip--fn">clash</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">双人对轰 · 正面对轰主视角 (Point-Blank Duel)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">潜艇声纳操作员 · 敌方海军陆战队员</p>
+    <p class="shot__act">压力还在加码，【HORNET】沃克急转规避，与【LANTERN】奥尔特加在海底峡谷的阴影深处近距离交战，声呐里全是泡沫噪声与金属呻吟。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】它在转向！跟着它！</p>
+    <p class="shot__au"><b>音效</b> 泡沫噪声 · 艇体呻吟 · 爆炸闷响</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">7</span>
+      <span class="chip chip--fn">aftermath</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">残局静默收尾 (Silent Aftermath)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">弹道导弹核潜艇艇长</p>
+    <p class="shot__act">海面恢复了平静。【CROSSBOW】邓肯看着声呐屏上消失的接触点，下令上浮。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】接触消失，任务完成。</p>
+    <p class="shot__au"><b>音效</b> 压载水舱排气 · 风声渐起</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">8</span>
+      <span class="chip chip--fn">reaction</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">反应镜头面部特写 (Reaction Close-Up)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">海军陆战队步枪手</p>
+    <p class="shot__act">镜头怼在【TIDE】米勒的脸上。舱内没人敢先开口，只有深度计还在缓慢跳字。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（静默）</p>
+    <p class="shot__au"><b>音效</b> 完全静音 · 深度计的机械跳字声</p>
+  </article>
+      </div>
+    </div>
+  </details>
+  <details class="theme">
+    <summary>
+      <span class="theme__name">B-2 轰炸敌方雷达站</span>
+      <span class="theme__meta">修复前 场景冲突 6/8 镜 · 修复后 0/8 镜</span>
+    </summary>
+    <div class="pair">
+      <div class="col col--old">
+        <h4 class="col__hd">修复前 · d139080</h4>
+        <p class="logline">现代的开阔战场，B-2 轰炸敌方雷达站被投入一场高烈度正面交战；他们必须在局势彻底失控之前达成目标，而唯一的逃生通道只够一人通过，而队伍有两个人。</p>
+        
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">1</span>
+      <span class="chip chip--fn">goal</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">任务简报中景 (Mission Briefing Medium)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">战略轰炸机机组</p>
+    <p class="shot__act">「九十秒后起爆，目标就在这片中东沙漠里。」【DELTA】战略轰炸机机组把平面图摊在断墙上，手指压住红圈，尘雾从缺口灌进来。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】都听清楚了：进去，带人，出来。没有第二次机会。</p>
+    <p class="shot__au"><b>音效</b> 纸张压过碎石 · 远处低频轰鸣</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">2</span>
+      <span class="chip chip--fn">character</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">低声对话双人中景 (Low Exchange Two-Shot)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">特种部队队员 · 步兵班长</p>
+    <p class="shot__act">「回去之后这顿算你的。」【OVERLORD】步兵班长低声说。【SIERRA】特种部队队员没笑，但点了下头。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】别废话，跟上。</p>
+    <p class="shot__au"><b>音效</b> 压低的交谈 · 装备轻响</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">3</span>
+      <span class="chip chip--fn">plan</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">临场改计划中景 (Plan B Medium)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">步兵班长</p>
+    <p class="shot__act">「原路线封了。」【OVERLORD】步兵班长把地图折起来，指向中东沙漠侧面，「走上面。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】改走二号路线，三分钟。</p>
+    <p class="shot__au"><b>音效</b> 地图折叠 · 战术口令</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">4</span>
+      <span class="chip chip--fn">contact</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">拐角遭遇手持近景 (Contact Handheld)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">核生化防护专家 · 便携防空导弹射手</p>
+    <p class="shot__act">拐角。两米。【FALCON】核生化防护专家与【VULTURE】便携防空导弹射手同时抬枪开火，短促交火撕裂尘雾。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】接触！接触！两点钟方向，压制他们！</p>
+    <p class="shot__au"><b>音效</b> 突击步枪连射 · 弹壳落地脆响</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">5</span>
+      <span class="chip chip--fn">escalate</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">载具强突核心 (Vehicle Breach)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">B-2 幽灵隐形战略轰炸机 · 战略轰炸机机组</p>
+    <p class="shot__act">【TANGO】B-2 幽灵隐形战略轰炸机撞穿中东沙漠的路障直插核心，【DELTA】战略轰炸机机组在颠簸中完成最后装填。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】撞进去了！准备下车强攻！</p>
+    <p class="shot__au"><b>音效</b> 撞击碎裂 · 装填机械咔嚓声</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">6</span>
+      <span class="chip chip--fn">clash</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">零距离对轰主视角 (Point-Blank Duel)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">特种部队队员 · 导弹发射控制军官</p>
+    <p class="shot__act">【SIERRA】特种部队队员与【MERIDIAN】导弹发射控制军官在中东沙漠正面撞上，双方在几米内直接交战对轰，塑料零件与火星四散飞溅。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】就是现在！全体开火！</p>
+    <p class="shot__au"><b>音效</b> 全自动连射 · 弹壳与碎片四溅</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">7</span>
+      <span class="chip chip--fn">aftermath</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">最后清剿收束 (Final Sweep)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">便携防空导弹射手 · 步兵班长</p>
+    <p class="shot__act">【VULTURE】便携防空导弹射手的残部仍据守中东沙漠一角负隅顽抗，【OVERLORD】步兵班长率队发起最后的清剿突袭。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】最后一个火力点已清除，战区安全。</p>
+    <p class="shot__au"><b>音效</b> 短促点射 · 随后彻底安静</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">8</span>
+      <span class="chip chip--fn">reaction</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">反应镜头面部特写 (Reaction Close-Up)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">核生化防护专家</p>
+    <p class="shot__act">镜头怼在【FALCON】核生化防护专家的脸上，五秒。他什么都没说，但所有人都读懂了。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（静默）</p>
+    <p class="shot__au"><b>音效</b> 完全静音 · 只有远处的零星燃烧声</p>
+  </article>
+      </div>
+      <div class="col col--new">
+        <h4 class="col__hd">修复后 · d05b9aa</h4>
+        <p class="logline">现代，联军空军基地。必须在打击窗口关闭前的四十分钟之内摧毁远程预警雷达站——否则整条战线会在三天内失去指挥。副驾驶佩德罗带着小队飞向联军空军基地；而唯一的逃生通道只够一人通过，而队伍有两个人。</p>
+        
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">1</span>
+      <span class="chip chip--fn">goal</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">任务简报中景 (Mission Briefing Medium)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">战略轰炸机机组</p>
+    <p class="shot__act">作战室里只有空调声。【SIERRA】佩德罗把目标坐标推到屏幕中央：「打击窗口关闭前的四十分钟之内摧毁远程预警雷达站，否则整条战线会在三天内失去指挥。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】任务代号已下达，准备执行。</p>
+    <p class="shot__au"><b>音效</b> 空调低频 · 键盘与口令</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">2</span>
+      <span class="chip chip--fn">character</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">双人调度 · 人物时刻特写 (Character Beat Close-Up)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">无人机操作员 · 前进空中引导员（JTAC）</p>
+    <p class="shot__act">【DELTA】邓肯在数据链上敲了一行字给【SEXTANT】哈里森：「打击窗口关闭前的四十分钟，够吗？」【SEXTANT】哈里森在座舱盖的反光里看了自己一眼，把一张折了角的照片塞进飞行服内袋，按平，扣好。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（没有按下通话键）</p>
+    <p class="shot__au"><b>音效</b> 座舱通风声 · 织物扣合的轻响</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">3</span>
+      <span class="chip chip--fn">plan</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">临场计划中景 (Plan B Medium)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">战略轰炸机机组</p>
+    <p class="shot__act">「航线贴着多层防空网的缝隙走，进场高度三百米。」【SIERRA】佩德罗在地图上画出一条几乎贴着地面的曲线。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】航线已定，低空进场。</p>
+    <p class="shot__au"><b>音效</b> 航图翻动 · 战术口令</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">4</span>
+      <span class="chip chip--fn">contact</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">双人对轰 · 首次接触手持近景 (Contact Handheld)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">伞降救援兵（战场搜救） · 敌方隐身战斗机飞行员</p>
+    <p class="shot__act">计划定下了，编队进入返航跑道，【TALON】沃尔夫的搜索雷达突然开机，锁定告警在座舱里连成一片尖叫，突防编队被迫与防空火力正面交战。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】被照射了！机动规避！</p>
+    <p class="shot__au"><b>音效</b> 锁定告警尖叫 · 座舱震动</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">5</span>
+      <span class="chip chip--fn">escalate</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">载具主导 · 压力升级跟拍 (Escalation Tracking)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">B-2 幽灵隐形战略轰炸机 · 战略轰炸机机组</p>
+    <p class="shot__act">刚接上火，【TANGO】B-2 幽灵隐形战略轰炸机压到山谷高度，用山脊挡住雷达视线，【SIERRA】佩德罗的手一直放在释放按钮上。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】进入盲区，保持高度。</p>
+    <p class="shot__au"><b>音效</b> 气流呼啸 · 地形警告音</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">6</span>
+      <span class="chip chip--fn">clash</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">双人对轰 · 正面对轰主视角 (Point-Blank Duel)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">无人机操作员 · 敌方防空营指挥官</p>
+    <p class="shot__act">压力还在加码，【SEXTANT】哈里森强行修正弹道，与【HYDRA】鲍尔的防空火力在雷达缝隙里的低空走廊正面交战，近炸引信在机腹外炸开一团团黑烟。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】保持航线！别躲！</p>
+    <p class="shot__au"><b>音效</b> 近炸爆响 · 破片打在机身上</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">7</span>
+      <span class="chip chip--fn">aftermath</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">残局静默收尾 (Silent Aftermath)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">前进空中引导员（JTAC）</p>
+    <p class="shot__act">目标区烧成一片红。【DELTA】邓肯在返航路上反复回放那六秒。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】目标已摧毁，返航。</p>
+    <p class="shot__au"><b>音效</b> 远处燃烧声 · 低频配乐</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">8</span>
+      <span class="chip chip--fn">reaction</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">反应镜头面部特写 (Reaction Close-Up)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">伞降救援兵（战场搜救）</p>
+    <p class="shot__act">镜头怼在【OSCAR】沃克的脸上。他摘下头盔，头发被汗压在额头上，很久没有说话。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（静默）</p>
+    <p class="shot__au"><b>音效</b> 完全静音 · 地面人员跑动的脚步</p>
+  </article>
+      </div>
+    </div>
+  </details>
+  <details class="theme">
+    <summary>
+      <span class="theme__name">中途岛航母对决</span>
+      <span class="theme__meta">修复前 场景冲突 4/8 镜 · 修复后 0/8 镜</span>
+    </summary>
+    <div class="pair">
+      <div class="col col--old">
+        <h4 class="col__hd">修复前 · d139080</h4>
+        <p class="logline">太平洋战场的远洋海域，中途岛航母对决被投入一场高烈度正面交战；他们必须在局势彻底失控之前达成目标，而本应被营救的那个人，恰恰是整场行动的策划者。</p>
+        
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">1</span>
+      <span class="chip chip--fn">goal</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">任务简报中景 (Mission Briefing Medium)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">美国海军陆战队步枪手</p>
+    <p class="shot__act">「九十秒后起爆，目标就在这片太平洋里。」【PILGRIM】美国海军陆战队步枪手把平面图摊在断墙上，手指压住红圈，尘雾从缺口灌进来。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】都听清楚了：进去，带人，出来。没有第二次机会。</p>
+    <p class="shot__au"><b>音效</b> 纸张压过碎石 · 远处低频轰鸣</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">2</span>
+      <span class="chip chip--fn">character</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">低声对话双人中景 (Low Exchange Two-Shot)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">美军海军飞行员（二战） · 美军海军医护兵（太平洋）</p>
+    <p class="shot__act">「回去之后这顿算你的。」【OSCAR】美军海军医护兵（太平洋）低声说。【VECTOR】美军海军飞行员（二战）没笑，但点了下头。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】别废话，跟上。</p>
+    <p class="shot__au"><b>音效</b> 压低的交谈 · 装备轻响</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">3</span>
+      <span class="chip chip--fn">plan</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">临场改计划中景 (Plan B Medium)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">美军海军医护兵（太平洋）</p>
+    <p class="shot__act">「原路线封了。」【OSCAR】美军海军医护兵（太平洋）把地图折起来，指向太平洋侧面，「走上面。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】改走二号路线，三分钟。</p>
+    <p class="shot__au"><b>音效</b> 地图折叠 · 战术口令</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">4</span>
+      <span class="chip chip--fn">contact</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">拐角遭遇手持近景 (Contact Handheld)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">美军海军陆战队喷火兵 · 日本海军航空兵飞行员</p>
+    <p class="shot__act">拐角。两米。【SEAWOLF】美军海军陆战队喷火兵与【KILO】日本海军航空兵飞行员同时抬枪开火，短促交火撕裂尘雾。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】接触！接触！两点钟方向，压制他们！</p>
+    <p class="shot__au"><b>音效</b> 突击步枪连射 · 弹壳落地脆响</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">5</span>
+      <span class="chip chip--fn">escalate</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">载具强突核心 (Vehicle Breach)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">埃塞克斯级航母（二战） · 美国海军陆战队步枪手</p>
+    <p class="shot__act">【BADGER】埃塞克斯级航母（二战）撞穿太平洋的路障直插核心，【PILGRIM】美国海军陆战队步枪手在颠簸中完成最后装填。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】撞进去了！准备下车强攻！</p>
+    <p class="shot__au"><b>音效</b> 撞击碎裂 · 装填机械咔嚓声</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">6</span>
+      <span class="chip chip--fn">clash</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">贴身缠斗微距 (Point-Blank Grapple)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">美军海军飞行员（二战） · 日军中队指挥官</p>
+    <p class="shot__act">【VECTOR】美军海军飞行员（二战）与【HYDRA】日军中队指挥官贴身缠斗、近身对抗，枪械被打飞后改用工程工具硬撼，尘雾中全是金属摩擦的尖啸。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】别管我，完成任务！</p>
+    <p class="shot__au"><b>音效</b> 金属剧烈摩擦 · 急促喘息</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">7</span>
+      <span class="chip chip--fn">aftermath</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">残骸之巅静默收尾 (Silent Aftermath)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">美军海军医护兵（太平洋）</p>
+    <p class="shot__act">太平洋还在烧。【OSCAR】美军海军医护兵（太平洋）站在废墟顶端，把头盔摘了下来。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】阵地已肃清，任务完成。</p>
+    <p class="shot__au"><b>音效</b> 风声渐起 · 低沉克制的配乐</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">8</span>
+      <span class="chip chip--fn">reaction</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">互相搀扶撤离 (Extraction Walk)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">美军海军陆战队喷火兵 · 美国海军陆战队步枪手</p>
+    <p class="shot__act">【SEAWOLF】美军海军陆战队喷火兵与【PILGRIM】美国海军陆战队步枪手互相搀扶着穿过太平洋，身后是仍在燃烧的战场。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】所有人都带回来了，一个都没落下。</p>
+    <p class="shot__au"><b>音效</b> 沉重脚步 · 远处零星燃烧声</p>
+  </article>
+      </div>
+      <div class="col col--new">
+        <h4 class="col__hd">修复后 · d05b9aa</h4>
+        <p class="logline">太平洋战场。必须在下一波次放飞前的十五分钟之内打掉敌方水面编队——否则整支战斗群会被迫退出作战海域。卫生员佩德罗带着小队潜入太平洋；而天气骤变让双方的技术优势同时失效，战斗被迫退回到最原始的距离。</p>
+        
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">1</span>
+      <span class="chip chip--fn">goal</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">任务简报中景 (Mission Briefing Medium)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">美军海军医护兵（太平洋）</p>
+    <p class="shot__act">舰桥的战术屏亮起，【OSCAR】佩德罗指着编队外围的一串光点：「下一波次放飞前的十五分钟之内打掉敌方水面编队，否则整支战斗群会被迫退出作战海域。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】全编队注意，进入一级战备。</p>
+    <p class="shot__au"><b>音效</b> 战术屏电子音 · 舰体低频震动</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">2</span>
+      <span class="chip chip--fn">character</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">双人调度 · 人物时刻特写 (Character Beat Close-Up)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">美军海军陆战队喷火兵 · 美国海军陆战队步枪手</p>
+    <p class="shot__act">【PILGRIM】哈里森在声呐屏的余光里看了【SEAWOLF】奥尔特加一眼，低声说：「下一波次放飞前的十五分钟，够吗？」【SEAWOLF】奥尔特加没回答，只是把手按在冰凉的舱壁上，感受那台机器的心跳。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（没有按下通话键）</p>
+    <p class="shot__au"><b>音效</b> 声呐滴答 · 舱壁传导的机械低鸣</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">3</span>
+      <span class="chip chip--fn">plan</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">临场计划中景 (Plan B Medium)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">美军海军医护兵（太平洋）</p>
+    <p class="shot__act">「把瞭望与测距仪顶到最前面，驱逐舰拉到左翼。」【OSCAR】佩德罗在航图上划出拦截线，「母舰不进对方的包线。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】编队变阵，左翼前出。</p>
+    <p class="shot__au"><b>音效</b> 航图翻动 · 战术口令</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">4</span>
+      <span class="chip chip--fn">contact</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">双人对轰 · 首次接触手持近景 (Contact Handheld)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">美军海军飞行员（二战） · 日本海军航空兵飞行员</p>
+    <p class="shot__act">计划定下了，瞭望哨突然嘶叫，【KILO】中村的鱼雷从海天线以下跃出，海峡口的高射炮火同时点火，海面炸开一排白色水柱，编队被迫正面交战。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】来袭！全编队防空机动！</p>
+    <p class="shot__au"><b>音效</b> 告警嘶叫 · 防空火力点火 · 水柱爆开</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">5</span>
+      <span class="chip chip--fn">escalate</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">载具主导 · 压力升级跟拍 (Escalation Tracking)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">埃塞克斯级航母（二战） · 美军海军医护兵（太平洋）</p>
+    <p class="shot__act">刚接上火，【BADGER】埃塞克斯级航母（二战）拉满舵位在编队外侧打出烟幕，把掠海目标引向空处，【OSCAR】佩德罗盯着航迹把编队压成一个更紧的环形。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】干扰已投放，各舰靠拢！</p>
+    <p class="shot__au"><b>音效</b> 舵机满转 · 干扰弹连续爆开</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">6</span>
+      <span class="chip chip--fn">clash</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">双人对轰 · 正面对轰主视角 (Point-Blank Duel)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">美军海军陆战队喷火兵 · 日本帝国陆军士兵</p>
+    <p class="shot__act">压力还在加码，【SEAWOLF】奥尔特加指挥编队收拢成环形防御，与【BASILISK】佐藤的突入编队在海天线一带正面交战，近防火力在几公里内织出一堵墙。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】环形防御建立，集中火力！</p>
+    <p class="shot__au"><b>音效</b> 近防炮连射 · 海面被弹幕打白</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">7</span>
+      <span class="chip chip--fn">aftermath</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">残局静默收尾 (Silent Aftermath)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">美国海军陆战队步枪手</p>
+    <p class="shot__act">海面安静下来，只剩下浮油和救生筏。【PILGRIM】哈里森看着战术屏上归零的接触点。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】接触全部消失，海域已控制。</p>
+    <p class="shot__au"><b>音效</b> 海浪 · 远处零星燃烧声</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">8</span>
+      <span class="chip chip--fn">reaction</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">反应镜头面部特写 (Reaction Close-Up)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">美军海军飞行员（二战）</p>
+    <p class="shot__act">镜头怼在【VECTOR】米勒的脸上。他摘下耳机，耳边那点声呐的余音还没散。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（静默）</p>
+    <p class="shot__au"><b>音效</b> 完全静音 · 耳机里残留的电流噪声</p>
+  </article>
+      </div>
+    </div>
+  </details>
+  <details class="theme">
+    <summary>
+      <span class="theme__name">现代特战小队城市废墟夜间突袭</span>
+      <span class="theme__meta">修复前 场景冲突 0/8 镜 · 修复后 0/8 镜</span>
+    </summary>
+    <div class="pair">
+      <div class="col col--old">
+        <h4 class="col__hd">修复前 · d139080</h4>
+        <p class="logline">现代的城市废墟，现代特战小队城市废墟夜间突袭被投入一场高烈度正面交战；他们必须在局势彻底失控之前达成目标，而天气骤变让双方的精确制导同时失效，战斗被迫退回到最原始的距离。</p>
+        
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">1</span>
+      <span class="chip chip--fn">goal</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">任务简报中景 (Mission Briefing Medium)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">动力外骨骼特战队员</p>
+    <p class="shot__act">「九十秒后起爆，目标就在这片现代城市巷战街道里。」【MERIDIAN】动力外骨骼特战队员把平面图摊在断墙上，手指压住红圈，夜色从缺口灌进来。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】都听清楚了：进去，带人，出来。没有第二次机会。</p>
+    <p class="shot__au"><b>音效</b> 纸张压过碎石 · 远处低频轰鸣</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">2</span>
+      <span class="chip chip--fn">character</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">私人物件特写 (Personal Token Close-Up)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">现代坦克车长</p>
+    <p class="shot__act">【OBSIDIAN】现代坦克车长从胸前口袋里摸出一张被汗浸皱的照片，看了两秒，又塞了回去。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（没有按下通话键）</p>
+    <p class="shot__au"><b>音效</b> 布料摩擦 · 极轻的弦乐单音</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">3</span>
+      <span class="chip chip--fn">plan</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">临场改计划中景 (Plan B Medium)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">城市战机器人班长</p>
+    <p class="shot__act">「原路线封了。」【OSCAR】城市战机器人班长把地图折起来，指向现代城市巷战街道侧面，「走上面。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】改走二号路线，三分钟。</p>
+    <p class="shot__au"><b>音效</b> 地图折叠 · 战术口令</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">4</span>
+      <span class="chip chip--fn">contact</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">拐角遭遇手持近景 (Contact Handheld)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">女性特战队员 · 游击火箭筒手</p>
+    <p class="shot__act">拐角。两米。【PHANTOM】女性特战队员与【PILGRIM】游击火箭筒手同时抬枪开火，短促交火撕裂夜色。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】接触！接触！两点钟方向，压制他们！</p>
+    <p class="shot__au"><b>音效</b> 突击步枪连射 · 弹壳落地脆响</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">5</span>
+      <span class="chip chip--fn">escalate</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">载具强突核心 (Vehicle Breach)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">M1A2 SEPv3 艾布拉姆斯坦克 · 动力外骨骼特战队员</p>
+    <p class="shot__act">【CROSSBOW】M1A2 SEPv3 艾布拉姆斯坦克撞穿现代城市巷战街道的路障直插核心，【MERIDIAN】动力外骨骼特战队员在颠簸中完成最后装填。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】撞进去了！准备下车强攻！</p>
+    <p class="shot__au"><b>音效</b> 撞击碎裂 · 装填机械咔嚓声</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">6</span>
+      <span class="chip chip--fn">clash</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">零距离对轰主视角 (Point-Blank Duel)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">现代坦克车长 · 导弹发射控制军官</p>
+    <p class="shot__act">【OBSIDIAN】现代坦克车长与【QUARRY】导弹发射控制军官在现代城市巷战街道正面撞上，双方在几米内直接交战对轰，塑料零件与火星四散飞溅。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】就是现在！全体开火！</p>
+    <p class="shot__au"><b>音效</b> 全自动连射 · 弹壳与碎片四溅</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">7</span>
+      <span class="chip chip--fn">aftermath</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">最后清剿收束 (Final Sweep)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">游击火箭筒手 · 城市战机器人班长</p>
+    <p class="shot__act">【PILGRIM】游击火箭筒手的残部仍据守现代城市巷战街道一角负隅顽抗，【OSCAR】城市战机器人班长率队发起最后的清剿突袭。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】最后一个火力点已清除，战区安全。</p>
+    <p class="shot__au"><b>音效</b> 短促点射 · 随后彻底安静</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">8</span>
+      <span class="chip chip--fn">reaction</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">互相搀扶撤离 (Extraction Walk)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">女性特战队员 · 动力外骨骼特战队员</p>
+    <p class="shot__act">【PHANTOM】女性特战队员与【MERIDIAN】动力外骨骼特战队员互相搀扶着穿过现代城市巷战街道，身后是仍在燃烧的战场。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】所有人都带回来了，一个都没落下。</p>
+    <p class="shot__au"><b>音效</b> 沉重脚步 · 远处零星燃烧声</p>
+  </article>
+      </div>
+      <div class="col col--new">
+        <h4 class="col__hd">修复后 · d05b9aa</h4>
+        <p class="logline">现代。必须在天亮前的四十分钟之内摸进敌方指挥掩体——否则己方会在接下来的巷战里彻底失去主动权。机枪手邓肯带着小队进入现代城市巷战街道；而战场下方埋着双方都不敢引爆的东西，谁先动手谁先输。</p>
+        
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">1</span>
+      <span class="chip chip--fn">goal</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">任务简报中景 (Mission Briefing Medium)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">动力外骨骼特战队员</p>
+    <p class="shot__act">【MERIDIAN】邓肯蹲在装甲车后，用粉笔在地上画出楼体结构：「天亮前的四十分钟之内摸进敌方指挥掩体，否则己方会在接下来的巷战里彻底失去主动权。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】各队注意，进去之前再对一次表。</p>
+    <p class="shot__au"><b>音效</b> 粉笔划过水泥 · 远处零星枪声</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">2</span>
+      <span class="chip chip--fn">character</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">人物时刻特写 (Character Beat Close-Up)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">现代坦克车长</p>
+    <p class="shot__act">【OBSIDIAN】米勒从胸袋里摸出一张被汗浸皱的照片，看了两秒，又塞了回去。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（没有按下通话键）</p>
+    <p class="shot__au"><b>音效</b> 布料摩擦 · 极轻的弦乐单音</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">3</span>
+      <span class="chip chip--fn">plan</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">双人调度 · 临场计划中景 (Plan B Medium)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">动力外骨骼特战队员 · 城市战机器人班长</p>
+    <p class="shot__act">「一队走楼梯，二队从楼顶下去。」【MERIDIAN】邓肯把破门器递给【OSCAR】沃克，「断电之后三十秒动手。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】断电三十秒后动手，收到请回答。</p>
+    <p class="shot__au"><b>音效</b> 破门器金属碰撞 · 战术口令</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">4</span>
+      <span class="chip chip--fn">contact</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">双人对轰 · 首次接触手持近景 (Contact Handheld)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">城市战机器人班长 · 敌方坦克车长</p>
+    <p class="shot__act">计划定下了，门被踹开的瞬间，【VECTOR】雷曼的枪口已经在走廊尽头等着——他们知道我们要来，双方在楼顶立刻交火。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】接触！走廊尽头！</p>
+    <p class="shot__au"><b>音效</b> 突击步枪连射 · 弹壳落地脆响</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">5</span>
+      <span class="chip chip--fn">escalate</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">载具主导 · 压力升级跟拍 (Escalation Tracking)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">M1A2 SEPv3 艾布拉姆斯坦克 · 动力外骨骼特战队员</p>
+    <p class="shot__act">刚接上火，【CROSSBOW】M1A2 SEPv3 艾布拉姆斯坦克撞开街区尽头的路障，把【MERIDIAN】邓肯直接送到楼下，车体挡住街口的火力。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】车到了，从这边上楼！</p>
+    <p class="shot__au"><b>音效</b> 撞击碎裂 · 发动机高转</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">6</span>
+      <span class="chip chip--fn">clash</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">双人对轰 · 正面对轰主视角 (Point-Blank Duel)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">现代坦克车长 · 敌方狙击手</p>
+    <p class="shot__act">压力还在加码，【OBSIDIAN】米勒在楼梯间与【QUARRY】沃尔夫近距离交战，两人隔着半层楼对射，水泥碎块不断从头顶砸下来。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】楼梯间！压制他！</p>
+    <p class="shot__au"><b>音效</b> 近距离对射 · 水泥碎块落地</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">7</span>
+      <span class="chip chip--fn">aftermath</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">残局静默收尾 (Silent Aftermath)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">女性特战队员</p>
+    <p class="shot__act">楼里安静下来。【PHANTOM】哈里森坐在楼梯上，把手套一只一只摘下来。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】楼已清空。</p>
+    <p class="shot__au"><b>音效</b> 手套落地的轻响 · 远处警笛</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">8</span>
+      <span class="chip chip--fn">reaction</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">反应镜头面部特写 (Reaction Close-Up)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">城市战机器人班长</p>
+    <p class="shot__act">镜头怼在【OSCAR】沃克的脸上。他什么都没说，但所有人都读懂了。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（静默）</p>
+    <p class="shot__au"><b>音效</b> 完全静音 · 只有远处的零星燃烧声</p>
+  </article>
+      </div>
+    </div>
+  </details>
+  <details class="theme">
+    <summary>
+      <span class="theme__name">F-22 制空巡逻</span>
+      <span class="theme__meta">修复前 场景冲突 6/8 镜 · 修复后 0/8 镜</span>
+    </summary>
+    <div class="pair">
+      <div class="col col--old">
+        <h4 class="col__hd">修复前 · d139080</h4>
+        <p class="logline">现代的开阔战场，F-22 制空巡逻被投入一场深入敌后的侦察行动；他们必须在局势彻底失控之前达成目标，而天气骤变让双方的精确制导同时失效，战斗被迫退回到最原始的距离。</p>
+        
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">1</span>
+      <span class="chip chip--fn">goal</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">任务简报中景 (Mission Briefing Medium)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">城市战机器人班长</p>
+    <p class="shot__act">「九十秒后起爆，目标就在这片中东沙漠里。」【ROMEO】城市战机器人班长把平面图摊在断墙上，手指压住红圈，尘雾从缺口灌进来。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】都听清楚了：进去，带人，出来。没有第二次机会。</p>
+    <p class="shot__au"><b>音效</b> 纸张压过碎石 · 远处低频轰鸣</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">2</span>
+      <span class="chip chip--fn">character</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">低声对话双人中景 (Low Exchange Two-Shot)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">无人机操作员 · 前进空中引导员（JTAC）</p>
+    <p class="shot__act">「回去之后这顿算你的。」【DELTA】前进空中引导员（JTAC）低声说。【SEXTANT】无人机操作员没笑，但点了下头。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】别废话，跟上。</p>
+    <p class="shot__au"><b>音效</b> 压低的交谈 · 装备轻响</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">3</span>
+      <span class="chip chip--fn">plan</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">临场改计划中景 (Plan B Medium)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">前进空中引导员（JTAC）</p>
+    <p class="shot__act">「原路线封了。」【DELTA】前进空中引导员（JTAC）把地图折起来，指向中东沙漠侧面，「走上面。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】改走二号路线，三分钟。</p>
+    <p class="shot__au"><b>音效</b> 地图折叠 · 战术口令</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">4</span>
+      <span class="chip chip--fn">contact</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">拐角遭遇手持近景 (Contact Handheld)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">伞降救援兵（战场搜救） · 便携防空导弹射手</p>
+    <p class="shot__act">拐角。两米。【OSCAR】伞降救援兵（战场搜救）与【VULTURE】便携防空导弹射手同时抬枪开火，短促交火撕裂尘雾。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】接触！接触！两点钟方向，压制他们！</p>
+    <p class="shot__au"><b>音效</b> 突击步枪连射 · 弹壳落地脆响</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">5</span>
+      <span class="chip chip--fn">escalate</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">载具强突核心 (Vehicle Breach)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">F-22 猛禽战斗机 · 城市战机器人班长</p>
+    <p class="shot__act">【ZULU】F-22 猛禽战斗机撞穿中东沙漠的路障直插核心，【ROMEO】城市战机器人班长在颠簸中完成最后装填。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】撞进去了！准备下车强攻！</p>
+    <p class="shot__au"><b>音效</b> 撞击碎裂 · 装填机械咔嚓声</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">6</span>
+      <span class="chip chip--fn">clash</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">贴身缠斗微距 (Point-Blank Grapple)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">无人机操作员 · 导弹发射控制军官</p>
+    <p class="shot__act">【SEXTANT】无人机操作员与【MERIDIAN】导弹发射控制军官贴身缠斗、近身对抗，枪械被打飞后改用工程工具硬撼，尘雾中全是金属摩擦的尖啸。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】别管我，完成任务！</p>
+    <p class="shot__au"><b>音效</b> 金属剧烈摩擦 · 急促喘息</p>
+  </article>
+  <article class="shot shot--bad">
+    <header class="shot__hd">
+      <span class="shot__n">7</span>
+      <span class="chip chip--fn">aftermath</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">残骸之巅静默收尾 (Silent Aftermath)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">前进空中引导员（JTAC）</p>
+    <p class="shot__act">中东沙漠还在烧。【DELTA】前进空中引导员（JTAC）站在废墟顶端，把头盔摘了下来。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】阵地已肃清，任务完成。</p>
+    <p class="shot__au"><b>音效</b> 风声渐起 · 低沉克制的配乐</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">8</span>
+      <span class="chip chip--fn">reaction</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">反应镜头面部特写 (Reaction Close-Up)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">伞降救援兵（战场搜救）</p>
+    <p class="shot__act">镜头怼在【OSCAR】伞降救援兵（战场搜救）的脸上，五秒。他什么都没说，但所有人都读懂了。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（静默）</p>
+    <p class="shot__au"><b>音效</b> 完全静音 · 只有远处的零星燃烧声</p>
+  </article>
+      </div>
+      <div class="col col--new">
+        <h4 class="col__hd">修复后 · d05b9aa</h4>
+        <p class="logline">现代，联军空军基地。必须在突击编队进入包线前的六分钟之内清空敌方制空编队——否则己方打击编队会在没有掩护的情况下被逐个击落。武器系统官凯恩带着小队飞向联军空军基地；而整场行动只是更大规模行动的佯动，主角直到最后一刻才察觉。</p>
+        
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">1</span>
+      <span class="chip chip--fn">goal</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">任务简报中景 (Mission Briefing Medium)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">现代战斗机飞行员</p>
+    <p class="shot__act">座舱里告警灯安静地亮着。【ANGEL】凯恩在数据链上圈出一片空域：「突击编队进入包线前的六分钟之内清空敌方制空编队，否则己方打击编队会在没有掩护的情况下被逐个击落。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】编队进入巡逻空域，武器解除保险。</p>
+    <p class="shot__au"><b>音效</b> 座舱通风声 · 数据链提示音</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">2</span>
+      <span class="chip chip--fn">character</span>
+      <span class="chip">establish</span>
+      <span class="chip chip--st">双人调度 · 人物时刻特写 (Character Beat Close-Up)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">无人机操作员 · 前进空中引导员（JTAC）</p>
+    <p class="shot__act">【DELTA】邓肯在数据链上敲了一行字给【SEXTANT】哈里森：「突击编队进入包线前的六分钟，够吗？」【SEXTANT】哈里森在座舱盖的反光里看了自己一眼，把一张折了角的照片塞进飞行服内袋，按平，扣好。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（没有按下通话键）</p>
+    <p class="shot__au"><b>音效</b> 座舱通风声 · 织物扣合的轻响</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">3</span>
+      <span class="chip chip--fn">plan</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">临场计划中景 (Plan B Medium)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">现代战斗机飞行员</p>
+    <p class="shot__act">「我走高空诱敌，僚机压在云下。」【ANGEL】凯恩推杆前说，「别跟进来，这是我的活。」</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】我上高空，你在云下待机。</p>
+    <p class="shot__au"><b>音效</b> 油门推杆 · 呼吸声压重</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">4</span>
+      <span class="chip chip--fn">contact</span>
+      <span class="chip">build</span>
+      <span class="chip chip--st">双人对轰 · 首次接触手持近景 (Contact Handheld)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">伞降救援兵（战场搜救） · 敌方隐身战斗机飞行员</p>
+    <p class="shot__act">计划定下了，云层被撕开，【TALON】雷曼的双机编队从太阳方向俯冲下来，返航加油空域的第一次交汇只持续了四秒，双方立刻进入交战。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】敌机！两点钟方向，俯冲！</p>
+    <p class="shot__au"><b>音效</b> 气流爆响 · 雷达锁定单音</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">5</span>
+      <span class="chip chip--fn">escalate</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">载具主导 · 压力升级跟拍 (Escalation Tracking)</span>
+      <span class="shot__dur">6s</span>
+    </header>
+    <p class="shot__subj">F-22 猛禽战斗机 · 现代战斗机飞行员</p>
+    <p class="shot__act">刚接上火，【ZULU】F-22 猛禽战斗机打开加力，在高空云层之上拉出一道长长的尾迹，把两架敌机拽进己方的发射包线。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】我在把它们往里带，准备好。</p>
+    <p class="shot__au"><b>音效</b> 加力燃烧的低频咆哮 · 气流呼啸</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">6</span>
+      <span class="chip chip--fn">clash</span>
+      <span class="chip">climax</span>
+      <span class="chip chip--st">双人对轰 · 正面对轰主视角 (Point-Blank Duel)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">无人机操作员 · 敌方防空营指挥官</p>
+    <p class="shot__act">压力还在加码，【SEXTANT】哈里森与【HYDRA】沃尔夫在云底下方的突防走廊缠斗交战，机炮在极近距离打出一串曳光，两机擦身而过时座舱几乎贴在一起。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】咬住了！开火！</p>
+    <p class="shot__au"><b>音效</b> 机炮连射 · 气流撕扯机身</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">7</span>
+      <span class="chip chip--fn">aftermath</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">残局静默收尾 (Silent Aftermath)</span>
+      <span class="shot__dur">8s</span>
+    </header>
+    <p class="shot__subj">前进空中引导员（JTAC）</p>
+    <p class="shot__act">空域清了。【DELTA】邓肯在归航途中看着燃油表，一句话都没说。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】空域已清空，申请返航。</p>
+    <p class="shot__au"><b>音效</b> 发动机稳定巡航音 · 无人说话</p>
+  </article>
+  <article class="shot">
+    <header class="shot__hd">
+      <span class="shot__n">8</span>
+      <span class="chip chip--fn">reaction</span>
+      <span class="chip">resolve</span>
+      <span class="chip chip--st">反应镜头面部特写 (Reaction Close-Up)</span>
+      <span class="shot__dur">4s</span>
+    </header>
+    <p class="shot__subj">伞降救援兵（战场搜救）</p>
+    <p class="shot__act">镜头怼在【OSCAR】沃克的脸上。他摘下头盔，头发被汗压在额头上，很久没有说话。</p>
+    <p class="shot__vo"><b>台词</b> 【无线电】（静默）</p>
+    <p class="shot__au"><b>音效</b> 完全静音 · 地面人员跑动的脚步</p>
+  </article>
+      </div>
+    </div>
+  </details>
+
+  <footer>
+    数据来源：<code>planFilm({ theme, requestedShots: 8, profileId: 'veo-3.1-lite' })</code>，
+    分别在 <code>d139080</code>（修复前）与 <code>d05b9aa</code>（修复后）两棵工作树上执行。
+    指标由脚本扫描成片原文得出，「场景冲突」按题材关键词推断应有战场域后统计。
+  </footer>
+</div>
+</body>
+</html>
