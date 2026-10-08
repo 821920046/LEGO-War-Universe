@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGO War Universe · 6.7.2 现代与未来战争验收</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c222b; --line:#272e38;
+    --fg:#e8ecf1; --muted:#98a3b2; --dim:#6f7a89;
+    --bad:#ff5f5f; --good:#35d07f; --accent:#ffb454; --link:#5eb1ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:29px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0;font-size:14px}
+  .note{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--accent);
+    background:#1a1710;color:#e8dfd0;border-radius:0 8px 8px 0;font-size:13.5px}
+  h2{margin:46px 0 14px;font-size:20px;border-left:3px solid var(--accent);padding-left:12px}
+  h3{margin:26px 0 10px;font-size:15.5px;color:#cfd7e2}
+  p{margin:0 0 12px}
+  code{background:#0b0e12;padding:1px 6px;border-radius:4px;color:var(--accent);font-size:12.5px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{margin:0 0 8px;font-size:14px;color:var(--good)}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 6px}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .box__hd{padding:9px 14px;font-size:12.5px;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  .box--bad .box__hd{background:#1d1618;color:var(--bad);border-color:#5c2b2b}
+  .box--good .box__hd{background:#131e18;color:var(--good);border-color:#264d38}
+  .box__bd{padding:14px}
+  pre{margin:0;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
+    line-height:1.75;white-space:pre-wrap;color:#cfd7e2}
+  .del{color:var(--bad)} .ins{color:var(--good)} .dimtxt{color:var(--dim)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;
+    background:var(--panel);position:sticky;top:0}
+  td code{font-size:12px}
+  .ok{color:var(--good)} .no{color:var(--bad)} .blank{color:var(--dim)}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;font-size:13px}
+  .node{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 13px}
+  .node--dead{border-color:#5c2b2b;background:#1d1618;color:var(--bad)}
+  .node--live{border-color:#264d38;background:#131e18;color:var(--good)}
+  .arrow{color:var(--dim)}
+  .script{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px;margin:14px 0}
+  .script h4{margin:0 0 4px;font-size:14.5px;color:var(--fg)}
+  .script .meta{color:var(--dim);font-size:12.5px;margin:0 0 12px}
+  .script .meta b{color:var(--good);font-weight:600}
+  .script ol{margin:0;padding-left:0;list-style:none}
+  .script li{padding:7px 0;border-bottom:1px dashed #222831;font-size:13px;color:#cfd7e2}
+  .script li:last-child{border-bottom:none}
+  .fn{display:inline-block;min-width:76px;color:var(--accent);font-family:"Cascadia Mono",Consolas,monospace;font-size:11.5px}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px}
+  @media(max-width:880px){.pair{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="kicker">LEGO War Universe · v6.7.2</p>
+    <h1>创作能力：从「只能拍历史」到「现代战争 / 未来战争」</h1>
+    <p class="sub">用户诉求：「要加上让它有创作能力，这个乐高项目主要是军事题材，不仅限于历史，我更要的是现代战争、未来战争这样的脚本内容。」</p>
+    <p class="note">这一轮的每一条缺陷都来自<b>把真实成片打印出来读</b>，而不是来自代码审查。因此新增的 <b>27</b> 条测试全部断言<b>成片正文</b>，而不是内部字段 —— 字段对了但句子还是错的，才是这一轮反复踩到的坑。资产 791 → <b>806</b>，构建签名 <code>a9ed2d3b9b40</code> → <code>5fcb1b870ef4</code>。</p>
+  </header>
+
+  <h2>一、七项修复概览</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>① 6 个现代 / 未来战争原型</h4>
+      <p>资产早就有无人机蜂群与外骨骼，但 <code>ARCS</code> 只有 10 个历史形状的骨架 —— <b>骨架是历史的，装备是未来的</b>。</p>
+    </div>
+    <div class="card">
+      <h4>② 8/20 个题材判不出年代</h4>
+      <p>「库尔斯克坦克对决」拍成了「现代，中东沙漠」+ M1A2。这不是不够好，是<b>内容错误</b>。</p>
+    </div>
+    <div class="card">
+      <h4>③ 5/20 个题材判不出战场域</h4>
+      <p>环境退化成「资产库第一项」（中东沙漠绿洲）。</p>
+    </div>
+    <div class="card">
+      <h4>④ 19/20 个题材的天气都是「尘雾」</h4>
+      <p>而且真空里也起尘雾：「核心舱检修口在<b>尘雾</b>里无声自转」。</p>
+    </div>
+    <div class="card">
+      <h4>⑤ 收尾镜回退通用模板</h4>
+      <p>10/20 个题材的收尾是「载着归队的队员缓缓驶离」，且载具与物理动作不相容。</p>
+    </div>
+    <div class="card">
+      <h4>⑥ 17 处占位符与焦点不匹配</h4>
+      <p>不报错、不打日志，只是把<b>错的人</b>写进句子：「沃尔科夫看见沃尔科夫的指挥车」。</p>
+    </div>
+    <div class="card">
+      <h4>⑦ 主角职务四类「一眼假」</h4>
+      <p>军医指挥编队打航母对决；<code>ROLE_LABELS</code> 的键与资产对不上，海军角色全退化成「队长」。</p>
+    </div>
+    <div class="card">
+      <h4>⑧ 资产 +15</h4>
+      <p>现代高科技此前<b>一个敌方角色都没有</b> —— 没有对手的战争片，clash / reversal / cost 全部失去支点。</p>
+    </div>
+  </div>
+
+  <h2>二、第一性诊断：不是「没有现代战争资产」，是「没有现代战争原型」</h2>
+  <p>用户说「要现代战争、未来战争」，最省事的做法是继续加资产。但先做了一次盘点：</p>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">盘点结果 · 引擎里已经有的东西</div>
+      <div class="box__bd"><pre>资产库里<b>已经有</b>：
+  无人机蜂群 · 外骨骼 · 忠诚僚机 · 高超音速载具
+  （6.5.0 补 131 项、6.6.0 补 194 项）
+
+<span class="del">但 ARCS 只有 10 个原型，且全部是历史战争的形状：</span>
+  潜艇猎杀 · 舰队作战 · 制空 · 战略打击 · 两栖登陆
+  装甲对决 · 轨道作战 · 营救撤离 · 城市突袭 · 正面交战</pre></div>
+    </div>
+    <div class="box box--bad">
+      <div class="box__hd">于是题材只能挤进不匹配的骨架</div>
+      <div class="box__bd"><pre>「无人机蜂群突防压制敌方雷达」
+  → 落进 <span class="del">制空作战</span> 原型
+
+「电子战与网络战压制敌方指挥节点」
+  → 落进 <span class="del">正面交战</span> 原型
+
+<span class="del">骨架是历史的，填进去的装备是未来的 ——
+读起来就是一部给旧剧本换了道具的片子。</span></pre></div>
+    </div>
+  </div>
+  <p><b>结论：</b>现代战争 / 未来战争缺的不是资产，是<b>节拍骨架</b>。继续加资产只会让「未来的装备演历史的剧本」。</p>
+
+  <h3>修法：新增 6 个原型（10 → 16），每个配一份完整 12 拍手写骨架</h3>
+  <table>
+    <tr><th>原型</th><th><code>arc.id</code></th><th>目标</th><th>威胁</th><th>题材示例</th></tr>
+    <tr><td>反无人机阵地防御</td><td><code>counter-uas</code></td><td>保住要地</td><td>蜂群饱和</td><td>反无人机阵地防御</td></tr>
+    <tr><td>蜂群突防</td><td><code>swarm-strike</code></td><td>打瘫雷达</td><td>定向能拦截</td><td>无人机蜂群突防压制敌方雷达</td></tr>
+    <tr><td>高超音速打击</td><td><code>hypersonic-strike</code></td><td>穿透反导</td><td>中段拦截</td><td>高超音速滑翔弹打击敌方反导阵地</td></tr>
+    <tr><td>电磁网络压制</td><td><code>ew-cyber</code></td><td>瘫掉指挥节点</td><td>频谱反制</td><td>电子战与网络战压制敌方指挥节点</td></tr>
+    <tr><td>外骨骼突击</td><td><code>mech-assault</code></td><td>碾开通路</td><td>战斗机器人</td><td>动力外骨骼小队突击城市废墟</td></tr>
+    <tr><td>使馆撤侨</td><td><code>embassy-evac</code></td><td>撤出平民</td><td>围困与人群</td><td>使馆撤侨掩护平民撤离</td></tr>
+  </table>
+  <p><code>ERA_VOCAB</code> 同步补齐 8 个时代的「蜂群 / 数据链 / 干扰」词汇 —— 让 1942 年说不出「数据链」。</p>
+
+  <h2>三、年代识别：8/20 个题材静默回落「现代，中东沙漠」</h2>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">修复前 · 题材「库尔斯克坦克对决」</div>
+      <div class="box__bd"><pre>era=<span class="del">null</span>  arc=装甲对决  domain=ground
+logline: <span class="del">现代，中东沙漠</span>。必须在天亮前之内挡住敌方装甲集群……
+环境: <span class="del">中东沙漠绿洲</span>
+装备: <span class="del">M1A2 艾布拉姆斯 · 无人战车</span>
+
+<span class="del">用户写的是 1943 年的库尔斯克，
+引擎拍的是当代中东。库里明明有 WWII 池。</span></pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">修复后 · 同一个题材</div>
+      <div class="box__bd"><pre>era=<span class="ins">WWII</span>  eraSource=battle  arc=装甲对决
+logline: <span class="ins">二战，库尔斯克草原</span>。必须在天黑前的两小时之内挡住敌方装甲集群……
+环境: <span class="ins">库尔斯克草原</span>  (ENV-109)
+装备: <span class="ins">T-34/85 · 施密特的伏击</span>
+
+<span class="ins">识别为「具体战役名」→ eraSource=battle</span></pre></div>
+    </div>
+  </div>
+
+  <h3>两层识别 + 手动指定</h3>
+  <table>
+    <tr><th>层次</th><th><code>eraSource</code></th><th>覆盖</th></tr>
+    <tr><td>① 具体战役名</td><td><code>battle</code></td><td>库尔斯克 / 阿登 / 敦刻尔克 / 阿拉曼 / 市场花园 / 卡昂 / 巴斯托涅 / 中途岛 / 瓜岛 / 硫磺岛 / 冲绳 / 塞班 / 塔拉瓦 / 贝里琉 / 珊瑚海 / 莱特湾 / 珍珠港 / 费卢杰 / 巴格达 / 摩苏尔 / 拉马迪 / 柏林墙 / 富尔达</td></tr>
+    <tr><td>② 装备型号反推</td><td><code>platform</code></td><td><code>b-21 / f-35 / 忠诚僚机 / 高超音速 / 电磁炮 / 定向能 / 外骨骼 / 蜂群 / 无人战车 / 巡飞弹</code> → 现代高科技；<code>b-2 / f-22 / m1a2 / 阿帕奇 / 海马斯 / 宙斯盾 / 尼米兹</code> → 现代；<code>米格-21 / t-64 / 富尔达</code> → 冷战；<code>t-34 / 虎式 / 谢尔曼 / 喷火式 / 零式 / p-51</code> → 二战</td></tr>
+    <tr><td>③ 手动指定</td><td><code>override</code></td><td>界面新增年代下拉框；<b>显式指定优先于任何识别结果</b>，并说明这个年代是怎么判出来的</td></tr>
+  </table>
+  <p class="note" style="border-color:var(--bad);background:#1d1618;color:#f0d8d8">
+    <code>T-72</code> / <code>T-80</code> <b>刻意排除</b>在型号表外 —— 它们横跨冷战与海湾两个时代，靠型号推必然推错。
+    这是<b>用召回率换准确率</b>的自觉取舍：推错年代（把 1980 年代拍成海湾战争）比不推年代（提示用户确认）更糟。
+  </p>
+  <p><b>结果：</b><code>era=null</code> <b class="ok">8/20 → 3/20</b>。剩下 3 个（跳伞飞行员敌后营救 / 敌后渗透破坏桥梁 / 护航编队反潜警戒）是<b>真的没有年代信息</b>，按设计进入「需确认年代」提示，而不是瞎猜。</p>
+
+  <h2>四、战场域：5/20 个题材的环境退化成「资产库第一项」</h2>
+  <p><code>DOMAIN_RULES</code> 缺词导致 <code>domainOfText()</code> 返回 <code>null</code>，下游环境选择退化成「环境库第一项」（中东沙漠绿洲），选角也拿不到域加分。</p>
+  <table>
+    <tr><th>域</th><th>新增关键词</th><th>修掉的题材</th></tr>
+    <tr><td><code>naval</code></td><td>护航 / 编队 / 反潜 / 滩头 / 抢滩 / 登陆 / 海面 / 海战</td><td>护航编队反潜警戒、诺曼底登陆抢滩</td></tr>
+    <tr><td><code>air</code></td><td>无人机 / 蜂群 / 反无人机 / 跳伞 / 飞行员 / 机降 / 伞兵 / 忠诚僚机 / 巡飞弹</td><td>跳伞飞行员敌后营救、无人机蜂群突防</td></tr>
+    <tr><td><code>strategic</code></td><td>高超音速 / 反导 / 中段拦截 / 滑翔 / 电子战 / 网络战 / 电磁脉冲 / 赛博 / 指挥节点 / 数据链 / 干扰</td><td>高超音速打击、电磁网络压制</td></tr>
+    <tr><td><code>ground</code></td><td>阿登 / 森林 / 雪原 / 渗透 / 桥梁 / 渡口 / 防线 / 战壕 / 村庄 / 外骨骼 / 无人战车 / 机器人 / 机甲 / 使馆 / 撤侨 / 平民</td><td>阿登森林反击战、敌后渗透破坏桥梁</td></tr>
+  </table>
+  <p class="note" style="border-color:var(--good);background:#131e18;color:#d3ecdd">
+    <code>登陆</code> 与 <code>滩头</code> 归 <b>海军</b>而不是陆军 —— 抢滩片要的是登陆艇，不是坦克。
+  </p>
+  <h3>连带修掉：环境选择不认题材点名的那个</h3>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">修复前</div>
+      <div class="box__bd"><pre>库尔斯克坦克对决
+  → <span class="del">ENV-107 北非沙漠绿洲</span>
+
+只因为 ENV-107 恰好排在
+ENV-109 库尔斯克草原 <span class="del">之前</span></pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">修复后</div>
+      <div class="box__bd"><pre>库尔斯克坦克对决
+  → <span class="ins">ENV-109 库尔斯克草原</span>
+
+按「题材点名度」排序，
+题材里写了草原，片子里就出草原</pre></div>
+    </div>
+  </div>
+  <p><b>结果：</b><code>domain=null</code> <b class="ok">5/20 → 0/20</b>。</p>
+
+  <h2>五、天气：19/20 个题材都是「尘雾」，真空里也起尘雾</h2>
+  <p><code>{weather}</code> 此前只有四个来源：<code>snow → 风雪</code>、<code>rain → 暴雨</code>、<code>night → 夜色</code>、其余 → <code>尘雾</code>。后果有两层：</p>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">第一层 · 单调（19/20 同词）</div>
+      <div class="box__bd"><pre>尘雾 · 尘雾 · 尘雾 · 尘雾 · 尘雾
+尘雾 · 尘雾 · 尘雾 · 尘雾 · 尘雾
+尘雾 · 尘雾 · 尘雾 · 尘雾 · 尘雾
+尘雾 · 尘雾 · 尘雾 · <span class="del">风雪</span> · <span class="del">暴雨</span></pre></div>
+    </div>
+    <div class="box box--bad">
+      <div class="box__hd">第二层 · 物理错误</div>
+      <div class="box__bd"><pre>镜头沿舱体外壁缓慢滑行，核心舱检修口
+在<span class="del">尘雾</span>里无声自转，地球的弧线压在画面下缘。
+
+<span class="del">真空里起不了尘雾。</span></pre></div>
+    </div>
+  </div>
+  <p>修法：新增 <code>weatherFor({ domain, intent, seed })</code> 与 <code>WEATHER_BY_DOMAIN</code>，让气象按战场域分化。</p>
+  <table>
+    <tr><th>域</th><th>气象池</th></tr>
+    <tr><td><code>orbital</code></td><td>真空 / 地球反照的冷光 / 背阴面的黑暗</td></tr>
+    <tr><td><code>naval</code></td><td>海雾 / 低垂的云 / 涌浪激起的水汽 / 雨幕</td></tr>
+    <tr><td><code>air</code></td><td>云层 / 低云 / 薄云 / 逆温层</td></tr>
+    <tr><td><code>strategic</code></td><td>夜幕 / 低云 / 尘霾</td></tr>
+    <tr><td><code>ground</code></td><td>尘雾 / 扬尘 / 薄雾 / 硝烟 / 沙尘</td></tr>
+  </table>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">修复前 · 轨道片</div>
+      <div class="box__bd"><pre>镜头沿舱体外壁缓慢滑行，
+<span class="del">核心舱检修口</span>在<span class="del">尘雾</span>里无声自转。</pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">修复后 · 轨道片</div>
+      <div class="box__bd"><pre>镜头沿舱体外壁缓慢滑行，
+<span class="ins">核心舱与太阳翼之间的连接段</span>在<span class="ins">真空</span>里无声自转。</pre></div>
+    </div>
+  </div>
+  <p><b>结果：</b>氛围词 <b class="ok">19/20 同词 → 10 种</b>，单一词最高占比 3/20（雨幕×3）。</p>
+
+  <h2>六、收尾镜：焦点、主载具、以及物理相容性</h2>
+  <p>三个独立问题叠在同一镜上。</p>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">修复前 · 三个问题</div>
+      <div class="box__bd"><pre><span class="del">① 10/20 个题材回退通用模板</span>
+「载着归队的队员缓缓驶离」
+
+<span class="del">② 收尾载具是轮转抽签抽到的</span>
+不是本片主载具
+
+<span class="del">③ 物理动作与载具型号不相容</span>
+「反潜护卫舰冲破海面，
+  指挥塔舱盖打开」
+<span class="del">水面舰艇没有指挥塔</span></pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">修复后</div>
+      <div class="box__bd"><pre><span class="ins">① strict 不再作用于 close</span>
+每个原型用自己的收尾句
+
+<span class="ins">② close 载具固定为 vehicles[0]</span>
+就是本片的主载具
+
+<span class="ins">③ focus 从 vehicle 改为 hero</span>
+「海面破开一道白痕，
+  指挥塔舱盖掀开，
+  {heroCallsign}探出头……」</pre></div>
+    </div>
+  </div>
+
+  <h2>七、占位符与焦点：不报错，只是把错的人写进句子</h2>
+  <p><code>{supportCallsign}</code> / <code>{enemyCallsign}</code> / <code>{vehicle}</code> 渲染谁，由镜头的 <code>focus</code> 决定。两者对不上时<b>不报错、不打日志</b>。</p>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">修复前 · focus:'hero' 里写了 {enemyCallsign}</div>
+      <div class="box__bd"><pre>【DELTA】沃尔科夫看见<span class="del">【DELTA】沃尔科夫</span>的指挥车，
+下令开火。
+
+<span class="del">主角看见了主角自己。</span></pre></div>
+    </div>
+    <div class="box box--bad">
+      <div class="box__hd">修复前 · focus:'clash' 里写了 {vehicle}</div>
+      <div class="box__bd"><pre>【TANGO】<span class="del">伊万诺夫</span>的装甲被打出几个洞。
+
+<span class="del">敌方的载具把敌方自己打掉了。</span></pre></div>
+    </div>
+  </div>
+  <div class="pair">
+    <div class="box box--good">
+      <div class="box__hd">修复后 · 改为「对面的 / 对方的」</div>
+      <div class="box__bd"><pre>【DELTA】沃尔科夫看见<span class="ins">对面的</span>指挥车，
+下令开火。
+
+<span class="ins">涉及 9 个原型共 12 处</span></pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">修复后 · 改为「主角的车体」</div>
+      <div class="box__bd"><pre><span class="ins">{heroCallsign}</span>的车体被打出几个洞，
+他借着烟幕绕到{enemyCallsign}的侧后。
+
+<span class="ins">主语与宾语不再指向同一方</span></pre></div>
+    </div>
+  </div>
+  <p>另新增<b>静态源码扫描测试</b>（直接扫 <code>story.js</code> 的骨架文本）：<code>{supportCallsign}</code> 只能出现在 <code>squad</code> 镜、<code>{enemyCallsign}</code> 只能在 <code>clash/enemy</code> 镜、<code>{vehicle}</code> 只能在 <code>vehicle</code> 镜。这样新增节拍时写错会<b>在测试里挂掉</b>，而不是等成片印出来才发现。</p>
+
+  <h2>八、主角职务：四类「一眼假」</h2>
+  <p>主角承担全部指挥类节拍（<code>goal</code> / <code>plan</code> / <code>decision</code> / <code>close</code>），职务必须配得上「在镜头前布置战术」。</p>
+
+  <h3>① 医疗兵占据主角位（26 个题材里有 3 个）</h3>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">修复前 · 中途岛航母对决 / 太平洋滩头两栖登陆 / 近地轨道卫星争夺战</div>
+      <div class="box__bd"><pre><span class="del">军医</span>沃克带着小队潜入诺曼底海滩。
+「下一波次放飞前的十五分钟之内
+  打掉敌方水面编队……」
+
+<span class="del">医疗兵该在主角负伤时上场，
+不是带着编队去打航母对决。</span></pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">修复后 · 结构性不变量 NON_LEAD_UNITS</div>
+      <div class="box__bd"><pre><span class="ins">舰长</span>佩德罗带着小队驶入编队外围的警戒线。
+「下一波次放飞前的十五分钟之内
+  打掉敌方水面编队……」
+
+<span class="ins">非指挥兵种从主角位「换位」到后面
+（不丢弃 —— 需要时照常上场救人）</span></pre></div>
+    </div>
+  </div>
+
+  <h3>② ROLE_LABELS 的键与资产对不上（静默退化）</h3>
+  <p>资产用 <code>Navy</code>（6 个角色），<code>ROLE_LABELS</code> 只写了 <code>Naval</code>（0 个角色）—— 两边<b>永远对不上</b>，所有海军角色的职务都退化成通用池的「队长」。</p>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">修复前 · 11 个兵种没有专属职务池</div>
+      <div class="box__bd"><pre>CHR-904 弹道导弹核潜艇艇长
+  → 职务显示为 <span class="del">「队长」</span>
+CHR-901 现代航母甲板调度员
+  → 职务显示为 <span class="del">「队长」</span>
+CHR-801 反无人机电子战操作员
+  → 职务显示为 <span class="del">「队长」</span>
+
+<span class="del">不抛异常、不打日志，
+只让「艇长」在成片里显示成「队长」。</span></pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">修复后 · 补齐 11 个键 + 新增契约测试</div>
+      <div class="box__bd"><pre>Navy · Navy Command · Advanced Special Forces
+Aviation / UAS · Counter-UAS · Cyber Command
+Robotics · Robotic Infantry · Unmanned Command
+UAS Strike · Media · Civilian
+
+CHR-904 → <span class="ins">「编队指挥官 / 潜艇艇长」</span>
+CHR-901 → <span class="ins">「舰长」</span>
+CHR-801 → <span class="ins">「反无人机组长」</span></pre></div>
+    </div>
+  </div>
+
+  <h3>③ 关键词判域第三次骗人 —— 本轮最有价值的一条</h3>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">修复前 · 一场航母对决里没有舰长</div>
+      <div class="box__bd"><pre>题材「中途岛航母对决」
+主角 = <span class="del">美军海军陆战队喷火兵（工兵组长）</span>
+
+根因：domainScore 判角色靠<b>名字里的关键词</b>，
+而 <code>USMC Flamethrower Operator</code> 的名字里
+有「海军陆战队」→ 拿到了与舰长同分的海军域加分。</pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">修复后 · 显式的兵种→域对照表</div>
+      <div class="box__bd"><pre>题材「中途岛航母对决」
+主角 = <span class="ins">美军舰长（太平洋）· 舰长 [Navy]</span>
+
+新增 <code>UNIT_DOMAIN</code>（+8 分）：
+<span class="ins">名字可以骗人，unit 字段不会。</span></pre></div>
+    </div>
+  </div>
+  <table>
+    <tr><th>次序</th><th>关键词</th><th>误判</th></tr>
+    <tr><td>第一次（6.7.0 §39）</td><td><code>\bcrew\b</code></td><td>航母甲板兵被判成陆战装甲车组</td></tr>
+    <tr><td>第二次（6.7.0 §40）</td><td><code>战斗</code></td><td>「战斗工兵」与「战斗机」共享二字，飞行员被挤掉</td></tr>
+    <tr><td>第三次（本轮）</td><td><code>marine</code></td><td>陆战队工兵在航母对决里压过舰长</td></tr>
+  </table>
+  <p class="note"><b>启发式攒到第三个反例，就该换掉它。</b></p>
+  <p><b>结果：</b>26 题材主角职务扫描，非指挥职务 <b class="ok">3 → 0</b>。</p>
+
+  <h3>④ 4 个兵种的 0 号职务不是指挥职务</h3>
+  <table>
+    <tr><th>兵种</th><th>修复前 0 号职务</th><th>修复后</th></tr>
+    <tr><td><code>Aviation</code></td><td><span class="no">长机飞行员</span></td><td><span class="ok">飞行队长</span></td></tr>
+    <tr><td><code>Naval Aviation</code></td><td><span class="no">长机飞行员</span></td><td><span class="ok">飞行队长</span></td></tr>
+    <tr><td><code>Engineer</code></td><td><span class="no">工兵</span></td><td><span class="ok">工兵组长</span></td></tr>
+    <tr><td><code>JTAC</code></td><td><span class="no">前沿引导员</span></td><td><span class="ok">引导组长</span></td></tr>
+  </table>
+
+  <h2>九、资产补充（+15，791 → 806）</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>现代高科技敌方阵营 +11</h4>
+      <p>此前该时代<b>一个敌方角色都没有</b> —— 未来战争片只能借 Modern 的敌方飞行员，或退化成「单向行动叙事」。一个没有对手的战争片，<code>clash / reversal / cost</code> 三个节拍<b>全部失去支点</b>。补 4 敌方角色 + 3 敌方载具 + 1 敌方武器。</p>
+    </div>
+    <div class="card">
+      <h4>未来战场环境 +3</h4>
+      <p>未来都市巷战街区 / 反无人机防御阵地 / 蜂群作战指挥车内部。</p>
+    </div>
+    <div class="card">
+      <h4>东线战场环境 +2</h4>
+      <p>库尔斯克草原 / 冰封的东线平原。</p>
+    </div>
+    <div class="card">
+      <h4>海军军官 +2</h4>
+      <p><code>Navy</code> 这个兵种在 Pacific 与 WWII 两个时代里<b>一个角色都没有</b>（太平洋盟军只有 5 人：海军飞行员 / 步兵 / 医护 / 工兵 / 侦察狙击）。补「美军舰长（太平洋）」与「美军海军军官（二战）」。</p>
+    </div>
+  </div>
+
+  <h2>十、成片实证（修复后真实输出）</h2>
+  <p>以下全部是引擎的<b>实际输出</b>，未经改写。原始主题只有一行字。</p>
+
+  <div class="script">
+    <h4>「无人机蜂群突防压制敌方雷达」</h4>
+    <p class="meta">era=<b>Modern High-Tech</b> · eraSource=explicit · arc=<b>蜂群突防</b> · domain=air · 环境=未来都市废墟 · 主角=米勒/队长</p>
+    <ol>
+      <li><span class="fn">goal</span>机库的灯只开了一半。【SEXTANT】米勒把投放箱的盖子拍上：「有人机进入包线前的十二分钟之内打瘫远程预警雷达站，否则后面的有人机编队会被迫取消整个波次。」</li>
+      <li><span class="fn">world</span>镜头从云层上方拉开，目标上空的悬停层在云层下方摊成一整张地图，机影只是上面几个缓慢移动的点。</li>
+      <li><span class="fn">plan</span>局势铺开之后，「分三股走，走不同高度。」【SEXTANT】米勒在投放图上标出三条线，「第一股先去把他们的雷达叫醒。」</li>
+      <li><span class="fn">contact</span>计划定下了，第一股刚进到投放空域的低云下方，地面的定向能拦截就亮了。【HYDRA】雷曼的防空火力把天空切成一块块，【SEXTANT】米勒下令第二股立刻压低高度，双方在低空交战。</li>
+      <li><span class="fn">reveal</span>刚接上火，频谱上冒出一个新的辐射源。【BADGER】沃克盯着它：「他们关了主雷达，改用备用的——而且这个备用机在动，是车载的。」</li>
+      <li><span class="fn">escalate</span>情报已经被推翻，【OBSIDIAN】自主打击蜂群无人机群从投放箱里一架接一架弹出去，在目标上空的悬停层编成一张网，【DELTA】哈里森盯着屏幕上跳动的编号。</li>
+      <li><span class="fn">clash</span>压力还在加码，剩下的蜂群在两栋楼之间的峡谷走廊上空与【HYDRA】雷曼的拦截火力正面交战，一架接一架撞在雷达阵面上，把整座天线拖进火里。</li>
+      <li><span class="fn">decision</span>双方已经绞在一起，撤回去明天再来，还是把剩下的蜂群全压上去赌一次。【SEXTANT】米勒把最后一箱推上了发射位。</li>
+      <li><span class="fn">reaction</span>机库里只剩他自己。【DELTA】哈里森把屏幕上最后一条航迹回放到第一架起飞的那一刻，看了一遍，然后关掉。</li>
+      <li><span class="fn">close</span>【SEXTANT】米勒把空箱子推回架子上，拍了拍箱盖。</li>
+    </ol>
+  </div>
+
+  <div class="script">
+    <h4>「动力外骨骼小队突击城市废墟」</h4>
+    <p class="meta">era=<b>Modern High-Tech</b> · arc=<b>外骨骼突击</b> · domain=ground · 环境=未来都市废墟 · 主角=邓肯/队长</p>
+    <ol>
+      <li><span class="fn">goal</span>【MERIDIAN】邓肯在出发线上把外骨骼的锁扣一个个扣紧，然后敲了敲胸前的装甲板：「火力准备结束后的六分钟之内在敌方预设的坚固阵地上碾开一条通路，否则整条进攻轴线都要停在原地。」</li>
+      <li><span class="fn">world</span>镜头缓缓升起，地雷区之间的窄通道在薄雾里铺开成一片没有尽头的灰色，人影缩成几个几乎看不见的黑点。</li>
+      <li><span class="fn">contact</span>计划定下了，无人战车刚压上第一片废墟，【VECTOR】雷曼的反装甲伏击就从废墟街区的进攻出发线两侧同时开火，【MERIDIAN】邓肯被冲击波掀得后退两步，双方在废墟里立刻交战。</li>
+      <li><span class="fn">reveal</span>刚接上火，墙后面不是守军，是一排还在待机的战斗机器人。【SPECTRE】哈里森愣了一瞬：「他们是准备放机器人反冲的——我们提前了三分钟。」</li>
+      <li><span class="fn">escalate</span>情报已经被推翻，【ROMEO】装甲通用越野车用机械臂扒开塌掉的楼板，【OSCAR】沃克借着它的车体当掩体往前跃进，外骨骼的伺服声盖过了枪声。</li>
+      <li><span class="fn">clash</span>压力还在加码，【OVERLORD】米勒在外骨骼的助力下与【VECTOR】雷曼的机器人近身交战，机械臂把扑上来的一台按进墙里，装甲板上留下一道道划痕。</li>
+      <li><span class="fn">decision</span>双方已经绞在一起，趁它们没启动全部打掉，还是留着抢回去。【MERIDIAN】邓肯选择了全部打掉。</li>
+      <li><span class="fn">reaction</span>他靠着墙站了一会儿，才把头盔摘下来。【OSCAR】沃克看着那一排不再亮的机器人，很久没有动。</li>
+      <li><span class="fn">close</span>【MERIDIAN】邓肯把报废的支架留在原地，一步一步走向突破口。</li>
+    </ol>
+  </div>
+
+  <div class="script">
+    <h4>「使馆撤侨掩护平民撤离」</h4>
+    <p class="meta">era=<b>Modern</b> · arc=<b>使馆撤侨</b> · domain=ground · 环境=现代城市巷战街道 · 主角=沃克/小队指挥官</p>
+    <ol>
+      <li><span class="fn">goal</span>围墙上的探照灯扫过院落。【PHANTOM】沃克把撤离名单按在沙袋上：「最后一批车队出城窗口关闭前的四十分钟之内把被困在使馆院落里的侨民一个不剩地带出去，否则围墙上的人会在天亮前被冲开。」</li>
+      <li><span class="fn">plan</span>局势铺开之后，「车队从侧门走，直升机在楼顶接最后一批。」【PHANTOM】沃克把名单分成两叠，「女人和孩子先走。」</li>
+      <li><span class="fn">contact</span>计划定下了，车队刚出侧门，【PILGRIM】雷曼的武装人群就从街角压上来，把使馆院落的大铁门前堵死，石块和曳光一起砸在车身上，【PHANTOM】沃克不得不下令车队就地停下、就地交战。</li>
+      <li><span class="fn">reveal</span>刚接上火，最后清点人数时少了一个。【ROMEO】米勒翻着名单：「名单上写了四十七个，院子里只有四十六个——有一个人没进来。」</li>
+      <li><span class="fn">clash</span>压力还在加码，【OVERLORD】邓肯带着剩下的人在围墙一线与【PILGRIM】雷曼近距离交战，把冲上墙头的人一次次压回去，沙袋被打得不停往下漏沙。</li>
+      <li><span class="fn">decision</span>双方已经绞在一起，车队再等十分钟就会被合围，回去找那个人也一样。【PHANTOM】沃克把头盔扣上，往门外走。</li>
+      <li><span class="fn">aftermath</span>天亮了，围墙上安静下来。【ROMEO】米勒靠在沙袋上，看着最后一架直升机变成一个点。</li>
+    </ol>
+  </div>
+
+  <div class="script">
+    <h4>「中途岛航母对决」 · 修复后</h4>
+    <p class="meta">era=<b>Pacific</b> · eraSource=<b>battle</b> · arc=舰队作战 · domain=naval · 环境=太平洋 · 主角=<b>佩德罗/舰长 [Navy]</b></p>
+    <ol>
+      <li><span class="fn">logline</span>太平洋战场。必须在下一波次放飞前的十五分钟之内打掉敌方水面编队——否则整支战斗群会被迫退出作战海域。<b>舰长佩德罗带着小队驶入编队外围的警戒线</b>；而唯一的逃生通道只够一人通过，而队伍有两个人。</li>
+      <li><span class="fn">world</span>镜头贴着海面低掠，母舰左舷海域在<b>雨幕</b>里被压成一条发白的线，浪从画面两侧切进来。</li>
+      <li><span class="fn">clash</span>压力还在加码，【SEAWOLF】沃克指挥编队收拢成环形防御，与【KILO】桥本的突入编队在海峡口正面交战，近防火力在几公里内织出一堵墙。</li>
+      <li><span class="fn">close</span>受损的【BADGER】埃塞克斯级航母在海面上缓缓调头，重新回到编队里自己的位置，甲板上的水幕在晨光里拉出一道彩虹。</li>
+    </ol>
+    <p class="meta" style="margin-top:10px;margin-bottom:0">
+      <span class="ins">对比修复前</span>：era=<span class="del">null</span>、环境=<span class="del">中东沙漠绿洲</span>、主角=<span class="del">军医</span>、logline=<span class="del">舰长佩德罗带着小队潜入太平洋</span>（航母不会下潜）。
+    </p>
+  </div>
+
+  <h2>十一、验证记录</h2>
+  <table>
+    <tr><th>门禁</th><th>结果</th></tr>
+    <tr><td><code>python 02_Assets/validate.py 02_Assets/assets.json</code></td><td class="ok">OK：806 资产，ID 全局唯一，<code>schemaVersion=3.7</code></td></tr>
+    <tr><td><code>jsonschema</code> 全量校验</td><td class="ok">PASSED</td></tr>
+    <tr><td><code>node scripts/build-assets.mjs</code></td><td class="ok">806 资产，签名 <code>5fcb1b870ef4</code></td></tr>
+    <tr><td><code>npm test</code></td><td class="ok">231/231 通过（204 → 231）</td></tr>
+    <tr><td><code>node scripts/check-release.mjs</code></td><td class="ok"><code>{"ok":true,"violations":[]}</code></td></tr>
+    <tr><td><code>node scripts/run-blind-test.mjs --verify</code></td><td class="ok">一致性 100% / 可剪辑性 100% / 合规性 100% / 重生成率 96%</td></tr>
+    <tr><td><code>node --check src/**/*.js</code> + <code>functions/**/*.js</code></td><td class="ok">全部通过</td></tr>
+    <tr><td>20 题材 × 12 镜批量质量扫描</td><td class="ok"><code>era=null</code> 8 → <b>3</b>；<code>domain=null</code> 5 → <b>0</b>；<code>validateFilmPlan</code> 失败 <b>0</b></td></tr>
+    <tr><td>16 个原型路由</td><td class="ok">全部可达，每个原型 12 镜<b>唯一文本 12/12</b></td></tr>
+    <tr><td>26 题材主角职务扫描</td><td class="ok">非指挥职务 3 → <b>0</b></td></tr>
+  </table>
+
+  <h2>十二、残余风险（红队视角，第八轮）</h2>
+  <table>
+    <tr><th>#</th><th>风险</th></tr>
+    <tr><td>1</td><td><b><code>ERA_COMPATIBILITY</code> 是手工维护的等价类。</b><code>WWII ⇄ Pacific</code>、<code>Modern ⇄ Modern High-Tech</code>、<code>Gulf War ⇄ Iraq War</code> 三组互借是有意的，但新增时代时必须同步想清楚它属于哪一组。</td></tr>
+    <tr><td>2</td><td><b><code>PLATFORM_ERA_HINTS</code> 是型号白名单，覆盖必然不全。</b>刻意排除跨时代型号（T-72 / T-80），代价是写「T-72 集群突击」时仍会 <code>era=null</code>。这是用召回率换准确率的自觉取舍。</td></tr>
+    <tr><td>3</td><td><b><code>UNIT_DOMAIN</code> 与 <code>ROLE_LABELS</code> 现在是「新增 unit 必须同步改三处」的契约。</b>已加测试守住 <code>ROLE_LABELS</code>，但 <code>UNIT_DOMAIN</code> 漏项<b>不会报错</b>，只会静默失去那 8 分。下一轮应补一条「每个 unit 必须在 <code>UNIT_DOMAIN</code> 里有显式取值」的测试。</td></tr>
+    <tr><td>4</td><td><b><code>ARC_ENV</code> 是手写表，覆盖率靠人工枚举。</b>新原型若忘记登记，环境会退回 <code>intent.setting</code> 或域兜底 —— 不报错，只是选得不够准。</td></tr>
+    <tr><td>5</td><td><b><code>WEATHER_BY_DOMAIN</code> 的池子仍然很小</b>（每域 3–5 个词）。20 题材里单一词最高占比 3/20，已经不再「一眼重复」，但同一域内连拍多部仍会撞。</td></tr>
+    <tr><td>6</td><td><b>原型识别仍是「顺序敏感 + 先命中先算」。</b>本轮新增的 6 个原型全部 <code>prepend</code> 在历史原型之前，已加测试「未来战争原型不得抢走历史原型」，但新增原型时仍需手工确认插入位置。</td></tr>
+    <tr><td>7</td><td><b><code>eraSource='platform'</code> 只在第一层完全没命中时才启用。</b>若题材同时含时代词与型号（「二战风格的 F-35」），以时代词为准 —— 这是有意的，但用户可能期望型号更权威。</td></tr>
+    <tr><td>8</td><td><b>本轮仍然只生成文本提示词，不渲染视频。</b>输出是给 Veo 3 / Google Flow 的分镜与提示词序列，视频合成不在本仓库范围内。</td></tr>
+  </table>
+
+  <footer>
+    LEGO War Universe · v6.7.2 · 806 资产 / <code>schemaVersion 3.7</code> / 构建签名 <code>5fcb1b870ef4</code><br>
+    本页为单文件，无运行时依赖，可直接打开。所有成片引用均为引擎实际输出。
+  </footer>
+</div>
+</body>
+</html>

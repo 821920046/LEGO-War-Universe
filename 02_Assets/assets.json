@@ -5,7 +5,7 @@
     "code": "LWU",
     "bibleVersion": "2.1",
     "target": "Google Flow (Veo 3), 8-second cinematic shots, long-form war-film series",
-    "updated": "2026-10-03"
+    "updated": "2026-10-08"
   },
   "styleBlock": {
     "id": "STYLE-LWU",
@@ -3504,6 +3504,174 @@
       "origin": "modern-aircrew-pack",
       "changelog": [
         "1.0 modern aircrew pack"
+      ]
+    },
+    {
+      "id": "CHR-807",
+      "name": "Adversary Unmanned Swarm Commander",
+      "nameZh": "敌方无人集群指挥官",
+      "kw": "敌方 无人 集群 蜂群 指挥 自动化 adversary unmanned swarm commander uas",
+      "series": "Modern High-Tech",
+      "faction": "Opposing Force",
+      "unit": "Unmanned Command",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "version": "1.0",
+      "origin": "future-warfare-pack",
+      "changelog": [
+        "1.0 future warfare expansion pack"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO minifigure adversary unmanned-swarm commander in a matte black field rig",
+        "angular dark-grey helmet with a blank mirrored visor and a thin red status strip",
+        "brick-built wrist console showing a glowing drone-grid map, cable running up the forearm",
+        "standing pose with one hand raised, issuing orders to something off-camera",
+        "authentic LEGO plastic texture, consistent minifigure proportions"
+      ]
+    },
+    {
+      "id": "CHR-808",
+      "name": "Adversary Exoskeleton Assault Trooper",
+      "nameZh": "敌方外骨骼突击兵",
+      "kw": "敌方 外骨骼 突击 重装 机械 adversary exoskeleton assault trooper powered armor",
+      "series": "Modern High-Tech",
+      "faction": "Opposing Force",
+      "unit": "Advanced Special Forces",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "version": "1.0",
+      "origin": "future-warfare-pack",
+      "changelog": [
+        "1.0 future warfare expansion pack"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO minifigure adversary assault trooper in a hostile-pattern exoskeleton frame",
+        "dark olive armour plates with bare-metal wear, no national insignia anywhere",
+        "brick-built hydraulic leg braces with exposed miniature pistons and hydraulic lines",
+        "shoulder-mounted smart weapon on a gyro arm, both hands gripping a control bar",
+        "authentic LEGO plastic texture, consistent minifigure proportions"
+      ]
+    },
+    {
+      "id": "CHR-809",
+      "name": "Adversary Electronic Warfare Operator",
+      "nameZh": "敌方电子战操作员",
+      "kw": "敌方 电子战 干扰 频谱 数据链 adversary electronic warfare operator jammer spectrum",
+      "series": "Modern High-Tech",
+      "faction": "Opposing Force",
+      "unit": "EW / Cyber",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "version": "1.0",
+      "origin": "future-warfare-pack",
+      "changelog": [
+        "1.0 future warfare expansion pack"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO minifigure adversary electronic warfare operator in a charcoal technical uniform",
+        "headset with a boom mic and a small directional antenna folded down over one shoulder",
+        "brick-built spectrum analyser with a bright green waterfall display on the chest rig",
+        "crouched behind a portable jammer tripod, one hand steadying the antenna dish",
+        "authentic LEGO plastic texture, consistent minifigure proportions"
+      ]
+    },
+    {
+      "id": "CHR-810",
+      "name": "Adversary Drone Swarm Operator",
+      "nameZh": "敌方蜂群操作员",
+      "kw": "敌方 蜂群 无人机 操作 巡飞弹 adversary drone swarm operator loitering munition",
+      "series": "Modern High-Tech",
+      "faction": "Opposing Force",
+      "unit": "UAS Strike",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "version": "1.0",
+      "origin": "future-warfare-pack",
+      "changelog": [
+        "1.0 future warfare expansion pack"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "LEGO minifigure adversary drone swarm operator in a dark grey flight deck vest",
+        "visored FPV goggles pushed up on the forehead, wired to a brick-built launch controller",
+        "a rack of miniature quadcopter drones clipped to the back of the vest",
+        "kneeling pose over an open launch case, thumb on the release switch",
+        "authentic LEGO plastic texture, consistent minifigure proportions"
+      ]
+    },
+    {
+      "id": "CHR-209",
+      "name": "US Navy Captain (Pacific)",
+      "nameZh": "美军舰长（太平洋）",
+      "series": "Pacific",
+      "faction": "Allies",
+      "unit": "Navy",
+      "kw": "美军 舰长 海军 指挥 太平洋 captain navy commander",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive-drab US Navy officer cap with a black visor and a gold-wire insignia",
+        "khaki service shirt torso print with shoulder boards, ribbons and a lanyard whistle",
+        "light skin, brown eyebrows, weathered steady expression, tanned by sun and salt",
+        "equipment: binoculars on a strap, a stopwatch, a folded chart tucked under the arm",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-114",
+      "name": "US Naval Officer (WWII)",
+      "nameZh": "美军海军军官（二战）",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Navy",
+      "kw": "美军 海军 军官 舰长 指挥 护航 us navy naval officer commander escort",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark navy officer cap with a black band, a peaked visor and a gold badge",
+        "dark navy service jacket torso print with rank lace, brass buttons and a life-belt pack",
+        "light skin, brown eyebrows, calm deliberate expression, salt-stiffened hair",
+        "equipment: signal whistle, stopwatch on a lanyard, a rolled chart under one arm",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
       ]
     }
   ],
@@ -9527,6 +9695,87 @@
         "a red prow stripe and running lights along the hull",
         "consistent scale, consistent markings, same brick construction, high detail"
       ]
+    },
+    {
+      "id": "VEH-808",
+      "name": "Adversary Heavy Unmanned Combat Vehicle",
+      "nameZh": "敌方重型无人战车",
+      "kw": "敌方 无人 战车 重装 履带 adversary unmanned combat vehicle ugv",
+      "class": "ugv",
+      "series": "Modern High-Tech",
+      "faction": "Opposing Force",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "version": "1.0",
+      "origin": "future-warfare-pack",
+      "changelog": [
+        "1.0 future warfare expansion pack"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO adversary unmanned combat vehicle at minifigure scale",
+        "angular slab-sided hull in dark olive with no markings, low turret and no crew hatch",
+        "exposed sensor mast with a rotating camera cluster, dust-caked tracks and side skirts",
+        "visible LEGO studs and mold seams on every plate, chipped paint at the edges",
+        "authentic LEGO plastic texture, consistent minifigure scale"
+      ]
+    },
+    {
+      "id": "AIR-807",
+      "name": "Adversary Stealth Unmanned Fighter",
+      "nameZh": "敌方隐身无人战机",
+      "kw": "敌方 隐身 无人 战机 飞翼 adversary stealth unmanned fighter ucas",
+      "class": "aircraft",
+      "series": "Modern High-Tech",
+      "faction": "Opposing Force",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "version": "1.0",
+      "origin": "future-warfare-pack",
+      "changelog": [
+        "1.0 future warfare expansion pack"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO tailless flying-wing unmanned fighter at minifigure scale",
+        "matte charcoal radar-absorbent panels with no roundels, sharp sawtooth trailing edges",
+        "internal weapons bay doors open, sensor windows as dark glossy tiles",
+        "visible LEGO studs and mold seams, subtle panel-line greebles along the spine",
+        "authentic LEGO plastic texture, consistent minifigure scale"
+      ]
+    },
+    {
+      "id": "SHP-803",
+      "name": "Adversary Unmanned Surface Attack Craft",
+      "nameZh": "敌方无人水面攻击艇",
+      "kw": "敌方 无人 水面 攻击艇 快艇 adversary unmanned surface vessel usv",
+      "class": "ship",
+      "series": "Modern High-Tech",
+      "faction": "Opposing Force",
+      "variants": [
+        "clean",
+        "weathered",
+        "damaged"
+      ],
+      "version": "1.0",
+      "origin": "future-warfare-pack",
+      "changelog": [
+        "1.0 future warfare expansion pack"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO adversary unmanned surface attack craft at minifigure scale",
+        "low grey planing hull with a faceted sensor mast and no bridge windows at all",
+        "a single remote weapon station forward, strakes and spray rails along the waterline",
+        "visible LEGO studs and mold seams, salt streaking across the paint",
+        "authentic LEGO plastic texture, consistent minifigure scale"
+      ]
     }
   ],
   "weapons": [
@@ -10666,6 +10915,25 @@
         "LEGO orbital mine",
         "a spiked sphere with sensor studs and small manoeuvring thrusters",
         "a blinking status light and a tether anchor for station-keeping"
+      ]
+    },
+    {
+      "id": "WPN-809",
+      "name": "Adversary Directed-Energy Air Defence Gun",
+      "nameZh": "敌方定向能防空炮",
+      "kw": "敌方 定向能 防空 激光 微波 adversary directed energy air defence",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "future-warfare-pack",
+      "changelog": [
+        "1.0 future warfare expansion pack"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO directed-energy air defence emitter on a towed carriage",
+        "matte black emitter housing with a cluster of faceted apertures and a cooling jacket",
+        "armoured power cabinet and a thick cable run back to a generator trailer",
+        "visible LEGO studs and mold seams, soot at the muzzle"
       ]
     }
   ],
@@ -13760,6 +14028,101 @@
         "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
         "asteroid mining station clamped to a jagged rock face with drill rigs and ore hoppers",
         "harsh raking sunlight, deep black shadow, slow tumbling rock and dust plumes"
+      ]
+    },
+    {
+      "id": "ENV-109",
+      "name": "Kursk Steppe",
+      "nameZh": "库尔斯克草原",
+      "kw": "库尔斯克 草原 东线 平原 反坦克壕 kursk steppe eastern front plain",
+      "series": "WWII",
+      "version": "1.0",
+      "origin": "future-warfare-pack",
+      "changelog": [
+        "1.0 future warfare expansion pack"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "open Russian steppe under a hard summer sky, wheat stubble and shallow anti-tank ditches cut across the ground",
+        "a low village wall and a burnt-out tank hull at the horizon, heat shimmer over the tracks",
+        "flat harsh sunlight, dust hanging where a column has just passed"
+      ]
+    },
+    {
+      "id": "ENV-110",
+      "name": "Frozen Eastern Front Plain",
+      "nameZh": "冰封的东线平原",
+      "kw": "东线 冰封 雪原 冬季 苏联 frozen eastern front winter plain",
+      "series": "WWII",
+      "version": "1.0",
+      "origin": "future-warfare-pack",
+      "changelog": [
+        "1.0 future warfare expansion pack"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "wind-scoured snow plain with frozen shell craters and a sunken road of churned ice",
+        "burnt-out armour half buried in drifts, telegraph poles leaning away from the wind",
+        "low grey winter light, blowing snow cutting visibility down to a few hundred metres"
+      ]
+    },
+    {
+      "id": "ENV-806",
+      "name": "Future Megacity Street Fight",
+      "nameZh": "未来都市巷战街区",
+      "kw": "未来 都市 废墟 巷战 街区 future megacity street fight urban",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "future-warfare-pack",
+      "changelog": [
+        "1.0 future warfare expansion pack"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "glass-and-concrete megacity street reduced to rubble, shattered curtain-wall panels stacked like plates",
+        "overturned autonomous transit pods and a collapsed elevated walkway forming cover",
+        "cold blue dawn light with emergency strobes flickering off wet surfaces"
+      ]
+    },
+    {
+      "id": "ENV-807",
+      "name": "Counter-UAS Defence Position",
+      "nameZh": "反无人机防御阵地",
+      "kw": "反无人机 阵地 激光 微波 防空 counter-uas defence position laser microwave",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "future-warfare-pack",
+      "changelog": [
+        "1.0 future warfare expansion pack"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO set at minifigure scale: terrain, buildings and props are LEGO elements with visible studs and seams, while weather, water, smoke and fire are photorealistic",
+        "sandbagged revetment around a brick-built directed-energy emplacement, capacitor banks stacked behind it",
+        "a rotating search radar on a mast, cable drums and a cooling trailer parked alongside",
+        "flat noon glare with heat distortion above the emitter housing"
+      ]
+    },
+    {
+      "id": "ENV-808",
+      "name": "Drone Swarm Control Shelter",
+      "nameZh": "蜂群作战指挥车内部",
+      "kw": "蜂群 指挥 车 内部 数据链 屏幕 drone swarm control shelter interior",
+      "series": "Modern High-Tech",
+      "version": "1.0",
+      "origin": "future-warfare-pack",
+      "changelog": [
+        "1.0 future warfare expansion pack"
+      ],
+      "referenceImage": "",
+      "lines": [
+        "brick-built LEGO interior at minifigure scale: consoles, racks and seats are LEGO elements with visible studs and seams",
+        "crowded shelter interior lined with glowing tracking displays and a launch rack of miniature drones",
+        "loose cabling bundled along the wall, a single red master switch under a clear guard",
+        "cold screen light as the only source, faces lit from below"
       ]
     }
   ],

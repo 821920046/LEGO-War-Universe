@@ -44,50 +44,115 @@ const ERA_VOCAB = {
   'WWII': {
     antiship: '鱼雷', interceptor: '高射炮火', warning: '瞭望哨', sensor: '瞭望与测距仪',
     fighter: '螺旋桨战斗机', strike: '俯冲轰炸机', guidance: '目视瞄准', shield: '烟幕',
-    armorRound: '穿甲弹', antiArmor: '反坦克炮'
+    armorRound: '穿甲弹', antiArmor: '反坦克炮',
+    droneSwarm: '俯冲轰炸机群', counterDrone: '高射炮火网', datalink: '旗语与无线电报', jamming: '无线电欺骗'
   },
   'Pacific': {
     antiship: '鱼雷', interceptor: '高射炮火', warning: '瞭望哨', sensor: '瞭望与测距仪',
     fighter: '舰载战斗机', strike: '俯冲轰炸机', guidance: '目视瞄准', shield: '烟幕',
-    armorRound: '穿甲弹', antiArmor: '反坦克炮'
+    armorRound: '穿甲弹', antiArmor: '反坦克炮',
+    droneSwarm: '舰载攻击机群', counterDrone: '高射炮火网', datalink: '旗语与无线电报', jamming: '无线电欺骗'
   },
   'Cold War': {
     antiship: '反舰导弹', interceptor: '防空导弹', warning: '雷达告警', sensor: '舰载雷达',
     fighter: '喷气战斗机', strike: '攻击机', guidance: '雷达制导', shield: '箔条干扰',
-    armorRound: '尾翼稳定脱壳穿甲弹', antiArmor: '反坦克导弹'
+    armorRound: '尾翼稳定脱壳穿甲弹', antiArmor: '反坦克导弹',
+    droneSwarm: '攻击机群', counterDrone: '防空导弹与高炮', datalink: '战术数据链', jamming: '电子干扰'
   },
   'Gulf War': {
     antiship: '反舰导弹', interceptor: '拦截弹', warning: '雷达告警', sensor: '舰载雷达',
     fighter: '第三代战斗机', strike: '攻击机', guidance: '激光制导', shield: '干扰弹',
-    armorRound: '贫铀穿甲弹', antiArmor: '反坦克导弹'
+    armorRound: '贫铀穿甲弹', antiArmor: '反坦克导弹',
+    droneSwarm: '攻击机群', counterDrone: '近防炮与拦截弹', datalink: '战术数据链', jamming: '电子干扰'
   },
   'Iraq War': {
     antiship: '反舰导弹', interceptor: '拦截弹', warning: '雷达告警', sensor: '舰载雷达',
     fighter: '第三代战斗机', strike: '攻击机', guidance: '激光制导', shield: '干扰弹',
-    armorRound: '贫铀穿甲弹', antiArmor: '反坦克导弹'
+    armorRound: '贫铀穿甲弹', antiArmor: '反坦克导弹',
+    droneSwarm: '攻击机群', counterDrone: '近防炮与拦截弹', datalink: '战术数据链', jamming: '电子干扰'
   },
   'Modern': {
     antiship: '反舰导弹', interceptor: '拦截弹', warning: '雷达告警', sensor: '相控阵雷达',
     fighter: '战斗机', strike: '攻击机', guidance: '精确制导', shield: '干扰弹',
-    armorRound: '尾翼稳定脱壳穿甲弹', antiArmor: '反坦克导弹'
+    armorRound: '尾翼稳定脱壳穿甲弹', antiArmor: '反坦克导弹',
+    droneSwarm: '无人机蜂群', counterDrone: '反无人机干扰与近防炮', datalink: '战术数据链', jamming: '全频段干扰'
   },
   'Modern High-Tech': {
     antiship: '高超音速反舰导弹', interceptor: '定向能拦截', warning: '被动告警阵列', sensor: '有源相控阵',
     fighter: '第五代隐身战斗机', strike: '隐身轰炸机', guidance: '多模复合制导', shield: '电磁干扰幕',
-    armorRound: '电磁炮穿甲弹', antiArmor: '攻顶弹药'
+    armorRound: '电磁炮穿甲弹', antiArmor: '攻顶弹药',
+    droneSwarm: '自主打击蜂群', counterDrone: '定向能拦截', datalink: '加密数据链', jamming: '电磁压制'
   },
   'Orbital': {
     antiship: '动能拦截弹', interceptor: '点防御激光', warning: '接近告警', sensor: '光电阵列',
     fighter: '轨道拦截器', strike: '动能杆', guidance: '光学锁定', shield: '气溶胶幕',
-    armorRound: '动能弹丸', antiArmor: '定向能'
+    armorRound: '动能弹丸', antiArmor: '定向能',
+    droneSwarm: '动能弹群', counterDrone: '点防御激光', datalink: '激光通信链路', jamming: '频段遮蔽'
   }
 };
 
 const DEFAULT_VOCAB = ERA_VOCAB['Modern'];
 
-/** 取该时代的词汇表；未知时代一律按现代处理 */
+/**
+ * 取该时代的词汇表。
+ *
+ * 与 DEFAULT_VOCAB **合并**而不是替换：`expandVocab` 遇到未定义的键会原样保留
+ * `{vocab.xxx}`，于是任何一个新键漏写在某个时代里，都会直接漏进成片正文。
+ * 合并之后新增词汇键只需写在需要的时代，其余时代自动继承现代写法。
+ */
 export function vocabFor(era) {
-  return ERA_VOCAB[era] || DEFAULT_VOCAB;
+  return { ...DEFAULT_VOCAB, ...(ERA_VOCAB[era] || {}) };
+}
+
+/* ================================================================== *
+ * 0b. 场景氛围词
+ *
+ * 6.7.1 之前 `{weather}` 只有四个来源：snow → 风雪、rain → 暴雨、night → 夜色、
+ * 其余一律「尘雾」。实测 20 个题材里 **19 个都是尘雾** —— 这正是用户抱怨的
+ * 「内容太单一」在环境层的残留：换一个题材，句子骨架换了、氛围词还是同一个。
+ *
+ * 更严重的是语义错配：尘雾是**地面**现象，却出现在海面、高空与轨道上 ——
+ * 「山谷低空在尘雾下方摊成一整张地图」「核心舱检修口在尘雾里无声自转」。
+ *
+ * 因此氛围词改为**按战场域取词池**，并在域内按题材哈希做确定性轮转。
+ * 池里的词必须同时满足两个条件，改词前请先验证：
+ *   1. 能与骨架句法搭配 —— 这些词会被塞进「在{weather}里 / 在{weather}下方」；
+ *   2. 真的能**遮蔽视线** —— 骨架里有「{weather}替他掩去了大半轮廓」这类句子。
+ * 所以「热浪」不能进池（它不遮挡轮廓），「夜色」也不进地面池（那是光照条件，不是气象）。
+ * ================================================================== */
+
+const WEATHER_BY_DOMAIN = {
+  // 轨道没有气象：真空里不下雪、也不起雾。池里的词描述的是**光照与可见性**。
+  orbital: ['真空', '地球反照的冷光', '背阴面的黑暗'],
+  naval: ['海雾', '低垂的云', '涌浪激起的水汽', '雨幕'],
+  // 空战池必须都是**层状**的：骨架句是「{place}在{weather}下方摊成一整张地图」。
+  air: ['云层', '低云', '薄云', '逆温层'],
+  strategic: ['夜幕', '低云', '尘霾'],
+  ground: ['尘雾', '扬尘', '薄雾', '硝烟', '沙尘'],
+  default: ['尘雾', '薄雾', '阴云']
+};
+
+/**
+ * 取本片的场景氛围词。
+ *
+ * 优先级：显式气象（雪 / 雨）> 显式光照（夜）> 战场域词池轮转。
+ * 唯一例外是轨道：那里既不下雪也不下雨，显式气象一律忽略。
+ *
+ * @param {{ domain?: string|null, intent?: object, seed?: number }} params
+ * @returns {string}
+ */
+export function weatherFor({ domain = null, intent = {}, seed = 0 } = {}) {
+  const pool = WEATHER_BY_DOMAIN[domain] || WEATHER_BY_DOMAIN.default;
+  const pick = () => pool[Math.abs(Number(seed) || 0) % pool.length];
+
+  if (domain === 'orbital') return pick();
+  if (intent.weather === 'snow') return '风雪';
+  if (intent.weather === 'rain') return '雨幕';
+  if (intent.lightingCondition === 'night') {
+    // 夜里的海面仍然是湿的：写成「夜色」会丢掉海雾这一层，写成「夜里的海雾」更准。
+    return domain === 'naval' ? '夜里的海雾' : '夜色';
+  }
+  return pick();
 }
 
 /* ================================================================== *
@@ -99,6 +164,79 @@ export function vocabFor(era) {
  * ================================================================== */
 
 const ARCS = [
+  /* ---- 未来 / 高科技原型（必须排在最前：它们的关键词最具体，被历史原型截走就不可达）---- */
+  {
+    id: 'counter-uas',
+    label: '反无人机防御',
+    re: /反无人机|反无人|无人机防御|激光防空|定向能防空|微波武器|counter-?uas|anti-?drone|drone ?defen[cs]e/i,
+    objective: '守住{target}',
+    target: '被蜂群盯上的阵地',
+    threat: '低空压过来的自杀式蜂群',
+    stake: '整条防线会在一个波次里被捅穿',
+    deadline: '下一波蜂群进入末端俯冲前的七分钟',
+    locations: ['阵地东北角的开阔扇面', '雷达车周围的环形警戒圈', '弹药堆放区上方的低空', '天线阵与掩体之间的空隙'],
+    vehicleHint: /激光|微波|干扰|反无人机|防空|directed energy|counter|jammer/i
+  },
+  {
+    id: 'swarm-strike',
+    label: '蜂群突防',
+    re: /蜂群|无人机群|巡飞弹|自杀式无人机|无人机母车|忠诚僚机|swarm|loitering|drone ?(?:swarm|mothership)/i,
+    objective: '打瘫{target}',
+    target: '敌方防空节点',
+    threat: '逐层点亮的近程防空火力',
+    stake: '后面的有人机编队会被迫取消整个波次',
+    deadline: '有人机进入包线前的十二分钟',
+    locations: ['投放空域的低云下方', '防空雷达的探测边缘', '目标上空的悬停层', '两栋楼之间的峡谷走廊'],
+    vehicleHint: /蜂群|无人机|巡飞弹|swarm|drone|loitering|忠诚僚机/i
+  },
+  {
+    id: 'hypersonic-strike',
+    label: '高超音速打击',
+    re: /高超音速|高超声速|滑翔弹头|反导|中段拦截|末端拦截|hypersonic|glide vehicle|midcourse/i,
+    objective: '在{target}上打出不可拦截的一击',
+    target: '敌方反导阵地',
+    threat: '从发现到命中的九分钟窗口',
+    stake: '对手的第二次齐射会落在本土',
+    deadline: '弹道交汇前的九分钟',
+    locations: ['发射阵地的遮蔽网下', '大气层边缘的滑翔段', '中段拦截的会合点', '目标区上空的再入走廊'],
+    vehicleHint: /高超音速|滑翔|反导|interceptor|hypersonic|中段/i
+  },
+  {
+    id: 'ew-cyber',
+    label: '电磁网络压制',
+    re: /电子战|网络战|电磁脉冲|电磁干扰|赛博|频谱压制|干扰压制|指挥节点|cyber|electronic warfare|\bemp\b|jamming/i,
+    objective: '让{target}变成瞎子和聋子',
+    target: '敌方联合作战指挥节点',
+    threat: '对手的反辐射打击与备份链路',
+    stake: '突击队会在没有电子掩护的情况下撞进对方的火力网',
+    deadline: '突击队越过出发线前的十分钟',
+    locations: ['电子战车展开的侧坡', '天线阵背向的阴影区', '地下指挥掩体的信号舱', '频谱图上那片全黑的地带'],
+    vehicleHint: /电子战|干扰|网络|数据链|jammer|cyber|微波|指挥/i
+  },
+  {
+    id: 'mech-assault',
+    label: '外骨骼突击',
+    re: /外骨骼|机甲|动力装甲|无人战车|战斗机器人|机器人部队|exoskeleton|powered armor|robotic/i,
+    objective: '在{target}上碾开一条通路',
+    target: '敌方预设的坚固阵地',
+    threat: '埋在废墟里的智能地雷与反装甲伏击',
+    stake: '整条进攻轴线都要停在原地',
+    deadline: '火力准备结束后的六分钟',
+    locations: ['废墟街区的进攻出发线', '被炸塌的楼体缺口', '地雷区之间的窄通道', '阵地纵深的第二道墙'],
+    vehicleHint: /外骨骼|无人战车|机器人|机甲|装甲|exoskeleton|ugv|robot/i
+  },
+  {
+    id: 'embassy-evac',
+    label: '使馆撤侨',
+    re: /撤侨|使馆|大使馆|领事馆|非战斗人员|平民撤离|侨民|embassy|noncombatant|evacuat/i,
+    objective: '把{target}一个不剩地带出去',
+    target: '被困在使馆院落里的侨民',
+    threat: '正在向院落合拢的武装人群',
+    stake: '围墙上的人会在天亮前被冲开',
+    deadline: '最后一批车队出城窗口关闭前的四十分钟',
+    locations: ['使馆院落的大铁门前', '围墙上的沙袋射击位', '楼顶停机坪的警戒圈', '撤离线上的第一道路障'],
+    vehicleHint: /装甲|输送车|直升机|mrap|apc|convoy|helicopter/i
+  },
   {
     id: 'submarine-hunt',
     label: '潜艇猎杀',
@@ -108,7 +246,10 @@ const ARCS = [
     threat: '对方的被动声呐阵列',
     stake: '己方编队会在进入海峡时被伏击',
     deadline: '编队进入海峡前的两小时',
-    locations: ['跃变层下的静默区', '海底峡谷的阴影', '潜望深度', '海峡口'],
+    // 「潜望深度」是**一个深度值**，不是一个区域；把它塞进「{place}在{weather}里被压成
+    // 一条发白的线」会写出「潜望深度在尘雾里被压成一条发白的线」这种病句。
+    // 所有 locations 必须能同时通过「在{place}里 / 在{place}边缘 / 往{place}深处」三种句法。
+    locations: ['跃变层下的静默区', '海底峡谷的阴影', '潜望深度上方的水层', '海峡口'],
     vehicleHint: /潜艇|潜航|submarine|u-?boat/i
   },
   {
@@ -180,7 +321,9 @@ const ARCS = [
     threat: '真空、碎片带与失压',
     stake: '轨道上所有人会在四十分钟内失去补给与氧气',
     deadline: '轨道衰减到不可逆前的四十分钟',
-    locations: ['对接舱', '外部桁架', '核心舱检修口', '太阳翼根部'],
+    // 「核心舱检修口」是**一个零件**，不是一片区域；它会写出「核心舱检修口在真空里无声自转」。
+    // 改成有延展性的空间段，句法才成立。
+    locations: ['对接舱外侧', '外部桁架的中段', '核心舱与太阳翼之间的连接段', '太阳翼根部'],
     vehicleHint: /轨道|航天|空间站|orbital|space ?station/i
   },
   {
@@ -404,7 +547,10 @@ const TEXTURE = {
       radioVoice: '【无线电】（没有按下通话键）'
     },
     {
-      fn: 'character', phase: 'establish', focus: 'hero', domains: ['naval'],
+      // focus 必须是 squad：这句同时写到了主角与声呐手两个人。
+      // 写成 hero 时 subjects 只有主角一人，{supportCallsign} 会塌回主角自己，
+      // 渲染成「邓肯把手按在舱壁上……邓肯在声呐屏的余光里看了他一眼」。
+      fn: 'character', phase: 'establish', focus: 'squad', domains: ['naval'],
       action: '{link}{heroCallsign}把手按在冰凉的舱壁上，隔着钢板感受那台机器的心跳。{supportCallsign}在声呐屏的余光里看了他一眼：「{deadline}，够吗？」',
       audioCue: '声呐滴答 · 舱壁传导的机械低鸣',
       radioVoice: '【无线电】（没有按下通话键）'
@@ -588,6 +734,357 @@ const TEXTURE = {
  * ================================================================== */
 
 const SLOTS = {
+  /* ---------------------------------------------------------------- 反无人机防御 */
+  'counter-uas': {
+    goal: [{ fn: 'goal', phase: 'establish', focus: 'hero',
+      action: '阵地的告警灯在无风的天里一排排亮起来。{heroCallsign}盯着低空搜索雷达：「{deadline}之内{objective}，否则{stake}。」',
+      audioCue: '告警音由低到高 · 发电机转速上扬',
+      radioVoice: '【无线电】全阵地进入反无人机状态，非必要人员进掩体。' }],
+    plan: [{ fn: 'plan', phase: 'build', focus: 'hero',
+      action: '{link}「把{vocab.counterDrone}架到最外圈，先放它们进来再打。」{heroCallsign}在沙盘上画出一个漏斗，「近了才打得中。」',
+      audioCue: '沙盘推杆 · 装填手拉开电源柜',
+      radioVoice: '【无线电】漏斗部署，放近了再打。' }],
+    contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
+      action: '{link}第一波蜂群从低云下面钻出来，{vocab.counterDrone}同时开火，天空被点成一串断续的光点——{enemyCallsign}的蜂群开始分散突防，双方在{place}上空交战。',
+      audioCue: '定向能充能的啸叫 · 小型旋翼的密集嗡鸣',
+      radioVoice: '【无线电】接触！低空，数量三十以上！' }],
+    escalate: [
+      { fn: 'escalate', phase: 'build', focus: 'vehicle',
+        action: '{link}{vehicle}把发射阵列抬到最大仰角，{heroCallsign}看着电容一格一格充满，手指悬在放电键上方。',
+        audioCue: '电容充能上扬 · 冷却泵启动',
+        radioVoice: '【无线电】一号阵位充能中，再给我五秒。' },
+      { fn: 'escalate', phase: 'climax', focus: 'vehicle',
+        action: '{link}{vehicle}连续放电，把突入内圈的蜂群一架架打下来，{heroCallsign}在{place}的烟尘里报出下一个扇区。',
+        audioCue: '连续放电的爆响 · 残骸落在钢板上的脆声',
+        radioVoice: '【无线电】扇区三清了，转扇区四！' }
+    ],
+    reveal: [{ fn: 'reveal', phase: 'build', focus: 'hero',
+      action: '{link}频谱屏上多出一段不该有的信号。{heroCallsign}放大波形：「前面这批是诱饵——它们在测我们的开火节奏。」',
+      audioCue: '频谱仪的扫描音 · 阵地突然安静',
+      radioVoice: '【无线电】……这批是诱饵。真正的目标还没出现。' }],
+    decision: [{ fn: 'decision', phase: 'climax', focus: 'hero',
+      action: '{link}按现在的节奏打，节奏就会被对方摸透；改成三发一停，火力密度要掉一半。{heroCallsign}选了后者。',
+      audioCue: '呼吸声 · 音乐抽走只留低频',
+      radioVoice: '【无线电】改节奏。三发一停，都听我的。' }],
+    reversal: [{ fn: 'reversal', phase: 'climax', focus: 'hero',
+      action: '{link}节奏刚改，对面的主力就从{place}的另一侧压了下来——它们一直在等这个缺口。{heroCallsign}把最后两台阵位全推了上去。',
+      audioCue: '低频轰鸣由远及近 · 告警音连成一片',
+      radioVoice: '【无线电】第二波！从西边！全部阵位转向！' }],
+    clash: [{ fn: 'clash', phase: 'climax', focus: 'clash',
+      action: '{link}{heroCallsign}与{enemyCallsign}在{place}上空绞在一起交战，近程火力在几百米内织成一堵墙，被打碎的机骸像雨一样落在阵地上。',
+      audioCue: '近防火力连射 · 碎片砸落金属棚顶',
+      radioVoice: '【无线电】压住它！别让它进内圈！' }],
+    cost: [{ fn: 'cost', phase: 'climax', focus: 'squad',
+      action: '{link}一台阵位在过载中烧了。{supportCallsign}扑上去切电源，手背被烫掉一层皮，却把剩下的阵列保住了。',
+      audioCue: '电弧爆响 · 灭火器喷放',
+      radioVoice: '【无线电】三号阵位弃了！别管它，保住剩下的！' }],
+    aftermath: [{ fn: 'aftermath', phase: 'resolve', focus: 'hero',
+      action: '{link}天空空了。{heroCallsign}摘下耳机，耳朵里还有一层没散掉的嗡鸣。',
+      audioCue: '余烬落地 · 发电机慢慢降速',
+      radioVoice: '【无线电】空域干净，蜂群全灭。' }],
+    reaction: [{ fn: 'reaction', phase: 'resolve', focus: 'hero',
+      action: '{link}阵地上落满烧焦的塑料壳。{heroCallsign}蹲下去捡起一架还算完整的残骸，翻过来看了看编号，然后放进口袋。',
+      audioCue: '塑料壳相碰的轻响 · 极静的配乐',
+      radioVoice: '【无线电】（静默）' }],
+    close: [{ fn: 'close', phase: 'resolve', focus: 'hero',
+      action: '{link}{heroCallsign}站起来，把口袋里那架残骸按了按，转向下一处阵位。',
+      audioCue: '脚步踩过碎片 · 低频配乐收束',
+      radioVoice: '【无线电】收队。下一波还会来。' }]
+  },
+
+  /* ---------------------------------------------------------------- 蜂群突防 */
+  'swarm-strike': {
+    goal: [{ fn: 'goal', phase: 'establish', focus: 'hero',
+      action: '机库的灯只开了一半。{heroCallsign}把投放箱的盖子拍上：「{deadline}之内{objective}，否则{stake}。」',
+      audioCue: '箱盖扣合 · 无人机自检的电子音',
+      radioVoice: '【无线电】蜂群已上电，等投放窗口。' }],
+    plan: [{ fn: 'plan', phase: 'build', focus: 'hero',
+      action: '{link}「分三股走，走不同高度。」{heroCallsign}在投放图上标出三条线，「第一股先去把他们的雷达叫醒。」',
+      audioCue: '投放图翻动 · 战术口令',
+      radioVoice: '【无线电】三股分进，第一股负责诱饵。' }],
+    contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
+      action: '{link}第一股刚进到{place}，地面的{vocab.counterDrone}就亮了。{enemyCallsign}的防空火力把天空切成一块块，{heroCallsign}下令第二股立刻压低高度，双方在低空交战。',
+      audioCue: '近防炮连射 · 小型旋翼被撕碎的脆响',
+      radioVoice: '【无线电】第一股被打掉了！第二股压到五十米！' }],
+    escalate: [
+      { fn: 'escalate', phase: 'build', focus: 'vehicle',
+        action: '{link}{vehicle}从投放箱里一架接一架弹出去，在{place}编成一张网，{heroCallsign}盯着屏幕上跳动的编号。',
+        audioCue: '弹射器连续击发 · 旋翼嗡鸣叠成一片',
+        radioVoice: '【无线电】蜂群展开完毕，网格成形。' },
+      { fn: 'escalate', phase: 'climax', focus: 'vehicle',
+        action: '{link}{vehicle}贴着楼顶掠过，把{vocab.jamming}压在对方雷达头上，{heroCallsign}在频谱屏上看着那片噪声越铺越开。',
+        audioCue: '干扰噪声铺满 · 数据链提示音',
+        radioVoice: '【无线电】压制到位，第三股可以进了。' }
+    ],
+    reveal: [{ fn: 'reveal', phase: 'build', focus: 'hero',
+      action: '{link}频谱上冒出一个新的辐射源。{heroCallsign}盯着它：「他们关了主雷达，改用备用的——而且这个备用机在动，是车载的。」',
+      audioCue: '频谱仪扫描音 · 舱内突然安静',
+      radioVoice: '【无线电】……他们换了备用雷达。目标在移动。' }],
+    decision: [{ fn: 'decision', phase: 'climax', focus: 'hero',
+      action: '{link}撤回去明天再来，还是把剩下的蜂群全压上去赌一次。{heroCallsign}把最后一箱推上了发射位。',
+      audioCue: '呼吸声 · 音乐抽走只留低频',
+      radioVoice: '【无线电】全投。今天必须打掉它。' }],
+    reversal: [{ fn: 'reversal', phase: 'climax', focus: 'hero',
+      action: '{link}蜂群刚进入末端，对方的{vocab.jamming}突然反卷回来——链路上三成的编号同时变灰。{heroCallsign}只能把剩下的全部切成自主模式。',
+      audioCue: '链路告警音 · 编号一个个熄灭的电子声',
+      radioVoice: '【无线电】链路被压了！剩下的全部自主！' }],
+    clash: [{ fn: 'clash', phase: 'climax', focus: 'clash',
+      action: '{link}剩下的蜂群在{place}上空与{enemyCallsign}的拦截火力正面交战，一架接一架撞在雷达阵面上，把整座天线拖进火里。',
+      audioCue: '连续撞击爆炸 · 结构垮塌',
+      radioVoice: '【无线电】它在烧！天线倒了！' }],
+    cost: [{ fn: 'cost', phase: 'climax', focus: 'squad',
+      action: '{link}最后一批蜂群的链路彻底断了，屏幕上一片灰。{supportCallsign}还戴着耳机在等回波，什么也没等到。',
+      audioCue: '链路彻底静默 · 只剩机库的电流声',
+      radioVoice: '【无线电】……没有回波了。全都没了。' }],
+    aftermath: [{ fn: 'aftermath', phase: 'resolve', focus: 'hero',
+      action: '{link}目标区的火还在烧。{heroCallsign}把空掉的投放箱盖子合上，坐回椅子上。',
+      audioCue: '远处燃烧 · 空调低频',
+      radioVoice: '【无线电】雷达站已瘫痪，波次取消。' }],
+    reaction: [{ fn: 'reaction', phase: 'resolve', focus: 'hero',
+      action: '{link}机库里只剩他自己。{heroCallsign}把屏幕上最后一条航迹回放到第一架起飞的那一刻，看了一遍，然后关掉。',
+      audioCue: '完全静音 · 只有设备散热的细响',
+      radioVoice: '【无线电】（静默）' }],
+    close: [{ fn: 'close', phase: 'resolve', focus: 'hero',
+      action: '{link}{heroCallsign}把空箱子推回架子上，拍了拍箱盖。',
+      audioCue: '空箱滑轨声 · 低频配乐收束',
+      radioVoice: '【无线电】收队。箱子明天再补。' }]
+  },
+
+  /* ---------------------------------------------------------------- 高超音速打击 */
+  'hypersonic-strike': {
+    goal: [{ fn: 'goal', phase: 'establish', focus: 'hero',
+      action: '发射阵地上的伪装网被掀开一角。{heroCallsign}把装着坐标的平板按在发射箱上：「{deadline}之内{objective}，否则{stake}。」',
+      audioCue: '伪装网摩擦 · 液压起竖的低频',
+      radioVoice: '【无线电】发射阵位展开，进入倒计时。' }],
+    plan: [{ fn: 'plan', phase: 'build', focus: 'hero',
+      action: '{link}「走最高弹道，把滑翔段压在{threat}的盲区里。」{heroCallsign}在弹道图上划出一条几乎贴着大气层边缘的弧。',
+      audioCue: '弹道图推演音 · 口令交替',
+      radioVoice: '【无线电】弹道已装订，滑翔段规避中段拦截。' }],
+    contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
+      action: '{link}升空后第四分钟，{enemyCallsign}的{vocab.interceptor}从三个方向同时爬升，锁定告警在屏幕上连成一片。{heroCallsign}必须让滑翔体在交汇前完成机动，双方在拦截窗口里正面交战。',
+      audioCue: '拦截弹上升的呼啸 · 告警音连响',
+      radioVoice: '【无线电】被拦截弹跟踪！准备机动！' }],
+    escalate: [
+      { fn: 'escalate', phase: 'build', focus: 'vehicle',
+        action: '{link}{vehicle}在大气层边缘压出一个剧烈的横向机动，{heroCallsign}看着过载数字顶到结构上限又退回来。',
+        audioCue: '结构应力声 · 遥测数据流',
+        radioVoice: '【无线电】机动完成，拦截弹在往外甩。' },
+      { fn: 'escalate', phase: 'climax', focus: 'vehicle',
+        action: '{link}{vehicle}在再入段拉出一道等离子尾迹，{heroCallsign}把最后的修正量压进指令，屏幕上的交汇倒计时只剩两位数。',
+        audioCue: '等离子包裹的电流声 · 倒计时提示音',
+        radioVoice: '【无线电】再入正常，末端三十秒。' }
+    ],
+    reveal: [{ fn: 'reveal', phase: 'build', focus: 'hero',
+      action: '{link}光电画面上，目标不是固定阵地，是一列正在转移的发射车。{heroCallsign}盯着那串坐标：「他们知道我们要来。」',
+      audioCue: '光电画面电子音 · 作战室安静',
+      radioVoice: '【无线电】……目标在转移。是机动发射车。' }],
+    decision: [{ fn: 'decision', phase: 'climax', focus: 'hero',
+      action: '{link}修正坐标会把剩下的燃料吃光，打出去就没有第二次。{heroCallsign}报了「修正」。',
+      audioCue: '呼吸声 · 音乐抽走只留低频',
+      radioVoice: '【无线电】修正坐标，照打。' }],
+    reversal: [{ fn: 'reversal', phase: 'climax', focus: 'hero',
+      action: '{link}修正刚发出去，第二组拦截弹从侧面进入——对面早就把机动也预案好了。{heroCallsign}把最后一组诱饵全放了出去。',
+      audioCue: '诱饵分离的爆破音 · 告警连响',
+      radioVoice: '【无线电】第二组拦截弹！放诱饵！' }],
+    clash: [{ fn: 'clash', phase: 'climax', focus: 'clash',
+      action: '{link}{heroCallsign}让滑翔体在{place}与{enemyCallsign}的拦截弹群正面对抗，诱饵一个个炸开，把拦截弹引向空处。',
+      audioCue: '连续分离爆响 · 遥测链路雪花声',
+      radioVoice: '【无线电】它在躲！保持链路！' }],
+    cost: [{ fn: 'cost', phase: 'climax', focus: 'squad',
+      action: '{link}最后一个诱饵用完，遥测链路在{place}断了。{supportCallsign}还在报数据，报到最后一句戛然而止。',
+      audioCue: '链路中断的电流噪声 · 完全静默',
+      radioVoice: '【无线电】……链路丢了。我们看不见它了。' }],
+    aftermath: [{ fn: 'aftermath', phase: 'resolve', focus: 'hero',
+      action: '{link}十二分钟后，远方的传感器确认了命中。{heroCallsign}把平板放下，没有去看欢呼的人。',
+      audioCue: '远处低沉的一声闷响 · 随后安静',
+      radioVoice: '【无线电】目标确认摧毁，拦截失败。' }],
+    reaction: [{ fn: 'reaction', phase: 'resolve', focus: 'hero',
+      action: '{link}作战室里开始有人说话。{heroCallsign}一个人走到外面，站在伪装网下面，抬头看了一会儿天，什么也没说。',
+      audioCue: '夜风 · 远处发电机的低频',
+      radioVoice: '【无线电】（静默）' }],
+    close: [{ fn: 'close', phase: 'resolve', focus: 'hero',
+      action: '{link}{heroCallsign}回到屏幕前，把下一次值班的名单调出来。',
+      audioCue: '键盘声 · 低频配乐收束',
+      radioVoice: '【无线电】收队。弹道参数归档。' }]
+  },
+
+  /* ---------------------------------------------------------------- 电磁网络压制 */
+  'ew-cyber': {
+    goal: [{ fn: 'goal', phase: 'establish', focus: 'hero',
+      action: '{heroCallsign}在频谱屏前站定，指着图上那片空白：「{deadline}之内{objective}，否则{stake}。」',
+      audioCue: '频谱仪的扫描音 · 机房风扇底噪',
+      radioVoice: '【无线电】电子战分队就位，等突击队的信号。' }],
+    plan: [{ fn: 'plan', phase: 'build', focus: 'hero',
+      action: '{link}「先把他们的数据链压掉，再灌一段假的进去。」{heroCallsign}在频谱图上圈出三个频段，「真的那一段留给我们自己用。」',
+      audioCue: '键盘连击 · 频谱波形在屏幕上滚动',
+      radioVoice: '【无线电】压制顺序定了，第一段三分钟。' }],
+    contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
+      action: '{link}压制一开，{enemyCallsign}的反辐射分队立刻顺着辐射源找过来，{vocab.jamming}在{place}铺开，和对方的反干扰绞在一起——他们先在频谱上打了一场交战。',
+      audioCue: '干扰噪声铺满 · 反辐射告警连响',
+      radioVoice: '【无线电】被反辐射锁定了！天线车撤！' }],
+    escalate: [
+      { fn: 'escalate', phase: 'build', focus: 'vehicle',
+        action: '{link}{vehicle}把天线阵转到背向，{heroCallsign}一边看着功率曲线，一边数着对方的测向周期。',
+        audioCue: '天线阵转动的伺服声 · 功率计滴答',
+        radioVoice: '【无线电】我在躲它的测向，再给我两分钟。' },
+      { fn: 'escalate', phase: 'climax', focus: 'vehicle',
+        action: '{link}{vehicle}把一段伪造的指令灌进对方的{vocab.datalink}，{heroCallsign}在屏幕上看着对面的火力开始往错误的方向压。',
+        audioCue: '数据灌入的连续电子音 · 无线电里出现被劫持的口令',
+        radioVoice: '【无线电】假指令进去了，他们在往空地打。' }
+    ],
+    reveal: [{ fn: 'reveal', phase: 'build', focus: 'hero',
+      action: '{link}链路里突然出现一段不该存在的回执。{heroCallsign}把它解出来，脸色变了：「他们早就知道我们会用这一段——这封回执是给我们的。」',
+      audioCue: '解码完成的提示音 · 机房突然安静',
+      radioVoice: '【无线电】……这是回执。他们一直在等我们开口。' }],
+    decision: [{ fn: 'decision', phase: 'climax', focus: 'hero',
+      action: '{link}继续用这一段，就等于把突击队的位置送出去；停掉，突击队就没有掩护。{heroCallsign}选择把整段链路烧掉。',
+      audioCue: '呼吸声 · 音乐抽走只留低频',
+      radioVoice: '【无线电】烧链路。现在。' }],
+    reversal: [{ fn: 'reversal', phase: 'climax', focus: 'hero',
+      action: '{link}链路一断，对方的电子战飞机立刻顶了上来，把压制反推回己方——{heroCallsign}的屏幕上第一次出现了全频段的噪声底。',
+      audioCue: '噪声底抬升 · 所有频道同时失聪',
+      radioVoice: '【无线电】我们被压了！所有频道都是噪声！' }],
+    clash: [{ fn: 'clash', phase: 'climax', focus: 'clash',
+      action: '{link}{heroCallsign}与{enemyCallsign}在同一片频谱上正面对抗，功率曲线互相咬着往上顶，谁先关机会谁就先暴露位置。',
+      audioCue: '功率过载的电流嘶声 · 设备风扇全速',
+      radioVoice: '【无线电】顶住！谁先关谁死！' }],
+    cost: [{ fn: 'cost', phase: 'climax', focus: 'squad',
+      action: '{link}功率顶到极限，末级功放烧了。{supportCallsign}把手从发烫的机柜上拿开，掌心上是一道红印。',
+      audioCue: '功放烧毁的爆响 · 灭火器喷放',
+      radioVoice: '【无线电】末级烧了！阵位还在！' }],
+    aftermath: [{ fn: 'aftermath', phase: 'resolve', focus: 'hero',
+      action: '{link}频谱慢慢安静下来。{heroCallsign}摘下耳机，听见外面突击队的直升机已经过去了。',
+      audioCue: '风扇降速 · 远处旋翼由近及远',
+      radioVoice: '【无线电】突击队已通过，掩护任务完成。' }],
+    reaction: [{ fn: 'reaction', phase: 'resolve', focus: 'hero',
+      action: '{link}机房里全是烧焦的气味。{heroCallsign}把烧掉的那台功放的日志导出来，看了很久，才合上盖子。',
+      audioCue: '完全静音 · 只有散热风扇的余响',
+      radioVoice: '【无线电】（静默）' }],
+    close: [{ fn: 'close', phase: 'resolve', focus: 'hero',
+      action: '{link}{heroCallsign}把备用机柜的电源推上去，指示灯一排排亮起来。',
+      audioCue: '继电器合闸的连响 · 低频配乐收束',
+      radioVoice: '【无线电】收队。备用阵位已接管。' }]
+  },
+
+  /* ---------------------------------------------------------------- 外骨骼突击 */
+  'mech-assault': {
+    goal: [{ fn: 'goal', phase: 'establish', focus: 'hero',
+      action: '{heroCallsign}在出发线上把外骨骼的锁扣一个个扣紧，然后敲了敲胸前的装甲板：「{deadline}之内{objective}，否则{stake}。」',
+      audioCue: '液压锁扣闭合 · 伺服电机自检',
+      radioVoice: '【无线电】外骨骼满电，突击组就位。' }],
+    plan: [{ fn: 'plan', phase: 'build', focus: 'squad',
+      action: '{link}「让无人战车走前面蹚雷，我们从它压出来的缺口进去。」{heroCallsign}在头盔里把路线推给每个人。',
+      audioCue: '头盔显示器启动音 · 战术口令',
+      radioVoice: '【无线电】无人战车先导，人跟车走。' }],
+    contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
+      action: '{link}无人战车刚压上第一片废墟，{enemyCallsign}的反装甲伏击就从{place}两侧同时开火，{heroCallsign}被冲击波掀得后退两步，双方在废墟里立刻交战。',
+      audioCue: '反装甲命中爆响 · 碎石砸在装甲板上',
+      radioVoice: '【无线电】伏击！两侧！找掩体！' }],
+    escalate: [
+      { fn: 'escalate', phase: 'build', focus: 'vehicle',
+        action: '{link}{vehicle}用机械臂扒开塌掉的楼板，{heroCallsign}借着它的车体当掩体往前跃进，外骨骼的伺服声盖过了枪声。',
+        audioCue: '机械臂液压声 · 伺服电机高转',
+        radioVoice: '【无线电】缺口打开了，跟上来！' },
+      { fn: 'escalate', phase: 'climax', focus: 'vehicle',
+        action: '{link}{vehicle}把武器站转向第二道墙，{heroCallsign}在它后面完成换弹，肩上的后坐力被外骨骼整个吃掉。',
+        audioCue: '武器站转向的伺服声 · 大口径射击',
+        radioVoice: '【无线电】第二道墙压制住了，我上！' }
+    ],
+    reveal: [{ fn: 'reveal', phase: 'build', focus: 'hero',
+      action: '{link}墙后面不是守军，是一排还在待机的战斗机器人。{heroCallsign}愣了一瞬：「他们是准备放机器人反冲的——我们提前了三分钟。」',
+      audioCue: '机器人待机的低频嗡鸣 · 音乐骤然停住',
+      radioVoice: '【无线电】……是机器人。它们还没启动。' }],
+    decision: [{ fn: 'decision', phase: 'climax', focus: 'hero',
+      action: '{link}趁它们没启动全部打掉，还是留着抢回去。{heroCallsign}选择了全部打掉。',
+      audioCue: '呼吸声 · 音乐抽走只留低频',
+      radioVoice: '【无线电】全打掉。不留一台。' }],
+    reversal: [{ fn: 'reversal', phase: 'climax', focus: 'hero',
+      action: '{link}第一台机器人被击中时，整排同时亮了。对方的备用链路把它们全部唤醒，{heroCallsign}的弹药计数器第一次掉到两位数。',
+      audioCue: '机器人集体启动的齐响 · 弹药告警',
+      radioVoice: '【无线电】它们醒了！全都醒了！' }],
+    clash: [{ fn: 'clash', phase: 'climax', focus: 'clash',
+      // 「正面对轰」不含 COMBAT_ACTION_REGEX 里的任何交战词，会直接触发
+      // FACTION_CONFLICT_INVALID（对立阵营同框却没有对抗语义）。这里必须出现
+      // 交战 / 交火 / 压制 之类的显式对抗词。
+      action: '{link}{heroCallsign}在外骨骼的助力下与{enemyCallsign}的机器人近身交战，机械臂把扑上来的一台按进墙里，装甲板上留下一道道划痕。',
+      audioCue: '金属撞击 · 液压过载的嘶叫',
+      radioVoice: '【无线电】近战！压住它们！' }],
+    cost: [{ fn: 'cost', phase: 'climax', focus: 'squad',
+      action: '{link}外骨骼的右腿伺服被打穿，{supportCallsign}替{heroCallsign}挡住了第二发。{heroCallsign}把他拖到墙后，自己卸掉了报废的腿部支架。',
+      audioCue: '伺服失效的泄气声 · 拖拽装甲板的摩擦',
+      radioVoice: '【无线电】我腿废了，还能走。别管我，继续。' }],
+    aftermath: [{ fn: 'aftermath', phase: 'resolve', focus: 'hero',
+      action: '{link}废墟里只剩还在冒烟的铁壳。{heroCallsign}把报废的腿部支架解下来靠在墙上，自己站了起来。',
+      audioCue: '余烬噼啪 · 远处零星枪声',
+      radioVoice: '【无线电】突破口已打开，后续梯队可以进了。' }],
+    reaction: [{ fn: 'reaction', phase: 'resolve', focus: 'hero',
+      action: '{link}他靠着墙站了一会儿，才把头盔摘下来。{heroCallsign}看着那一排不再亮的机器人，很久没有动。',
+      audioCue: '风声穿过废墟 · 配乐极轻',
+      radioVoice: '【无线电】（静默）' }],
+    close: [{ fn: 'close', phase: 'resolve', focus: 'hero',
+      action: '{link}{heroCallsign}把报废的支架留在原地，一步一步走向突破口。',
+      audioCue: '脚步落在碎石上 · 低频配乐收束',
+      radioVoice: '【无线电】收队。路是开的了。' }]
+  },
+
+  /* ---------------------------------------------------------------- 使馆撤侨 */
+  'embassy-evac': {
+    goal: [{ fn: 'goal', phase: 'establish', focus: 'hero',
+      action: '围墙上的探照灯扫过院落。{heroCallsign}把撤离名单按在沙袋上：「{deadline}之内{objective}，否则{stake}。」',
+      audioCue: '远处人群的低频喧嚣 · 探照灯电流声',
+      radioVoice: '【无线电】所有人注意，撤离顺序已经定了，不要乱。' }],
+    plan: [{ fn: 'plan', phase: 'build', focus: 'squad',
+      action: '{link}「车队从侧门走，直升机在楼顶接最后一批。」{heroCallsign}把名单分成两叠，「女人和孩子先走。」',
+      audioCue: '纸张翻动 · 车门关合的闷响',
+      radioVoice: '【无线电】侧门车队三分钟后出发，楼顶待命。' }],
+    contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
+      action: '{link}车队刚出侧门，{enemyCallsign}的武装人群就从街角压上来，把{place}堵死，石块和曳光一起砸在车身上，{heroCallsign}不得不下令车队就地停下、就地交战。',
+      audioCue: '石块砸在装甲上 · 短点射 · 人群的喊声',
+      radioVoice: '【无线电】车队被拦住了！就地防御！' }],
+    escalate: [
+      { fn: 'escalate', phase: 'build', focus: 'vehicle',
+        action: '{link}{vehicle}横在侧门口把通道封住，{heroCallsign}借着车体掩护，把第一批人一个个推上车。',
+        audioCue: '发动机空转 · 人群推挤的嘈杂',
+        radioVoice: '【无线电】车挡住路了，快上！' },
+      { fn: 'escalate', phase: 'climax', focus: 'vehicle',
+        action: '{link}{vehicle}贴着围墙慢慢往楼顶平台靠，{heroCallsign}在下面用信号灯引导它降落，旋翼把院子里的沙袋吹翻了一片。',
+        audioCue: '旋翼下洗 · 沙袋被吹翻的连续闷响',
+        radioVoice: '【无线电】直升机进场，楼顶的人准备登机！' }
+    ],
+    reveal: [{ fn: 'reveal', phase: 'build', focus: 'hero',
+      action: '{link}最后清点人数时少了一个。{heroCallsign}翻着名单：「名单上写了四十七个，院子里只有四十六个——有一个人没进来。」',
+      audioCue: '纸张被风掀起 · 音乐骤然停住',
+      radioVoice: '【无线电】……少一个。名单上有四十七个。' }],
+    decision: [{ fn: 'decision', phase: 'climax', focus: 'hero',
+      action: '{link}车队再等十分钟就会被合围，回去找那个人也一样。{heroCallsign}把头盔扣上，往门外走。',
+      audioCue: '呼吸声 · 音乐抽走只留低频',
+      radioVoice: '【无线电】车队先走。我去找人。' }],
+    reversal: [{ fn: 'reversal', phase: 'climax', focus: 'hero',
+      action: '{link}他刚跨出门，大门就被从外面顶住了。对方的人已经堵在门口，{heroCallsign}被挤回院内，大门在他身后合上。',
+      audioCue: '铁门被撞击的巨响 · 人群的喊声骤然放大',
+      radioVoice: '【无线电】大门被堵了！出不去了！' }],
+    clash: [{ fn: 'clash', phase: 'climax', focus: 'clash',
+      action: '{link}{heroCallsign}带着剩下的人在围墙一线与{enemyCallsign}近距离交战，把冲上墙头的人一次次压回去，沙袋被打得不停往下漏沙。',
+      audioCue: '近距离对射 · 沙袋漏沙的细响',
+      radioVoice: '【无线电】守住墙！再守十分钟！' }],
+    cost: [{ fn: 'cost', phase: 'climax', focus: 'squad',
+      action: '{link}{supportCallsign}在楼顶把最后一批人送上直升机，自己没上。{heroCallsign}在无线电里喊他，只听见旋翼声越来越远。',
+      audioCue: '旋翼渐远 · 无线电只剩电流',
+      radioVoice: '【无线电】……人走了。门关上了。' }],
+    aftermath: [{ fn: 'aftermath', phase: 'resolve', focus: 'hero',
+      action: '{link}天亮了，围墙上安静下来。{heroCallsign}靠在沙袋上，看着最后一架直升机变成一个点。',
+      audioCue: '晨风 · 远处零星人声',
+      radioVoice: '【无线电】最后一批已离开使馆区，任务完成。' }],
+    reaction: [{ fn: 'reaction', phase: 'resolve', focus: 'hero',
+      action: '{link}院子里散落着被踩烂的行李。{heroCallsign}蹲下去，把一只小箱子扶正，摆回墙边，然后站起来。',
+      audioCue: '风声 · 配乐极轻',
+      radioVoice: '【无线电】（静默）' }],
+    close: [{ fn: 'close', phase: 'resolve', focus: 'hero',
+      action: '{link}{heroCallsign}走到大门口，把门闩拉开，一个人走了出去。',
+      audioCue: '铁门开合的吱呀声 · 低频配乐收束',
+      radioVoice: '【无线电】收队。使馆已封闭。' }]
+  },
+
   /* ---------------------------------------------------------------- 潜艇猎杀 */
   'submarine-hunt': {
     goal: [{ fn: 'goal', phase: 'establish', focus: 'hero',
@@ -598,8 +1095,11 @@ const SLOTS = {
       action: '{link}「关掉主动声呐，贴着跃变层走。」{heroCallsign}把航速降到最低，「谁先出声，谁先死。」',
       audioCue: '艇体受压的吱呀声 · 阀门轻响',
       radioVoice: '【无线电】航向已定，保持静默。' }],
+    // 「声呐兵的手停住了」是硬编码兵种泛称：这一镜里操作声呐的其实是**有代号的配角**，
+    // 写成泛称会让观众看到一个无名角色，而定妆表上明明有他。凡有专属角色承担的动作
+    // 一律用 {supportCallsign}，泛称只留给真的没有对应资产的群体。
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}声呐兵的手停住了——接触。对方的螺旋桨音从{place}另一侧压过来，距离比推算的近得多，{heroCallsign}立刻下令转入交战航向。',
+      action: '{link}声呐屏上那根线忽然平了——接触。对方的螺旋桨音从{place}另一侧压过来，距离比推算的近得多，{heroCallsign}立刻下令转入交战航向。',
       audioCue: '螺旋桨音由远及近 · 心跳被放大',
       radioVoice: '【无线电】接触！方位零九零，距离三千！' }],
     escalate: [
@@ -625,7 +1125,7 @@ const SLOTS = {
       audioCue: '金属撞击 · 尖锐的主动声呐脉冲',
       radioVoice: '【无线电】鱼雷来袭！右满舵！' }],
     clash: [{ fn: 'clash', phase: 'climax', focus: 'clash',
-      action: '{link}{vehicle}急转规避，与{enemyCallsign}在{place}深处近距离交战，声呐里全是泡沫噪声与金属呻吟。',
+      action: '{link}{heroCallsign}的艇体急转规避，与{enemyCallsign}在{place}深处近距离交战，声呐里全是泡沫噪声与金属呻吟。',
       audioCue: '泡沫噪声 · 艇体呻吟 · 爆炸闷响',
       radioVoice: '【无线电】它在转向！跟着它！' }],
     cost: [{ fn: 'cost', phase: 'climax', focus: 'squad',
@@ -640,8 +1140,11 @@ const SLOTS = {
       action: '{link}舱内灯一盏盏亮起来。{heroCallsign}靠着舱壁坐下，手还在抖，他把它按在膝盖上压住，然后抬头看了一圈活着的人。',
       audioCue: '设备重启的电流声 · 有人长长地吐出一口气',
       radioVoice: '【无线电】（全艇静默）' }],
-    close: [{ fn: 'close', phase: 'resolve', focus: 'vehicle',
-      action: '{link}{vehicle}冲破海面，指挥塔舱盖打开，{heroCallsign}探出头，第一次呼吸到海风。',
+    // 这一镜的物理动作（指挥塔破水、艇长探头）**只属于潜艇**，而 {vehicle} 是本片主载具
+    // 轮转的结果，可能是反潜护卫舰 —— 实测写出过「反潜护卫舰冲破海面，指挥塔舱盖打开」。
+    // 收尾因此改成人物焦点：动作落在人身上，平台由画面暗示，不再依赖载具型号。
+    close: [{ fn: 'close', phase: 'resolve', focus: 'hero',
+      action: '{link}海面破开一道白痕，指挥塔舱盖掀开，{heroCallsign}探出头，第一次呼吸到海风。',
       audioCue: '海浪拍击艇体 · 低频配乐升华',
       radioVoice: '【无线电】已上浮，收队。' }]
   },
@@ -679,7 +1182,7 @@ const SLOTS = {
       audioCue: '呼吸声 · 音乐抽走只留低频',
       radioVoice: '【无线电】甲板准备，放飞。' }],
     reversal: [{ fn: 'reversal', phase: 'climax', focus: 'hero',
-      action: '{link}第一架舰载机刚离舰，甲板就中了弹。{vehicle}在倾斜的甲板上开始打滑，{heroCallsign}死死抓住扶手。',
+      action: '{link}第一架舰载机刚离舰，甲板就中了弹。倾斜的甲板上有人开始打滑，{heroCallsign}死死抓住扶手。',
       audioCue: '命中爆炸 · 金属滑移的刺耳声',
       radioVoice: '【无线电】甲板中弹！消防班上去！' }],
     clash: [{ fn: 'clash', phase: 'climax', focus: 'clash',
@@ -699,7 +1202,7 @@ const SLOTS = {
       audioCue: '海风 · 损管队远处的喊声 · 配乐压到最低',
       radioVoice: '【无线电】（静默）' }],
     close: [{ fn: 'close', phase: 'resolve', focus: 'vehicle',
-      action: '{link}受损的{vehicle}在海面上缓缓调头，向母舰靠拢，甲板上的消防水幕在晨光里拉出一道彩虹。',
+      action: '{link}受损的{vehicle}在海面上缓缓调头，重新回到编队里自己的位置，甲板上的水幕在晨光里拉出一道彩虹。',
       audioCue: '发动机低鸣 · 水幕洒落声',
       radioVoice: '【无线电】全员归位，返航。' }]
   },
@@ -872,7 +1375,10 @@ const SLOTS = {
       action: '{link}浪退下去，沙上留下一排排脚印和别的东西。{heroCallsign}跪在湿沙里用手撑着地，好一会儿才站起来。',
       audioCue: '退潮声 · 远处零星枪声 · 配乐极轻',
       radioVoice: '【无线电】（静默）' }],
-    close: [{ fn: 'close', phase: 'resolve', focus: 'hero',
+    // focus 必须是 squad：这一镜里除了主角，还有**倒下的那个人**在画面里。
+    // 写成 hero 时 subjects 只有主角，{supportCallsign} 会塌回主角自己，
+    // 渲染成「佩德罗蹲下把佩德罗的铭牌收进口袋」。
+    close: [{ fn: 'close', phase: 'resolve', focus: 'squad',
       action: '{link}{heroCallsign}蹲下把{supportCallsign}的铭牌收进口袋，然后站起来，向下一个滩段走去。',
       audioCue: '铭牌相碰 · 低频配乐升华',
       radioVoice: '【无线电】收队。还有下一个滩头。' }]
@@ -911,11 +1417,11 @@ const SLOTS = {
       audioCue: '呼吸声 · 音乐抽走只留低频',
       radioVoice: '【无线电】不退。守路口。' }],
     reversal: [{ fn: 'reversal', phase: 'climax', focus: 'hero',
-      action: '{link}弹药架快空了，而对面还在往里填。{heroCallsign}看见{enemyCallsign}的指挥车开始绕向侧后。',
+      action: '{link}弹药架快空了，而对面还在往里填。{heroCallsign}看见对方的指挥车开始绕向侧后。',
       audioCue: '弹药架清空提示 · 无线电杂音',
       radioVoice: '【无线电】弹药告急！他们在包抄！' }],
     clash: [{ fn: 'clash', phase: 'climax', focus: 'clash',
-      action: '{link}两车在不到两百米处互相开火交战，{vehicle}的装甲被打出几个洞，{heroCallsign}借着烟幕绕到{enemyCallsign}的侧后。',
+      action: '{link}两车在不到两百米处互相开火交战，{heroCallsign}的车体被打出几个洞，他借着烟幕绕到{enemyCallsign}的侧后。',
       audioCue: '炮声与金属撕裂 · 烟幕弹爆开',
       radioVoice: '【无线电】侧后！就是现在！' }],
     cost: [{ fn: 'cost', phase: 'climax', focus: 'squad',
@@ -956,7 +1462,7 @@ const SLOTS = {
         audioCue: '姿态喷气短促爆响 · 舱体轻震',
         radioVoice: '【无线电】推力给足了，抓住检修口！' },
       { fn: 'escalate', phase: 'climax', focus: 'vehicle',
-        action: '{link}{vehicle}绕到太阳翼背面，用结构臂挡住{enemyCallsign}的视线，{heroCallsign}趁机钻进核心舱。',
+        action: '{link}{vehicle}绕到太阳翼背面，用结构臂挡住对方的视线，{heroCallsign}趁机钻进核心舱。',
         audioCue: '结构臂液压声 · 金属摩擦',
         radioVoice: '【无线电】我在挡它，你进去！' }
     ],
@@ -969,7 +1475,7 @@ const SLOTS = {
       audioCue: '呼吸声 · 继电器预备音',
       radioVoice: '【无线电】合闸。后果我担。' }],
     reversal: [{ fn: 'reversal', phase: 'climax', focus: 'hero',
-      action: '{link}合闸的瞬间，太阳翼开始转动——不是朝向太阳，是朝向{enemyCallsign}的接近轨道。{heroCallsign}意识到自己刚刚给他们开了路。',
+      action: '{link}合闸的瞬间，太阳翼开始转动——不是朝向太阳，是朝向对方的接近轨道。{heroCallsign}意识到自己刚刚给他们开了路。',
       audioCue: '伺服电机转动 · 告警音连响',
       radioVoice: '【无线电】……它在对着他们转。我上当了。' }],
     clash: [{ fn: 'clash', phase: 'climax', focus: 'clash',
@@ -997,7 +1503,9 @@ const SLOTS = {
   /* ---------------------------------------------------------------- 营救撤离 */
   'rescue-extract': {
     goal: [{ fn: 'goal', phase: 'establish', focus: 'hero',
-      action: '简报板上钉着飞行员的照片。{heroCallsign}敲了敲：「{deadline}之内{objective}，否则{stake}。」',
+      // 「飞行员的照片」指向的是**被营救的人**，不是名册里的任何角色 —— 用泛称反而更准，
+      // 但必须写成「被击落的机组」，否则读者会以为照片上就是{heroCallsign}自己。
+      action: '简报板上钉着被击落机组的照片。{heroCallsign}敲了敲：「{deadline}之内{objective}，否则{stake}。」',
       audioCue: '照片被按在板上 · 简报室安静',
       radioVoice: '【无线电】任务只有一个目标：把人带回来。' }],
     plan: [{ fn: 'plan', phase: 'build', focus: 'squad',
@@ -1085,7 +1593,7 @@ const SLOTS = {
       audioCue: '呼吸声 · 音乐抽走只留低频',
       radioVoice: '【无线电】继续往上。人还在楼上。' }],
     reversal: [{ fn: 'reversal', phase: 'climax', focus: 'hero',
-      action: '{link}楼梯间传来爆破声——退路被炸断了，{enemyCallsign}把整栋楼变成了陷阱。{heroCallsign}只能往上走。',
+      action: '{link}楼梯间传来爆破声——退路被炸断了，对面把整栋楼变成了陷阱。{heroCallsign}只能往上走。',
       audioCue: '定向爆破闷响 · 结构崩裂',
       radioVoice: '【无线电】退路没了！只能往上！' }],
     clash: [{ fn: 'clash', phase: 'climax', focus: 'clash',
@@ -1143,7 +1651,7 @@ const SLOTS = {
       audioCue: '呼吸声 · 音乐抽走只留低频',
       radioVoice: '【无线电】不等了。现在进去。' }],
     reversal: [{ fn: 'reversal', phase: 'climax', focus: 'hero',
-      action: '{link}打进去之后，{enemyCallsign}从背后的方向开了火——他们早就等着这一刻。',
+      action: '{link}打进去之后，对方从背后的方向开了火——他们早就等着这一刻。',
       audioCue: '背后突然响起的枪声 · 耳鸣',
       radioVoice: '【无线电】后面！他们绕到后面了！' }],
     clash: [{ fn: 'clash', phase: 'climax', focus: 'clash',
