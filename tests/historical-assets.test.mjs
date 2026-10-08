@@ -110,12 +110,12 @@ test('历史资产：泛化的「夜战/现代」不得抢走具体时代', () =
 
 // ─────────────────── 资产库规模与 schema ───────────────────
 
-test('历史资产：扩充包把资产库扩到 770+，schemaVersion=3.6', () => {
+test('历史资产：扩充包把资产库扩到 780+，schemaVersion=3.7', () => {
   const groups = ['characters', 'vehicles', 'weapons', 'props', 'fx',
     'environments', 'cameras', 'lighting', 'colorGrades', 'audio'];
   const total = groups.reduce((n, g) => n + (assets[g]?.length || 0), 0);
-  assert.ok(total >= 770, `资产总数应 >= 770，实际 ${total}`);
-  assert.equal(assets.schemaVersion, '3.6');
+  assert.ok(total >= 780, `资产总数应 >= 780，实际 ${total}`);
+  assert.equal(assets.schemaVersion, '3.7');
 
   const pack = groups.flatMap(g => assets[g] || []).filter(a => a.origin === 'historical-warfare-pack');
   assert.ok(pack.length >= 150, `历史与轨道扩充包应 >= 150 项，实际 ${pack.length}`);

@@ -87,6 +87,170 @@ export function archetypeOf(asset) {
   return 'default';
 }
 
+/**
+ * 国籍识别规则（顺序敏感：越具体越靠前）。
+ *
+ * 为什么需要它：`faction` 只分「盟军 / 轴心」这一层，而二战盟军内部还有美军、苏军、英军、
+ * 法国抵抗组织。仅按 faction 选角，一部「诺曼底登陆抢滩」里会同时站着美军步兵、苏军政委
+ * 与英军步兵 —— 观众一眼就知道是拼凑。国籍是比阵营更细一层的一致性约束。
+ *
+ * 依据是资产的 nameZh / name / kw 三处文本，中文标记优先（最可靠）。
+ */
+const NATION_RULES = [
+  ['soviet', /苏军|苏联|红军|华约|soviet|russian|red army|warsaw pact/i],
+  ['british', /英军|英国|皇家空军|皇家海军|british|royal air force|\braf\b|tommy|cromwell|churchill tank|challenger/i],
+  ['german', /德军|德国|纳粹|国防军|党卫|german|wehrmacht|panzer|luftwaffe|stuka|bismarck|fallschirm/i],
+  ['japanese', /日军|日本|帝国陆军|帝国海军|japanese|ija|ijn|shokaku|akagi|chi-ha|ha-go/i],
+  ['french', /法军|法国|自由法国|抵抗组织|french|resistance/i],
+  // 海湾 / 伊拉克战争的反方是伊拉克：不写这一条，「伊拉克共和国卫队士兵」判定不出国籍，
+  // 会被兜底池分到桥本（日式名字），与画面里的中东战场直接对不上。
+  ['iraqi', /伊拉克|共和国卫队|萨达姆|复兴党|iraqi|iraq|republican guard|saddam|baath/i],
+  ['us', /美军|美国|海军陆战队|陆战队|游骑兵|伞兵|usmc|\bus\b|american|u\.s\.|sherman|hellcat|dauntless|catalina|fletcher|iowa|patton|abrams|phantom|huey|thunderbolt|liberator/i]
+];
+
+/**
+ * 判定资产的具体国籍；无法判定时返回 null（调用方应把 null 视为「不限制」）。
+ * @param {object} asset 资产
+ * @returns {'soviet'|'british'|'german'|'japanese'|'french'|'iraqi'|'us'|null}
+ */
+export function nationOf(asset) {
+  if (!asset) return null;
+  const hay = `${asset.nameZh || ''} ${asset.name || ''} ${asset.kw || ''}`;
+  for (const [key, re] of NATION_RULES) {
+    if (re.test(hay)) return key;
+  }
+  return null;
+}
+
+/**
+ * 题材里点名的参战国。只用于二战 / 太平洋这类「同阵营内部多国混编」的时代；
+ * 现代题材的联军本来就是多国部队，不做这一层限制。
+ */
+const NATION_HINTS = [
+  ['soviet', /斯大林格勒|库尔斯克|莫斯科|列宁格勒|东线|苏军|苏联|红军|kursk|stalingrad/i],
+  ['british', /英军|英国|不列颠|蒙哥马利|阿拉曼|敦刻尔克|皇家空军|british|dunkirk|el alamein/i],
+  ['us', /美军|美国|诺曼底|奥马哈|犹他海滩|巴顿|太平洋|中途岛|硫磺岛|冲绳|瓜岛|塞班|normandy|midway|iwo jima|okinawa|guadalcanal/i],
+  ['french', /法军|法国|抵抗组织|french resistance/i]
+];
+
+/** 由题材推断参战国；无法判定返回 null */
+export function nationHintOf(theme) {
+  const hay = String(theme || '');
+  for (const [key, re] of NATION_HINTS) {
+    if (re.test(hay)) return key;
+  }
+  return null;
+}
+
+/**
+ * 个人姓名池（按国籍分）。
+ *
+ * 为什么需要它：代号（【CAPTAIN】）只是身份锚点，不是「人」。
+ * 「【MERIDIAN】动力外骨骼特战队员」观众记不住；「【MERIDIAN】科瓦奇」才是一个角色。
+ * 姓名按国籍取，避免给苏军角色起一个英美名字这种低级穿帮。
+ *
+ * defaultFriendly / defaultOpposing 这两级兜底**必须分开**：
+ * 早期只有一个 default 池，于是一部现代题材里「我方突击队长」与「敌方指挥官」
+ * 会从同一个池子抽名字，两个米勒同框；更糟的是中东战场的敌方指挥官抽到「桥本」。
+ * 国籍判不出来时，至少阵营不能混。
+ */
+const PERSONA_NAMES = {
+  us: ['米勒', '哈里森', '邓肯', '沃克', '佩德罗', '奥尔特加', '凯恩', '兰斯', '雷诺兹', '布莱迪'],
+  british: ['阿什顿', '哈格里夫斯', '克劳福德', '布莱克', '诺里斯', '埃文斯', '惠特克', '莫里斯'],
+  soviet: ['科瓦奇', '伊万诺夫', '谢尔盖', '沃尔科夫', '列别杰夫', '莫罗佐夫', '库兹涅佐夫', '彼得罗夫'],
+  german: ['施密特', '克劳斯', '雷曼', '沃尔夫', '鲍尔', '凯斯勒', '霍夫曼', '布兰特'],
+  japanese: ['山本', '桥本', '佐藤', '中村', '小林', '高田', '石井', '森田'],
+  french: ['杜兰', '勒克莱尔', '莫罗', '拉方', '贝尔纳', '吉拉尔'],
+  iraqi: ['哈桑', '卡里姆', '阿卜杜拉', '纳赛尔', '萨利姆', '塔里克', '拉希德', '法里斯'],
+  defaultFriendly: ['米勒', '哈里森', '邓肯', '沃克', '佩德罗', '奥尔特加', '凯恩', '兰斯', '雷诺兹', '布莱迪'],
+  defaultOpposing: ['科瓦奇', '伊万诺夫', '施密特', '克劳斯', '雷曼', '沃尔夫', '鲍尔', '凯斯勒', '霍夫曼', '布兰特'],
+  // 中立（记者 / 平民 / 承包商）不站队，用一个不属于任何一方的中性池
+  default: ['阿隆', '罗西', '诺瓦克', '索恩', '维加', '马雷克']
+};
+
+/** 职务池（按兵种分）：让小队里每个人在故事里各司其职，而不是一排「作战员」 */
+const ROLE_LABELS = {
+  Infantry: ['突击队长', '步枪手', '机枪手', '爆破手', '副队长'],
+  'Special Forces': ['小队指挥官', '突击手', '破门手', '狙击手', '通信兵'],
+  Airborne: ['空降组长', '伞兵', '机枪手', '爆破手'],
+  Armor: ['车长', '炮手', '驾驶员', '装填手'],
+  Aviation: ['长机飞行员', '僚机飞行员', '武器系统官', '地面引导员'],
+  'Naval Aviation': ['长机飞行员', '僚机飞行员', '后座武器官'],
+  Naval: ['舰长', '航海长', '损管长', '声呐兵'],
+  Command: ['指挥官', '作战参谋', '通信官'],
+  Medical: ['军医', '卫生员', '担架兵'],
+  Engineer: ['工兵', '爆破手', '架桥手'],
+  Reconnaissance: ['侦察组长', '观察手', '狙击手'],
+  'Recon / Sniper': ['狙击组长', '观察手', '狙击手'],
+  Irregular: ['抵抗组织联络员', '游击队员', '向导'],
+  JTAC: ['前沿引导员', '火力协调员'],
+  CSAR: ['救援组长', '随机医护', '绞车手'],
+  EOD: ['排爆组长', '拆弹手', '机器人操作员'],
+  CBRN: ['防化组长', '侦检员'],
+  'EW / Cyber': ['电子战官', '频谱分析员'],
+  'Air Defense': ['防空组长', '雷达操作员', '发射手'],
+  Logistics: ['后勤主管', '补给兵'],
+  PMC: ['承包商队长', '承包商射手'],
+  'Orbital Infantry': ['轨道突击组长', '舱外作业员', '姿态控制手'],
+  'Space Operations': ['空间站指挥官', '系统工程师', '舱外作业员'],
+  'Strategic Fires': ['发射指挥员', '发射控制军官', '目标规划员'],
+  'Strategic Aviation': ['机长', '副驾驶', '武器系统官'],
+  'Strategic Rocket Forces': ['值班指挥官', '发射控制员'],
+  'Orbital Marines': ['轨道陆战队长', '突击手', '破门手']
+};
+
+const DEFAULT_ROLES = ['队长', '副队长', '机枪手', '爆破手', '通信兵', '医护兵'];
+
+/** 从职务池里取一个本片尚未使用的职务（确定性：由下标决定起点，环形扫描） */
+function personaRoleOf(unit, idx, used) {
+  const pool = ROLE_LABELS[unit] || DEFAULT_ROLES;
+  for (let k = 0; k < pool.length; k++) {
+    const candidate = pool[(idx + k) % pool.length];
+    if (!used.has(candidate)) { used.add(candidate); return candidate; }
+  }
+  const base = pool[idx % pool.length];
+  let n = 2;
+  while (used.has(`${base}${n}`)) n += 1;
+  const candidate = `${base}${n}`;
+  used.add(candidate);
+  return candidate;
+}
+
+/** 从姓名池里取一个本片尚未使用的姓名 */
+function personaNameOf(nation, idx, used) {
+  const pool = PERSONA_NAMES[nation] || PERSONA_NAMES.default;
+  for (let k = 0; k < pool.length; k++) {
+    const candidate = pool[(idx + k) % pool.length];
+    if (!used.has(candidate)) { used.add(candidate); return candidate; }
+  }
+  const base = pool[idx % pool.length];
+  let n = 2;
+  while (used.has(`${base}${n}`)) n += 1;
+  used.add(`${base}${n}`);
+  return `${base}${n}`;
+}
+
+/**
+ * 一方之内出现最多的国籍。
+ *
+ * 用途：给同一方里**没标国籍**的同伴补姓名池。
+ * 「海湾战争」里我方是一水儿美军、敌方是一水儿伊拉克人，但总有几个资产名里
+ * 没写国名；按本方多数国籍补齐，比丢进一个敌我不分的兜底池可靠得多。
+ */
+function dominantNation(entries) {
+  const counts = new Map();
+  for (const e of entries) {
+    if (!e.nation) continue;
+    counts.set(e.nation, (counts.get(e.nation) || 0) + 1);
+  }
+  let best = null;
+  let bestN = 0;
+  for (const [key, n] of counts) {
+    if (n > bestN) { best = key; bestN = n; }
+  }
+  return best;
+}
+
 /** 正方代号池：按原型分组，军事感强、易口播 */
 const COALITION_POOLS = {
   command: ['ACTUAL', 'EAGLE', 'OVERLORD', 'KINGPIN'],
@@ -230,6 +394,12 @@ export function buildRoster(shots = [], registry = null, { prior = null } = {}) 
         name: asset.nameZh || asset.name,
         nameEn: asset.name,
         role: asset.unit || (asset.kind === 'vehicle' ? '载具' : '作战员'),
+        // 人物层：代号只是身份锚点，persona 才是「一个人」。
+        // 剧本里写「【CAPTAIN】米勒」，比写「【CAPTAIN】美军步兵（二战）」可读得多。
+        unit: asset.unit || null,
+        persona: '',
+        personaRole: '',
+        nation: nationOf(asset),
         series: asset.series || 'shared',
         faction: asset.faction || null,
         outfit: outfitOf(asset),
@@ -244,10 +414,22 @@ export function buildRoster(shots = [], registry = null, { prior = null } = {}) 
   const reserved = new Set(inherited.values()); // 退役代号也不允许被新角色复用
   const taken = new Set();
 
+  // 姓名与职务只在**人仔**之间分配：载具不该有姓名，也不该占掉「机枪手」这种职务。
+  const usedNames = { coalition: new Set(), opposing: new Set(), neutral: new Set() };
+  const usedRoles = { coalition: new Set(), opposing: new Set(), neutral: new Set() };
+
+  // 本片每一方的「主导国籍」：给没标国籍的同伴补姓名池（详见 dominantNation 注释）
+  const sideNation = {
+    coalition: dominantNation(all.filter(e => e.side === 'coalition')),
+    opposing: dominantNation(all.filter(e => e.side === 'opposing')),
+    neutral: null
+  };
+
   // 第二遍：**按资产 ID 升序**分配代号。
   // 这一步必须与出场顺序无关，否则「规划器生成时算出的代号」会和「事后 buildRoster
   // 重新聚合时算出的代号」不一致 —— 分镜里写着 GHOST，定妆表里却变成 FALCON。
-  for (const entry of [...all].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))) {
+  const ordered = [...all].sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  ordered.forEach((entry, idx) => {
     const asset = registry?.byId?.get(entry.id);
     const side = entry.side === 'opposing' ? 'opposing' : 'coalition';
 
@@ -255,12 +437,23 @@ export function buildRoster(shots = [], registry = null, { prior = null } = {}) 
     if (priorCall && !taken.has(priorCall)) {
       entry.callsign = priorCall;
       taken.add(priorCall);
-      continue;
+    } else {
+      // 已占用集合 = 本版已分配 ∪ 历史保留（防止新角色复用别人的代号）
+      entry.callsign = assignCallsign(asset, side, new Set([...taken, ...reserved]));
+      taken.add(entry.callsign);
     }
-    // 已占用集合 = 本版已分配 ∪ 历史保留（防止新角色复用别人的代号）
-    entry.callsign = assignCallsign(asset, side, new Set([...taken, ...reserved]));
-    taken.add(entry.callsign);
-  }
+
+    if (entry.kind !== 'character') return;
+    const bucket = entry.side === 'opposing' ? 'opposing' : (entry.side === 'neutral' ? 'neutral' : 'coalition');
+    // 国籍优先级：资产自身标记 > 本方多数国籍 > 按阵营分的兜底池。
+    // 最后一级必须分阵营，否则敌方指挥官会抽到我方名字池里的名字（详见 PERSONA_NAMES 注释）。
+    const inferred = entry.nation || sideNation[bucket] || null;
+    const pool = inferred || (bucket === 'opposing' ? 'defaultOpposing' : (bucket === 'neutral' ? 'default' : 'defaultFriendly'));
+    entry.persona = personaNameOf(pool, idx, usedNames[bucket]);
+    entry.personaRole = personaRoleOf(entry.unit, idx, usedRoles[bucket]);
+    // 由本方多数国籍推断出来的国籍要回填：定妆表才能显示「美军 / 伊军」，而不是一片空白
+    if (!entry.nation && inferred) entry.nation = inferred;
+  });
 
   return {
     coalition: all.filter(e => e.side === 'coalition'),
@@ -296,6 +489,10 @@ export function rosterFromJSON(data) {
       name: raw.name || '',
       nameEn: raw.nameEn || '',
       role: raw.role || '',
+      unit: raw.unit || null,
+      persona: raw.persona || '',
+      personaRole: raw.personaRole || '',
+      nation: raw.nation || null,
       series: raw.series || 'shared',
       faction: raw.faction || null,
       outfit: raw.outfit || '',
@@ -334,13 +531,15 @@ export function callsignOf(roster, id) {
 }
 
 /**
- * 生成「【代号】中文名」短标签（不带 ID），用于卡片与脚本正文。
+ * 生成「【代号】人名」短标签（不带 ID），用于卡片与脚本正文。
+ * 有 persona（人物姓名）时优先用它 —— 剧本里出现的是「【CAPTAIN】米勒」，
+ * 而不是「【CAPTAIN】美军步兵（二战）」这种单位类型，观众才记得住角色。
  * 没有名册命中时退化为纯名称，保证任何调用点都不会显示空白。
  */
 export function aliasLabel(roster, id, fallbackName = '') {
   const entry = roster?.byId?.get(id);
   if (!entry) return String(fallbackName || id || '');
-  return `【${entry.callsign}】${entry.name}`;
+  return `【${entry.callsign}】${entry.persona || entry.name}`;
 }
 
 /**
@@ -384,22 +583,35 @@ const DOMAIN_RULES = [
   {
     key: 'naval',
     classes: ['ship', 'submarine'],
-    re: /navy|naval|\bship\b|fleet|carrier|destroyer|frigate|cruiser|submarine|warship|ocean|sea|maritime|amphibious|torpedo|sonar|海军|舰|航母|潜艇|驱逐舰|护卫舰|巡洋舰|舰队|海上|远海|深海|两栖|登陆舰|鱼雷|声纳|水雷/i
+    re: /navy|naval|\bship\b|fleet|carrier|destroyer|frigate|cruiser|submarine|warship|ocean|sea|maritime|amphibious|torpedo|sonar|海军|舰|航母|潜艇|驱逐舰|护卫舰|巡洋舰|舰队|海上|远海|深海|两栖|登陆舰|鱼雷|声纳|水雷/i,
+    // 角色专用关键词：海军题材里上镜的应该是舰员与潜水员，而不是步兵班长。
+    charRe: /navy|naval|marine|sailor|deck|submarine|sonar|diver|coxswain|舰|艇|海军|船员|水兵|声呐|潜水|登陆/i
   },
   {
     key: 'air',
     classes: ['aircraft', 'helicopter', 'drone'],
-    re: /air ?force|aircraft|bomber|fighter|\bjet\b|airbase|airborne|aerial|air superiority|sortie|stealth|aviation|空军|轰炸机|战斗机|战机|制空|空中|空袭|空战|僚机|加油机|预警机|侦察机|直升机|伞降|空降/i
+    re: /air ?force|aircraft|bomber|fighter|\bjet\b|airbase|airborne|aerial|air superiority|sortie|stealth|aviation|空军|轰炸机|轰炸|战斗机|战机|制空|空中|空袭|空战|僚机|加油机|预警机|侦察机|直升机|伞降|空降/i,
+    // 角色专用关键词：制空题材里上镜的应该是飞行员与引导员，而不是战斗工兵与潜水员。
+    charRe: /aviation|pilot|aviator|flight|aircrew|airborne|\bjtac\b|\bwso\b|\bcsar\b|\buas\b|air defense|counter-uas|航空|飞行|领航|伞降|空降|引导|防空/i
   },
   {
     key: 'strategic',
     classes: ['ground', 'ship', 'aircraft'],
-    re: /icbm|intercontinental|ballistic missile|missile silo|\bsilo\b|nuclear deterrent|strategic (?:strike|deterrence|rocket|bomber)|洲际|弹道导弹|发射井|战略打击|战略轰炸|核威慑|导弹基地|战略值班/i
+    re: /icbm|intercontinental|ballistic missile|missile silo|\bsilo\b|nuclear deterrent|strategic (?:strike|deterrence|rocket|bomber)|洲际|弹道导弹|发射井|战略打击|战略轰炸|核威慑|导弹基地|战略值班/i,
+    // 这里**不能**写裸的 `strategic` / `command`：单位名 "Strategic Aviation"
+    // （战略轰炸机机组）会把空战域的角色误判成战略火箭军，在制空题材里被跨域惩罚扣分，
+    // 结果「B-2 轰炸敌方雷达站」的主角变成无人机操作员。只认真正与导弹/火箭连用的组合。
+    charRe: /missile|rocket|silo|launch control|icbm|strategic (?:rocket|fires|missile)|导弹|火箭|发射井|发射控制|战略火力|核打击/i
   },
   {
     key: 'ground',
     classes: ['ground', 'ugv'],
-    re: /\btank\b|armou?r|infantry|urban|\bcity\b|street|convoy|artillery|装甲|坦克|步兵|巷战|城市|街区|车队|炮兵|阵地|堑壕/i
+    re: /\btank\b|armou?r|infantry|urban|\bcity\b|street|convoy|artillery|装甲|坦克|步兵|巷战|城市|街区|车队|炮兵|阵地|堑壕/i,
+    // 这里**不能**写成 `\bcrew\b`：ARCHETYPE_RULES 已经踩过一次同样的坑
+    // （"Armour Crew" 之外还有 "Carrier Deck Crew"）。写成 \bcrew\b 会让
+    // 「航母甲板人员（黄衫）」在陆战题材里拿到 +10，把真正的飞行员挤出去。
+    // 因此只认与装甲明确连用的组合。
+    charRe: /infantry|rifle|armou?r|tank|tank ?crew|armou?red ?crew|assault|sniper|recon|步兵|坦克|装甲|车组|突击|狙击|侦察|游骑/i
   }
 ];
 
@@ -461,10 +673,34 @@ export function domainOfText(text) {
  */
 function domainScore(asset, domain) {
   if (!domain) return 0;
-  const hay = `${asset?.unit || ''} ${asset?.name || ''} ${asset?.nameZh || ''} ${asset?.kw || ''}`.toLowerCase();
+  const hay = assetText(asset).toLowerCase();
   let score = 0;
   if (asset?.class && domain.classes.includes(asset.class)) score += 10;
-  if (domain.re.test(hay)) score += 4;
+  // 角色没有 class 字段（class 是载具概念）。若角色也沿用载具关键词，
+  // 制空题材里的「战斗机」会把「战斗工兵」一并命中，飞行员永远排不到前面。
+  // 因此角色走 charRe（兵种关键词），载具走 re（装备关键词）。
+  const re = (asset?.kind === 'character' && domain.charRe) ? domain.charRe : domain.re;
+  // 角色的域信号必须与载具的类别匹配同权（+10）：否则会被 themeMatch 里
+  // 「战斗工兵」与「战斗机」共享的「战斗」二字（+6）盖过去，飞行员永远排不上来。
+  if (re.test(hay)) score += (asset?.kind === 'character') ? 10 : 4;
+
+  // 跨域惩罚（只作用于角色）。
+  //
+  // 起因：题材「海湾战争夜战防空导弹阵地伏击」识别为 air 域，候选池凑不满名额时，
+  // 剩下的位置按 ID 升序硬填，于是「航母甲板人员（黄衫）」（unit = Navy）被拉进了
+  // 沙漠阵地，第 7 镜里一个航母甲板兵站在打空的导弹阵地上收枪 —— 一眼假。
+  // 角色同时命中**另一个**域的兵种关键词时扣分，让它自然沉底。
+  //
+  // 扣 6 而不是扣满 10：必须**小于**本域的命中分，否则「舰队题材里的舰载机飞行员」
+  // 这类合法的跨域兵种（naval + aviation 双命中）会被自己人挤掉。
+  // 载具不做这一步：载具的 class 已经是强信号（+10），再罚会误伤合法跨域资产。
+  if (asset?.kind === 'character') {
+    for (const other of DOMAIN_RULES) {
+      if (other.key === domain.key) continue;
+      const ore = other.charRe || other.re;
+      if (ore.test(hay)) score -= 6;
+    }
+  }
   return score;
 }
 
@@ -602,11 +838,15 @@ export function themeNamesAsset(asset, theme) {
  *
  * 域内一个候选都没有时（例如角色没有 class），行为与旧版完全一致。
  */
-function pickDiverse(pool, limit, domain = null) {
+function pickDiverse(pool, limit, domain = null, keyOf = null) {
   const out = [];
   const used = new Set();
-  const clsOf = (a) => a?.class || a?.kind || 'other';
-  const inDomain = (a) => !!domain && domain.classes.includes(a?.class);
+  const clsOf = keyOf || ((a) => a?.class || a?.kind || 'other');
+  // domain 既可以是战场域对象，也可以是「是否属于本片首选装备」的判定函数。
+  // 后者用于「任务原型点名了装备、但没有对应战场域」的情形（例如抢滩要登陆艇）。
+  const inDomain = typeof domain === 'function'
+    ? domain
+    : ((a) => !!domain && domain.classes.includes(a?.class));
   let haveInDomain = false;
 
   if (domain) {
@@ -660,7 +900,7 @@ function pickDiverse(pool, limit, domain = null) {
  * @param {{ era?: string, task?: string, theme?: string, setting?: string, maxHeroes?: number, maxEnemies?: number, maxVehicles?: number }} options
  * @returns {{ heroes: Array, enemies: Array, vehicles: Array, enemyFallback: boolean, era: string, domain: string|null }}
  */
-export function selectCast(registry, { era = 'Modern', task = 'combat', theme = '', setting = '', maxHeroes = 4, maxEnemies = 3, maxVehicles = 3 } = {}) {
+export function selectCast(registry, { era = 'Modern', task = 'combat', theme = '', setting = '', vehicleHint = null, maxHeroes = 4, maxEnemies = 3, maxVehicles = 3 } = {}) {
   const affinity = ERA_AFFINITY[era] || [era, 'Modern'];
 
   // 题材 / 战场环境 → 战场域。这是「装备太单一」的根治点：
@@ -717,9 +957,46 @@ export function selectCast(registry, { era = 'Modern', task = 'combat', theme = 
     return a.id < b.id ? -1 : (a.id > b.id ? 1 : 0);
   });
 
+  const rankVehicles = (list) => {
+    const hint = vehicleHint ? (vehicleHint instanceof RegExp ? vehicleHint : new RegExp(vehicleHint, 'i')) : null;
+    return [...list].sort((a, b) => {
+      const hintA = hint && hint.test(assetText(a)) ? 8 : 0;
+      const hintB = hint && hint.test(assetText(b)) ? 8 : 0;
+      // 国籍偏好是**弱信号**（+3）：它只在同分时起作用，绝不能压过任务原型的装备点名（+8）。
+      // 早期把它写成排序后再做一次稳定排序，结果「抢滩要登陆艇」被「登陆艇不是美军制式」顶掉，
+      // 诺曼底片里出现的是 M4 谢尔曼坦克「撞开反登陆障碍」。
+      const nationA = nationWanted && nationScoped && nationOf(a) === nationWanted ? 3 : 0;
+      const nationB = nationWanted && nationScoped && nationOf(b) === nationWanted ? 3 : 0;
+      const da = domainScore(a, domain) + themeMatch(a, theme) + hintA + nationA;
+      const db = domainScore(b, domain) + themeMatch(b, theme) + hintB + nationB;
+      if (da !== db) return db - da;
+      const ta = taskAffinity(a, task) ? 0 : 1;
+      const tb = taskAffinity(b, task) ? 0 : 1;
+      if (ta !== tb) return ta - tb;
+      return a.id < b.id ? -1 : (a.id > b.id ? 1 : 0);
+    });
+  };
+
   // 角色同样吃战场域：海军题材优先舰艇船员/潜水员，空战题材优先飞行员/引导员，
   // 否则「核潜艇」题材里上镜的仍会是步兵班长与核生化专家。
-  const heroes = pickDiverse(rank(bySide(characters, 'coalition')), maxHeroes, null);
+  //
+  // 国籍一致性：二战 / 太平洋的盟军内部还有美军、苏军、英军、法国抵抗组织。
+  // 仅按 faction 选角会拼出「美军步兵 + 苏军政委 + 英军步兵」同框的诺曼底 —— 一眼假。
+  // 因此先按题材（或排名第一的角色）确定本片国籍，再在同国籍内挑选。
+  const nationScoped = (era === 'WWII' || era === 'Pacific');
+  const heroPool = rank(bySide(characters, 'coalition'));
+  const nationWanted = nationScoped
+    ? (nationHintOf(theme) || nationOf(heroPool[0]) || null)
+    : null;
+  const nationPool = (nationWanted && nationScoped)
+    ? heroPool.filter(a => nationOf(a) === nationWanted)
+    : [];
+  // 过滤后至少要有 2 人，否则放弃这一层限制（宁可混编，也不能让名册空掉）
+  const heroCandidates = nationPool.length >= 2 ? nationPool : heroPool;
+
+  // 兵种多样性：小队里每人一个职务（队长 / 机枪手 / 爆破手 / 医护兵…），
+  // 而不是一排「作战员」。这直接决定剧本里能不能写出「谁在做什么」。
+  const heroes = pickDiverse(heroCandidates, maxHeroes, null, a => a?.unit || 'character');
 
   const enemyPool = rank(bySide(characters, 'opposing'));
   // 该时代（含兼容时代）确实没有敌军角色时才会为空 —— 例如 Orbital 库里没有任何反派角色。
@@ -736,8 +1013,23 @@ export function selectCast(registry, { era = 'Modern', task = 'combat', theme = 
   const namedByTheme = (a) => themeNamesAsset(a, theme);
   const coalitionVehicles = bySide(vehicles, 'coalition');
   const namedOpposing = vehicles.filter(a => sideOf(a) !== 'coalition' && namedByTheme(a));
-  const vehiclePool = rank(coalitionVehicles.concat(namedOpposing));
-  const chosenVehicles = pickDiverse(vehiclePool.length ? vehiclePool : rank(vehicles), maxVehicles, domain);
+  const vehiclePool = rankVehicles(coalitionVehicles.concat(namedOpposing));
 
-  return { heroes, enemies, vehicles: chosenVehicles, enemyFallback, era, domain: domain ? domain.key : null };
+  // 战场域优先；没有战场域时（例如「抢滩」既不是海战也不是陆战），
+  // 退化为「任务原型的装备偏好」——否则多样性规则会把登陆艇挤掉、只留坦克。
+  const hintRe = vehicleHint
+    ? (vehicleHint instanceof RegExp ? vehicleHint : new RegExp(vehicleHint, 'i'))
+    : null;
+  const diversityScope = domain || (hintRe ? ((a) => hintRe.test(assetText(a))) : null);
+  const chosenVehicles = pickDiverse(
+    vehiclePool.length ? vehiclePool : rankVehicles(vehicles),
+    maxVehicles,
+    diversityScope
+  );
+
+  return {
+    heroes, enemies, vehicles: chosenVehicles, enemyFallback, era,
+    domain: domain ? domain.key : null,
+    nation: nationWanted || null
+  };
 }

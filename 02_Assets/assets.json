@@ -1,11 +1,11 @@
 {
-  "schemaVersion": "3.6",
+  "schemaVersion": "3.7",
   "project": {
     "name": "LEGO War Universe",
     "code": "LWU",
     "bibleVersion": "2.1",
     "target": "Google Flow (Veo 3), 8-second cinematic shots, long-form war-film series",
-    "updated": "2026-10-02"
+    "updated": "2026-10-03"
   },
   "styleBlock": {
     "id": "STYLE-LWU",
@@ -360,6 +360,146 @@
       "nameZh": "武装分子"
     },
     {
+      "id": "CHR-008",
+      "name": "US Marine (Iraq)",
+      "nameZh": "美国海军陆战队员（伊拉克）",
+      "series": "Iraq War",
+      "faction": "Coalition",
+      "unit": "Infantry",
+      "kw": "美军 海军陆战队 伊拉克 步兵 us marine iraq infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "desert-tan PASGT kevlar helmet with a fabric cover",
+        "desert tan-and-brown DCU camouflage torso print with an Interceptor body armour vest",
+        "light skin, brown eyebrows, dust-covered intense expression",
+        "equipment: M4 carbine with an optic, radio, hydration pack",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-009",
+      "name": "Iraqi Republican Guard Soldier",
+      "nameZh": "伊拉克共和国卫队士兵",
+      "series": "Iraq War",
+      "faction": "Opposing Force",
+      "unit": "Infantry",
+      "kw": "伊拉克 共和国卫队 士兵 敌军 iraqi republican guard",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark green steel helmet and a red beret badge",
+        "olive-green uniform torso print with a red shoulder patch and a webbing belt",
+        "olive skin, black eyebrows, tense expression, moustache",
+        "equipment: AKM rifle, chest magazine pouches, canteen",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-010",
+      "name": "Insurgent Sniper",
+      "nameZh": "反美武装狙击手",
+      "series": "Iraq War",
+      "faction": "Opposing Force",
+      "unit": "Recon / Sniper",
+      "kw": "武装分子 狙击手 反美 伊拉克 insurgent sniper",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "black knit balaclava and a shemagh wrapped around the shoulders",
+        "civilian dishdasha torso print with a leather chest rig and magazine pouches",
+        "olive skin, black eyebrows, hidden eyes behind wraparound sunglasses",
+        "equipment: SVD marksman rifle, sand-coloured gloves, a rucksack",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-011",
+      "name": "Coalition Patrol Leader",
+      "nameZh": "联军巡逻队长（伊拉克）",
+      "series": "Iraq War",
+      "faction": "Coalition",
+      "unit": "Command",
+      "kw": "联军 巡逻 队长 指挥 伊拉克 patrol leader command",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "desert-tan PASGT helmet with a night-vision mount",
+        "desert DCU torso print with body armour, a chest radio pouch and rank chevrons",
+        "light skin, brown eyebrows, calm authoritative expression",
+        "equipment: M4 carbine, tactical map board, handheld radio",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-012",
+      "name": "Coalition Combat Medic",
+      "nameZh": "联军战斗医护兵（伊拉克）",
+      "series": "Iraq War",
+      "faction": "Coalition",
+      "unit": "Medical",
+      "kw": "联军 医护兵 救护 伊拉克 combat medic",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "desert-tan PASGT helmet with a red-cross band",
+        "desert DCU torso print with body armour and a red-cross medical pouch",
+        "light skin, brown eyebrows, urgent focused expression",
+        "equipment: aid bag with a red cross, casualty card, shears",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
       "id": "CHR-101",
       "name": "US Infantry (WWII)",
       "series": "WWII",
@@ -438,6 +578,286 @@
       "nameZh": "美军伞兵"
     },
     {
+      "id": "CHR-104",
+      "name": "Soviet Red Army Rifleman",
+      "nameZh": "苏军红军步兵",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Infantry",
+      "kw": "苏军 苏联 红军 步兵 莫斯科 斯大林格勒 soviet russian red army infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark olive-green SSsh-40 steel helmet",
+        "khaki gymnastyorka torso print with leather shoulder boards and belt webbing",
+        "light skin, brown eyebrows, hardened determined expression",
+        "equipment: Mosin-Nagant rifle, canvas ammo pouches, entrenching tool",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-105",
+      "name": "Soviet Political Commissar",
+      "nameZh": "苏军政委",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Command",
+      "kw": "苏军 政委 指挥 政治委员 soviet commissar command officer",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark olive-green peaked service cap with a red star",
+        "khaki tunic torso print with a red-star政委 armband and a brown leather map case",
+        "light skin, black eyebrows, stern unyielding expression, short moustache",
+        "equipment: TT-33 pistol in a holster, folded map, whistle on a lanyard",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-106",
+      "name": "Soviet Tank Commander",
+      "nameZh": "苏军坦克车长",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Armor",
+      "kw": "苏军 坦克 车长 装甲 乘员 soviet tank commander armor crew",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "black padded tanker helmet with a leather strap and goggles pushed up",
+        "dark olive tanker overalls torso print with a webbing belt",
+        "light skin, brown eyebrows, focused sooty expression",
+        "equipment: PPSh-41 submachine gun, binoculars, tanker gloves",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-107",
+      "name": "British Infantry (WWII)",
+      "nameZh": "英军步兵（二战）",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Infantry",
+      "kw": "英军 步兵 二战 英国 british infantry tommy",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "khaki steel Brodie helmet with a chin strap",
+        "khaki battledress blouse torso print with webbing braces and a gas-mask satchel",
+        "light skin, brown eyebrows, calm steady expression",
+        "equipment: Lee-Enfield No.4 rifle, bayonet scabbard, entrenching tool",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-108",
+      "name": "RAF Fighter Pilot",
+      "nameZh": "英国皇家空军飞行员",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Aviation",
+      "kw": "英军 皇家空军 飞行员 战机 raf pilot aviation spitfire",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "tan leather flying helmet with round goggles and a boom microphone",
+        "dark blue RAF service dress torso print with rank stripes and an Irvin flying jacket collar",
+        "light skin, brown eyebrows, alert expression, silk scarf at the neck",
+        "equipment: oxygen mask hanging loose, flying gloves, map case",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-109",
+      "name": "US Army Ranger",
+      "nameZh": "美军游骑兵",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Special Forces",
+      "kw": "美军 游骑兵 突击 特种 ranger assault infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive-green M1 steel helmet with a net and scrim leaves",
+        "olive-drab M1943 field jacket torso print with webbing and assault vest pouches",
+        "light skin, brown eyebrows, grim determined expression, unshaven",
+        "equipment: M1 Garand rifle, combat knife, rope coil",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-110",
+      "name": "German Panzergrenadier",
+      "nameZh": "德军装甲掷弹兵",
+      "series": "WWII",
+      "faction": "Axis",
+      "unit": "Infantry",
+      "kw": "德军 装甲掷弹兵 步兵 纳粹 german panzergrenadier infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "field-grey Stahlhelm with a decal shield",
+        "field-grey uniform torso print with a grey-green assault pack and Y-straps",
+        "light skin, brown eyebrows, tense hardened expression",
+        "equipment: Kar98k rifle, stick grenade tucked in the belt, water bottle",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-111",
+      "name": "German Panzer Commander",
+      "nameZh": "德军坦克车长",
+      "series": "WWII",
+      "faction": "Axis",
+      "unit": "Armor",
+      "kw": "德军 坦克 车长 装甲 panzer commander armor crew",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "black Panzer wrap-around field cap with a pink piping",
+        "black panzer jacket torso print with a grey shirt and a Knight's Cross at the collar",
+        "light skin, brown eyebrows, cold confident expression",
+        "equipment: MP40 submachine gun, binoculars, leather gloves",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-112",
+      "name": "German Fallschirmjager",
+      "nameZh": "德军伞兵",
+      "series": "WWII",
+      "faction": "Axis",
+      "unit": "Airborne",
+      "kw": "德军 伞兵 空降 降下猎兵 german fallschirmjager paratrooper airborne",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "field-grey jump helmet with a rim and a chin cup",
+        "grey-green jump smock torso print with a Luftwaffe eagle and a bandolier",
+        "light skin, brown eyebrows, sharp watchful expression",
+        "equipment: FG42 automatic rifle, knee pads, gravity knife",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-113",
+      "name": "French Resistance Fighter",
+      "nameZh": "法国抵抗组织战士",
+      "series": "WWII",
+      "faction": "Allies",
+      "unit": "Irregular",
+      "kw": "法国 抵抗组织 游击 平民 french resistance irregular partisan",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark grey civilian beret and a short collarless jacket",
+        "civilian jacket torso print with a red-and-blue armband and a chest harness",
+        "light skin, brown eyebrows, wary expression, stubble",
+        "equipment: Sten submachine gun, bicycle pump, satchel",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
       "id": "CHR-201",
       "name": "US Naval Aviator (WWII)",
       "series": "Pacific",
@@ -464,6 +884,202 @@
       "nameZh": "美军海军飞行员（二战）"
     },
     {
+      "id": "CHR-202",
+      "name": "US Marine Rifleman",
+      "nameZh": "美国海军陆战队步枪手",
+      "series": "Pacific",
+      "faction": "Allies",
+      "unit": "Infantry",
+      "kw": "美军 海军陆战队 步兵 太平洋 us marine infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive-green M1 steel helmet with a reversible camouflage cover",
+        "olive-drab herringbone twill utility uniform torso print with a webbing belt and suspenders",
+        "light skin, brown eyebrows, grim determined expression, sweat-stained",
+        "equipment: M1 Garand rifle, canteen, machete scabbard",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-203",
+      "name": "Imperial Japanese Army Soldier",
+      "nameZh": "日本帝国陆军士兵",
+      "series": "Pacific",
+      "faction": "Axis",
+      "unit": "Infantry",
+      "kw": "日军 帝国 陆军 士兵 太平洋 japanese ija infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "khaki field cap with a neck flap and a small yellow star badge",
+        "khaki wool uniform torso print with a leather belt and puttees",
+        "light skin, black eyebrows, hardened resolute expression",
+        "equipment: Arisaka Type 38 rifle with a bayonet, ammo pouches, haversack",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-204",
+      "name": "IJN Naval Aviator",
+      "nameZh": "日本海军航空兵飞行员",
+      "series": "Pacific",
+      "faction": "Axis",
+      "unit": "Aviation",
+      "kw": "日军 海军 飞行员 零式 航空兵 japanese naval aviator zero",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "brown leather flying helmet with goggles and a headphone strap",
+        "dark green flight suit torso print with a life vest and rank insignia",
+        "light skin, black eyebrows, focused expression, hachimaki headband",
+        "equipment: oxygen mask, flying gloves, kneeboard",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-205",
+      "name": "IJA Company Officer",
+      "nameZh": "日军中队指挥官",
+      "series": "Pacific",
+      "faction": "Axis",
+      "unit": "Command",
+      "kw": "日军 军官 指挥 武士刀 japanese officer command",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "khaki peaked service cap with a star badge",
+        "khaki officer uniform torso print with a leather Sam Browne belt and collar rank tabs",
+        "light skin, black eyebrows, severe expression, thin moustache",
+        "equipment: Nambu pistol in a holster, ornate officer's katana at the hip, binoculars",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-206",
+      "name": "USMC Corpsman",
+      "nameZh": "美军海军医护兵（太平洋）",
+      "series": "Pacific",
+      "faction": "Allies",
+      "unit": "Medical",
+      "kw": "美军 医护兵 卫生员 救护 corpsman medical",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive-green M1 steel helmet with a large white circle and red cross",
+        "olive-drab utility uniform torso print with a red-cross armband and a webbing belt",
+        "light skin, brown eyebrows, calm urgent expression",
+        "equipment: medical satchel with a red cross, bandage roll, canteen",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-207",
+      "name": "USMC Flamethrower Operator",
+      "nameZh": "美军海军陆战队喷火兵",
+      "series": "Pacific",
+      "faction": "Allies",
+      "unit": "Engineer",
+      "kw": "美军 喷火器 火焰 工兵 flamethrower engineer",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive-green M1 steel helmet with a camouflage cover and a face veil",
+        "olive-drab utility torso print with a heavy backpack tank and rubber hose over the shoulder",
+        "light skin, brown eyebrows, tense concentrated expression behind the veil",
+        "equipment: M2 flamethrower wand with a pistol grip and nozzle",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-208",
+      "name": "USMC Scout Sniper",
+      "nameZh": "美军侦察狙击手（太平洋）",
+      "series": "Pacific",
+      "faction": "Allies",
+      "unit": "Recon / Sniper",
+      "kw": "美军 狙击手 侦察 丛林 sniper scout recon",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive-green M1 steel helmet with a scrim net and local foliage",
+        "olive-drab utility uniform torso print with a camouflage poncho and a slung pack",
+        "light skin, brown eyebrows, patient still expression, mud-camouflaged face",
+        "equipment: scoped Springfield rifle, camouflage ghillie strips, binoculars",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
       "id": "CHR-301",
       "name": "NATO Tank Commander (Cold War)",
       "series": "Cold War",
@@ -488,6 +1104,258 @@
         "consistent proportions, same face printing, same torso printing, same accessories"
       ],
       "nameZh": "北约坦克指挥官（冷战）"
+    },
+    {
+      "id": "CHR-302",
+      "name": "Soviet Motor Rifleman",
+      "nameZh": "苏军摩托化步兵",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "unit": "Infantry",
+      "kw": "苏军 苏联 步兵 华约 冷战 soviet motor rifle warsaw pact",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "steel SSh-60 helmet with a red star badge",
+        "olive-green field uniform torso print with a webbing belt and chest pouches",
+        "light skin, brown eyebrows, hard-set expression",
+        "equipment: AK-47 rifle, gas-mask bag, entrenching spade",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-303",
+      "name": "Soviet Political Officer",
+      "nameZh": "苏军政治委员（冷战）",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "unit": "Command",
+      "kw": "苏军 政委 军官 华约 soviet political officer command",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive service cap with a red band and a star cockade",
+        "olive tunic torso print with a red-star armband and a brown leather map case",
+        "light skin, black eyebrows, severe composed expression",
+        "equipment: Makarov pistol, rolled map tube, whistle",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-304",
+      "name": "Soviet Tank Commander",
+      "nameZh": "苏军坦克车长（冷战）",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "unit": "Armor",
+      "kw": "苏军 坦克 车长 华约 装甲 soviet tank commander",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "black cloth tanker helmet with goggles and a throat-mic cord",
+        "dark olive tanker coveralls torso print with a webbing belt",
+        "light skin, brown eyebrows, sooty focused expression",
+        "equipment: AKS-74U short rifle, binoculars, tanker gloves",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-305",
+      "name": "East German Border Guard",
+      "nameZh": "东德边防军士兵",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "unit": "Infantry",
+      "kw": "东德 边防军 士兵 柏林墙 east german border guard",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "grey-green steel helmet with a national badge",
+        "grey-green uniform torso print with a leather belt and a shoulder strap",
+        "light skin, brown eyebrows, rigid watchful expression",
+        "equipment: AK-47 slung, binoculars, leashed guard dog beside him",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-306",
+      "name": "Soviet Reconnaissance Sniper",
+      "nameZh": "苏军侦察狙击手",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "unit": "Recon / Sniper",
+      "kw": "苏军 狙击手 侦察 华约 soviet sniper recon",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive field cap with a camouflage veil and snow scrim",
+        "olive-green camouflage smock torso print with a webbing harness and a rucksack",
+        "light skin, brown eyebrows, patient still expression, camouflage paint on the face",
+        "equipment: scoped SVD rifle, angled spotting scope, camouflage netting",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-307",
+      "name": "US Infantry (Cold War)",
+      "nameZh": "美军步兵（冷战）",
+      "series": "Cold War",
+      "faction": "NATO",
+      "unit": "Infantry",
+      "kw": "美军 步兵 冷战 北约 nato infantry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive-green PASGT kevlar helmet with a fabric cover",
+        "olive-drab BDU torso print with a fragmentation vest and webbing",
+        "light skin, brown eyebrows, alert expression",
+        "equipment: M16A1 rifle, canteen, radio handset",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-308",
+      "name": "US Armoured Cavalry Officer",
+      "nameZh": "美军装甲骑兵军官（冷战）",
+      "series": "Cold War",
+      "faction": "NATO",
+      "unit": "Armor",
+      "kw": "美军 装甲 骑兵 军官 北约 nato armor cavalry",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive CVC tanker helmet with boom microphone and goggles",
+        "olive Nomex coveralls torso print with a chest holster and rank chevrons",
+        "light skin, brown eyebrows, calm professional expression",
+        "equipment: .45 pistol, map case, binoculars",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-309",
+      "name": "British Rhine Army Rifleman",
+      "nameZh": "英军莱茵军团步枪手",
+      "series": "Cold War",
+      "faction": "NATO",
+      "unit": "Infantry",
+      "kw": "英军 莱茵军团 步兵 北约 british rhine army",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "olive steel helmet with a disruptive-pattern cover",
+        "olive DPM camouflage smock torso print with a webbing belt and pouches",
+        "light skin, brown eyebrows, steady expression",
+        "equipment: L1A1 SLR rifle, bayonet, respirator haversack",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-310",
+      "name": "Mi-24 Hind Pilot",
+      "nameZh": "苏军米-24 飞行员",
+      "series": "Cold War",
+      "faction": "Warsaw Pact",
+      "unit": "Aviation",
+      "kw": "苏军 米24 雌鹿 飞行员 直升机 soviet hind pilot helicopter",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark olive flight helmet with a tinted visor and boom microphone",
+        "dark olive flight suit torso print with a chest harness and a survival vest",
+        "light skin, brown eyebrows, focused expression",
+        "equipment: flight gloves, kneeboard chart, makarov holster",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
     },
     {
       "id": "CHR-401",
@@ -1510,6 +2378,33 @@
       "legacyId": ""
     },
     {
+      "id": "CHR-630",
+      "name": "Powered Exoskeleton Operator",
+      "nameZh": "动力外骨骼特战队员",
+      "kw": "外骨骼 动力装甲 重装 重步兵 机械臂 明日边缘 未来 现代特战 exoskeleton powered armor heavy infantry",
+      "series": "Modern High-Tech",
+      "faction": "Coalition",
+      "unit": "Advanced Special Forces",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height, modern heavy operator",
+        "tactical high-cut helmet with integrated multi-spectrum panoramic night vision goggles",
+        "brick-built external hydraulic exoskeleton frame reinforcing legs and spine with visible miniature pistons",
+        "multicam camouflage combat shirt, reinforced chest plate with active electronics glow",
+        "equipment: shoulder-slung smart heavy machine gun with gyro-stabilized support arm",
+        "authentic LEGO plastic texture with high-precision miniature detailing"
+      ],
+      "changelog": [
+        "1.0 initial (LWU 3.0 Modern Expansion)"
+      ],
+      "referenceImage": "",
+      "version": "1.0"
+    },
+    {
       "id": "CHR-701",
       "name": "Orbital Shock Trooper",
       "nameZh": "轨道空降突击兵",
@@ -1562,31 +2457,172 @@
       "version": "1.0"
     },
     {
-      "id": "CHR-630",
-      "name": "Powered Exoskeleton Operator",
-      "nameZh": "动力外骨骼特战队员",
-      "kw": "外骨骼 动力装甲 重装 重步兵 机械臂 明日边缘 未来 现代特战 exoskeleton powered armor heavy infantry",
-      "series": "Modern High-Tech",
-      "faction": "Coalition",
-      "unit": "Advanced Special Forces",
+      "id": "CHR-703",
+      "name": "Opposing Orbital Marine",
+      "nameZh": "敌方轨道陆战队员",
+      "series": "Orbital",
+      "faction": "Opposing Force",
+      "unit": "Orbital Marines",
+      "kw": "敌方 轨道 陆战队 太空 orbital marine enemy",
       "variants": [
         "standard",
-        "battle-worn",
-        "night-ops"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height, modern heavy operator",
-        "tactical high-cut helmet with integrated multi-spectrum panoramic night vision goggles",
-        "brick-built external hydraulic exoskeleton frame reinforcing legs and spine with visible miniature pistons",
-        "multicam camouflage combat shirt, reinforced chest plate with active electronics glow",
-        "equipment: shoulder-slung smart heavy machine gun with gyro-stabilized support arm",
-        "authentic LEGO plastic texture with high-precision miniature detailing"
-      ],
-      "changelog": [
-        "1.0 initial (LWU 3.0 Modern Expansion)"
+        "battle-worn"
       ],
       "referenceImage": "",
-      "version": "1.0"
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark grey sealed combat helmet with a wide slit visor and an antenna stub",
+        "dark charcoal vacuum-rated hardsuit torso print with chest plates and a red armband",
+        "hidden face behind a dark visor, deliberate menacing posture",
+        "equipment: coil rifle, thruster pack, magnetic boot soles",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-704",
+      "name": "Orbital Fortress Commander",
+      "nameZh": "轨道要塞指挥官（敌方）",
+      "series": "Orbital",
+      "faction": "Opposing Force",
+      "unit": "Command",
+      "kw": "敌方 轨道 指挥官 要塞 orbital commander enemy",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark grey officer helmet with a crest ridge and a status light strip",
+        "dark charcoal uniform torso print with rank bars and a command harness",
+        "hidden face behind a visor, rigid bearing, a data slate at the hip",
+        "equipment: sidearm, encrypted command slate, shoulder beacon",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-705",
+      "name": "Opposing Orbital Marksman",
+      "nameZh": "敌方轨道狙击手",
+      "series": "Orbital",
+      "faction": "Opposing Force",
+      "unit": "Recon / Sniper",
+      "kw": "敌方 轨道 狙击手 太空 orbital sniper marksman",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "dark grey form-fitting helmet with a long sensor brow and a scope link",
+        "charcoal camouflage hardsuit torso print with matte panels and a low-profile pack",
+        "hidden face behind a visor, still hunched firing posture",
+        "equipment: long magnetic-anchor marksman rifle, stabilising monopods",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-706",
+      "name": "EVA Maintenance Technician",
+      "nameZh": "舱外维修技师",
+      "series": "Orbital",
+      "faction": "Coalition",
+      "unit": "Space Operations",
+      "kw": "舱外 维修 技师 太空 eva technician",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "white EVA helmet with a gold-tinted sun visor and work lamps on the brim",
+        "white EVA suit torso print with blue shoulder stripes and tool tethers",
+        "light skin, brown eyebrows, focused expression through the visor",
+        "equipment: tool belt with tethered wrenches, safety tether hook, chest control panel",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-707",
+      "name": "Orbital Assault Craft Pilot",
+      "nameZh": "轨道突击艇驾驶员",
+      "series": "Orbital",
+      "faction": "Coalition",
+      "unit": "Space Operations",
+      "kw": "轨道 突击艇 驾驶员 飞行员 orbital pilot",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "white pressure helmet with a clear bubble visor and a comms boom",
+        "white-and-blue flight suit torso print with a chest harness and mission patches",
+        "light skin, brown eyebrows, calm alert expression",
+        "equipment: control yoke gloves, mission data pad, emergency oxygen bottle",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
+    },
+    {
+      "id": "CHR-708",
+      "name": "Orbital Corpsman",
+      "nameZh": "轨道陆战队医务兵",
+      "series": "Orbital",
+      "faction": "Coalition",
+      "unit": "Medical",
+      "kw": "轨道 医务兵 救护 太空 orbital corpsman medical",
+      "variants": [
+        "standard",
+        "battle-worn"
+      ],
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "historical-warfare-pack",
+      "changelog": [
+        "1.0 historical warfare expansion pack"
+      ],
+      "lines": [
+        "LEGO minifigure, standard minifigure height",
+        "white helmet with a red-cross flash and a lamp mount",
+        "white medical hardsuit torso print with a red-cross armband and a trauma pouch",
+        "light skin, brown eyebrows, urgent focused expression",
+        "equipment: trauma kit, pressure cuff, sealed casualty bag",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ]
     },
     {
       "id": "CHR-801",
@@ -1955,1039 +2991,519 @@
       ]
     },
     {
-      "id": "CHR-104",
-      "name": "Soviet Red Army Rifleman",
-      "nameZh": "苏军红军步兵",
-      "series": "WWII",
-      "faction": "Allies",
-      "unit": "Infantry",
-      "kw": "苏军 苏联 红军 步兵 莫斯科 斯大林格勒 soviet russian red army infantry",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "dark olive-green SSsh-40 steel helmet",
-        "khaki gymnastyorka torso print with leather shoulder boards and belt webbing",
-        "light skin, brown eyebrows, hardened determined expression",
-        "equipment: Mosin-Nagant rifle, canvas ammo pouches, entrenching tool",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-105",
-      "name": "Soviet Political Commissar",
-      "nameZh": "苏军政委",
-      "series": "WWII",
-      "faction": "Allies",
-      "unit": "Command",
-      "kw": "苏军 政委 指挥 政治委员 soviet commissar command officer",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "dark olive-green peaked service cap with a red star",
-        "khaki tunic torso print with a red-star政委 armband and a brown leather map case",
-        "light skin, black eyebrows, stern unyielding expression, short moustache",
-        "equipment: TT-33 pistol in a holster, folded map, whistle on a lanyard",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-106",
-      "name": "Soviet Tank Commander",
-      "nameZh": "苏军坦克车长",
-      "series": "WWII",
-      "faction": "Allies",
-      "unit": "Armor",
-      "kw": "苏军 坦克 车长 装甲 乘员 soviet tank commander armor crew",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "black padded tanker helmet with a leather strap and goggles pushed up",
-        "dark olive tanker overalls torso print with a webbing belt",
-        "light skin, brown eyebrows, focused sooty expression",
-        "equipment: PPSh-41 submachine gun, binoculars, tanker gloves",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-107",
-      "name": "British Infantry (WWII)",
-      "nameZh": "英军步兵（二战）",
-      "series": "WWII",
-      "faction": "Allies",
-      "unit": "Infantry",
-      "kw": "英军 步兵 二战 英国 british infantry tommy",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "khaki steel Brodie helmet with a chin strap",
-        "khaki battledress blouse torso print with webbing braces and a gas-mask satchel",
-        "light skin, brown eyebrows, calm steady expression",
-        "equipment: Lee-Enfield No.4 rifle, bayonet scabbard, entrenching tool",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-108",
-      "name": "RAF Fighter Pilot",
-      "nameZh": "英国皇家空军飞行员",
-      "series": "WWII",
-      "faction": "Allies",
+      "id": "CHR-909",
+      "name": "Adversary Stealth Fighter Pilot",
+      "nameZh": "敌方隐身战斗机飞行员",
+      "kw": "敌方 隐身 战斗机 飞行员 制空 拦截 adversary stealth fighter pilot interceptor",
       "unit": "Aviation",
-      "kw": "英军 皇家空军 飞行员 战机 raf pilot aviation spitfire",
       "variants": [
         "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
       ],
       "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "tan leather flying helmet with round goggles and a boom microphone",
-        "dark blue RAF service dress torso print with rank stripes and an Irvin flying jacket collar",
-        "light skin, brown eyebrows, alert expression, silk scarf at the neck",
-        "equipment: oxygen mask hanging loose, flying gloves, map case",
+        "LEGO minifigure adversary stealth fighter pilot",
+        "dark grey flight suit with subdued red trim, no national insignia",
+        "light grey pressure helmet with a dark reflective visor and an oxygen mask",
+        "both hands on a control stick grip, seated pose, terse focused expression",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
       ]
     },
     {
-      "id": "CHR-109",
-      "name": "US Army Ranger",
-      "nameZh": "美军游骑兵",
-      "series": "WWII",
-      "faction": "Allies",
+      "id": "CHR-910",
+      "name": "Adversary Gunship Pilot",
+      "nameZh": "敌方武装直升机飞行员",
+      "kw": "敌方 武装直升机 飞行员 攻击直升机 支援 adversary gunship attack helicopter pilot",
+      "unit": "Aviation",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "lines": [
+        "LEGO minifigure adversary attack helicopter pilot",
+        "olive flight suit with a chest harness, plain helmet with a raised visor",
+        "a folding map board strapped to the left thigh, gloves tucked into the vest",
+        "one hand raised in a flat hand signal, hard unsmiling expression",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
+      ]
+    },
+    {
+      "id": "CHR-911",
+      "name": "Adversary Air Defense Battalion Commander",
+      "nameZh": "敌方防空营指挥官",
+      "kw": "敌方 防空 营 指挥官 雷达 发射 adversary air defense battalion commander sam radar",
+      "unit": "Air Defense",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "lines": [
+        "LEGO minifigure adversary air defense battalion commander",
+        "olive-grey uniform with a plain shoulder board, field cap with a dark band",
+        "headset around the neck, a clipboard of firing tables in one hand",
+        "rigid posture, severe appraising expression",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
+      ]
+    },
+    {
+      "id": "CHR-912",
+      "name": "Adversary Nuclear Submarine Captain",
+      "nameZh": "敌方核潜艇艇长",
+      "kw": "敌方 核潜艇 艇长 指挥 声呐 adversary nuclear submarine captain commander",
+      "unit": "Navy Command",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "lines": [
+        "LEGO minifigure adversary nuclear submarine captain",
+        "dark navy uniform with a plain black shoulder board and a submarine badge",
+        "peaked cap, stopwatch on a lanyard, both hands clasped behind the back",
+        "still watchful expression, dim control-room key light",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
+      ]
+    },
+    {
+      "id": "CHR-913",
+      "name": "Adversary Destroyer Tactical Officer",
+      "nameZh": "敌方驱逐舰战情军官",
+      "kw": "敌方 驱逐舰 战情 军官 编队 adversary destroyer tactical officer combat information",
+      "unit": "Navy",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
+      "lines": [
+        "LEGO minifigure adversary destroyer tactical officer",
+        "dark blue working uniform with reflective piping, plain cap",
+        "a grease pencil and a plotting ruler in the breast pocket",
+        "leaning over a plotting table, intent unblinking expression",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
+      ]
+    },
+    {
+      "id": "CHR-914",
+      "name": "Adversary Naval Infantryman",
+      "nameZh": "敌方海军陆战队员",
+      "kw": "敌方 海军陆战队 步兵 登陆 adversary naval infantry marine landing",
+      "unit": "Infantry",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "lines": [
+        "LEGO minifigure adversary naval infantryman",
+        "blue-grey camouflage fatigues with a plain black-and-white striped undershirt at the collar",
+        "rounded helmet with a plain cover, webbing vest with magazine pouches",
+        "rifle held across the chest at the ready, wary expression",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
+      ]
+    },
+    {
+      "id": "CHR-915",
+      "name": "Adversary Tank Commander",
+      "nameZh": "敌方坦克车长",
+      "kw": "敌方 坦克 车长 装甲 集群 adversary tank commander armour",
+      "unit": "Armor",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "lines": [
+        "LEGO minifigure adversary tank commander",
+        "black padded tanker coveralls with a plain leather belt",
+        "soft padded helmet with a built-in headset, goggles pushed up on the forehead",
+        "upper body out of a turret hatch, one hand holding the hatch rim",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
+      ]
+    },
+    {
+      "id": "CHR-916",
+      "name": "Adversary Mechanized Infantryman",
+      "nameZh": "敌方机械化步兵",
+      "kw": "敌方 机械化 步兵 步战车 输送 adversary mechanized infantry ifv",
+      "unit": "Infantry",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "lines": [
+        "LEGO minifigure adversary mechanized infantryman",
+        "grey-green digital camouflage fatigues, plate carrier with two grenade pouches",
+        "rounded helmet with a plain cover and a headset boom",
+        "dismounted behind cover, rifle braced against the shoulder",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
+      ]
+    },
+    {
+      "id": "CHR-917",
+      "name": "Adversary Anti-Tank Missile Gunner",
+      "nameZh": "敌方反坦克导弹射手",
+      "kw": "敌方 反坦克 导弹 射手 伏击 adversary anti-tank missile gunner atgm ambush",
+      "unit": "Infantry",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops"
+      ],
+      "lines": [
+        "LEGO minifigure adversary anti-tank missile gunner",
+        "grey-green fatigues, a folded tripod carried on the back",
+        "kneeling with a shoulder-slung guided missile launcher, one eye to the sight unit",
+        "braced stance, absolutely still expression",
+        "authentic LEGO plastic texture",
+        "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
+      ]
+    },
+    {
+      "id": "CHR-918",
+      "name": "Adversary Special Forces Operator",
+      "nameZh": "敌方特种部队队员",
+      "kw": "敌方 特种部队 特战 破门 夜袭 adversary special forces operator breach",
       "unit": "Special Forces",
-      "kw": "美军 游骑兵 突击 特种 ranger assault infantry",
       "variants": [
         "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
       ],
       "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "olive-green M1 steel helmet with a net and scrim leaves",
-        "olive-drab M1943 field jacket torso print with webbing and assault vest pouches",
-        "light skin, brown eyebrows, grim determined expression, unshaven",
-        "equipment: M1 Garand rifle, combat knife, rope coil",
+        "LEGO minifigure adversary special forces operator",
+        "dark olive combat uniform with a plain chest rig, no insignia",
+        "balaclava and a plain helmet, night-vision mount on the front",
+        "compact carbine held low, suppressed, muzzle angled toward the ground",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
       ]
     },
     {
-      "id": "CHR-110",
-      "name": "German Panzergrenadier",
-      "nameZh": "德军装甲掷弹兵",
-      "series": "WWII",
-      "faction": "Axis",
-      "unit": "Infantry",
-      "kw": "德军 装甲掷弹兵 步兵 纳粹 german panzergrenadier infantry",
+      "id": "CHR-919",
+      "name": "Adversary Sniper",
+      "nameZh": "敌方狙击手",
+      "kw": "敌方 狙击手 观察 隐蔽 压制 adversary sniper overwatch",
+      "unit": "Recon / Sniper",
       "variants": [
         "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
+        "battle-worn",
+        "night-ops"
       ],
       "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "field-grey Stahlhelm with a decal shield",
-        "field-grey uniform torso print with a grey-green assault pack and Y-straps",
-        "light skin, brown eyebrows, tense hardened expression",
-        "equipment: Kar98k rifle, stick grenade tucked in the belt, water bottle",
+        "LEGO minifigure adversary sniper",
+        "scruffy camouflage fatigues with a ghillie cloak over the shoulders",
+        "plain helmet with a scrim band, spotter binoculars around the neck",
+        "prone behind a rifle with a large telescopic sight, cheek welded to the stock",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
       ]
     },
     {
-      "id": "CHR-111",
-      "name": "German Panzer Commander",
-      "nameZh": "德军坦克车长",
-      "series": "WWII",
-      "faction": "Axis",
-      "unit": "Armor",
-      "kw": "德军 坦克 车长 装甲 panzer commander armor crew",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "black Panzer wrap-around field cap with a pink piping",
-        "black panzer jacket torso print with a grey shirt and a Knight's Cross at the collar",
-        "light skin, brown eyebrows, cold confident expression",
-        "equipment: MP40 submachine gun, binoculars, leather gloves",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-112",
-      "name": "German Fallschirmjager",
-      "nameZh": "德军伞兵",
-      "series": "WWII",
-      "faction": "Axis",
-      "unit": "Airborne",
-      "kw": "德军 伞兵 空降 降下猎兵 german fallschirmjager paratrooper airborne",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "field-grey jump helmet with a rim and a chin cup",
-        "grey-green jump smock torso print with a Luftwaffe eagle and a bandolier",
-        "light skin, brown eyebrows, sharp watchful expression",
-        "equipment: FG42 automatic rifle, knee pads, gravity knife",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-113",
-      "name": "French Resistance Fighter",
-      "nameZh": "法国抵抗组织战士",
-      "series": "WWII",
-      "faction": "Allies",
-      "unit": "Irregular",
-      "kw": "法国 抵抗组织 游击 平民 french resistance irregular partisan",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "dark grey civilian beret and a short collarless jacket",
-        "civilian jacket torso print with a red-and-blue armband and a chest harness",
-        "light skin, brown eyebrows, wary expression, stubble",
-        "equipment: Sten submachine gun, bicycle pump, satchel",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-202",
-      "name": "US Marine Rifleman",
-      "nameZh": "美国海军陆战队步枪手",
-      "series": "Pacific",
-      "faction": "Allies",
-      "unit": "Infantry",
-      "kw": "美军 海军陆战队 步兵 太平洋 us marine infantry",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "olive-green M1 steel helmet with a reversible camouflage cover",
-        "olive-drab herringbone twill utility uniform torso print with a webbing belt and suspenders",
-        "light skin, brown eyebrows, grim determined expression, sweat-stained",
-        "equipment: M1 Garand rifle, canteen, machete scabbard",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-203",
-      "name": "Imperial Japanese Army Soldier",
-      "nameZh": "日本帝国陆军士兵",
-      "series": "Pacific",
-      "faction": "Axis",
-      "unit": "Infantry",
-      "kw": "日军 帝国 陆军 士兵 太平洋 japanese ija infantry",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "khaki field cap with a neck flap and a small yellow star badge",
-        "khaki wool uniform torso print with a leather belt and puttees",
-        "light skin, black eyebrows, hardened resolute expression",
-        "equipment: Arisaka Type 38 rifle with a bayonet, ammo pouches, haversack",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-204",
-      "name": "IJN Naval Aviator",
-      "nameZh": "日本海军航空兵飞行员",
-      "series": "Pacific",
-      "faction": "Axis",
-      "unit": "Aviation",
-      "kw": "日军 海军 飞行员 零式 航空兵 japanese naval aviator zero",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "brown leather flying helmet with goggles and a headphone strap",
-        "dark green flight suit torso print with a life vest and rank insignia",
-        "light skin, black eyebrows, focused expression, hachimaki headband",
-        "equipment: oxygen mask, flying gloves, kneeboard",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-205",
-      "name": "IJA Company Officer",
-      "nameZh": "日军中队指挥官",
-      "series": "Pacific",
-      "faction": "Axis",
+      "id": "CHR-920",
+      "name": "Adversary Field Commander",
+      "nameZh": "敌方战地指挥官",
+      "kw": "敌方 战地 指挥官 指挥 军官 adversary field commander officer hq",
       "unit": "Command",
-      "kw": "日军 军官 指挥 武士刀 japanese officer command",
       "variants": [
         "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
       ],
       "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "khaki peaked service cap with a star badge",
-        "khaki officer uniform torso print with a leather Sam Browne belt and collar rank tabs",
-        "light skin, black eyebrows, severe expression, thin moustache",
-        "equipment: Nambu pistol in a holster, ornate officer's katana at the hip, binoculars",
+        "LEGO minifigure adversary field commander",
+        "plain olive service uniform with a single plain shoulder board",
+        "a pistol in a flap holster, a folded map tucked under one arm",
+        "standing at a map table, jaw set, unreadable expression",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
       ]
     },
     {
-      "id": "CHR-206",
-      "name": "USMC Corpsman",
-      "nameZh": "美军海军医护兵（太平洋）",
-      "series": "Pacific",
-      "faction": "Allies",
-      "unit": "Medical",
-      "kw": "美军 医护兵 卫生员 救护 corpsman medical",
+      "id": "CHR-921",
+      "name": "Adversary Electronic Warfare Operator",
+      "nameZh": "敌方电子战操作员",
+      "kw": "敌方 电子战 干扰 频谱 操作员 adversary electronic warfare operator jamming spectrum",
+      "unit": "EW / Cyber",
       "variants": [
         "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
+        "battle-worn",
+        "night-ops"
       ],
       "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "olive-green M1 steel helmet with a large white circle and red cross",
-        "olive-drab utility uniform torso print with a red-cross armband and a webbing belt",
-        "light skin, brown eyebrows, calm urgent expression",
-        "equipment: medical satchel with a red cross, bandage roll, canteen",
+        "LEGO minifigure adversary electronic warfare operator",
+        "grey technical coveralls with a plain arm patch",
+        "large headphones over a soft cap, a tablet of spectrum traces in hand",
+        "seated at a rack of radio sets, absorbed calculating expression",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
       ]
     },
     {
-      "id": "CHR-207",
-      "name": "USMC Flamethrower Operator",
-      "nameZh": "美军海军陆战队喷火兵",
-      "series": "Pacific",
-      "faction": "Allies",
+      "id": "CHR-922",
+      "name": "Adversary Combat Engineer",
+      "nameZh": "敌方战斗工兵",
+      "kw": "敌方 战斗工兵 爆破 地雷 架桥 adversary combat engineer demolition mine",
       "unit": "Engineer",
-      "kw": "美军 喷火器 火焰 工兵 flamethrower engineer",
       "variants": [
         "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
+        "battle-worn",
+        "night-ops"
       ],
       "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "olive-green M1 steel helmet with a camouflage cover and a face veil",
-        "olive-drab utility torso print with a heavy backpack tank and rubber hose over the shoulder",
-        "light skin, brown eyebrows, tense concentrated expression behind the veil",
-        "equipment: M2 flamethrower wand with a pistol grip and nozzle",
+        "LEGO minifigure adversary combat engineer",
+        "olive fatigues with a tool harness, knee pads and heavy gloves",
+        "entrenching tool and a satchel of demolition charges",
+        "kneeling to wire a charge, focused downturned expression",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
       ]
     },
     {
-      "id": "CHR-208",
-      "name": "USMC Scout Sniper",
-      "nameZh": "美军侦察狙击手（太平洋）",
-      "series": "Pacific",
-      "faction": "Allies",
-      "unit": "Recon / Sniper",
-      "kw": "美军 狙击手 侦察 丛林 sniper scout recon",
+      "id": "CHR-923",
+      "name": "Adversary Missile Brigade Commander",
+      "nameZh": "敌方导弹旅指挥官",
+      "kw": "敌方 导弹 旅 指挥官 发射 战略 adversary missile brigade commander strategic rocket",
+      "unit": "Strategic Rocket Forces",
       "variants": [
         "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
       ],
       "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "olive-green M1 steel helmet with a scrim net and local foliage",
-        "olive-drab utility uniform torso print with a camouflage poncho and a slung pack",
-        "light skin, brown eyebrows, patient still expression, mud-camouflaged face",
-        "equipment: scoped Springfield rifle, camouflage ghillie strips, binoculars",
+        "LEGO minifigure adversary missile brigade commander",
+        "grey service uniform with a plain shoulder board and a rocket-corps badge",
+        "a launch key on a lanyard and a code folder under the arm",
+        "standing in a concrete launch gallery, cold composed expression",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
       ]
     },
     {
-      "id": "CHR-302",
-      "name": "Soviet Motor Rifleman",
-      "nameZh": "苏军摩托化步兵",
-      "series": "Cold War",
-      "faction": "Warsaw Pact",
-      "unit": "Infantry",
-      "kw": "苏军 苏联 步兵 华约 冷战 soviet motor rifle warsaw pact",
+      "id": "CHR-924",
+      "name": "Adversary Airborne Trooper",
+      "nameZh": "敌方空降兵",
+      "kw": "敌方 空降兵 伞兵 突击 adversary airborne paratrooper drop",
+      "unit": "Airborne",
       "variants": [
         "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
+        "battle-worn",
+        "night-ops"
       ],
       "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "steel SSh-60 helmet with a red star badge",
-        "olive-green field uniform torso print with a webbing belt and chest pouches",
-        "light skin, brown eyebrows, hard-set expression",
-        "equipment: AK-47 rifle, gas-mask bag, entrenching spade",
+        "LEGO minifigure adversary airborne trooper",
+        "grey-blue jump smock over a plain harness, parachute pack on the back",
+        "soft jump helmet with a chin strap and a plain cover",
+        "landing crouch, risers still gripped in one hand, alert expression",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "faction": "Opposing Force",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-opfor-pack",
+      "changelog": [
+        "1.0 modern opposing-force pack"
       ]
     },
     {
-      "id": "CHR-303",
-      "name": "Soviet Political Officer",
-      "nameZh": "苏军政治委员（冷战）",
-      "series": "Cold War",
-      "faction": "Warsaw Pact",
-      "unit": "Command",
-      "kw": "苏军 政委 军官 华约 soviet political officer command",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "olive service cap with a red band and a star cockade",
-        "olive tunic torso print with a red-star armband and a brown leather map case",
-        "light skin, black eyebrows, severe composed expression",
-        "equipment: Makarov pistol, rolled map tube, whistle",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-304",
-      "name": "Soviet Tank Commander",
-      "nameZh": "苏军坦克车长（冷战）",
-      "series": "Cold War",
-      "faction": "Warsaw Pact",
-      "unit": "Armor",
-      "kw": "苏军 坦克 车长 华约 装甲 soviet tank commander",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "black cloth tanker helmet with goggles and a throat-mic cord",
-        "dark olive tanker coveralls torso print with a webbing belt",
-        "light skin, brown eyebrows, sooty focused expression",
-        "equipment: AKS-74U short rifle, binoculars, tanker gloves",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-305",
-      "name": "East German Border Guard",
-      "nameZh": "东德边防军士兵",
-      "series": "Cold War",
-      "faction": "Warsaw Pact",
-      "unit": "Infantry",
-      "kw": "东德 边防军 士兵 柏林墙 east german border guard",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "grey-green steel helmet with a national badge",
-        "grey-green uniform torso print with a leather belt and a shoulder strap",
-        "light skin, brown eyebrows, rigid watchful expression",
-        "equipment: AK-47 slung, binoculars, leashed guard dog beside him",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-306",
-      "name": "Soviet Reconnaissance Sniper",
-      "nameZh": "苏军侦察狙击手",
-      "series": "Cold War",
-      "faction": "Warsaw Pact",
-      "unit": "Recon / Sniper",
-      "kw": "苏军 狙击手 侦察 华约 soviet sniper recon",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "olive field cap with a camouflage veil and snow scrim",
-        "olive-green camouflage smock torso print with a webbing harness and a rucksack",
-        "light skin, brown eyebrows, patient still expression, camouflage paint on the face",
-        "equipment: scoped SVD rifle, angled spotting scope, camouflage netting",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-307",
-      "name": "US Infantry (Cold War)",
-      "nameZh": "美军步兵（冷战）",
-      "series": "Cold War",
-      "faction": "NATO",
-      "unit": "Infantry",
-      "kw": "美军 步兵 冷战 北约 nato infantry",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "olive-green PASGT kevlar helmet with a fabric cover",
-        "olive-drab BDU torso print with a fragmentation vest and webbing",
-        "light skin, brown eyebrows, alert expression",
-        "equipment: M16A1 rifle, canteen, radio handset",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-308",
-      "name": "US Armoured Cavalry Officer",
-      "nameZh": "美军装甲骑兵军官（冷战）",
-      "series": "Cold War",
-      "faction": "NATO",
-      "unit": "Armor",
-      "kw": "美军 装甲 骑兵 军官 北约 nato armor cavalry",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "olive CVC tanker helmet with boom microphone and goggles",
-        "olive Nomex coveralls torso print with a chest holster and rank chevrons",
-        "light skin, brown eyebrows, calm professional expression",
-        "equipment: .45 pistol, map case, binoculars",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-309",
-      "name": "British Rhine Army Rifleman",
-      "nameZh": "英军莱茵军团步枪手",
-      "series": "Cold War",
-      "faction": "NATO",
-      "unit": "Infantry",
-      "kw": "英军 莱茵军团 步兵 北约 british rhine army",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "olive steel helmet with a disruptive-pattern cover",
-        "olive DPM camouflage smock torso print with a webbing belt and pouches",
-        "light skin, brown eyebrows, steady expression",
-        "equipment: L1A1 SLR rifle, bayonet, respirator haversack",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-310",
-      "name": "Mi-24 Hind Pilot",
-      "nameZh": "苏军米-24 飞行员",
-      "series": "Cold War",
-      "faction": "Warsaw Pact",
+      "id": "CHR-925",
+      "name": "Modern Fighter Pilot",
+      "nameZh": "现代战斗机飞行员",
+      "kw": "现代 战斗机 飞行员 制空 空战 拦截 五代机 fighter pilot air superiority interceptor",
       "unit": "Aviation",
-      "kw": "苏军 米24 雌鹿 飞行员 直升机 soviet hind pilot helicopter",
       "variants": [
         "standard",
-        "battle-worn"
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
       ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
+      "faction": "NATO",
       "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "dark olive flight helmet with a tinted visor and boom microphone",
-        "dark olive flight suit torso print with a chest harness and a survival vest",
-        "light skin, brown eyebrows, focused expression",
-        "equipment: flight gloves, kneeboard chart, makarov holster",
+        "LEGO minifigure modern air superiority fighter pilot",
+        "grey-green flight suit with a squadron patch and reflective piping",
+        "lightweight flight helmet with a dark visor and a boom microphone",
+        "a kneeboard of navigation cards on the right thigh, gloves on",
+        "seated upright in a cockpit pose, level steady expression",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
+      ],
+      "series": "Modern",
+      "referenceImage": "",
+      "version": "1.0",
+      "origin": "modern-aircrew-pack",
+      "changelog": [
+        "1.0 modern aircrew pack"
       ]
     },
     {
-      "id": "CHR-008",
-      "name": "US Marine (Iraq)",
-      "nameZh": "美国海军陆战队员（伊拉克）",
-      "series": "Iraq War",
+      "id": "CHR-926",
+      "name": "Modern Multi-Role Strike Pilot",
+      "nameZh": "现代多用途战机飞行员",
+      "kw": "现代 多用途 战机 飞行员 对地攻击 空袭 编队 multirole strike pilot sortie",
+      "unit": "Aviation",
+      "variants": [
+        "standard",
+        "battle-worn",
+        "night-ops",
+        "urban-cqb"
+      ],
       "faction": "Coalition",
-      "unit": "Infantry",
-      "kw": "美军 海军陆战队 伊拉克 步兵 us marine iraq infantry",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
       "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "desert-tan PASGT kevlar helmet with a fabric cover",
-        "desert tan-and-brown DCU camouflage torso print with an Interceptor body armour vest",
-        "light skin, brown eyebrows, dust-covered intense expression",
-        "equipment: M4 carbine with an optic, radio, hydration pack",
+        "LEGO minifigure modern multi-role strike fighter pilot",
+        "olive flight suit with a plain shoulder patch and a survival vest",
+        "flight helmet with the visor raised, oxygen mask hanging at the collar",
+        "a target folder clipped to the kneeboard, chin strap fastened",
+        "half-turned toward the wingman, intent briefing expression",
         "authentic LEGO plastic texture",
         "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-009",
-      "name": "Iraqi Republican Guard Soldier",
-      "nameZh": "伊拉克共和国卫队士兵",
-      "series": "Iraq War",
-      "faction": "Opposing Force",
-      "unit": "Infantry",
-      "kw": "伊拉克 共和国卫队 士兵 敌军 iraqi republican guard",
-      "variants": [
-        "standard",
-        "battle-worn"
       ],
+      "series": "Modern",
       "referenceImage": "",
       "version": "1.0",
-      "origin": "historical-warfare-pack",
+      "origin": "modern-aircrew-pack",
       "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "dark green steel helmet and a red beret badge",
-        "olive-green uniform torso print with a red shoulder patch and a webbing belt",
-        "olive skin, black eyebrows, tense expression, moustache",
-        "equipment: AKM rifle, chest magazine pouches, canteen",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-010",
-      "name": "Insurgent Sniper",
-      "nameZh": "反美武装狙击手",
-      "series": "Iraq War",
-      "faction": "Opposing Force",
-      "unit": "Recon / Sniper",
-      "kw": "武装分子 狙击手 反美 伊拉克 insurgent sniper",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "black knit balaclava and a shemagh wrapped around the shoulders",
-        "civilian dishdasha torso print with a leather chest rig and magazine pouches",
-        "olive skin, black eyebrows, hidden eyes behind wraparound sunglasses",
-        "equipment: SVD marksman rifle, sand-coloured gloves, a rucksack",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-011",
-      "name": "Coalition Patrol Leader",
-      "nameZh": "联军巡逻队长（伊拉克）",
-      "series": "Iraq War",
-      "faction": "Coalition",
-      "unit": "Command",
-      "kw": "联军 巡逻 队长 指挥 伊拉克 patrol leader command",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "desert-tan PASGT helmet with a night-vision mount",
-        "desert DCU torso print with body armour, a chest radio pouch and rank chevrons",
-        "light skin, brown eyebrows, calm authoritative expression",
-        "equipment: M4 carbine, tactical map board, handheld radio",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-012",
-      "name": "Coalition Combat Medic",
-      "nameZh": "联军战斗医护兵（伊拉克）",
-      "series": "Iraq War",
-      "faction": "Coalition",
-      "unit": "Medical",
-      "kw": "联军 医护兵 救护 伊拉克 combat medic",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "desert-tan PASGT helmet with a red-cross band",
-        "desert DCU torso print with body armour and a red-cross medical pouch",
-        "light skin, brown eyebrows, urgent focused expression",
-        "equipment: aid bag with a red cross, casualty card, shears",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-703",
-      "name": "Opposing Orbital Marine",
-      "nameZh": "敌方轨道陆战队员",
-      "series": "Orbital",
-      "faction": "Opposing Force",
-      "unit": "Orbital Marines",
-      "kw": "敌方 轨道 陆战队 太空 orbital marine enemy",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "dark grey sealed combat helmet with a wide slit visor and an antenna stub",
-        "dark charcoal vacuum-rated hardsuit torso print with chest plates and a red armband",
-        "hidden face behind a dark visor, deliberate menacing posture",
-        "equipment: coil rifle, thruster pack, magnetic boot soles",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-704",
-      "name": "Orbital Fortress Commander",
-      "nameZh": "轨道要塞指挥官（敌方）",
-      "series": "Orbital",
-      "faction": "Opposing Force",
-      "unit": "Command",
-      "kw": "敌方 轨道 指挥官 要塞 orbital commander enemy",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "dark grey officer helmet with a crest ridge and a status light strip",
-        "dark charcoal uniform torso print with rank bars and a command harness",
-        "hidden face behind a visor, rigid bearing, a data slate at the hip",
-        "equipment: sidearm, encrypted command slate, shoulder beacon",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-705",
-      "name": "Opposing Orbital Marksman",
-      "nameZh": "敌方轨道狙击手",
-      "series": "Orbital",
-      "faction": "Opposing Force",
-      "unit": "Recon / Sniper",
-      "kw": "敌方 轨道 狙击手 太空 orbital sniper marksman",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "dark grey form-fitting helmet with a long sensor brow and a scope link",
-        "charcoal camouflage hardsuit torso print with matte panels and a low-profile pack",
-        "hidden face behind a visor, still hunched firing posture",
-        "equipment: long magnetic-anchor marksman rifle, stabilising monopods",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-706",
-      "name": "EVA Maintenance Technician",
-      "nameZh": "舱外维修技师",
-      "series": "Orbital",
-      "faction": "Coalition",
-      "unit": "Space Operations",
-      "kw": "舱外 维修 技师 太空 eva technician",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "white EVA helmet with a gold-tinted sun visor and work lamps on the brim",
-        "white EVA suit torso print with blue shoulder stripes and tool tethers",
-        "light skin, brown eyebrows, focused expression through the visor",
-        "equipment: tool belt with tethered wrenches, safety tether hook, chest control panel",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-707",
-      "name": "Orbital Assault Craft Pilot",
-      "nameZh": "轨道突击艇驾驶员",
-      "series": "Orbital",
-      "faction": "Coalition",
-      "unit": "Space Operations",
-      "kw": "轨道 突击艇 驾驶员 飞行员 orbital pilot",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "white pressure helmet with a clear bubble visor and a comms boom",
-        "white-and-blue flight suit torso print with a chest harness and mission patches",
-        "light skin, brown eyebrows, calm alert expression",
-        "equipment: control yoke gloves, mission data pad, emergency oxygen bottle",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
-      ]
-    },
-    {
-      "id": "CHR-708",
-      "name": "Orbital Corpsman",
-      "nameZh": "轨道陆战队医务兵",
-      "series": "Orbital",
-      "faction": "Coalition",
-      "unit": "Medical",
-      "kw": "轨道 医务兵 救护 太空 orbital corpsman medical",
-      "variants": [
-        "standard",
-        "battle-worn"
-      ],
-      "referenceImage": "",
-      "version": "1.0",
-      "origin": "historical-warfare-pack",
-      "changelog": [
-        "1.0 historical warfare expansion pack"
-      ],
-      "lines": [
-        "LEGO minifigure, standard minifigure height",
-        "white helmet with a red-cross flash and a lamp mount",
-        "white medical hardsuit torso print with a red-cross armband and a trauma pouch",
-        "light skin, brown eyebrows, urgent focused expression",
-        "equipment: trauma kit, pressure cuff, sealed casualty bag",
-        "authentic LEGO plastic texture",
-        "consistent proportions, same face printing, same torso printing, same accessories"
+        "1.0 modern aircrew pack"
       ]
     }
   ],

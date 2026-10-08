@@ -51,8 +51,26 @@ test('Asset manager data: 现代战争扩充包已并入注册表', () => {
     'environments', 'cameras', 'lighting', 'colorGrades', 'audio'];
   const pack = GROUPS.flatMap(g => assets[g] || []).filter(a => a.origin === 'modern-warfare-pack');
   assert.ok(pack.length >= 130, `现代战争扩充包应 >= 130 项，实际 ${pack.length}`);
-  assert.equal(assets.schemaVersion, '3.6');
+  assert.equal(assets.schemaVersion, '3.7');
   assert.ok(registry.byKind.get('vehicle').some(a => a.class === 'submarine'));
+});
+
+test('Asset manager data: 现代敌方角色扩充包已并入注册表', () => {
+  const GROUPS = ['characters', 'vehicles', 'weapons', 'props', 'fx',
+    'environments', 'cameras', 'lighting', 'colorGrades', 'audio'];
+  const all = GROUPS.flatMap(g => assets[g] || []);
+  const pack = all.filter(a => a.origin === 'modern-opfor-pack');
+  assert.ok(pack.length >= 16, `现代敌方角色扩充包应 >= 16 项，实际 ${pack.length}`);
+
+  // 扩充前的实测基线：Modern 系列的反方角色只有 3 个（便携防空导弹射手 /
+  // 游击火箭筒手 / 导弹发射控制军官），于是「核潜艇深海猎杀」的反派是一个
+  // 扛火箭筒的游击队员 —— 观众一眼就知道这是机器拼出来的。
+  // 这条断言把「现代题材必须有成建制的敌方角色」变成可回归的硬约束。
+  const opposing = (assets.characters || []).filter(a => a.series === 'Modern' && a.faction === 'Opposing Force');
+  assert.ok(opposing.length >= 15, `Modern 反方角色应 >= 15，实际 ${opposing.length}`);
+  for (const unit of ['Aviation', 'Navy', 'Armor', 'Infantry', 'Command']) {
+    assert.ok(opposing.some(a => a.unit === unit), `Modern 反方必须有 ${unit} 兵种`);
+  }
 });
 
 test('Asset manager data: 历史与轨道战争扩充包已并入注册表', () => {
