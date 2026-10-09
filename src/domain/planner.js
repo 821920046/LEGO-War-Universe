@@ -4,6 +4,7 @@ import { isEraCompatible } from './shot-spec.js';
 import { selectCast, buildRoster, rosterToJSON, aliasLabel, domainOfText, themeMatch } from './roster.js';
 import { selectBeats, renderTemplate, seedOf, buildOriginality, tagDramaticFunctions } from './narrative.js';
 import { buildStory, linkFor, detectArc, shotTypeFor, weatherFor } from './story.js';
+import { planVisualLanguage } from './visual-language.js';
 
 /**
  * 依据时代、意图与关键词从注册表中筛选最适资产
@@ -47,15 +48,57 @@ const pick = (r, kind, intent, term = '', excludeTerm = '', theme = '') => {
 };
 
 /**
- * 取一小组同类资产，供逐镜轮换使用（摄影机/灯光）
+ * 内容预算 → 镜头时长。
+ *
+ * 实测（6.7.2 之前）：**4 秒的镜头平均 64 字 / 3.6 个分句，6 秒镜 55 字，8 秒镜 55 字**
+ * —— 最短的镜头塞了最多的内容。原因是节拍时长来自结构骨架（`narrative.js` 里
+ * 每个节拍写死的 duration），而正文来自原型骨架，两者互不知道对方。
+ * 一句「压力还在加码，X 与 Y 在战壕里正面交战，双方在几米内对射，泥土和碎片溅满镜头」
+ * 是四个**视觉事件**，却被排进 4 秒 —— 视频模型只能糊成一团。
+ *
+ * 修法：**时长取「骨架想要的」与「内容装得下的」之中较大的那个**。
+ * 只加长、不缩短：骨架的节奏意图（这一镜本该是快切还是长镜）仍然保留，
+ * 只是当内容确实装不下时，宁可给它更多时间，也不让四个事件挤进四秒。
+ *
+ * 内容量的度量走「秒」，不走「分句数」—— 这是前两版模型各自踩过的坑：
+ *   1. 把对白和视觉动作同等计费 → 一段正常的两句对白被误判成装不下。
+ *      对白念出来比拍出来快，必须按**字数**折算。
+ *   2. 把语音时长与视觉时长**相加** → 一句无线电通报就把 4 秒的快切撑成 8 秒。
+ *      无线电与对白是**叠在画面上**播的，两者并行，因此取**较大值**而不是和。
+ *
+ * 语速取 4.5 字/秒（中文影视对白的常态；旁白可到 5 字/秒，喊话更慢）。
+ * 视觉取 2 秒/分句 —— 一个「镜头里发生的事」大约需要两秒才看得清。
  */
-const pickMany = (r, kind, intent, limit = 3) => {
-  const all = r.byKind.get(kind) || [];
-  const eraMatches = all.filter(a => a.series === intent.era);
-  const pool = eraMatches.length > 0 ? eraMatches : all;
-  const picked = pool.slice(0, limit);
-  return picked.length > 0 ? picked : all.slice(0, 1);
-};
+const SPEECH_CHARS_PER_SEC = 4.5;
+const VISUAL_SECONDS_PER_CLAUSE = 2;
+
+/** 视觉分句数：按中英文标点切分，非空段计数（含对白文本） */
+export function clauseCount(text) {
+  return String(text ?? '').split(/[，。；——！？、,;]/).filter(x => x.trim()).length;
+}
+
+/**
+ * 该镜头的内容成本（秒）。
+ * @returns {{ visual: number, speech: number, total: number }}
+ */
+export function contentSeconds(text) {
+  const t = String(text ?? '');
+  const dialogues = [...t.matchAll(/「([^」]*)」/g)]
+    .map(m => m[1].replace(/^【无线电】/, '').replace(/\s/g, ''));
+  const speech = dialogues.reduce((s, d) => s + d.length, 0) / SPEECH_CHARS_PER_SEC;
+  const visual = clauseCount(t.replace(/「[^」]*」/g, '')) * VISUAL_SECONDS_PER_CLAUSE;
+  return { visual, speech, total: Math.max(visual, speech) };
+}
+
+/** 该内容最少需要多长；再与骨架时长取大，最后落到模型支持的档位 */
+export function fitDuration(text, preferred, supported) {
+  const need = contentSeconds(text).total;
+  const want = Math.max(Number(preferred) || 8, need);
+  const list = Array.isArray(supported) ? supported.filter(d => Number.isFinite(d)) : [];
+  if (list.length === 0) return Math.ceil(want);
+  const up = list.filter(d => d >= want).sort((a, b) => a - b)[0];
+  return up !== undefined ? up : Math.max(...list);
+}
 
 /** 该载具能否安全出现在这个环境里（避免「坦克开进深海」的物理穿帮） */
 function vehicleFitsEnv(vehicle, env) {
@@ -186,9 +229,9 @@ export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverrid
     warnings.push('该时代资产库暂无敌对阵营角色，本片以单向行动叙事呈现。');
   }
 
-  const cameras = pickMany(r, 'camera', intent, 3);
-  const lightings = pickMany(r, 'lighting', intent, 3);
-  const color = pick(r, 'colorGrade', intent);
+  // 视觉语言（机位 / 灯光 / 调色）**必须等到节拍与剧本内核确定之后**才能选：
+  // 它要按逐镜的戏剧功能（fn）与剧本的战场域来定。此前它在选节拍之前就选了，
+  // 于是只能「取数组前三个」—— 二战片只有一个专属机位，整部片子就只有一个机位。
   const fxPool = (r.byKind.get('fx') || []).filter(a => isEraCompatible(a.series, intent.era));
 
   // 3. 选节拍（同一阶段内不重复）。
@@ -214,6 +257,20 @@ export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverrid
   // 此前是「雪 / 雨 / 夜，否则尘雾」，实测 20 个题材里 19 个都是尘雾，
   // 而且尘雾是地面现象，被写到了海面、高空与轨道上。
   const filmWeather = weatherFor({ domain: story.domain, intent, seed });
+
+  // 视觉语言方案：机位按戏剧功能与战场域选、灯光按战场域与**时段**选、调色按战场域选，
+  // 且机位全片去重。时段是灯光的硬约束 —— 夏季正午的草原不能再配「战火映照的夜空」。
+  const envText = `${env?.name || ''} ${env?.nameZh || ''} ${(env?.lines || []).join(' ')}`;
+  const settingText = `${env?.name || ''} ${env?.nameZh || ''} ${env?.kw || ''}`;
+  const visual = planVisualLanguage({
+    r,
+    intent,
+    domain: story.domain,
+    fns: beats.map(b => b.fn || null),
+    theme,
+    envText,
+    settingText
+  });
 
   // 3a. 第一遍：只确定逐镜「主体组合」+「正文内容」。
   // 动作文本里要写角色代号，而代号由「最终上镜的资产集合」决定，
@@ -363,8 +420,9 @@ export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverrid
       weather: filmWeather
     };
 
-    const camera = cameras[i % cameras.length];
-    const lighting = lightings[i % lightings.length];
+    const cameraId = visual.cameras[i];
+    const lightingId = visual.lightings[i];
+    const actionText = renderTemplate(action, ctx);
 
     return {
       phase: beat.phase,
@@ -374,16 +432,20 @@ export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverrid
       beatId: beat.id,
       // 戏剧功能与镜头时长随节拍一起带下去：前者让 UI 能显示「这一镜在故事里做什么」，
       // 后者让整片有快切/长镜的节奏差，而不是等权重的幻灯片。
+      // 时长再与**内容量**取大 —— 四个事件的句子不能塞进四秒（见 fitDuration）。
       fn: beat.fn || null,
-      duration: beat.duration || 8,
+      // 主体取向（hero / squad / vehicle / clash / enemy）：首帧生图要据此给站位描述，
+      // 此前它只活在 planner 的局部变量里，落库的镜头对象上查不到。
+      focus: focus || null,
+      duration: fitDuration(actionText, beat.duration, profile?.durations),
       subjects,
       environment: env?.id,
-      camera: camera?.id,
-      lighting: lighting?.id,
-      colorGrade: color?.id,
+      camera: cameraId,
+      lighting: lightingId,
+      colorGrade: visual.colorGrade,
       fx: beat.phase === 'climax' && fxPool.length > 0 ? [fxPool[i % fxPool.length].id] : [],
       audio: [],
-      action: renderTemplate(action, ctx),
+      action: actionText,
       audioCue: renderTemplate(audioCue || '', ctx),
       radioVoice: renderTemplate(radioVoice || '', ctx),
       // 剧本信息随镜头落库：UI 与导出可以直接展示「这一镜在故事里承担什么」

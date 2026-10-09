@@ -15,10 +15,12 @@ test('Keyframe image compiler compiles valid static photo prompt', () => {
     camera: 'CAM-001',
     lighting: 'LGT-001',
     colorGrade: 'CLR-001',
+    shotType: '拐角遭遇手持近景 (Contact Handheld)',
+    focus: 'clash',
     damageState: 'weathered',
     variant: 'standard',
     screenDirection: 'left-to-right',
-    action: 'Special Forces operator running towards the tank in combat.'
+    action: '第一发穿甲弹从侧翼打来，在炮塔边上炸开，两车在开阔地边缘正面交战。'
   };
 
   const result = compileKeyframeImage(shot, registry);
@@ -27,6 +29,16 @@ test('Keyframe image compiler compiles valid static photo prompt', () => {
   assert.ok(result.prompt.includes('M1A1 Abrams'));
   assert.ok(result.prompt.includes('[condition: weathered]'));
   assert.ok(result.prompt.includes('Subject orientation: facing left-to-right'));
-  assert.ok(!result.prompt.includes('running towards')); // Replaced with static pose
+
+  // 6.7.3：首帧是 image-to-video 的锚点，必须是一张**站得住的静止构图**，
+  // 而不是把整段叙事复述一遍。此前这一格塞的是整段中文正文。
+  assert.ok(result.prompt.includes('frozen single instant'), '首帧必须声明是静止瞬间');
+  assert.ok(result.prompt.includes('Contact Handheld'), '景别的英文部分要进构图');
+  assert.ok(result.prompt.includes('the two opposing minifigures'), 'focus 要决定站位描述');
+  assert.ok(!result.prompt.includes('两车在开阔地边缘正面交战'), '整段叙事不得塞进首帧');
+  assert.ok(result.prompt.includes('Action context (Chinese): 第一发穿甲弹从侧翼打来'),
+    '只留第一个视觉分句作为画面提示');
+  assert.ok(!/\.\s*\./.test(result.prompt), '不得出现连续句点（旧实现会拼出「交战。.」）');
+
   assert.ok(result.negativePrompt.includes('blurry'));
 });

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGO War Universe · 6.7.3 画面语言验收</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c222b; --line:#272e38;
+    --fg:#e8ecf1; --muted:#98a3b2; --dim:#6f7a89;
+    --bad:#ff5f5f; --good:#35d07f; --accent:#ffb454; --link:#5eb1ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:29px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0;font-size:14px}
+  .note{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--accent);
+    background:#1a1710;color:#e8dfd0;border-radius:0 8px 8px 0;font-size:13.5px}
+  .warn{margin:18px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f0d8d8;border-radius:0 8px 8px 0;font-size:13.5px}
+  h2{margin:46px 0 14px;font-size:20px;border-left:3px solid var(--accent);padding-left:12px}
+  h3{margin:26px 0 10px;font-size:15.5px;color:#cfd7e2}
+  p{margin:0 0 12px}
+  code{background:#0b0e12;padding:1px 6px;border-radius:4px;color:var(--accent);font-size:12.5px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{margin:0 0 8px;font-size:14px;color:var(--good)}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 6px}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .box__hd{padding:9px 14px;font-size:12.5px;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  .box--bad .box__hd{background:#1d1618;color:var(--bad);border-color:#5c2b2b}
+  .box--good .box__hd{background:#131e18;color:var(--good);border-color:#264d38}
+  .box__bd{padding:14px}
+  pre{margin:0;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
+    line-height:1.75;white-space:pre-wrap;color:#cfd7e2}
+  .del{color:var(--bad)} .ins{color:var(--good)} .dimtxt{color:var(--dim)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;
+    background:var(--panel);position:sticky;top:0}
+  td code{font-size:12px}
+  .ok{color:var(--good)} .no{color:var(--bad)} .blank{color:var(--dim)}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;font-size:13px}
+  .node{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 13px}
+  .node--dead{border-color:#5c2b2b;background:#1d1618;color:var(--bad)}
+  .node--live{border-color:#264d38;background:#131e18;color:var(--good)}
+  .arrow{color:var(--dim)}
+  .script{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px;margin:14px 0}
+  .script h4{margin:0 0 4px;font-size:14.5px;color:var(--fg)}
+  .script .meta{color:var(--dim);font-size:12.5px;margin:0 0 12px}
+  .script .meta b{color:var(--good);font-weight:600}
+  .script ol{margin:0;padding-left:0;list-style:none}
+  .script li{padding:7px 0;border-bottom:1px dashed #222831;font-size:13px;color:#cfd7e2}
+  .script li:last-child{border-bottom:none}
+  .fn{display:inline-block;min-width:76px;color:var(--accent);font-family:"Cascadia Mono",Consolas,monospace;font-size:11.5px}
+  .bar{display:inline-block;height:9px;border-radius:3px;background:var(--accent);vertical-align:middle;margin-right:8px}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px}
+  @media(max-width:880px){.pair{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="kicker">LEGO War Universe · v6.7.3</p>
+    <h1>画面语言：把「编译后的 prompt」当成交付物来读</h1>
+    <p class="sub">用户诉求：「内容方面还是需要优化，还是不够完美，请继续在脚本内容上下功夫，让这些脚本生成的视频内容更加完美。」</p>
+    <p class="note">前六轮我一直在读 <code>action</code>（中文叙事正文）—— 而<b>真正送进 Veo 3 / Google Flow 的是 <code>compileShot()</code> 编译出来的 prompt</b>，里面有场景、主体、动作，也有<b>机位、灯光、调色、音效</b>。这一轮第一次把编译结果整条打印出来读，读出了本项目迄今最严重的一批缺陷：<b>叙事正文是对的，编译出来的 prompt 是错的。</b>资产 806 → <b>810</b>，构建签名 <code>5fcb1b870ef4</code> → <code>2a778c168cbc</code>，测试 231 → <b>246</b>。</p>
+  </header>
+
+  <h2>一、七项修复概览</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>① 39 个机位里 36 个是死代码</h4>
+      <p>「滩头低角度推进跟拍」跨 10 个题材被用了 <b>48 次</b>；二战只有 1 个时代专属机位，于是二战影片只拿到 1 个机位。</p>
+    </div>
+    <div class="card">
+      <h4>② 夏季正午的草原配「夜空」光照</h4>
+      <p>库尔斯克（夏季硬光白昼）拿到「战火映照的<b>夜空</b>」；灯光同样只用 1–3 个。</p>
+    </div>
+    <div class="card">
+      <h4>③ 216/216 个镜头同一个调色</h4>
+      <p>全是「好莱坞大片」。5 个调色资产里 4 个是死代码。修好「只用 1 个」后<b>又露出选不准</b>（见第三节）。</p>
+    </div>
+    <div class="card">
+      <h4>④ 4 秒的快切里装着 8 秒的叙事</h4>
+      <p>4 秒镜平均 <b>64 字 / 3.6 个分句</b>（最长 76 字 / 5 句），而 6 秒镜与 8 秒镜都只有 55 字。</p>
+    </div>
+    <div class="card">
+      <h4>⑤ 音效与无线电对白从未进入 prompt</h4>
+      <p><code>audioCue</code> 与 <code>radioVoice</code> 在 <b>180/180</b> 个镜头里都有值，编译出的 prompt 里<b>一个声音字都没有</b>。Veo 3 是带音频生成的模型。</p>
+    </div>
+    <div class="card">
+      <h4>⑥ 关键帧 prompt 塞了整段叙事</h4>
+      <p><code>Framing &amp; Pose</code> 直接塞入完整中文叙事，而 <code>toStaticPose()</code> <b>只处理英文动名词</b>；还会输出 <code>交战。.</code></p>
+    </div>
+    <div class="card">
+      <h4>⑦ 因果连接词是拍不到的旁白</h4>
+      <p>「压力还在加码，」「计划定下了，」—— 这正是喂给模型的<b>第一个分句</b>，模型既画不出「压力」也听不出「加码」。</p>
+    </div>
+    <div class="card">
+      <h4>⑧ 时段只识别「夜」</h4>
+      <p>「海湾战争<b>夜战</b>防空导弹阵地伏击」判不出夜间；「黄金时刻」「拂晓登陆」全部落空。</p>
+    </div>
+  </div>
+
+  <h2>二、根因：一个「看起来在工作」的死函数</h2>
+  <p>机位、灯光、调色此前共用同一个选取函数。它有两处错叠加：</p>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">修复前 · <code>planner.js</code></div>
+      <div class="box__bd"><pre>const pickMany = (r, kind, intent, limit = 3) =&gt; {
+  const eraMatches = all.filter(a =&gt; a.series === intent.era);
+  const pool = eraMatches.length &gt; 0 ? eraMatches : all;
+  return pool.slice(0, limit);   <span class="del">// ← 取数组前三个</span>
+};</pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">修复后 · <code>visual-language.js</code>（新增 260 行）</div>
+      <div class="box__bd"><pre>poolFor()      <span class="ins">// 并集：时代相容 ∪ 全部</span>
+selectCameras() <span class="ins">// 域 + 时段 + 地貌三级过滤</span>
+selectLightings()<span class="ins">// 全片一盏主光</span>
+selectColorGrade()<span class="ins">// 三档域 + 场景 + 关键词</span>
+<span class="dimtxt">// pickMany 已整个删除</span></pre></div>
+    </div>
+  </div>
+  <table>
+    <tr><th style="width:30%">错</th><th>后果</th></tr>
+    <tr><td><code>eraMatches</code> 是<b>替换</b>而不是并集</td><td>二战只有 <b>1 个</b>时代专属机位 → 二战影片只拿到 1 个机位。时代专属资产应该是<b>加分项</b>，不是全部候选。</td></tr>
+    <tr><td><code>slice(0, limit)</code> 不判域、不判时段</td><td>39 个机位里 <b>36 个是死代码</b>；「滩头低角度推进跟拍」被用在滩头以外的所有题材上。</td></tr>
+  </table>
+
+  <h2>三、机位：48 次 → 1 次</h2>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">修复前 · 跨 10 个题材的机位频次</div>
+      <div class="box__bd"><pre>滩头低角度推进跟拍  <span class="del">48×</span>
+<span class="dimtxt">其余 38 个机位……几乎全为 0</span>
+可用机位 39 · 实际用到 1–3</pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">修复后 · 7 题材 × 12 镜 = 84 镜</div>
+      <div class="box__bd"><pre>可用机位 28 · 每题材 12 个不同机位
+开场航拍           7×
+升降摇臂揭示        7×
+低角度英雄镜头       7×
+……
+滩头低角度推进跟拍     <span class="ins">1×</span>
+<span class="dimtxt">没有任何机位超过 3 次/片</span></pre></div>
+    </div>
+  </div>
+  <p>选取规则：<b>并集候选</b> → <b>域 / 时段 / 地貌三级过滤</b>（级联放松 <code>strict → todOnly → all</code>）→ <b>全片去重</b>（同一机位最多 3 次，优先选没用过且得分 &gt; 0 的）→ <b>按戏剧功能打分</b>（<code>+40</code> 域命中 / <code>+30</code> 功能命中 / <code>+themeMatch×2</code> 题材词命中）。</p>
+
+  <h2>四、灯光：白昼草原不得配夜空</h2>
+  <table>
+    <tr><th style="width:34%">题材</th><th style="width:33%">修复前</th><th>修复后</th></tr>
+    <tr><td>库尔斯克（夏季正午草原）</td><td class="no">战火映照的<b>夜空</b></td><td class="ok">开阔原野硬光</td></tr>
+    <tr><td>中途岛（正午海面）</td><td class="blank">通用</td><td class="ok">开阔海面强光</td></tr>
+    <tr><td>阿登（冬季雪原）</td><td class="blank">通用</td><td class="ok">雪原漫射光</td></tr>
+    <tr><td>斯大林格勒（城市巷战）</td><td class="no">丛林斑驳光（名字里有「林」）</td><td class="ok">城市正午顶光</td></tr>
+    <tr><td>轨道作战</td><td class="blank">通用</td><td class="ok">硬边阳光切割阴影</td></tr>
+  </table>
+  <p>光照中途变化本身就是<b>穿帮</b>，因此一部影片<b>只选一盏主光</b>，仅 <code>character / plan / decision / cost / reaction / close / quiet</code> 这类贴身镜头允许补一盏副光。另<b>新增 4 项灯光资产</b>填补真实缺口：<code>LGT-012</code> 开阔原野硬光 / <code>LGT-013</code> 城市正午顶光 / <code>LGT-014</code> 雪原漫射光 / <code>LGT-015</code> 开阔海面强光。</p>
+
+  <h3>第四次「关键词骗人」</h3>
+  <p>森林正则里写了裸的 <code>林</code>，于是「斯大<b>林</b>格勒废墟」被判成丛林，城市巷战拿到丛林斑驳光。这与前三次（<code>\bcrew\b</code>、「战斗工兵」、<code>marine</code>）是<b>同一类「用子串匹配语义」的错误</b>。改为只认真正的植被词：</p>
+  <pre class="dimtxt">丛林|森林|树林|密林|林地|林区|雨林|jungle|forest|woodland|treeline</pre>
+
+  <h2>五、调色：修好「只用 1 个」之后，第二个缺陷才露出来</h2>
+  <p>第一层修复让 4 个死代码调色复活了，但实测发现 5 个调色在多数题材下的得分是 <b>12 / 12 / 12 / 12</b> —— 传进去的 <code>themeText</code> 含整段英文环境描述，最长公共子串在长文本上到处找到 4 字巧合，<b>平局由哈希决定</b>。</p>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">第一层修复后 · 仍然选不准</div>
+      <div class="box__bd"><pre>伊拉克战争城市清剿  → <span class="del">《兄弟连》</span>
+<span class="dimtxt">（二战欧洲阴天步兵，题材是现代城市战）</span>
+海湾战争沙漠夜战    → <span class="del">《兄弟连》</span>
+轨道空间站失压事故  → <span class="del">《黑鹰坠落》</span>
+<span class="dimtxt">（其 domain 是 ['ground']，物理不符）</span></pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">三档打分后 · 5 个调色全部各得其所</div>
+      <div class="box__bd"><pre>诺曼底 / 中途岛    → <span class="ins">《拯救大兵瑞恩》</span>
+库尔斯克 / 阿登    → <span class="ins">《兄弟连》</span>
+伊拉克 / 海湾沙漠  → <span class="ins">《黑鹰坠落》</span>
+无人机蜂群 / F-22  → <span class="ins">《壮志凌云：独行侠》</span>
+轨道空间站         → <span class="ins">好莱坞大片（中性）</span></pre></div>
+    </div>
+  </div>
+  <table>
+    <tr><th style="width:26%">打分档</th><th style="width:16%">权重</th><th>理由</th></tr>
+    <tr><td>战场域</td><td>命中 <code>+2</code> / <code>any</code> <code>+1</code> / 不符 <code>0</code></td><td><b>必须是三档</b>。二档时「any」与「地面专用」同分，中性调色就赢不了错误的专用调色 —— 轨道题材因此拿到《黑鹰坠落》。</td></tr>
+    <tr><td>场景</td><td><code>+1</code></td><td>调色新增 <code>setting</code> 标注（滩头海面 / 空域 / 城市沙漠 / 开阔林地雪原）。这是区分「同为 ground 的《黑鹰坠落》与《兄弟连》」的<b>唯一依据</b>。</td></tr>
+    <tr><td>关键词</td><td>词元命中数</td><td>只在<b>题材串</b>上数调色自己声明的关键词，不再在环境正文的长英文上跑 LCS。可解释、可回归。</td></tr>
+  </table>
+
+  <h2>六、时长：4 秒的快切里装着 8 秒的叙事</h2>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">修复前 · 时长与内容量完全脱钩</div>
+      <div class="box__bd"><pre>4 秒镜  平均 <span class="del">64 字 / 3.6 个分句</span>（最长 76 字 / 5 句）
+6 秒镜  平均 55 字
+8 秒镜  平均 55 字
+<span class="dimtxt">最短的镜头塞了最多的内容</span></pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">修复后 · 312 个镜头全部装得下</div>
+      <div class="box__bd"><pre>内容超时镜头  <span class="ins">0 / 312</span>
+时长分布      6s×87  8s×225
+按功能分化    8.00s (goal/world/contact/reveal/clash)
+             6.15s (close)</pre></div>
+    </div>
+  </div>
+  <h3>两版被否掉的模型（都记在代码注释里）</h3>
+  <table>
+    <tr><th style="width:38%">被否的模型</th><th>踩到的坑</th></tr>
+    <tr><td>把对白按「分句」与画面同等计费</td><td>正常的两人对白被误判为「装不下」，<b>226 / 312 镜</b>被强行拉到 8 秒。</td></tr>
+    <tr><td><code>speech + visual</code> <b>相加</b></td><td>4 秒快切全部不可能成立，<b>4 秒档彻底消失</b>（6s×16、8s×104）。无线电对白是<b>压着画面播</b>的，不能与画面时间相加 —— 取 <code>max</code>。</td></tr>
+  </table>
+  <pre>const SPEECH_CHARS_PER_SEC   = 4.5;
+const VISUAL_SECONDS_PER_CLAUSE = 2;
+total = Math.max(visual, speech)   <span class="dimtxt">// ← max，不是 sum</span></pre>
+  <p>配套<b>改写 89 处正文</b>：16 组 <code>deadline/objective/stake</code> 任务简报、16 个 <code>contact</code> 各删一个冗余分句、10 个过长的 <code>reveal/reaction/decision/clash</code>、16 个 <code>cost</code> 压成硬切。</p>
+
+  <h2>七、音效与无线电对白：从「一个字都没有」到每个 prompt 都有</h2>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">修复前</div>
+      <div class="box__bd"><pre>镜头里有 audioCue     <span class="del">180 / 180</span>
+镜头里有 radioVoice   <span class="del">180 / 180</span>
+编译出的 prompt 里有   <span class="del">0 / 180</span>
+<span class="dimtxt">compiler.js 静默丢弃了它们</span></pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">修复后 · 库尔斯克第 6 镜的实际编译结果</div>
+      <div class="box__bd"><pre><span class="ins">Sound design (diegetic only, no music score):
+  引擎轰鸣由远及近 · 车内寂静.
+Radio dialogue (spoken in Chinese, playing over
+  the action): 【无线电】……这是一个集群。我们挡不住。</span></pre></div>
+    </div>
+  </div>
+  <p>Veo 3 是<b>带音频生成</b>的模型。丢掉音效等于白扔一半能力。</p>
+
+  <h2>八、关键帧 prompt：从整段叙事到真正的静止构图</h2>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">修复前</div>
+      <div class="box__bd"><pre>Framing &amp; Pose: <span class="del">枪响了，烟尘散开，【OBSIDIAN】谢尔盖
+看清了：不是几辆，是整条公路上的纵队。</span> 交战<span class="del">。</span>.
+<span class="dimtxt">整段中文叙事 + 双句号；toStaticPose() 只认英文动名词</span></pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">修复后</div>
+      <div class="box__bd"><pre>Framing &amp; Pose: <span class="ins">Reveal Dolly, the lead minifigure in
+the foreground, centred, weapon up, frozen single
+instant, static pose, no motion blur on the subject.</span>
+Action context (Chinese): <span class="ins">枪响了.</span></pre></div>
+    </div>
+  </div>
+  <p>新增 <code>POSE_BY_FOCUS</code>（按 <code>focus</code> 给姿态）、<code>shotTypeEn()</code>（从「拐角遭遇手持近景 (Contact Handheld)」抽出英文部分）、<code>firstBeat()</code>（只取第一个视觉分句）；删除了只对英文有效的 <code>toStaticPose()</code>；并修掉结尾多余句号。</p>
+
+  <h2>九、因果连接词：从旁白腔到拍得到的动作</h2>
+  <table>
+    <tr><th style="width:20%">上一镜功能</th><th style="width:40%">修复前（拍不到）</th><th>修复后（拍得到）</th></tr>
+    <tr><td><code>plan</code></td><td class="no">计划定下了，</td><td class="ok">手按住地图，</td></tr>
+    <tr><td><code>contact</code></td><td class="no">交上了火，</td><td class="ok">枪响了，</td></tr>
+    <tr><td><code>escalate</code></td><td class="no">压力还在加码，</td><td class="ok">弹着点变密，</td></tr>
+    <tr><td><code>reveal</code></td><td class="no">情况有变，</td><td class="ok">情报是假的，</td></tr>
+    <tr><td><code>cost</code></td><td class="no">代价出现了，</td><td class="ok">有人没站起来，</td></tr>
+    <tr><td><code>quiet</code></td><td class="no">战斗间歇，</td><td class="ok">枪声停了，</td></tr>
+  </table>
+  <p>连接词是喂给视频模型的<b>第一个分句</b>。模型既画不出「压力」，也听不出「加码」。</p>
+
+  <h2>十、时段：从只认「夜」到四档</h2>
+  <p><code>intent.js</code> 此前只有 <code>night</code> 一条时段规则，于是「海湾战争<b>夜战</b>防空导弹阵地伏击」<b>判不出夜间</b>。新增 <code>dawn</code> / <code>dusk</code> 两条规则，并把「夜战」补进 <code>night</code>：</p>
+  <pre>['dusk', /黄昏|傍晚|日落|夕阳|暮色|日暮|dusk|sunset|twilight|golden hour/i, 'lightingCondition'],
+['dawn', /黎明|拂晓|破晓|晨曦|日出|清晨|dawn|daybreak|sunrise/i,   'lightingCondition'],
+['night', /夜间|黑夜|月光|夜视|夜战|night|midnight/i,             'lightingCondition']</pre>
+
+  <h2>十一、验证记录（6.7.3）</h2>
+  <table>
+    <tr><th style="width:52%">门禁</th><th>结果</th></tr>
+    <tr><td><code>python 02_Assets/validate.py 02_Assets/assets.json</code></td><td class="ok">OK：810 资产，ID 全局唯一，<code>schemaVersion=3.7</code></td></tr>
+    <tr><td><code>jsonschema</code> 全量校验</td><td class="ok">PASSED</td></tr>
+    <tr><td><code>node scripts/build-assets.mjs</code></td><td class="ok">810 资产，签名 <code>2a778c168cbc</code></td></tr>
+    <tr><td><code>node --experimental-vm-modules --test tests/*.test.mjs</code></td><td class="ok">246 / 246 通过（231 → 246）</td></tr>
+    <tr><td><code>node scripts/check-release.mjs</code></td><td class="ok"><code>{"ok":true,"violations":[]}</code></td></tr>
+    <tr><td><code>node scripts/run-blind-test.mjs</code></td><td class="ok">一致性 100% / 可剪辑性 100% / 合规性 100% / 重生成率 96%</td></tr>
+    <tr><td>26 题材 × 12 镜内容量扫描</td><td class="ok">内容超时 <b>0 / 312</b></td></tr>
+    <tr><td>26 题材机位多样性扫描</td><td class="ok">每题材 <b>≥ 6</b> 个不同机位，无任何机位超过 3 次/片</td></tr>
+    <tr><td>调色覆盖扫描</td><td class="ok"><b>5 / 5</b> 个调色全部可用</td></tr>
+    <tr><td>编译 prompt 音效覆盖</td><td class="ok">含 <code>Sound design</code> <b>84 / 84</b>；含 <code>Radio dialogue</code> <b>84 / 84</b></td></tr>
+  </table>
+
+  <h2>十二、本轮新增测试（<code>tests/visual-language.test.mjs</code> · 15 例）</h2>
+  <table>
+    <tr><th style="width:10%">组</th><th>覆盖</th></tr>
+    <tr><td>A</td><td>每个机位 / 灯光 / 调色必须带 <code>domain</code>；灯光带 <code>tod</code> + <code>setting</code>；调色带 <code>setting</code> + <code>kw</code>。缺一个，该资产就永远选不中。</td></tr>
+    <tr><td>B</td><td>每片 ≥ 6 个不同机位；无机位使用超过 3 次；白昼场景不得配夜间专用机位。</td></tr>
+    <tr><td>C</td><td>灯光时段与影片一致；灯光场景相容（库尔斯克 ≠ 丛林、阿登 ≠ 沙漠/丛林、斯大林格勒 ≠ 丛林）；<b>5 个调色全部可用</b>且最常用者 &lt; 70%；调色跟着题材点名走；<b>调色不得跨战场域乱用</b>。</td></tr>
+    <tr><td>D</td><td><code>contentSeconds(action) ≤ duration ≤ 8s</code>，对全部 26 题材；时长必须真的分化。</td></tr>
+    <tr><td>E</td><td><code>LINK_BY_PREV</code> 不含抽象旁白、长度 ≤ 8 字、推进型功能的连接词非空。</td></tr>
+    <tr><td>F</td><td>编译 prompt 含 <code>Sound design</code> 与真实 <code>audioCue</code> / <code>radioVoice</code>；关键帧 prompt 含 <code>Framing &amp; Pose</code> 与 <code>frozen single instant</code>、无双句号、不含整段叙事。</td></tr>
+    <tr><td>G</td><td>选取确定性（同题材两次结果一致）；<code>timeOfDayOf</code> / <code>settingsOf</code> 边界，含 <code>settingsOf('斯大林格勒废墟')</code> <b>不得</b>包含 <code>forest</code>。</td></tr>
+  </table>
+
+  <h2>十三、残余风险（如实记录，本轮未解决）</h2>
+  <p class="warn"><b>节奏仍然轻微倒挂</b>：climax <b>7.92s</b> &gt; build 7.56s &gt; establish 7.49s &gt; resolve <b>6.79s</b>。根因是 <code>narrative.js</code> 给结构节拍 6–8s 的底时长，内容一多就继续往上顶；且 <code>cost</code> 节拍在 12 镜节奏里根本不会被选中，所以它被压到 4s 没有产生实际效果（<b>4 秒档因此在本轮完全未被使用</b>：6s×87、8s×225）。本轮<b>选择不去靠删内容来追这个数字</b> —— 内容完整优先于时长曲线好看。留待下一轮从 <code>narrative.js</code> 的结构节拍时长分配入手。</p>
+
+  <footer>
+    LEGO War Universe · v6.7.3 · 810 资产 / <code>schemaVersion 3.7</code> / 构建签名 <code>2a778c168cbc</code><br>
+    本轮全部缺陷均来自「把编译后的 prompt 打印出来读」，因此新增测试同样断言<b>编译产物与成片</b>，而不是内部字段。
+  </footer>
+</div>
+</body>
+</html>

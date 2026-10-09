@@ -49,7 +49,13 @@ const INTENT_RULES = [
   // 于是拿到「中东沙漠」当环境。冬季战争片按雪处理是安全的一侧。
   ['snow', /雪山|暴风雪|暴雪|极地|雪原|严寒|冬季|冬天|snow|blizzard|arctic|winter/i, 'weather'],
   ['rain', /暴雨|大雨|雷雨|降雨|rain|storm/i, 'weather'],
-  ['night', /夜间|黑夜|月光|夜视|night|midnight/i, 'lightingCondition']
+  // ── 时段 ───────────────────────────────────────────────────────────
+  // 6.7.3 之前只识别「夜」。于是「黄金时刻」「拂晓登陆」这类明确写了时段的题材
+  // 拿不到时段信号，灯光只能靠轮转 —— 夏季正午的草原被配了「战火映照的夜空」。
+  // 时段是灯光的**硬约束**：光照资产必须与它一致，否则画面直接穿帮。
+  ['dusk', /黄昏|傍晚|日落|夕阳|暮色|日暮|dusk|sunset|twilight|golden hour/i, 'lightingCondition'],
+  ['dawn', /黎明|拂晓|破晓|晨曦|日出|清晨|dawn|daybreak|sunrise/i, 'lightingCondition'],
+  ['night', /夜间|黑夜|月光|夜视|夜战|night|midnight/i, 'lightingCondition']
 ];
 
 /**
