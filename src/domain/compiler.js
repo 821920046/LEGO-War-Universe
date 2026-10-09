@@ -47,6 +47,10 @@ export function compileShot(s, r, p, roster = null) {
   const variant = s.variant || s.continuityOut?.variant || 'standard';
   const refFrame = s.referenceFrame || s.continuityIn?.referenceFrame || null;
 
+  // 声音：Veo 3 带音频生成，这两个字段是分镜里写好的音效与无线电对白。
+  const audioCue = String(s.audioCue || '').trim();
+  const radioVoice = String(s.radioVoice || '').trim();
+
   const continuityLine = [
     `Screen direction: ${screenDir}.`,
     `Subject state: ${damageState} / ${variant}.`,
@@ -80,6 +84,11 @@ export function compileShot(s, r, p, roster = null) {
     castLine,
     `Action: ${s.action}`,
     '',
+    // 声音。Veo 3 是**带音频生成**的模型，而此前编译出来的 prompt 里
+    // 一个声音字都没有 —— `audioCue` 与 `radioVoice` 在 180/180 个镜头里都有内容，
+    // 却全部被丢掉。等于把一半的创作能力留在库里没用。
+    audioCue ? `Sound design (diegetic only, no music score): ${audioCue}.` : null,
+    radioVoice ? `Radio dialogue (spoken in Chinese, playing over the action): ${radioVoice}` : null,    '',
     `Camera: ${(camera.lines || []).join(', ')}.`,
     `Lighting: ${(lighting.lines || []).join(', ')}.`,
     `Color grade: ${(color.lines || []).join(', ')}.`,

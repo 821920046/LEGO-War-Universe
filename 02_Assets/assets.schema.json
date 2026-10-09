@@ -54,7 +54,37 @@
         "series": { "type": "string" },
         "referenceImage": { "type": "string" },
         "version": { "type": "string" },
-        "lines": { "type": "array", "items": { "type": "string" }, "minItems": 1 }
+        "lines": { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+        "kw": { "type": "string" },
+        "origin": { "type": "string" },
+        "changelog": { "type": "array", "items": { "type": "string" } },
+        "domain": {
+          "description": "机位/灯光/调色适用的战场域；any 表示通用",
+          "type": "array",
+          "items": { "enum": ["any", "ground", "naval", "air", "orbital", "strategic"] }
+        },
+        "tod": {
+          "description": "灯光适用的时段；any 表示通用",
+          "type": "array",
+          "items": { "enum": ["any", "day", "night", "dawn", "dusk"] }
+        },
+        "fn": {
+          "description": "机位天然承担的戏剧功能",
+          "type": "array",
+          "items": {
+            "enum": ["goal", "world", "character", "approach", "observe", "plan", "contact",
+                     "reveal", "escalate", "cost", "clash", "decision", "reversal", "quiet",
+                     "aftermath", "reaction", "close", "enemy"]
+          }
+        },
+        "setting": {
+          "description": "机位/灯光适用的地貌或场所类型；缺省表示不限",
+          "type": "array",
+          "items": {
+            "enum": ["any", "open", "forest", "urban", "snow", "desert", "water", "shore",
+                     "interior", "orbital", "air"]
+          }
+        }
       }
     },
     "character": {

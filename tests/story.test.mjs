@@ -338,8 +338,13 @@ test('story: logline 必须点出主角姓名、时限与赌注，且不得出�
     assert.ok(ll.includes('必须'), `${theme}: logline 缺少时限/任务：${ll}`);
     assert.ok(ll.includes('否则'), `${theme}: logline 缺少赌注：${ll}`);
     assert.ok(!/\{[^}]*\}/.test(ll), `${theme}: logline 残留占位符：${ll}`);
-    // 赌注必须是一个完整小句，不能是光秃秃的名词短语
-    assert.ok(!/——否则[^。，]{0,6}。/.test(ll), `${theme}: 赌注疑似名词短语，读不成句：${ll}`);
+    // 赌注必须是一个完整小句，不能是光秃秃的名词短语。
+    // 6.7.3 起改为**锚定数据**：logline 里的赌注必须逐字等于原型骨架声明的 stake，
+    // 且长度 ≥ 4（挡住「防线」这种两个字的裸名词）。旧版用「——否则…。之间少于 6 字」
+    // 这个长度代理，在 stake 被有意压短之后开始误报（「否则防线会被撕开。」本是完整小句）。
+    const stake = plan.story.nouns.stake;
+    assert.ok(stake && stake.length >= 4, `${theme}: 赌注过短，疑似名词短语：${stake}`);
+    assert.ok(ll.includes(stake), `${theme}: logline 里的赌注与骨架声明不一致：${ll}`);
     const protagonist = plan.story.protagonist;
     assert.ok(protagonist && protagonist.name, `${theme}: 缺少主角`);
     assert.ok(ll.includes(protagonist.name), `${theme}: logline 里没有主角姓名：${ll}`);

@@ -5,7 +5,7 @@
     "code": "LWU",
     "bibleVersion": "2.1",
     "target": "Google Flow (Veo 3), 8-second cinematic shots, long-form war-film series",
-    "updated": "2026-10-08"
+    "updated": "2026-10-09"
   },
   "styleBlock": {
     "id": "STYLE-LWU",
@@ -14134,7 +14134,18 @@
       "lines": [
         "high-altitude drone shot, slow push-in, 24mm lens, very cinematic, stable smooth movement"
       ],
-      "nameZh": "开场航拍"
+      "nameZh": "开场航拍",
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "goal",
+        "world",
+        "close"
+      ]
     },
     {
       "id": "CAM-002",
@@ -14143,7 +14154,17 @@
       "lines": [
         "ground-level tracking shot, parallel movement alongside the subject, 50mm lens, dust in the foreground"
       ],
-      "nameZh": "地面跟拍"
+      "nameZh": "地面跟拍",
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "approach",
+        "escalate"
+      ]
     },
     {
       "id": "CAM-003",
@@ -14152,7 +14173,17 @@
       "lines": [
         "chase camera behind the aircraft, long lens, fast tracking, natural motion blur"
       ],
-      "nameZh": "战机跟随"
+      "nameZh": "战机跟随",
+      "domain": [
+        "air"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "escalate",
+        "clash"
+      ]
     },
     {
       "id": "CAM-004",
@@ -14161,7 +14192,18 @@
       "lines": [
         "85mm close-up, slight slow motion, debris flying past lens, explosion fills the frame"
       ],
-      "nameZh": "爆炸特写"
+      "nameZh": "爆炸特写",
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "escalate",
+        "clash",
+        "cost"
+      ]
     },
     {
       "id": "CAM-005",
@@ -14170,7 +14212,17 @@
       "lines": [
         "first-person cockpit POV, canopy frame and HUD in view, subtle handheld shake"
       ],
-      "nameZh": "座舱主视角"
+      "nameZh": "座舱主视角",
+      "domain": [
+        "air"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "contact",
+        "clash"
+      ]
     },
     {
       "id": "CAM-006",
@@ -14179,7 +14231,17 @@
       "lines": [
         "slow 360 orbit around the subject, steady gimbal movement, 40mm lens"
       ],
-      "nameZh": "环绕镜头"
+      "nameZh": "环绕镜头",
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "reveal",
+        "character"
+      ]
     },
     {
       "id": "CAM-007",
@@ -14187,7 +14249,17 @@
       "lines": [
         "straight overhead top-down shot, slow descent, map-like composition"
       ],
-      "nameZh": "俯视顶拍"
+      "nameZh": "俯视顶拍",
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "observe",
+        "aftermath"
+      ]
     },
     {
       "id": "CAM-008",
@@ -14195,7 +14267,18 @@
       "lines": [
         "low-angle hero shot looking up at the subject, 35mm lens, imposing heroic framing"
       ],
-      "nameZh": "低角度英雄镜头"
+      "nameZh": "低角度英雄镜头",
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "goal",
+        "clash",
+        "decision"
+      ]
     },
     {
       "id": "CAM-009",
@@ -14203,7 +14286,21 @@
       "lines": [
         "low deck-level shot, steam and heat haze foreground, wide 28mm lens"
       ],
-      "nameZh": "甲板平视起飞"
+      "nameZh": "甲板平视起飞",
+      "domain": [
+        "naval",
+        "air"
+      ],
+      "tod": [
+        "day"
+      ],
+      "fn": [
+        "approach",
+        "escalate"
+      ],
+      "setting": [
+        "water"
+      ]
     },
     {
       "id": "CAM-010",
@@ -14211,7 +14308,18 @@
       "lines": [
         "handheld shoulder camera, reactive shake, whip movement, embedded war-correspondent feel"
       ],
-      "nameZh": "手持战斗镜头"
+      "nameZh": "手持战斗镜头",
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "clash",
+        "escalate",
+        "contact"
+      ]
     },
     {
       "id": "CAM-401",
@@ -14219,7 +14327,18 @@
       "lines": [
         "aggressive FPV racing drone chase shot, fast low pursuit weaving past obstacles, wide 14mm lens, high speed, slight fisheye"
       ],
-      "nameZh": "FPV 无人机追拍"
+      "nameZh": "FPV 无人机追拍",
+      "domain": [
+        "air",
+        "ground"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "escalate",
+        "clash"
+      ]
     },
     {
       "id": "CAM-402",
@@ -14227,7 +14346,17 @@
       "lines": [
         "locked thermal optic view, subtle digital zoom steps, crosshair centred, minimal camera shake"
       ],
-      "nameZh": "热成像瞄准视角"
+      "nameZh": "热成像瞄准视角",
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "observe",
+        "enemy"
+      ]
     },
     {
       "id": "CAM-403",
@@ -14235,7 +14364,17 @@
       "lines": [
         "first person night vision goggle view, circular vignette, slight head movement, grainy image intensifier look"
       ],
-      "nameZh": "夜视主视角"
+      "nameZh": "夜视主视角",
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "night"
+      ],
+      "fn": [
+        "contact",
+        "approach"
+      ]
     },
     {
       "id": "CAM-404",
@@ -14243,7 +14382,17 @@
       "lines": [
         "helmet-mounted camera, handheld shaky first person perspective, wide lens, rapid turns, weapon visible in frame"
       ],
-      "nameZh": "头盔摄像机"
+      "nameZh": "头盔摄像机",
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "clash",
+        "escalate"
+      ]
     },
     {
       "id": "CAM-405",
@@ -14251,7 +14400,19 @@
       "lines": [
         "straight top-down satellite surveillance view, very high altitude, slow drift, orthographic feel"
       ],
-      "nameZh": "卫星俯拍"
+      "nameZh": "卫星俯拍",
+      "domain": [
+        "strategic",
+        "orbital"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "observe",
+        "world",
+        "aftermath"
+      ]
     },
     {
       "id": "CAM-406",
@@ -14259,7 +14420,17 @@
       "lines": [
         "smooth drone orbit circling the subject at medium altitude, steady gimbal, 35mm lens, cinematic parallax"
       ],
-      "nameZh": "无人机环绕"
+      "nameZh": "无人机环绕",
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "observe",
+        "reveal"
+      ]
     },
     {
       "id": "CAM-601",
@@ -14268,6 +14439,16 @@
       "kw": "吊索 绞车 俯视 救援 hoist pov rescue",
       "lines": [
         "looking straight down the rescue hoist cable from the aircraft door, slow descent, 24mm lens, subtle vibration"
+      ],
+      "domain": [
+        "air"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "clash",
+        "reaction"
       ]
     },
     {
@@ -14277,6 +14458,16 @@
       "kw": "热成像 顶视 无人机 侦察 thermal top down drone",
       "lines": [
         "top-down drone view with thermal white-hot look, slow orbit, high contrast heat signatures"
+      ],
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "night"
+      ],
+      "fn": [
+        "observe",
+        "aftermath"
       ]
     },
     {
@@ -14286,6 +14477,17 @@
       "kw": "过肩 跟随 跟拍 第三人称 over shoulder follow",
       "lines": [
         "tight over-the-shoulder follow shot behind a minifigure, 35mm lens, handheld micro-shake"
+      ],
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "plan",
+        "decision",
+        "character"
       ]
     },
     {
@@ -14295,6 +14497,17 @@
       "kw": "武器摄像 瞄准 交联 打击 gun camera targeting feed",
       "lines": [
         "grainy weapon camera view with crosshair framing, slight lag, locked-on target drift"
+      ],
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "observe",
+        "enemy",
+        "contact"
       ]
     },
     {
@@ -14304,6 +14517,17 @@
       "kw": "摇臂 升降 揭示 拉升 crane rise reveal jib",
       "lines": [
         "crane shot rising from ground level to reveal the full battlefield, smooth continuous lift, 28mm lens"
+      ],
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "reveal",
+        "close",
+        "goal"
       ]
     },
     {
@@ -14313,6 +14537,19 @@
       "kw": "低机位 穿越 废墟 移动 low dolly debris",
       "lines": [
         "very low dolly gliding between rubble and wreckage, foreground objects sweeping past, 18mm lens"
+      ],
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "approach",
+        "contact"
+      ],
+      "setting": [
+        "urban"
       ]
     },
     {
@@ -14322,6 +14559,17 @@
       "kw": "甩镜 急摇 快速 转向 whip pan snap",
       "lines": [
         "fast whip pan snapping onto the point of impact, motion blur streaks, hard settle"
+      ],
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "reversal",
+        "contact",
+        "clash"
       ]
     },
     {
@@ -14331,6 +14579,19 @@
       "kw": "水下 半潜 涉水 水面 underwater split level",
       "lines": [
         "half-submerged split-level view at the waterline, water lapping over the lens, 20mm lens"
+      ],
+      "domain": [
+        "naval"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "approach",
+        "contact"
+      ],
+      "setting": [
+        "water"
       ]
     },
     {
@@ -14340,6 +14601,17 @@
       "kw": "特写 医疗 抢救 细节 close up insert medical",
       "lines": [
         "tight insert close-up on hands working, 85mm macro feel, shallow depth of field"
+      ],
+      "domain": [
+        "ground",
+        "naval"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "cost",
+        "reaction"
       ]
     },
     {
@@ -14349,6 +14621,16 @@
       "kw": "车头 固定 车载 行进 hood mount vehicle rig",
       "lines": [
         "camera rigged to the vehicle hood looking back at the cab, road vibration, 24mm lens"
+      ],
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "approach",
+        "escalate"
       ]
     },
     {
@@ -14369,6 +14651,17 @@
         "clean",
         "weathered",
         "damaged"
+      ],
+      "domain": [
+        "air",
+        "ground"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "clash",
+        "escalate"
       ]
     },
     {
@@ -14389,6 +14682,16 @@
         "clean",
         "weathered",
         "damaged"
+      ],
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "observe",
+        "enemy"
       ]
     },
     {
@@ -14409,6 +14712,17 @@
         "clean",
         "weathered",
         "damaged"
+      ],
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "character",
+        "reaction",
+        "cost"
       ]
     },
     {
@@ -14426,6 +14740,20 @@
         "catapult launch tracking shot",
         "camera low beside the track as the aircraft accelerates away, steam blasting past the lens",
         "shutter drag on the wheels, then the aircraft lifts and the deck falls away"
+      ],
+      "domain": [
+        "naval",
+        "air"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "approach",
+        "escalate"
+      ],
+      "setting": [
+        "water"
       ]
     },
     {
@@ -14443,6 +14771,20 @@
         "bridge deck viewpoint looking forward over the bow",
         "windshield frame and radar repeaters in the foreground, forecastle and gun turret beyond",
         "slight ship roll and vibration, spray flicking across the glass"
+      ],
+      "domain": [
+        "naval"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "plan",
+        "observe",
+        "goal"
+      ],
+      "setting": [
+        "water"
       ]
     },
     {
@@ -14460,6 +14802,19 @@
         "submarine periscope view",
         "circular masked field with a crosshair graticule, faint water droplets on the lens",
         "target ship small in the distance, slight rise and fall with the swell"
+      ],
+      "domain": [
+        "naval"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "observe",
+        "contact"
+      ],
+      "setting": [
+        "water"
       ]
     },
     {
@@ -14477,6 +14832,17 @@
         "missile seeker camera view",
         "monochrome sensor image with a tracking gate locked on the target, scanline noise",
         "target growing rapidly, slight roll as the airframe corrects course"
+      ],
+      "domain": [
+        "air",
+        "strategic"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "clash",
+        "escalate"
       ]
     },
     {
@@ -14494,6 +14860,20 @@
         "high aerial of a naval task force in formation",
         "carrier at the centre with escorts in a screen around it, long white wakes behind each hull",
         "slow banking drift revealing the full formation against open ocean"
+      ],
+      "domain": [
+        "naval"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "world",
+        "goal",
+        "reveal"
+      ],
+      "setting": [
+        "water"
       ]
     },
     {
@@ -14511,6 +14891,17 @@
         "high-altitude reconnaissance overlook",
         "very distant near-orthographic view with the horizon curving at the frame edge",
         "target complex tiny at the centre of a huge landscape, thin haze layer below"
+      ],
+      "domain": [
+        "strategic",
+        "air"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "observe",
+        "world"
       ]
     },
     {
@@ -14528,6 +14919,20 @@
         "low tracking shot pushing along a beachhead",
         "camera at knee height beside the soldiers as they advance, water and sand spraying at the lens",
         "obstacles sliding past in the foreground, smoke drifting over the frame"
+      ],
+      "domain": [
+        "naval",
+        "ground"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "approach",
+        "contact"
+      ],
+      "setting": [
+        "shore"
       ]
     },
     {
@@ -14545,6 +14950,16 @@
         "steep dive tracking shot following a bomber down",
         "camera locked just behind the tail as the target grows in frame, dive brakes fluttering",
         "swaying horizon, then the release and a violent pull-out"
+      ],
+      "domain": [
+        "air"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "clash",
+        "escalate"
       ]
     },
     {
@@ -14562,6 +14977,19 @@
         "aerial tracking shot pushing along an armoured column",
         "camera drifting just above the treeline as the column winds along a valley road",
         "dust trail threading through the frame, vehicles bobbing in and out of cover"
+      ],
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "world",
+        "approach"
+      ],
+      "setting": [
+        "open"
       ]
     },
     {
@@ -14579,6 +15007,19 @@
         "drifting follow shot through a weightless module",
         "camera floating slowly past handrails, rotating slightly as it tracks the figure",
         "loose straps and debris drifting past the lens in the foreground"
+      ],
+      "domain": [
+        "orbital"
+      ],
+      "tod": [
+        "any"
+      ],
+      "fn": [
+        "approach",
+        "character"
+      ],
+      "setting": [
+        "orbital"
       ]
     }
   ],
@@ -14590,7 +15031,16 @@
       "lines": [
         "warm golden sunlight, long shadows, orange highlights, blue sky"
       ],
-      "nameZh": "黄金时刻"
+      "nameZh": "黄金时刻",
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "dusk"
+      ],
+      "setting": [
+        "any"
+      ]
     },
     {
       "id": "LGT-002",
@@ -14599,7 +15049,17 @@
       "lines": [
         "harsh overhead sunlight, strong contrast, heat haze, bright sand"
       ],
-      "nameZh": "沙漠正午"
+      "nameZh": "沙漠正午",
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "day"
+      ],
+      "setting": [
+        "desert",
+        "open"
+      ]
     },
     {
       "id": "LGT-003",
@@ -14608,7 +15068,16 @@
       "lines": [
         "cool moonlight, explosion lighting flashes, streaking tracer rounds, drifting smoke"
       ],
-      "nameZh": "夜战照明"
+      "nameZh": "夜战照明",
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "night"
+      ],
+      "setting": [
+        "any"
+      ]
     },
     {
       "id": "LGT-004",
@@ -14616,7 +15085,16 @@
       "lines": [
         "overcast stormy sky, diffuse cold light, occasional lightning flash"
       ],
-      "nameZh": "暴风雨光线"
+      "nameZh": "暴风雨光线",
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "day"
+      ],
+      "setting": [
+        "any"
+      ]
     },
     {
       "id": "LGT-005",
@@ -14624,7 +15102,17 @@
       "lines": [
         "strong orange flash from explosions, flickering firelight, deep contrasting shadows"
       ],
-      "nameZh": "爆炸火光"
+      "nameZh": "爆炸火光",
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "night",
+        "dusk"
+      ],
+      "setting": [
+        "any"
+      ]
     },
     {
       "id": "LGT-006",
@@ -14632,7 +15120,18 @@
       "lines": [
         "red emergency lighting, pulsing alarm glow, deep shadows"
       ],
-      "nameZh": "应急红光"
+      "nameZh": "应急红光",
+      "domain": [
+        "naval",
+        "orbital",
+        "strategic"
+      ],
+      "tod": [
+        "night"
+      ],
+      "setting": [
+        "interior"
+      ]
     },
     {
       "id": "LGT-007",
@@ -14640,7 +15139,18 @@
       "lines": [
         "cool blue command-center lighting, glowing screens, low ambient fill"
       ],
-      "nameZh": "指挥中心蓝光"
+      "nameZh": "指挥中心蓝光",
+      "domain": [
+        "strategic",
+        "orbital"
+      ],
+      "tod": [
+        "night",
+        "any"
+      ],
+      "setting": [
+        "interior"
+      ]
     },
     {
       "id": "LGT-008",
@@ -14648,7 +15158,16 @@
       "lines": [
         "soft pre-dawn blue light, low fog and haze, gentle cool ambience"
       ],
-      "nameZh": "黎明薄雾光"
+      "nameZh": "黎明薄雾光",
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "dawn"
+      ],
+      "setting": [
+        "any"
+      ]
     },
     {
       "id": "LGT-401",
@@ -14656,7 +15175,16 @@
       "lines": [
         "monochrome green night vision illumination, glowing highlights, deep black shadows, visible sensor grain"
       ],
-      "nameZh": "夜视绿光"
+      "nameZh": "夜视绿光",
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "night"
+      ],
+      "setting": [
+        "any"
+      ]
     },
     {
       "id": "LGT-402",
@@ -14664,7 +15192,16 @@
       "lines": [
         "thermal white-hot palette, hot engines and bodies glowing bright white, cold background near black"
       ],
-      "nameZh": "热成像白热"
+      "nameZh": "热成像白热",
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "night"
+      ],
+      "setting": [
+        "any"
+      ]
     },
     {
       "id": "LGT-403",
@@ -14673,7 +15210,16 @@
         "night city lighting, orange sodium street lamps, cold blue moonlight fill, wet reflective asphalt"
       ],
       "nameZh": "城市钠灯夜景",
-      "kw": "撤侨 撤离 紧急撤离 疏散 侨民 使馆 大使馆 领事馆 evacuation evacuate embassy consulate NEO noncombatant"
+      "kw": "撤侨 撤离 紧急撤离 疏散 侨民 使馆 大使馆 领事馆 evacuation evacuate embassy consulate NEO noncombatant",
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "night"
+      ],
+      "setting": [
+        "urban"
+      ]
     },
     {
       "id": "LGT-404",
@@ -14681,7 +15227,16 @@
       "lines": [
         "illumination flare hanging overhead, harsh swinging shadows, smoky orange-white glow, high contrast"
       ],
-      "nameZh": "照明弹照亮的夜晚"
+      "nameZh": "照明弹照亮的夜晚",
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "night"
+      ],
+      "setting": [
+        "any"
+      ]
     },
     {
       "id": "LGT-405",
@@ -14689,7 +15244,16 @@
       "lines": [
         "flat grey overcast daylight, soft shadowless light, desaturated cold atmosphere"
       ],
-      "nameZh": "阴天灰调"
+      "nameZh": "阴天灰调",
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "day"
+      ],
+      "setting": [
+        "any"
+      ]
     },
     {
       "id": "LGT-601",
@@ -14698,6 +15262,15 @@
       "kw": "阴天 散射 柔光 灰暗 overcast diffuse grey",
       "lines": [
         "flat overcast daylight, soft shadowless diffusion, muted cool tones"
+      ],
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "day"
+      ],
+      "setting": [
+        "any"
       ]
     },
     {
@@ -14707,6 +15280,15 @@
       "kw": "暴雪 白化 雪原 高亮 blizzard whiteout snow",
       "lines": [
         "blinding whiteout light bouncing off snow, almost no shadow direction, cold blue cast"
+      ],
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "day"
+      ],
+      "setting": [
+        "snow"
       ]
     },
     {
@@ -14716,6 +15298,15 @@
       "kw": "丛林 斑驳 树影 雨林 jungle dappled canopy",
       "lines": [
         "dappled sunlight filtering through a jungle canopy, hot patches and deep green shade"
+      ],
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "day"
+      ],
+      "setting": [
+        "forest"
       ]
     },
     {
@@ -14725,6 +15316,15 @@
       "kw": "夜视 绿光 微光 夜间 night vision green",
       "lines": [
         "monochrome green night vision glow with visible sensor grain and bright IR hotspots"
+      ],
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "night"
+      ],
+      "setting": [
+        "any"
       ]
     },
     {
@@ -14734,6 +15334,15 @@
       "kw": "照明弹 夜景 吊挂 摇曳 flare lit night parachute",
       "lines": [
         "swinging parachute flare light casting long moving shadows over a dark battlefield"
+      ],
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "night"
+      ],
+      "setting": [
+        "any"
       ]
     },
     {
@@ -14743,6 +15352,15 @@
       "kw": "油火 橙光 火光 燃烧 oil fire orange glow",
       "lines": [
         "heavy orange firelight from burning oil under a black smoke ceiling, deep silhouettes"
+      ],
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "night"
+      ],
+      "setting": [
+        "any"
       ]
     },
     {
@@ -14752,6 +15370,15 @@
       "kw": "晨雾 黎明 雾光 清晨 dawn fog morning",
       "lines": [
         "pale dawn light diffused through ground fog, gentle gradients, low contrast"
+      ],
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "dawn"
+      ],
+      "setting": [
+        "any"
       ]
     },
     {
@@ -14761,6 +15388,15 @@
       "kw": "坑道 隧道 工作灯 昏暗 tunnel work lamps interior",
       "lines": [
         "harsh clip-on work lamps in a dark tunnel, hard falloff, dust in the beams"
+      ],
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "any"
+      ],
+      "setting": [
+        "interior"
       ]
     },
     {
@@ -14770,6 +15406,15 @@
       "kw": "甲板 泛光 舰上 夜间 deck floodlights carrier",
       "lines": [
         "cold sodium and white floodlights on a wet deck, strong speculars and long reflections"
+      ],
+      "domain": [
+        "naval"
+      ],
+      "tod": [
+        "night"
+      ],
+      "setting": [
+        "water"
       ]
     },
     {
@@ -14790,6 +15435,15 @@
         "clean",
         "weathered",
         "damaged"
+      ],
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "any"
+      ],
+      "setting": [
+        "any"
       ]
     },
     {
@@ -14810,6 +15464,17 @@
         "clean",
         "weathered",
         "damaged"
+      ],
+      "domain": [
+        "strategic",
+        "orbital"
+      ],
+      "tod": [
+        "night",
+        "any"
+      ],
+      "setting": [
+        "interior"
       ]
     },
     {
@@ -14827,6 +15492,15 @@
         "carrier deck night operations lighting",
         "pooled white and amber deck lights with deep shadow between them",
         "coloured jersey glow under floodlights, aircraft position lights blinking in the dark"
+      ],
+      "domain": [
+        "naval"
+      ],
+      "tod": [
+        "night"
+      ],
+      "setting": [
+        "water"
       ]
     },
     {
@@ -14844,6 +15518,15 @@
         "submarine red battle lighting",
         "saturated red compartment illumination preserving night vision, deep black shadows",
         "instrument glow and the faint green of a sonar display against the red"
+      ],
+      "domain": [
+        "naval"
+      ],
+      "tod": [
+        "night"
+      ],
+      "setting": [
+        "interior"
       ]
     },
     {
@@ -14861,6 +15544,15 @@
         "pale dawn light over open ocean",
         "soft blue-pink gradient from the horizon, long silver reflection on the swell",
         "low contrast and gentle haze, silhouetted hulls against the brightening sky"
+      ],
+      "domain": [
+        "naval"
+      ],
+      "tod": [
+        "dawn"
+      ],
+      "setting": [
+        "water"
       ]
     },
     {
@@ -14878,6 +15570,15 @@
         "harsh cold white floodlights inside a missile silo complex",
         "hard shadows cast by the canister cradle, visible cable shadows on concrete",
         "dust suspended in the beams, high contrast against the dark shaft"
+      ],
+      "domain": [
+        "strategic"
+      ],
+      "tod": [
+        "any"
+      ],
+      "setting": [
+        "interior"
       ]
     },
     {
@@ -14895,6 +15596,15 @@
         "fleet night navigation lighting",
         "red and green running lights and white masthead lamps across the formation",
         "light trails reflecting in black water, deck glow along each hull"
+      ],
+      "domain": [
+        "naval"
+      ],
+      "tod": [
+        "night"
+      ],
+      "setting": [
+        "water"
       ]
     },
     {
@@ -14912,6 +15622,15 @@
         "battlefield night lit by burning buildings",
         "flickering orange key light from below, cool blue moonlight fill, deep black shadows",
         "smoke drifting through the light shafts, embers rising"
+      ],
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "night"
+      ],
+      "setting": [
+        "any"
       ]
     },
     {
@@ -14929,6 +15648,15 @@
         "flat overcast battlefield daylight",
         "soft shadowless diffusion from a grey cloud deck, muted desaturated tones",
         "slight cold cast with no strong direction"
+      ],
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "day"
+      ],
+      "setting": [
+        "any"
       ]
     },
     {
@@ -14946,6 +15674,16 @@
         "jungle dappled light against glaring beach sun",
         "hot patches of direct sun through the canopy, deep green shade between them",
         "brilliant specular glare off wet sand and surf at the jungle edge"
+      ],
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "day"
+      ],
+      "setting": [
+        "forest",
+        "shore"
       ]
     },
     {
@@ -14963,6 +15701,15 @@
         "flat Eastern Bloc overcast daylight",
         "cold grey key light with no direction, desaturated concrete palette",
         "low cloud ceiling and a faint haze in the distance"
+      ],
+      "domain": [
+        "any"
+      ],
+      "tod": [
+        "day"
+      ],
+      "setting": [
+        "any"
       ]
     },
     {
@@ -14980,6 +15727,16 @@
         "desert noon hard sun",
         "brutal overhead key light with short deep shadows and bleached highlights",
         "dust-laden air scattering the light and heat shimmer at the horizon"
+      ],
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "day"
+      ],
+      "setting": [
+        "desert",
+        "open"
       ]
     },
     {
@@ -14997,6 +15754,16 @@
         "cold white station work lighting",
         "flat cool-white panels with hard falloff and dark shadows between them",
         "instrument glow and a coloured status strip reflected on the hull"
+      ],
+      "domain": [
+        "orbital"
+      ],
+      "tod": [
+        "any"
+      ],
+      "setting": [
+        "orbital",
+        "interior"
       ]
     },
     {
@@ -15014,6 +15781,119 @@
         "unfiltered orbital sunlight with absolute shadow",
         "razor-sharp terminator between blinding white surfaces and pitch-black void",
         "no atmospheric scattering, specular glints off visors and hulls"
+      ],
+      "domain": [
+        "orbital"
+      ],
+      "tod": [
+        "day"
+      ],
+      "setting": [
+        "orbital"
+      ]
+    },
+    {
+      "id": "LGT-012",
+      "name": "Open Field Hard Sun",
+      "nameZh": "开阔原野硬光",
+      "series": "shared",
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "day"
+      ],
+      "setting": [
+        "open"
+      ],
+      "kw": "开阔 原野 草原 硬光 正午 晴天 open field hard sun steppe noon clear",
+      "lines": [
+        "hard clear midday sunlight over open ground",
+        "short deep shadows under the models, bleached highlights on stone and dust",
+        "heat shimmer along the horizon, no cloud cover, strong directional key"
+      ],
+      "version": "1.0",
+      "origin": "visual-language-pack",
+      "changelog": [
+        "1.0 visual language gap fill"
+      ]
+    },
+    {
+      "id": "LGT-013",
+      "name": "Urban Noon Overhead",
+      "nameZh": "城市正午顶光",
+      "series": "shared",
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "day"
+      ],
+      "setting": [
+        "urban"
+      ],
+      "kw": "城市 街道 废墟 正午 顶光 硬阴影 urban noon overhead hard shadow rubble",
+      "lines": [
+        "hard noon sun straight down between buildings and rubble",
+        "sharp black shadow pockets under broken concrete, glaring hot highlight on rebar",
+        "dust suspended in the light shafts, no fill light"
+      ],
+      "version": "1.0",
+      "origin": "visual-language-pack",
+      "changelog": [
+        "1.0 visual language gap fill"
+      ]
+    },
+    {
+      "id": "LGT-014",
+      "name": "Snowfield Diffuse",
+      "nameZh": "雪原漫射光",
+      "series": "shared",
+      "domain": [
+        "ground"
+      ],
+      "tod": [
+        "day"
+      ],
+      "setting": [
+        "snow"
+      ],
+      "kw": "雪原 雪地 漫射 阴天 冷色 冬季 snowfield diffuse overcast cold winter",
+      "lines": [
+        "flat diffuse light over a snowfield under a low grey sky",
+        "almost no shadow direction, cool blue cast across the drifts",
+        "white bounce filling every crevice, muted low contrast"
+      ],
+      "version": "1.0",
+      "origin": "visual-language-pack",
+      "changelog": [
+        "1.0 visual language gap fill"
+      ]
+    },
+    {
+      "id": "LGT-015",
+      "name": "Open Sea Hard Sun",
+      "nameZh": "开阔海面强光",
+      "series": "shared",
+      "domain": [
+        "naval"
+      ],
+      "tod": [
+        "day"
+      ],
+      "setting": [
+        "water"
+      ],
+      "kw": "海面 开阔 强光 正午 甲板 舰队 open sea hard sun deck noon fleet",
+      "lines": [
+        "hard direct sunlight over open sea",
+        "blinding specular glints scattered off the swell, harsh white on painted steel",
+        "short hard shadows across the deck, deep blue water beyond the rail"
+      ],
+      "version": "1.0",
+      "origin": "visual-language-pack",
+      "changelog": [
+        "1.0 visual language gap fill"
       ]
     }
   ],
@@ -15025,7 +15905,13 @@
         "high contrast, warm highlights, cool shadows, Kodak film look, cinematic grading"
       ],
       "nameZh": "好莱坞大片",
-      "kw": "大片 好莱坞 电影感"
+      "kw": "好莱坞 大片 通用 商业 高对比 blockbuster general cinematic",
+      "domain": [
+        "any"
+      ],
+      "setting": [
+        "any"
+      ]
     },
     {
       "id": "CLR-002",
@@ -15033,7 +15919,16 @@
       "lines": [
         "desaturated bleach-bypass, muted greens and tans, gritty documentary look"
       ],
-      "nameZh": "《拯救大兵瑞恩》"
+      "nameZh": "《拯救大兵瑞恩》",
+      "domain": [
+        "ground",
+        "naval"
+      ],
+      "kw": "二战 登陆 滩头 诺曼底 写实 去色 纪录片 wwii landing normandy desaturated gritty",
+      "setting": [
+        "shore",
+        "water"
+      ]
     },
     {
       "id": "CLR-003",
@@ -15041,7 +15936,15 @@
       "lines": [
         "clean vivid, deep blue skies, warm skin tones, crisp modern blockbuster"
       ],
-      "nameZh": "《壮志凌云：独行侠》"
+      "nameZh": "《壮志凌云：独行侠》",
+      "domain": [
+        "air",
+        "naval"
+      ],
+      "kw": "现代 空军 战机 蓝天 清晰 鲜艳 modern air fighter vivid clean",
+      "setting": [
+        "air"
+      ]
     },
     {
       "id": "CLR-004",
@@ -15049,7 +15952,15 @@
       "lines": [
         "warm dusty, golden-tan cast, crushed shadows, harsh gritty realism"
       ],
-      "nameZh": "《黑鹰坠落》"
+      "nameZh": "《黑鹰坠落》",
+      "domain": [
+        "ground"
+      ],
+      "kw": "现代 城市 巷战 沙尘 暖调 写实 urban city dusty warm",
+      "setting": [
+        "urban",
+        "desert"
+      ]
     },
     {
       "id": "CLR-005",
@@ -15057,7 +15968,16 @@
       "lines": [
         "cool overcast, muted palette, soft contrast, classic war-drama look"
       ],
-      "nameZh": "《兄弟连》"
+      "nameZh": "《兄弟连》",
+      "domain": [
+        "ground"
+      ],
+      "kw": "二战 欧洲 步兵 阴天 冷调 柔和 wwii europe infantry overcast muted",
+      "setting": [
+        "open",
+        "forest",
+        "snow"
+      ]
     }
   ],
   "audio": [

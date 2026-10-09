@@ -30,7 +30,7 @@ export async function buildAssets({ root, write = true } = {}) {
   const assetSha256 = createHash('sha256').update(canonical).digest('hex');
   const manifest = {
     schemaVersion: '1',
-    projectVersion: '6.7.2',
+    projectVersion: '6.7.3',
     assetManifestVersion: `${registry.schemaVersion}:${assetSha256.slice(0, 12)}`,
     assetCount: countAssets(registry),
     assetSha256,

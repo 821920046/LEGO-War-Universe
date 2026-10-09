@@ -1,5 +1,198 @@
 # Changelog — LEGO War Universe Production System
 
+## 2026-10-09 · 6.7.3 画面语言：把「编译后的 prompt」当成交付物来读
+
+> 用户诉求：「内容方面还是需要优化，还是不够完美，请继续在脚本内容上下功夫，
+> 让这些脚本生成的视频内容更加完美。」
+>
+> 前六轮我一直在读 `action`（中文叙事正文）—— **而真正送进 Veo 3 / Google Flow 的
+> 是 `compileShot()` 编译出来的 prompt**，里面有场景、主体、动作，也有**机位、灯光、
+> 调色、音效**。这一轮第一次把编译结果整条打印出来读，读出了本项目迄今最严重的
+> 一批缺陷：**叙事正文是对的，编译出来的 prompt 是错的。**
+
+**资产数据**：806 → **810** 项（+4 灯光），`schemaVersion` 3.7 不变，构建签名 `5fcb1b870ef4` → **`2a778c168cbc`**。
+**测试**：231 → **246** 例（新增 `tests/visual-language.test.mjs` 15 例）。
+
+### 第一性诊断：`pickMany` 是一个「看起来在工作」的死函数
+
+```js
+const pickMany = (r, kind, intent, limit = 3) => {
+  const eraMatches = all.filter(a => a.series === intent.era);
+  const pool = eraMatches.length > 0 ? eraMatches : all;
+  return pool.slice(0, limit);          // ← 取数组前三个
+};
+```
+
+两处错叠加，导致 39 个机位里 **36 个是死代码**：
+
+1. `eraMatches` 是**只含该时代专属资产**的子集，它**替换**了整个池，而不是与通用资产取并集。
+   二战只有 **1 个**时代专属机位 → 二战影片只拿到 1 个机位。
+2. `slice(0, limit)` 完全不看**战场域**与**时段**。于是「滩头低角度推进跟拍」在
+   10 个不同题材的影片里被用了 **48 次**；而「夏季正午的库尔斯克草原」拿到了
+   「战火映照的**夜空**」光照。
+
+### Fixed — 机位：39 个机位里 36 个从未被选中
+
+新增 `src/domain/visual-language.js`（约 260 行）取代 `pickMany`（**整个函数已删除**）。
+
+- **并集而非替换**：`poolFor()` 返回「时代相容资产 ∪ 全部资产」，时代专属资产只是加分项。
+- **域 / 时段 / 地貌三级过滤**，级联放松 `strict(tod+setting) → todOnly → all`。
+- **全片去重**：同一机位在一部 12 镜影片里最多出现 3 次，优先选「没用过且得分 > 0」的。
+- **按戏剧功能打分**：`+40` 战场域命中，`+30` 戏剧功能命中，`+ themeMatch×2` 题材词命中。
+
+实测：26 个题材**每个都拿到 ≥6 个不同机位**，**没有任何机位使用超过 3 次**，39 个机位全部可达。
+
+### Fixed — 灯光：夏季正午的草原拿到了「夜空」光照
+
+灯光此前与机位共用同一个坏函数。修复后灯光按 **域 + 时段 + 地貌** 三重一致选取：
+
+| 题材 | 修复前 | 修复后 |
+| --- | --- | --- |
+| 库尔斯克（夏季正午草原） | 战火映照的**夜空** | 开阔原野硬光 |
+| 中途岛（正午海面） | 通用 | 开阔海面强光 |
+| 阿登（冬季雪原） | 通用 | 雪原漫射光 |
+| 斯大林格勒（城市巷战） | 通用 | 城市正午顶光 |
+| 轨道作战 | 通用 | 硬边阳光切割阴影 |
+
+光照中途变化本身就是**穿帮**，因此一部影片**只选一盏主光**，仅 `character / plan / decision /
+cost / reaction / close / quiet` 这类贴身镜头允许补一盏副光。
+
+另**新增 4 项灯光资产**填补真实缺口（810 项）：
+`LGT-012` 开阔原野硬光 / `LGT-013` 城市正午顶光 / `LGT-014` 雪原漫射光 / `LGT-015` 开阔海面强光。
+
+### Fixed — 调色：216/216 个镜头全是「好莱坞大片」
+
+5 个调色资产里 **4 个是死代码**，所有影片一律「好莱坞大片」。修复后按题材点名走：
+
+| 题材 | 调色 |
+| --- | --- |
+| 诺曼底登陆抢滩 | 《拯救大兵瑞恩》 |
+| 中途岛航母对决 | 《拯救大兵瑞恩》 |
+| 库尔斯克坦克对决 | 《兄弟连》 |
+| 阿登森林冬季反击战 | 《兄弟连》 |
+| 伊拉克战争城市清剿 | 《黑鹰坠落》 |
+| 海湾战争夜战防空导弹阵地伏击 | 《黑鹰坠落》 |
+| 现代特战小队城市废墟夜间突袭 | 《黑鹰坠落》 |
+| 无人机蜂群突防压制敌方雷达 | 《壮志凌云：独行侠》 |
+| F-22 制空巡逻 | 《壮志凌云：独行侠》 |
+| 轨道空间站失压事故 | 好莱坞大片（中性；库里没有轨道专用调色） |
+
+修好「只用 1 个」之后，**第二个缺陷才露出来：选得不准**。实测 5 个调色在多数题材下
+`themeMatch` 得分是 **12 / 12 / 12 / 12** —— 因为传进去的 `themeText` 含整段英文环境描述，
+最长公共子串在长文本上到处找到 4 字巧合，**平局由哈希决定**。后果：
+「伊拉克战争城市清剿」配到《兄弟连》（二战欧洲阴天步兵），
+「轨道空间站失压事故」配到《黑鹰坠落》（它的 `domain` 是 `['ground']`，物理不符）。
+
+改为三档打分：
+
+1. **战场域三档** —— 命中 `+2` / `any` `+1` / **不符 `0`**。
+   **必须是三档**：二档时「any」与「地面专用」同分，中性调色就赢不了错误的专用调色。
+2. **场景命中** —— 调色新增 `setting` 标注（`CLR-002` 滩头海面 / `CLR-003` 空域 /
+   `CLR-004` 城市沙漠 / `CLR-005` 开阔林地雪原），与影片场景相交 `+1`。
+   这是区分「同为 ground 的《黑鹰坠落》与《兄弟连》」的唯一依据。
+3. **关键词命中** —— `kwHits()` 只在**题材串**上数调色自己声明的关键词，
+   不再在环境正文的长英文上跑 LCS。可解释、可回归。
+
+结果：**5 个调色全部可用**，且每个题材都拿到语义正确的那一个。
+
+### Fixed — 时长：4 秒的镜头平均塞了 64 字 / 3.6 个分句
+
+实测（修复前）：**4 秒镜平均 64 字 / 3.6 个分句（最长 76 字 / 5 句），6 秒镜 55 字，8 秒镜 55 字** ——
+时长和内容量**完全脱钩**，4 秒的快切里塞着 8 秒的叙事。
+
+`planner.js` 新增内容预算模型（`SPEECH_CHARS_PER_SEC = 4.5`、`VISUAL_SECONDS_PER_CLAUSE = 2`）：
+
+```js
+export function contentSeconds(text) {
+  const dialogues = [...text.matchAll(/「([^」]*)」/g)].map(m => m[1].replace(/^【无线电】/, '').replace(/\s/g, ''));
+  const speech  = dialogues.reduce((s, d) => s + d.length, 0) / SPEECH_CHARS_PER_SEC;
+  const visual  = clauseCount(text.replace(/「[^」]*」/g, '')) * VISUAL_SECONDS_PER_CLAUSE;
+  return { visual, speech, total: Math.max(visual, speech) };   // ← max，不是 sum
+}
+```
+
+**两版被否掉的模型都记在代码注释里**，因为它们各自踩过坑：
+
+1. 把对白按「分句」和画面同等计费 → 正常的两人对白被误判为「装不下」，226/312 镜被强行拉到 8 秒。
+2. 把 speech + visual **相加** → 4 秒快切全部不可能成立，**4 秒档彻底消失**（6s×16、8s×104）。
+   无线电对白是**压着画面播**的，不能与画面时间相加 —— 取 `max`。
+
+配套**改写 89 处正文**（16 组 `deadline/objective/stake` 任务简报、16 个 `contact` 各删一个冗余分句、
+10 个过长的 reveal/reaction/decision/clash、16 个 `cost` 压成硬切），使
+**全部 312 个镜头满足 `contentSeconds ≤ duration` 且 `≤ 8s`**，时长分布 6.2–8.0s 按戏剧功能分化。
+
+### Fixed — 音效与无线电对白从未进入 prompt
+
+`audioCue` 与 `radioVoice` 在 **180/180 个镜头里都有值，而编译出的 prompt 里一个声音字都没有** ——
+`compiler.js` 静默丢弃了它们。**Veo 3 是带音频生成的模型**，这等于白扔了一半能力。
+
+```js
+audioCue   ? `Sound design (diegetic only, no music score): ${audioCue}.` : null,
+radioVoice ? `Radio dialogue (spoken in Chinese, playing over the action): ${radioVoice}` : null,
+```
+
+### Fixed — 关键帧 prompt 把整段中文叙事塞进了「静态构图」
+
+`compileKeyframeImage()` 的 `Framing & Pose` 段落此前直接塞入完整叙事句，而
+`toStaticPose()` **只处理英文动名词**，对中文完全无效。重写为真正的静态构图：
+
+```
+Framing & Pose: Contact Handheld, the two opposing minifigures locked at close quarters,
+filling the frame, frozen single instant, static pose, no motion blur on the subject.
+Action context (Chinese): 手按住地图.
+```
+
+新增 `POSE_BY_FOCUS`（按 `focus` 给姿态）、`shotTypeEn()`（从「拐角遭遇手持近景 (Contact Handheld)」
+抽出英文部分）、`firstBeat()`（只取第一个视觉分句）；删除了只对英文有效的 `toStaticPose()`；
+并修掉了结尾多余的句号（旧输出会出现 `交战。.`）。
+
+### Fixed — 因果连接词是拍不到的抽象旁白
+
+`LINK_BY_PREV` 旧值是「计划定下了，」「压力还在加码，」这类**旁白腔**。
+喂给视频模型的**第一个分句**就是它，而模型既画不出「压力」，也听不出「加码」。全部重写为可拍摄的动作：
+
+| 上一镜功能 | 修复前 | 修复后 |
+| --- | --- | --- |
+| `plan` | 计划定下了， | 手按住地图， |
+| `contact` | 交上了火， | 枪响了， |
+| `escalate` | 压力还在加码， | 弹着点变密， |
+| `reveal` | 情况有变， | 情报是假的， |
+| `cost` | 代价出现了， | 有人没站起来， |
+| `quiet` | 战斗间歇， | 枪声停了， |
+
+### Fixed — 时段只识别「夜」
+
+`intent.js` 此前只有 `night` 一条时段规则，于是「海湾战争**夜战**防空导弹阵地伏击」
+**判不出夜间**，「黄金时刻」「拂晓登陆」也全部落空。新增 `dawn` / `dusk` 两条规则，
+并把 `夜战` 补进 `night`。
+
+### 第四次「关键词骗人」：`斯大林格勒` 被判成丛林
+
+`SETTING_RULES` 的森林正则里写了裸的 `林`，于是「斯大**林**格勒废墟」被判定为丛林，
+城市巷战拿到了丛林斑驳光。这与前三次（`\bcrew\b`、「战斗工兵」、`marine`）是**同一类错误**：
+用子串匹配语义。修复方式是只认真正的植被词（`丛林|森林|树林|密林|林地|林区|雨林`），
+并在代码注释里写明**不能写裸的「林」**。
+
+### 验证记录（6.7.3）
+
+| 命令 | 结果 |
+| --- | --- |
+| `python 02_Assets/validate.py 02_Assets/assets.json` | OK：**810** 资产，ID 全局唯一，`schemaVersion=3.7` |
+| `node scripts/build-assets.mjs` | 810 资产，签名 `2a778c168cbc` |
+| `node --experimental-vm-modules --test tests/*.test.mjs` | **246 / 246 通过** |
+| `node scripts/check-release.mjs` | `{"ok": true, "violations": []}` |
+| `node scripts/run-blind-test.mjs` | 一致性 100% · 可剪辑性 100% · 合规性 100% · 重生成率 96% |
+
+### Residual risk（本轮未解决，如实记录）
+
+**节奏仍然轻微倒挂**：climax 7.9s > establish 7.5s > resolve 6.8s。
+根因是 `narrative.js` 给结构节拍 6–8s 的底，内容一多就继续往上顶；
+且 `cost` 节拍在 12 镜节奏里根本不会被选中，所以它被压到 4s 没有产生实际效果。
+本轮**选择不去靠删内容来追这个数字** —— 内容完整优先于时长曲线好看。
+留待下一轮从 `narrative.js` 的结构节拍时长分配入手。
+
+---
+
 ## 2026-10-08 · 6.7.2 创作能力：从「只能拍历史」到「现代战争 / 未来战争」
 
 > 用户诉求：「要加上让它有创作能力，这个乐高项目主要是军事题材，不仅限于历史，

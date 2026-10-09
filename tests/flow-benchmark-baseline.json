@@ -1,11 +1,11 @@
 {
   "project": "LEGO War Universe",
   "testedThemesCount": 25,
-  "generatedAt": "2026-09-17T14:29:59.137Z",
+  "generatedAt": "2026-10-09T14:45:13.717Z",
   "average": {
     "Consistency": 1,
     "Cutability": 1,
-    "Compliance": 0.97,
+    "Compliance": 1,
     "RegenRate": 0.96
   },
   "results": {
@@ -44,7 +44,7 @@
     "伊拉克战争城市巷战": {
       "Consistency": 1,
       "Cutability": 1,
-      "Compliance": 0.2,
+      "Compliance": 1,
       "RegenRate": 1,
       "era": "Iraq War",
       "safetyStatus": "passed"
@@ -158,7 +158,7 @@
       "Cutability": 1,
       "Compliance": 1,
       "RegenRate": 1,
-      "era": "Modern",
+      "era": "Gulf War",
       "safetyStatus": "passed"
     },
     "现代边境山地巡逻遭遇战": {
