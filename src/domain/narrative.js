@@ -136,8 +136,11 @@ export const FOCUS_ROLES = {
  *
  * 占位符：{heroCallsign}{supportCallsign}{enemyCallsign}{vehicle}{env}{weather}
  *         —— 只能使用 FOCUS_ROLES[focus] 里声明过的占位符。
+ *
+ * **导出是为了可测试**：`tests/pacing.test.mjs` 直接对这张表断言「声明的节奏曲线」，
+ * 而不是只看最终编译结果 —— 否则「声明是快切、实际被内容顶成长镜」这类错会被掩盖。
  */
-const BEATS = [
+export const BEATS = [
   // ============================== establish ==============================
   { id: 'est-goal-1', phase: 'establish', focus: 'hero', fn: 'goal', duration: 8, shotType: '任务简报中景 (Mission Briefing Medium)',
     action: '「九十秒后起爆，目标就在这片 {env} 里。」{heroCallsign} 把平面图摊在断墙上，手指压住红圈，{weather}从缺口灌进来。',
@@ -158,13 +161,13 @@ const BEATS = [
     action: '{heroCallsign} 与 {supportCallsign} 一前一后交替跃进，在 {env} 边缘占住一个临时观察位。',
     audioCue: '脚步落地 · 枪械保险轻响', radioVoice: '【无线电】我到位了，掩护你前进。' },
   { id: 'est-observe-1', phase: 'establish', focus: 'enemy', fn: 'observe', duration: 6, shotType: '敌方视角远摄 (Enemy POV Telephoto)',
-    action: '准星里，{enemyCallsign} 的巡逻队正从 {env} 尽头列队经过。{heroCallsign} 没有开火，只是数人数——七个。',
+    action: '准星里，{enemyCallsign} 的巡逻队正从 {env} 尽头列队经过。{heroCallsign} 没有开火。',
     audioCue: '远处口令声 · 风声掩盖脚步', radioVoice: '【无线电】敌人在动，等他们全部进入杀伤区。' },
   { id: 'est-observe-2', phase: 'establish', focus: 'hero', fn: 'observe', duration: 6, shotType: '静默校准特写 (Silent Zeroing Close-Up)',
     action: '{heroCallsign} 蹲在 {env} 的阴影里校准瞄具，呼吸压到最低，{weather}替他掩去了大半轮廓。',
     audioCue: '瞄具微调咔哒声 · 压抑的呼吸', radioVoice: '【无线电】我已就位，等我的信号。' },
   { id: 'est-observe-3', phase: 'establish', focus: 'vehicle', fn: 'observe', duration: 6, shotType: '隐蔽待机特写 (Concealed Idle Close-Up)',
-    action: '{vehicle} 在 {env} 外缘熄火待机，{heroCallsign} 借着掩护用测距仪标定第一个目标，镜头贴着积木接缝。',
+    action: '{vehicle} 在 {env} 外缘熄火待机，{heroCallsign} 用测距仪标定第一个目标。',
     audioCue: '金属冷却滴答声 · 电子测距提示音', radioVoice: '【无线电】距离已锁定，等开火命令。' },
   { id: 'est-approach-3', phase: 'establish', focus: 'vehicle', fn: 'approach', duration: 8, shotType: '载具低角度跟拍 (Low Vehicle Tracking)',
     action: '{vehicle} 低吼着碾过 {env}，车灯在 {weather}中切出两道长锥，{heroCallsign} 探头确认前方通路。',
@@ -175,7 +178,7 @@ const BEATS = [
     action: '「原路线封了。」{heroCallsign} 把地图折起来，指向 {env} 侧面，「走上面。」',
     audioCue: '地图折叠 · 战术口令', radioVoice: '【无线电】改走二号路线，三分钟。' },
   { id: 'bld-contact-1', phase: 'build', focus: 'clash', fn: 'contact', duration: 4, shotType: '拐角遭遇手持近景 (Contact Handheld)',
-    action: '拐角。两米。{heroCallsign} 与 {enemyCallsign} 同时抬枪开火，短促交火撕裂 {weather}。',
+    action: '拐角。两米。{heroCallsign} 与 {enemyCallsign} 同时抬枪开火。',
     audioCue: '突击步枪连射 · 弹壳落地脆响', radioVoice: '【无线电】接触！接触！两点钟方向，压制他们！' },
   { id: 'bld-reveal-1', phase: 'build', focus: 'hero', fn: 'reveal', duration: 8, shotType: '揭示推轨镜头 (Reveal Dolly)',
     action: '{heroCallsign} 掀开伪装网，手停住了：{env} 深处不是一个小队，是一整片帐篷。情报错了。',
@@ -196,10 +199,10 @@ const BEATS = [
     action: '{heroCallsign} 打出交替掩护手势，{supportCallsign} 越位前出，两人在 {env} 中织出交叉火力网。',
     audioCue: '两侧交替射击 · 战术口令', radioVoice: '【无线电】交叉火力建立，敌人被钉住了！' },
   { id: 'bld-escalate-4', phase: 'build', focus: 'hero', fn: 'escalate', duration: 4, shotType: '换弹间隙贴身特写 (Reload Under Fire)',
-    action: '{heroCallsign} 换弹匣的间隙被流弹擦过墙面，他贴着 {env} 的钢筋缩身，重新架枪。',
+    action: '{heroCallsign} 换弹匣的间隙被流弹擦过墙面，他贴着 {env} 缩身。',
     audioCue: '弹匣脱落与上膛 · 跳弹擦墙', radioVoice: '【无线电】我在换弹，帮我顶十秒！' },
   { id: 'bld-escalate-5', phase: 'build', focus: 'clash', fn: 'escalate', duration: 6, shotType: '爆破掀翻升格镜头 (Blast Slow-Motion)',
-    action: '{enemyCallsign} 的火箭弹在 {heroCallsign} 身侧炸开，他被冲击波掀进掩体，爬起来重新校准射击，向敌人发起反击突袭。',
+    action: '{enemyCallsign} 的火箭弹在 {heroCallsign} 身侧炸开，他被冲击波掀进掩体，爬起来继续开火。',
     audioCue: '爆炸低频轰击 · 随后两秒高频耳鸣', radioVoice: '【无线电】车体受损！医护上来，其余人继续压制！' },
 
   // =============================== climax ================================
@@ -209,7 +212,7 @@ const BEATS = [
   // 注意：clash/enemy 节拍的 action **必须**含 shot-spec 的敌对语义关键词（交战/开火/对抗/突袭…），
   // 否则校验器看到「正反双方同框却没有敌对语义」会判定 FACTION_CONFLICT_INVALID，编译阶段直接抛错。
   { id: 'clx-clash-1', phase: 'climax', focus: 'clash', fn: 'clash', duration: 4, shotType: '零距离对轰主视角 (Point-Blank Duel)',
-    action: '{heroCallsign} 与 {enemyCallsign} 在 {env} 正面撞上，双方在几米内直接交战对轰，塑料零件与火星四散飞溅。',
+    action: '{heroCallsign} 与 {enemyCallsign} 正面撞上，双方直接交战对轰。',
     audioCue: '全自动连射 · 弹壳与碎片四溅', radioVoice: '【无线电】就是现在！全体开火！' },
   { id: 'clx-decision-1', phase: 'climax', focus: 'hero', fn: 'decision', duration: 6, shotType: '抉择面部特写 (The Choice Close-Up)',
     action: '两条路，都是死路。{heroCallsign} 用两秒钟选了人少的那条，然后把决定咽了下去。',
@@ -224,7 +227,7 @@ const BEATS = [
     action: '全片第一次彻底安静。{env} 里只有水滴砸在钢板上的声音，{heroCallsign} 数着自己的心跳。',
     audioCue: '水滴 · 心跳 · 除此之外什么都没有', radioVoice: '【无线电】（没有人说话）' },
   { id: 'clx-clash-2', phase: 'climax', focus: 'clash', fn: 'clash', duration: 4, shotType: '贴身缠斗微距 (Point-Blank Grapple)',
-    action: '{heroCallsign} 与 {enemyCallsign} 贴身缠斗、近身对抗，枪械被打飞后改用工程工具硬撼，{weather}中全是金属摩擦的尖啸。',
+    action: '{heroCallsign} 与 {enemyCallsign} 贴身交战，枪械被打飞后改用工程工具硬撼。',
     audioCue: '金属剧烈摩擦 · 急促喘息', radioVoice: '【无线电】别管我，完成任务！' },
   { id: 'clx-escalate-2', phase: 'climax', focus: 'vehicle', fn: 'escalate', duration: 6, shotType: '载具强突核心 (Vehicle Breach)',
     action: '{vehicle} 撞穿 {env} 的路障直插核心，{heroCallsign} 在颠簸中完成最后装填。',
@@ -241,13 +244,13 @@ const BEATS = [
     action: '{env} 还在烧。{heroCallsign} 站在废墟顶端，把头盔摘了下来。',
     audioCue: '风声渐起 · 低沉克制的配乐', radioVoice: '【无线电】阵地已肃清，任务完成。' },
   { id: 'res-react-1', phase: 'resolve', focus: 'hero', fn: 'reaction', duration: 4, shotType: '反应镜头面部特写 (Reaction Close-Up)',
-    action: '镜头怼在 {heroCallsign} 的脸上，五秒。他什么都没说，但所有人都读懂了。',
+    action: '镜头怼在 {heroCallsign} 的脸上。他什么都没说。',
     audioCue: '完全静音 · 只有远处的零星燃烧声', radioVoice: '【无线电】（静默）' },
-  { id: 'res-react-2', phase: 'resolve', focus: 'squad', fn: 'reaction', duration: 6, shotType: '互相搀扶撤离 (Extraction Walk)',
+  { id: 'res-react-2', phase: 'resolve', focus: 'squad', fn: 'reaction', duration: 4, shotType: '互相搀扶撤离 (Extraction Walk)',
     action: '{heroCallsign} 与 {supportCallsign} 互相搀扶着穿过 {env}，身后是仍在燃烧的战场。',
     audioCue: '沉重脚步 · 远处零星燃烧声', radioVoice: '【无线电】所有人都带回来了，一个都没落下。' },
   { id: 'res-cost-1', phase: 'resolve', focus: 'hero', fn: 'cost', duration: 4, shotType: '名单核对特写 (The Names)',
-    action: '{heroCallsign} 蹲在 {env} 一角清点人数，数到一半停住了，然后从头又数了一遍。',
+    action: '{heroCallsign} 蹲在 {env} 一角清点人数，数到一半停住了。',
     audioCue: '金属铭牌相碰 · 极低的弦乐', radioVoice: '【无线电】名单……对不上。' },
   { id: 'res-quiet-1', phase: 'resolve', focus: 'hero', fn: 'quiet', duration: 8, shotType: '摘机静默特写 (Radio Off Close-Up)',
     action: '{heroCallsign} 摘下通讯耳机，{weather}里只剩下自己的呼吸和远处零星的燃烧声。',
@@ -750,12 +753,49 @@ const FN_KEYWORDS = [
 ];
 
 /**
- * 各戏剧功能的默认镜头时长（秒）：快切 4s / 常规 6s / 长镜 8s。
- * 云端模型往往不返回 duration，导致全片每镜都是同一个长度、节奏扁平；
- * 这里按功能给出默认值，让「静默/铺陈/残局」这类镜头自然变长、
- * 「交锋/接触/代价」这类镜头自然变短，整片才有起伏。
+ * 戏剧功能 → 镜头时长（秒）的**缺省表**。
+ *
+ * 这是整部片子的节奏语法，与 `model-profiles.json` 支持的档位一一对应：
+ *   8s 长镜 —— goal（任务简报）/ world（环境铺陈）/ reveal（揭示推轨）/
+ *              reversal（反转静场）/ quiet（开火前静默）/ aftermath（残骸静默）
+ *   6s 常规 —— character / approach / observe / plan / escalate / decision / close
+ *   4s 快切 —— contact（首次接触）/ clash（零距离对轰）/ cost（代价硬切）/
+ *              reaction（反应短切）
+ *
+ * **为什么必须导出并集中在一处**：原型（`story.js` 的 `SLOTS`）里的节拍**不写 duration**，
+ * 于是 `Number(undefined) || 8` 让**每一个原型节拍都默认 8 秒** —— 声明 4 秒的快切
+ * （contact / clash / cost）被静默升格成长镜，**整条节奏曲线倒挂**
+ * （实测 climax 7.92s > establish 7.49s > resolve 6.79s）。
+ * 修法就是让这张表成为原型节拍的兜底，而不是散落在每一条节拍上。
+ *
+ * ---
+ *
+ * **它是「缺省」不是「唯一权威」** —— 早先的注释把它写成了后者，那是过度声明。
+ * `BEATS` 里的个别节拍可以声明一个不同的时长，前提是**镜头类型本身要求**
+ * （例：`bld-escalate-4`「换弹间隙贴身特写」声明 4s 而不是 escalate 的 6s，
+ * 因为换弹插帧本来就该是快切）。这类覆盖必须逐条列在
+ * `tests/pacing.test.mjs` 的 `JUSTIFIED_OVERRIDES` 里，否则测试会失败 ——
+ * 覆盖是例外，不能变成悄悄漂移。
+ *
+ * ---
+ *
+ * **为什么需要这张表、而不能全靠「内容算时长」**：文字长度是个**单边信号** ——
+ * 它只能说「这一镜装不下」，永远说不了「这一镜应该更长」。
+ * 「一张不说话的脸」按字数算只有 2.6–3.2 秒，但留白恰恰是文字量不出来的：
+ * 它要占满屏幕多久，只有节奏语法知道。
+ *
+ * **但「留白」只对真正的面部特写成立，而 `reaction` 的留白是一个曾经被误读的特例。**
+ * 早先的版本据此把 `reaction` 从 4s 抬到 6s，理由是「项目里所有 reaction 槽位都是
+ * 镜头怼在脸上 + 完全静音」。这个前提**只对 `story.js` 共享池里的 10 条成立，
+ * 而它们全部不可达** —— 16 个原型各自带 `reaction` 槽位且优先命中，
+ * 内容全是「战后第一个小动作」（推开舱盖 / 捡起残骸 / 扶正箱子），
+ * 实测正文只要 2.55–2.64 秒。抬到 6s 的结果是**每一条 reaction 镜都空出 3.4 秒**
+ * 没有指令可执行 —— 模型只能自己编画面，正是本表最想避免的那种失败。
+ * 所以 `reaction` 回到 **4s**：2.6 秒的正文配 4 秒的档，留 1.4 秒呼吸，是合适的。
+ * 真正需要长留白的面部特写如果将来要启用，应当**在那一条节拍上单独声明时长**，
+ * 而不是把整类 `reaction` 一起抬长。
  */
-const FUNCTION_DURATION = {
+export const FUNCTION_DURATION = {
   goal: 8, world: 8, character: 6, approach: 6, observe: 6, plan: 6,
   contact: 4, escalate: 6, reveal: 8, decision: 6, reversal: 8, cost: 4,
   clash: 4, quiet: 8, aftermath: 8, reaction: 4, close: 6

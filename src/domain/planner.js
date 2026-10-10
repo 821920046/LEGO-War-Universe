@@ -2,7 +2,7 @@ import { parseIntentWithOverrides } from './intent.js';
 import { enforceContinuityChain } from './continuity.js';
 import { isEraCompatible } from './shot-spec.js';
 import { selectCast, buildRoster, rosterToJSON, aliasLabel, domainOfText, themeMatch } from './roster.js';
-import { selectBeats, renderTemplate, seedOf, buildOriginality, tagDramaticFunctions } from './narrative.js';
+import { selectBeats, renderTemplate, seedOf, buildOriginality, tagDramaticFunctions, FUNCTION_DURATION } from './narrative.js';
 import { buildStory, linkFor, detectArc, shotTypeFor, weatherFor } from './story.js';
 import { planVisualLanguage } from './visual-language.js';
 
@@ -67,14 +67,53 @@ const pick = (r, kind, intent, term = '', excludeTerm = '', theme = '') => {
  *      无线电与对白是**叠在画面上**播的，两者并行，因此取**较大值**而不是和。
  *
  * 语速取 4.5 字/秒（中文影视对白的常态；旁白可到 5 字/秒，喊话更慢）。
- * 视觉取 2 秒/分句 —— 一个「镜头里发生的事」大约需要两秒才看得清。
+ * 视觉时长**按分句字数加权**，不是「所有分句一律 2 秒」—— 见 `visualSeconds()`。
  */
 const SPEECH_CHARS_PER_SEC = 4.5;
-const VISUAL_SECONDS_PER_CLAUSE = 2;
+
+/**
+ * 一个视觉分句在屏幕上要占多久。
+ *
+ * **旧模型是「分句数 × 2 秒」，这一版改成按字数加权。** 为什么必须改：
+ * 结构骨架里大量使用短促断句制造节奏 ——
+ * 「拐角。两米。X 与 Y 同时抬枪开火」被算成 3 个分句 = **6 秒**，
+ * 而其中「拐角。」「两米。」各只有两个字，是**顿挫**，不是两秒的画面。
+ * 于是所有本该是快切（声明 4 秒）的接触镜被误判成 6–8 秒、被 `fitDuration`
+ * 顶到 8 秒 —— **整条节奏曲线因此倒挂**（climax 7.92s > establish 7.49s）。
+ *
+ * 真实剪辑里，一个分句的停留时间与它的信息量相关：
+ *   2–3 字 ≈ 0.8s（顿挫 / 强调）
+ *   5 字   ≈ 1.1s
+ *   12 字  ≈ 1.7s（一个完整动作）
+ *   22 字  ≈ 2.6s（铺陈描述）
+ *   30 字以上 ≈ 3.0s（封顶；再长就该拆成两个镜头）
+ *
+ * 统计字数时剔除 `【代号】` —— 那是**角色标识**，模型在紧邻的姓名里已经拿到，
+ * 不该为它预留屏幕时间（否则「【CROSSBOW】T-34/85 中型坦克…」会凭空多出 0.6 秒）。
+ */
+const CLAUSE_SEC_BASE = 0.6;
+const CLAUSE_SEC_PER_CHAR = 0.09;
+const CLAUSE_SEC_MIN = 0.8;
+const CLAUSE_SEC_MAX = 3.0;
+
+/** 单个分句的屏幕时长（秒） */
+export function clauseSeconds(clause) {
+  const chars = String(clause ?? '').replace(/【[^】]*】/g, '').replace(/\s/g, '').length;
+  if (chars === 0) return 0;
+  return Math.min(CLAUSE_SEC_MAX, Math.max(CLAUSE_SEC_MIN, CLAUSE_SEC_BASE + chars * CLAUSE_SEC_PER_CHAR));
+}
 
 /** 视觉分句数：按中英文标点切分，非空段计数（含对白文本） */
 export function clauseCount(text) {
   return String(text ?? '').split(/[，。；——！？、,;]/).filter(x => x.trim()).length;
+}
+
+/** 一组分句的总屏幕时长（秒） */
+export function visualSeconds(text) {
+  return String(text ?? '')
+    .split(/[，。；——！？、,;]/)
+    .filter(x => x.trim())
+    .reduce((sum, c) => sum + clauseSeconds(c), 0);
 }
 
 /**
@@ -86,17 +125,44 @@ export function contentSeconds(text) {
   const dialogues = [...t.matchAll(/「([^」]*)」/g)]
     .map(m => m[1].replace(/^【无线电】/, '').replace(/\s/g, ''));
   const speech = dialogues.reduce((s, d) => s + d.length, 0) / SPEECH_CHARS_PER_SEC;
-  const visual = clauseCount(t.replace(/「[^」]*」/g, '')) * VISUAL_SECONDS_PER_CLAUSE;
+  const visual = visualSeconds(t.replace(/「[^」]*」/g, ''));
   return { visual, speech, total: Math.max(visual, speech) };
 }
 
-/** 该内容最少需要多长；再与骨架时长取大，最后落到模型支持的档位 */
+/**
+ * 档位可以比内容需要**短**多少，才仍然接受它（而不是升到下一档）。
+ *
+ * 没有这个容差时，`fitDuration` 会对 **1.2% 的内容超出**做出
+ * **4s → 6s（+50%）** 的跳跃响应 —— 幅度与原因严重不成比例。
+ *
+ * 两边的代价是不对称的，必须分清：
+ *   **档位比内容长** —— 模型在末尾多出 1–2 秒没有指令可执行，
+ *                       只能自己编画面。快切镜被这样处理，节奏当场垮掉。
+ *   **档位比内容短** —— 模型把动作压缩着演完，快切镜本来就该紧。
+ *
+ * 所以对「内容略微装不下」应当**留在原档**，而不是升档。
+ * 15% 容差下各档的接受上限：
+ *   4s 档接受 ≤4.71s   6s 档接受 ≤7.06s   8s 档接受 ≤9.41s
+ * 反过来说，内容超出声明 50%（4s 镜要 6s 才装得下）时仍然会老老实实升档 ——
+ * 容差只吸收模型误差量级的偏差，不掩盖「这一镜的内容真的放错了节奏位」。
+ */
+export const FIT_TOLERANCE = 0.15;
+
+/**
+ * 该内容最少需要多长；再与骨架时长取大，最后落到模型支持的档位。
+ *
+ * `preferred` 缺省时回落到 **6 秒（常规镜）而不是 8 秒**。
+ * 旧代码写的是 `Number(preferred) || 8` —— 8 是最长的档位，一旦节拍没声明时长，
+ * 整片就会被静默推成「全是长镜」。默认值应当是中位数，不是最大值。
+ */
 export function fitDuration(text, preferred, supported) {
   const need = contentSeconds(text).total;
-  const want = Math.max(Number(preferred) || 8, need);
+  const pref = Number(preferred);
+  const want = Math.max(Number.isFinite(pref) && pref > 0 ? pref : 6, need);
   const list = Array.isArray(supported) ? supported.filter(d => Number.isFinite(d)) : [];
   if (list.length === 0) return Math.ceil(want);
-  const up = list.filter(d => d >= want).sort((a, b) => a - b)[0];
+  // 「最小的、且不比内容需要短超过 15% 的档位」——见 FIT_TOLERANCE。
+  const up = list.filter(d => d >= want * (1 - FIT_TOLERANCE)).sort((a, b) => a - b)[0];
   return up !== undefined ? up : Math.max(...list);
 }
 
@@ -437,7 +503,10 @@ export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverrid
       // 主体取向（hero / squad / vehicle / clash / enemy）：首帧生图要据此给站位描述，
       // 此前它只活在 planner 的局部变量里，落库的镜头对象上查不到。
       focus: focus || null,
-      duration: fitDuration(actionText, beat.duration, profile?.durations),
+      // **节拍没声明时长时按戏剧功能兜底，不要默认 8 秒。**
+      // 原型（story.js 的 SLOTS）里的节拍全都不写 duration，旧代码 `Number(undefined) || 8`
+      // 于是把声明 4 秒的快切（contact / clash / cost）静默升格成长镜 —— 节奏曲线倒挂的根因。
+      duration: fitDuration(actionText, beat.duration ?? FUNCTION_DURATION[beat.fn], profile?.durations),
       subjects,
       environment: env?.id,
       camera: cameraId,
