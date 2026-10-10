@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGO War Universe · 6.7.4 节奏验收</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c222b; --line:#272e38;
+    --fg:#e8ecf1; --muted:#98a3b2; --dim:#6f7a89;
+    --bad:#ff5f5f; --good:#35d07f; --accent:#ffb454; --link:#5eb1ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:29px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0;font-size:14px}
+  .note{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--accent);
+    background:#1a1710;color:#e8dfd0;border-radius:0 8px 8px 0;font-size:13.5px}
+  .warn{margin:18px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f0d8d8;border-radius:0 8px 8px 0;font-size:13.5px}
+  h2{margin:46px 0 14px;font-size:20px;border-left:3px solid var(--accent);padding-left:12px}
+  h3{margin:26px 0 10px;font-size:15.5px;color:#cfd7e2}
+  p{margin:0 0 12px}
+  code{background:#0b0e12;padding:1px 6px;border-radius:4px;color:var(--accent);font-size:12.5px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{margin:0 0 8px;font-size:14px;color:var(--good)}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 6px}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .box__hd{padding:9px 14px;font-size:12.5px;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  .box--bad .box__hd{background:#1d1618;color:var(--bad);border-color:#5c2b2b}
+  .box--good .box__hd{background:#131e18;color:var(--good);border-color:#264d38}
+  .box__bd{padding:14px}
+  pre{margin:0;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
+    line-height:1.75;white-space:pre-wrap;color:#cfd7e2}
+  .del{color:var(--bad)} .ins{color:var(--good)} .dimtxt{color:var(--dim)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;
+    background:var(--panel);position:sticky;top:0}
+  td code{font-size:12px}
+  .ok{color:var(--good)} .no{color:var(--bad)} .blank{color:var(--dim)}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;font-size:13px}
+  .node{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 13px}
+  .node--dead{border-color:#5c2b2b;background:#1d1618;color:var(--bad)}
+  .node--live{border-color:#264d38;background:#131e18;color:var(--good)}
+  .arrow{color:var(--dim)}
+  .script{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px;margin:14px 0}
+  .script h4{margin:0 0 4px;font-size:14.5px;color:var(--fg)}
+  .script .meta{color:var(--dim);font-size:12.5px;margin:0 0 12px}
+  .script .meta b{color:var(--good);font-weight:600}
+  .script ol{margin:0;padding-left:0;list-style:none}
+  .script li{padding:7px 0;border-bottom:1px dashed #222831;font-size:13px;color:#cfd7e2}
+  .script li:last-child{border-bottom:none}
+  .fn{display:inline-block;min-width:76px;color:var(--accent);font-family:"Cascadia Mono",Consolas,monospace;font-size:11.5px}
+  .bar{display:inline-block;height:9px;border-radius:3px;background:var(--accent);vertical-align:middle;margin-right:8px}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px}
+  @media(max-width:880px){.pair{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <p class="kicker">LEGO War Universe · v6.7.4</p>
+    <h1>节奏：让节拍正文配得上它的戏剧节奏</h1>
+    <p class="sub">用户诉求：「内容方面还是需要优化，还是不够完美，请继续在脚本内容上下功夫，让这些脚本生成的视频内容更加完美。」→「继续按你的建议优化。」</p>
+    <p class="note">上一轮我在报告里<b>自己写下了这条残余风险</b>：「节奏仍然轻微倒挂 —— climax <b>7.92s</b> &gt; build 7.56s &gt; establish 7.49s &gt; resolve <b>6.79s</b>。本轮<b>选择不去靠删内容来追这个数字</b>，下一轮应从 <code>narrative.js</code> 的结构节拍时长分配入手。」这一轮就是去还这笔债 —— <b>而且全程没有靠删内容</b>。资产 810 项<b>零改动</b>，构建签名 <code>2a778c168cbc</code> <b>不变</b>，测试 246 → <b>253</b>。</p>
+  </header>
+
+  <h2>一、根因：三个各自看起来都在工作的实现叠在一起</h2>
+  <div class="cards">
+    <div class="card">
+      <h4>① <code>Number(beat.duration) || 8</code></h4>
+      <p>原型（<code>story.js</code> 的 <code>SLOTS</code>）里的节拍<b>全都不写 duration</b>，于是<b>每一条都默认 8 秒</b>。声明 4 秒的快切（<code>contact</code> / <code>clash</code> / <code>cost</code>）被静默升格成长镜。</p>
+    </div>
+    <div class="card">
+      <h4>② 分句时长一律 2 秒</h4>
+      <p>「拐角。两米。」（3+2 字，纯顿挫）被算成 <b>4 秒</b>。于是<b>任何快切都装不下</b> —— 连最典型的接触镜都要 6 秒。</p>
+    </div>
+    <div class="card">
+      <h4>③ <code>fitDuration</code> 取 <code>max(声明, 内容)</code></h4>
+      <p>内容一超，<b>声明就被静默顶掉</b>。前两条产生错位，这一条把错位焊死。</p>
+    </div>
+    <div class="card">
+      <h4>④ 为什么三轮都没发现</h4>
+      <p>前几轮的诊断都在读 <code>action</code>（中文叙事正文）。<b>正文本身是好的</b> —— 每一句都通顺、都有画面。只有把「正文需要的秒数」与「这一镜声明的秒数」并排放到同一张表里，错位才显形。</p>
+    </div>
+  </div>
+
+  <h2>二、修复：让语法表成为兜底，而不是散落在每条节拍上</h2>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">修复前 · <code>planner.js</code></div>
+      <div class="box__bd"><pre><span class="del">const VISUAL_SECONDS_PER_CLAUSE = 2;   // 一律 2 秒/分句</span>
+
+<span class="del">// 原型节拍不写 duration → Number(undefined) || 8
+// → 每一条原型节拍的下限都是 8 秒</span>
+duration: fitDuration(
+  actionText,
+  beat.duration,
+  profile?.durations
+)
+
+<span class="del">// 4.05s 的内容 → 4s 档装不下 → 直接跳 6s（+50%）</span></pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">修复后 · <code>planner.js</code></div>
+      <div class="box__bd"><pre><span class="ins">// 按字数加权，钳在 0.8–3.0s，并剔除【代号】</span>
+<span class="ins">const CLAUSE_SEC_BASE = 0.6, CLAUSE_SEC_PER_CHAR = 0.09;
+const CLAUSE_SEC_MIN = 0.8,  CLAUSE_SEC_MAX = 3.0;</span>
+export function clauseSeconds(clause) {
+  const chars = String(clause ?? '')
+    .replace(/【[^】]*】/g, '').replace(/\s/g, '').length;
+  if (chars === 0) return 0;
+  return Math.min(CLAUSE_SEC_MAX,
+    Math.max(CLAUSE_SEC_MIN,
+      CLAUSE_SEC_BASE + chars * CLAUSE_SEC_PER_CHAR));
+}
+
+<span class="ins">// 节拍自己声明优先，否则回落到戏剧功能的语法时长
+// 默认档 8 → 6：默认值应当是中位数，不是最大值
+// 15% 容差：1.2% 的超出不该触发 +50% 的跳跃</span>
+duration: fitDuration(
+  actionText,
+  beat.duration ?? FUNCTION_DURATION[beat.fn],
+  profile?.durations
+)</pre></div>
+    </div>
+  </div>
+
+  <h3>分句时长：从「一律 2 秒」到「按信息量加权」</h3>
+  <table>
+    <thead><tr><th>字数</th><th>旧模型</th><th>新模型</th><th>说明</th></tr></thead>
+    <tbody>
+      <tr><td>2–3 字</td><td class="no">2.0s</td><td class="ok"><b>0.8s</b></td><td>顿挫 / 强调，不是两秒的画面</td></tr>
+      <tr><td>5 字</td><td class="no">2.0s</td><td class="ok">1.1s</td><td></td></tr>
+      <tr><td>12 字</td><td class="no">2.0s</td><td class="ok">1.7s</td><td>一个完整动作</td></tr>
+      <tr><td>22 字</td><td class="no">2.0s</td><td class="ok">2.6s</td><td>铺陈描述</td></tr>
+      <tr><td>30 字以上</td><td class="no">2.0s × 分句数</td><td class="ok">3.0s（封顶）</td><td>再长就该拆成两个镜头</td></tr>
+    </tbody>
+  </table>
+  <p>统计字数时<b>剔除 <code>【代号】</code></b> —— 那是角色标识，模型在紧邻的姓名里已经拿到，不该为它预留屏幕时间（否则「<code>【CROSSBOW】T-34/85 中型坦克…</code>」会凭空多出 0.6 秒）。</p>
+
+  <h2>三、时长模型修好后，内容本身的超长才第一次显形</h2>
+  <p>逐条扫描 247 条节拍（共享 <code>BEATS</code> 39 条 + 16 个原型 208 条），按戏剧功能列出超长分布 —— <code>clash</code> <b>18/18 全部超长</b>、<code>contact</code> <b>17/17 全部超长</b>，快切这一档整体失效：</p>
+  <div class="box box--bad">
+    <div class="box__hd">修复前 · 节拍内容量扫描</div>
+    <div class="box__bd"><pre>节拍总数 247 · 超出功能时长 <span class="del">104</span>
+  escalate    31/41  平均超出 0.65s  声明 6s
+  clash       <span class="del">18/18</span>  平均超出 2.27s  声明 4s
+  reaction    17/18  平均超出 1.93s  声明 4s
+  contact     <span class="del">17/17</span>  平均超出 1.89s  声明 4s
+  cost        10/19  平均超出 0.88s  声明 4s
+  plan         5/17  平均超出 0.93s  声明 6s
+  close        4/19  平均超出 0.49s  声明 6s
+  observe      2/ 4  平均超出 0.28s  声明 6s</pre></div>
+  </div>
+
+  <h3>逐条改写 104 处正文：删掉的是「同一件事的第二次陈述」</h3>
+  <table>
+    <thead><tr><th>节拍</th><th>改前</th><th>改后</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>counter-uas/clash</code></td>
+        <td class="no">…在{place}上空绞在一起交战，近程火力在几百米内织成一堵墙，被打碎的机骸像雨一样落在阵地上。</td>
+        <td class="ok">…在{place}上空绞在一起交战。</td>
+      </tr>
+      <tr>
+        <td><code>beach-landing/reaction</code></td>
+        <td class="no">浪退下去，沙上留下一排排脚印和别的东西。{heroCallsign}跪在湿沙里用手撑着地，好一会儿才站起来。</td>
+        <td class="ok">浪退下去，{heroCallsign}跪在湿沙里撑着地。</td>
+      </tr>
+      <tr>
+        <td><code>armor-clash/escalate</code></td>
+        <td class="no">{vehicle}推倒半堵矮墙冲进开阔地，{heroCallsign}在颠簸中完成装填，炮口转向对面的第一辆。</td>
+        <td class="ok">{vehicle}推倒半堵矮墙冲进开阔地，{heroCallsign}在颠簸中完成装填。</td>
+      </tr>
+    </tbody>
+  </table>
+  <p class="note"><b>这不是「删内容」</b> —— 被删掉的是<b>同一件事的第二次陈述</b>（「双方交战」在句首的连接词「枪响了，」里已经说过一遍），或<b>视频模型拿不到指令的抽象收束</b>。每一镜保留的都是<b>一个可拍摄的视觉事件</b>。复测：<b>247 条节拍全部落进各自的功能时长</b>。</p>
+
+  <h2>四、精简过程中踩到的既有校验器（记录我自己的错误）</h2>
+  <p>正文精简完成后，8 个既有测试立刻失败，全部指向同一个校验器：<code>shot-spec.js</code> 的 <code>FACTION_CONFLICT_INVALID</code> —— <b>对立阵营同框时动作必须含交战语义</b>（<code>交战|交火|开火|对抗|拦截|伏击|对峙|突袭|压制</code>）。我在删冗余时<b>连交战动词一起删掉了</b>，16 个原型 <code>contact</code> 槽位里有 <b>11 条</b>失去语义：</p>
+  <div class="box box--bad">
+    <div class="box__hd">修复前 · 11 条 contact 槽位丢了交战语义</div>
+    <div class="box__bd"><pre>[counter-uas]      {link}第一波蜂群从低云下面钻出来。
+[swarm-strike]     {link}{enemyCallsign}的防空火力把天空切成一块块。
+[air-superiority]  {link}{enemyCallsign}的双机编队从太阳方向俯冲下来。
+[urban-raid]       {link}门被踹开的瞬间，{enemyCallsign}的枪口已经在走廊尽头。
+[general-combat]   {link}刚越过出发线，{enemyCallsign}的火力就压了过来。</pre></div>
+  </div>
+  <p>12 条重写的原则是<b>把动词加回来、同时守住 4 秒档</b>（<code>contact</code> 是快切，内容上限 4.6s）。因为 <code>contact</code> 就是「首次接触」，动词天然属于这一镜，加回来不是注水：</p>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">加回来 · 有余量时加一个分句</div>
+      <div class="box__bd"><pre>{link}第一波蜂群从低云下面钻出来，<span class="ins">{vocab.counterDrone}同时开火</span>。
+<span class="dimtxt">→ 内容 2.82s → 4.23s（仍在 4 秒档）</span></pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">加回来 · 余量不足时替换而非追加</div>
+      <div class="box__bd"><pre>{enemyCallsign}的武装人群<span class="del">把街角堵死</span>。<span class="dimtxt">（3.96s）</span>
+{enemyCallsign}的武装人群<span class="ins">堵住街角开火</span>。<span class="dimtxt">（4.05s）</span></pre></div>
+    </div>
+  </div>
+  <p>长名词会顶破预算：<code>{vocab.armorRound}</code> 在冷战 / 现代是「<b>尾翼稳定脱壳穿甲弹</b>」，
+  于是删掉冗余的「第一发」——<code>第一发{vocab.armorRound}在…炸开，两车正面交战。</code>
+  → <code>{vocab.armorRound}在…炸开，两车交战。</code>。
+  复测：<b>16/16 条 <code>contact</code> 槽位全部含交战语义</b>，且全部落进 4 秒档。</p>
+
+  <h2>五、自我纠错：<code>reaction</code> 的语法时长从 6s 回到 4s</h2>
+  <div class="box box--bad">
+    <div class="box__hd">上一轮我写下的错误推理（原样保留在代码注释里当反例）</div>
+    <div class="box__bd"><pre>项目里所有 reaction 槽位都是「镜头怼在 {heroCallsign} 的脸上 + 完全静音」，
+按字数算只要 2.6–3.2 秒，但<b>留白恰恰是文字量不出来的</b> —— 4 秒装不下一张脸。
+<span class="del">→ 于是 reaction 从 4s 抬到 6s</span></pre></div>
+  </div>
+  <p><b>这个前提是错的。</b>「镜头怼在脸上」只对 <code>story.js</code> 共享池里的那几条成立，
+  而<b>它们全部不可达</b> —— <code>storySteps()</code> 把 16 个原型池排在共享池前面，
+  而 16 个原型<b>全都自带 <code>reaction</code> 槽位</b>。实测编译产物：</p>
+  <div class="box box--bad">
+    <div class="box__hd">修复前 · 每一条 reaction 镜都空出 3.4 秒没有指令可执行</div>
+    <div class="box__bd"><pre>beatId=res-react-1  语法=6s  编译=6s  内容=<span class="del">2.55s</span>  余=3.45s
+    炮塔里全是硝烟味。【OBSIDIAN】谢尔盖推开舱盖。
+beatId=res-react-2  语法=6s  编译=6s  内容=<span class="del">2.64s</span>  余=3.36s
+    炮塔里全是硝烟味。【TANGO】伊万诺夫推开舱盖。
+
+<span class="dimtxt">模型只能自己编 3.4 秒画面 —— 正是 FIT_TOLERANCE 注释里写的「最严重」那种失败。</span></pre></div>
+  </div>
+  <p><code>reaction</code> 回到 <b>4s</b>：2.6 秒的正文配 4 秒的档，留 1.4 秒呼吸。
+  真正需要长留白的面部特写如果将来要启用，应当<b>在那一条节拍上单独声明时长</b>，
+  而不是把整类 <code>reaction</code> 一起抬长。</p>
+  <p class="note"><b>方法论教训</b>：当一个功能的实际正文池与它的语法时长不符时，
+  <b>先怀疑「谁才是真正被编译的那一池」</b>，不要先怀疑模型。</p>
+
+  <h3>同时修掉一处自相矛盾的 prompt</h3>
+  <p><code>shotTypeFor</code> 无条件把 <code>reaction</code> 映射成「反应镜头面部特写」，
+  但 16 条原型 <code>reaction</code> 槽位的内容是「战后小动作」。首帧生图 prompt 于是稳定地写成：</p>
+  <div class="pair">
+    <div class="box box--bad">
+      <div class="box__hd">修复前 · 首帧构图与正文打架</div>
+      <div class="box__bd"><pre>Framing &amp; Pose: <span class="del">Reaction Close-Up</span>, …
+Action context (Chinese): 炮塔里全是硝烟味</pre></div>
+    </div>
+    <div class="box box--good">
+      <div class="box__hd">修复后 · 对两个池都成立</div>
+      <div class="box__bd"><pre>Framing &amp; Pose: <span class="ins">Post-Battle Reaction
+Medium Close-Up</span>, …
+Action context (Chinese): 炮塔里全是硝烟味</pre></div>
+    </div>
+  </div>
+  <p>让生图模型去拍一张脸，而这一镜要的是推开舱盖的中景 —— <b>首帧构图错了，图生视频会带着这个错误构图走完整镜。</b></p>
+
+  <h2>六、节奏曲线：从倒挂翻正</h2>
+  <table>
+    <thead><tr><th>阶段</th><th>改前</th><th>改后</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>establish 铺陈</td><td class="no">7.49s</td><td class="ok"><b>7.27s</b></td><td><span class="bar" style="width:145px"></span>最慢，开场沉住气</td></tr>
+      <tr><td>build 推进</td><td class="no">7.56s</td><td class="ok">5.78s</td><td><span class="bar" style="width:116px"></span>开始加速</td></tr>
+      <tr><td>climax 高潮</td><td class="no"><b>7.92s</b>（最慢）</td><td class="ok"><b>5.40s</b></td><td><span class="bar" style="width:108px"></span><b>最快</b></td></tr>
+      <tr><td>resolve 结局</td><td class="no">6.79s</td><td class="ok">5.41s</td><td><span class="bar" style="width:108px"></span>重新慢下来</td></tr>
+    </tbody>
+  </table>
+  <p class="sub">样本：4 个时代 × 26 个题材 × 3 种镜数 = <b>4056 个镜头</b>。</p>
+
+  <h3>通读校验：一部 12 镜影片的实际节奏</h3>
+  <div class="script">
+    <h4>《库尔斯克坦克对决》</h4>
+    <p class="meta">总时长 <b>74s</b> · 平均 <b>6.17s</b> · 阶段 establish 7.33 / build 6.00 / climax 5.33 / resolve 6.00</p>
+    <ol>
+      <li><span class="fn">goal 8s</span>「两小时之内挡住敌方装甲集群，否则防线会被撕开。」</li>
+      <li><span class="fn">character 6s</span>把一张被汗浸皱的照片塞回胸袋：「两小时，够吗？」</li>
+      <li><span class="fn">world 8s</span>镜头缓缓升起，村庄的矮墙后在尘雾里铺开成一片没有尽头的灰色。</li>
+      <li><span class="fn">plan 6s</span>「把坦克藏在村子的矮墙后面，等他们进开阔地再打。」</li>
+      <li><span class="fn">contact <b>4s</b></span><b>手按住地图，穿甲弹在伊万诺夫的炮塔边上炸开，两车交战。</b> ← 首次接触</li>
+      <li><span class="fn">reveal 8s</span>烟尘散开，看清了：不是几辆，是整条公路上的纵队。</li>
+      <li><span class="fn">escalate 6s</span>T-34/85 推倒半堵矮墙冲进开阔地，在颠簸中完成装填。</li>
+      <li><span class="fn">clash <b>4s</b></span><b>弹着点变密，两车在不到两百米处互相开火交战。</b> ← 正面对轰</li>
+      <li><span class="fn">decision 6s</span>退回村子能活，但桥会被他们拿走。「守住这个路口。」</li>
+      <li><span class="fn">aftermath 6s</span>公路安静了，只剩下燃烧的钢铁。</li>
+      <li><span class="fn">reaction 6s</span>炮塔里全是硝烟味。伊万诺夫推开舱盖。</li>
+      <li><span class="fn">close 6s</span>T-34/85 缓缓驶过烧毁的敌车，没有看它们，只是看着前方的路口。</li>
+    </ol>
+  </div>
+  <p><b>两次 4 秒快切正好落在全片最该快切的两个位置</b> —— 第 5 镜的首次接触与第 8 镜的正面对轰。</p>
+
+  <h2>七、验证记录</h2>
+  <table>
+    <thead><tr><th>门禁</th><th>结果</th></tr></thead>
+    <tbody>
+      <tr><td><code>python 02_Assets/validate.py</code></td><td class="ok">OK：<b>810</b> 资产，ID 全局唯一，<code>schemaVersion=3.7</code></td></tr>
+      <tr><td><code>jsonschema</code> 全量校验</td><td class="ok">PASSED</td></tr>
+      <tr><td><code>node scripts/build-assets.mjs</code></td><td class="ok">810 资产，签名 <b><code>2a778c168cbc</code>（与 6.7.3 一致，资产零改动）</b></td></tr>
+      <tr><td><code>node --test tests/*.test.mjs</code></td><td class="ok"><b>253/253</b> 通过（246 → 253）</td></tr>
+      <tr><td><code>node scripts/check-release.mjs</code></td><td class="ok"><code>{"ok":true,"violations":[]}</code></td></tr>
+      <tr><td><code>node scripts/run-blind-test.mjs --verify</code></td><td class="ok">一致性 100% / 可剪辑性 100% / 合规性 100% / 重生成率 96%</td></tr>
+      <tr><td>节拍内容量扫描（247 条节拍）</td><td class="ok">超出功能时长 <b>0</b> <span class="blank">（改前 104）</span></td></tr>
+      <tr><td>生产真值扫描（<b>4056 镜</b>）</td><td class="ok">被内容<b>真的升档</b> <b>0</b> <span class="blank">（改前 465）</span></td></tr>
+      <tr><td>4 秒快切档使用率</td><td class="ok"><b>28.2%</b> <span class="blank">（改前 <b>0%</b>）</span></td></tr>
+      <tr><td><code>contact</code> 槽位交战语义</td><td class="ok"><b>16/16</b> <span class="blank">（改前 11 条缺失）</span></td></tr>
+      <tr><td>时长档位分布</td><td>4s <b>28.2%</b> / 6s 42.7% / 8s 29.1%</td></tr>
+      <tr><td><code>node --check</code></td><td class="ok">全部通过</td></tr>
+    </tbody>
+  </table>
+
+  <h2>八、新增测试（+6）</h2>
+  <p><code>tests/pacing.test.mjs</code> —— 断言全部基于<b>真实编译产物</b>（<code>planFilm</code> 的输出），不是内部字段：</p>
+  <div class="cards">
+    <div class="card"><h4>① 语法表完整合法</h4><p><code>FUNCTION_DURATION</code> 必须覆盖所有用到的戏剧功能，且只落在模型支持的档位 <code>[4,6,8]</code> 上。</p></div>
+    <div class="card"><h4>② 覆盖必须逐条登记</h4><p><code>BEATS</code> 里对语法表的覆盖必须与 <code>JUSTIFIED_OVERRIDES</code> 完全一致（含「陈旧条目要删掉」）。</p></div>
+    <div class="card"><h4>③ 回归靶心</h4><p><b>没有任何镜头的内容把它的声明时长顶到更高一档</b>（样本 &gt; 500 镜）。</p></div>
+    <div class="card"><h4>④ 容差不能掩盖错位</h4><p>内容超出声明时只能落在容差带内，超出即失败。</p></div>
+    <div class="card"><h4>⑤ 曲线必须有起伏</h4><p>铺陈最慢、高潮最快、落差 ≥ 1.0s。</p></div>
+    <div class="card"><h4>⑥ 快切不许空转</h4><p>4 秒档必须真的被用到（≥ 10%），且正文至少占满一半时长。</p></div>
+  </div>
+  <p>另把 <code>tests/visual-language.test.mjs</code> 的时长断言从「内容 ≤ 时长」放宽到「内容 ≤ 时长 ×(1+容差)」，并<b>把这条设计变更的理由写进了测试注释</b>；同时把「不得超过模型单镜上限」拆成独立一条硬约束（<code>8s ×(1+容差)</code>）。</p>
+
+  <h2>九、残余风险（如实记录）</h2>
+  <ol>
+    <li><b><code>climax</code> 与 <code>resolve</code> 只差 0.01s</b>（5.40 vs 5.41）。形状是对的（铺陈最慢 → 加速 → 高潮最快 → 结尾回落），但「回落」这一笔目前只靠 <code>aftermath</code> / <code>close</code> 两个 6–8 秒档撑住。若要更明显的呼吸感，下一轮可考虑给 <code>resolve</code> 增加一个 8 秒档节拍，而不是继续拉长正文。</li>
+    <li><b><code>observe</code> / <code>plan</code> 类节拍仍有 0.27–0.44s 的轻微超出</b>，落在 15% 容差带内。这是有意接受的：再删就要删到语义。但容差不是无限的 —— 一旦某条节拍超出容差，第 3 条测试会立刻失败，不会静默漂移。</li>
+    <li><b><code>contentSeconds</code> 仍然是「字数 → 秒数」的估算</b>，量不出「留白」。第五节说明：当一个功能的实际正文池与它的语法时长不符时，先怀疑「谁才是真正被编译的那一池」，不要先怀疑模型。</li>
+    <li><b>正文精简与语义校验是两套独立约束</b>（第四节）。本轮第二次踩到「改了正文触发隐藏校验器」。建议下一轮给正文改动加一道「改动前后都跑一遍 <code>validateFilmPlan</code>」的前置检查。</li>
+    <li><b><code>.workbuddy-ai/</code> 下的探针脚本不进仓库</b>（<code>probe-promotions.mjs</code> / <code>probe-beats.mjs</code> / <code>probe-air.mjs</code> / <code>read-film.mjs</code> / <code>patch-beat-lengths.mjs</code>）。它们承担了本轮<b>全部</b>的诊断，但仓库里只留下结论。代价是<b>诊断过程不可复现</b>，只有结论可回归。</li>
+    <li><b><code>reaction</code> 的共享池（5 条面部特写）仍然是不可达的死代码</b>。本轮没有删它们（它们是第五节那个错误推理的来源），只是把景别标签改成了对两个池都成立的中近景。若要真正启用面部特写，需要让 <code>storySteps()</code> 在「原型池没有合适 <code>reaction</code>」时才回落到共享池，并给那几条<b>单独声明 6s</b>。</li>
+  </ol>
+
+  <footer>
+    LEGO War Universe · v6.7.4 · 节奏 —— 让节拍正文配得上它的戏剧节奏<br>
+    资产 810 项零改动 · 构建签名 <code>2a778c168cbc</code> · 测试 253/253 · 盲测 100/100/100/96%
+  </footer>
+</div>
+</body>
+</html>

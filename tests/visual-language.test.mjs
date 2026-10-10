@@ -24,7 +24,7 @@ import assert from 'node:assert/strict';
 import assets from '../02_Assets/assets.json' with { type: 'json' };
 import profiles from '../02_Assets/model-profiles.json' with { type: 'json' };
 import { createRegistry } from '../src/domain/registry.js';
-import { planFilm, contentSeconds } from '../src/domain/planner.js';
+import { planFilm, contentSeconds, FIT_TOLERANCE } from '../src/domain/planner.js';
 import { buildRoster } from '../src/domain/roster.js';
 import { compileShot } from '../src/domain/compiler.js';
 import { compileKeyframeImage } from '../src/domain/image-compiler.js';
@@ -197,18 +197,40 @@ test('6.7.3 · 调色不得跨战场域乱用（地面专用调色不得落到�
 
 /* ───────────────── D. 时长必须装得下内容 ───────────────── */
 
-test('6.7.3 · 每个镜头的内容量都不得超出它的时长（含模型 8 秒上限）', () => {
+test('6.7.4 · 镜头时长必须装得下内容，但允许模型误差量级的压缩', () => {
   // 旧实现：4 秒镜平均 64 字 / 3.6 个分句，6 秒镜 55 字，8 秒镜 55 字
   // —— 最短的镜头塞了最多的内容。
+  //
+  // 6.7.4 把判定从「内容 ≤ 时长」放宽到「内容 ≤ 时长 ×(1+容差)」，这是**有意的设计变更**，
+  // 原因必须写在这里，否则下一个人会以为这是测试被放松了：
+  //
+  //   严格规则让 `fitDuration` 对 1.2% 的内容超出做出 4s→6s（+50%）的跳跃响应。
+  //   两边的代价不对称：
+  //     档位比内容**长** → 模型在末尾没有指令可执行，只能自己编画面（成片跑偏，最严重）
+  //     档位比内容**短** → 模型把动作压缩着演完（快切镜本来就该紧）
+  //   所以宁可留在原档压缩，也不要为了 0.05 秒升一档。
+  //   容差只吸收模型误差量级的偏差：内容超出 50%（4s 镜要 6s 才装得下）时仍然升档。
+  const cap = (d) => d * (1 + FIT_TOLERANCE) + 0.001;
   for (const theme of THEMES) {
     const p = plan(theme);
     for (const s of p.shots) {
       const need = contentSeconds(s.action).total;
-      assert.ok(need <= s.duration + 0.001,
-        `${theme} / ${s.fn}: 内容需要 ${need.toFixed(1)}s，时长只有 ${s.duration}s —— ${s.action}`);
-      assert.ok(need <= MAX_DURATION + 0.001,
-        `${theme} / ${s.fn}: 内容需要 ${need.toFixed(1)}s，超过模型单镜上限 ${MAX_DURATION}s —— ${s.action}`);
+      assert.ok(need <= cap(s.duration),
+        `${theme} / ${s.fn}: 内容需要 ${need.toFixed(2)}s，时长 ${s.duration}s 的容差上限是 ${cap(s.duration).toFixed(2)}s —— ${s.action}`);
       assert.ok([4, 6, 8].includes(s.duration), `${theme}: 非法时长 ${s.duration}`);
+    }
+  }
+});
+
+test('6.7.4 · 内容量必须在任何题材下都不越过模型单镜上限（含容差）', () => {
+  // 8 秒是模型支持的**最长**档位，fitDuration 到这里就封顶了 ——
+  // 所以内容一旦超过 8s×(1+容差)，就会真的被截断，这是硬约束。
+  const ceiling = MAX_DURATION * (1 + FIT_TOLERANCE) + 0.001;
+  for (const theme of THEMES) {
+    for (const s of plan(theme).shots) {
+      const need = contentSeconds(s.action).total;
+      assert.ok(need <= ceiling,
+        `${theme} / ${s.fn}: 内容需要 ${need.toFixed(2)}s，超过单镜硬上限 ${ceiling.toFixed(2)}s —— ${s.action}`);
     }
   }
 });
