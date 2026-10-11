@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGO War Universe · 6.7.5 画面自洽验收</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c222b; --line:#272e38;
+    --fg:#e8ecf1; --muted:#98a3b2; --dim:#6f7a89;
+    --bad:#ff5f5f; --good:#35d07f; --accent:#ffb454; --link:#5eb1ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:29px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0;font-size:14px}
+  .note{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--accent);
+    background:#1a1710;color:#e8dfd0;border-radius:0 8px 8px 0;font-size:13.5px}
+  .warn{margin:18px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f0d8d8;border-radius:0 8px 8px 0;font-size:13.5px}
+  h2{margin:46px 0 14px;font-size:20px;border-left:3px solid var(--accent);padding-left:12px}
+  h3{margin:26px 0 10px;font-size:15.5px;color:#cfd7e2}
+  p{margin:0 0 12px}
+  code{background:#0b0e12;padding:1px 6px;border-radius:4px;color:var(--accent);font-size:12.5px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{margin:0 0 8px;font-size:14px;color:var(--good)}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 6px}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .box__hd{padding:9px 14px;font-size:12.5px;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  .box--bad .box__hd{background:#1d1618;color:var(--bad);border-color:#5c2b2b}
+  .box--good .box__hd{background:#131e18;color:var(--good);border-color:#264d38}
+  .box__bd{padding:14px}
+  pre{margin:0;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
+    line-height:1.75;white-space:pre-wrap;color:#cfd7e2}
+  .del{color:var(--bad)} .ins{color:var(--good)} .dimtxt{color:var(--dim)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;background:var(--panel)}
+  td code{font-size:12px}
+  .ok{color:var(--good)} .no{color:var(--bad)} .blank{color:var(--dim)}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;font-size:13px}
+  .node{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 13px}
+  .node--dead{border-color:#5c2b2b;background:#1d1618;color:var(--bad)}
+  .node--live{border-color:#264d38;background:#131e18;color:var(--good)}
+  .arrow{color:var(--dim)}
+  .script{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px;margin:14px 0}
+  .script h4{margin:0 0 4px;font-size:14.5px;color:var(--fg)}
+  .script .meta{color:var(--dim);font-size:12.5px;margin:0 0 12px}
+  .script .meta b{color:var(--good);font-weight:600}
+  .script ol{margin:0;padding-left:0;list-style:none}
+  .script li{padding:7px 0;border-bottom:1px dashed #222831;font-size:13px;color:#cfd7e2}
+  .script li:last-child{border-bottom:none}
+  .fn{display:inline-block;min-width:76px;color:var(--accent);font-family:"Cascadia Mono",Consolas,monospace;font-size:11.5px}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px}
+  @media(max-width:880px){.pair{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">LEGO War Universe · 6.7.5 · Acceptance</p>
+  <h1>画面自洽：把 prompt 里的五条指令并排读</h1>
+  <p class="sub">前几轮读的是 <code>action</code> 正文 —— 正文一直通顺。这一轮把
+    <code>Scene</code> / <code>Camera</code> / <code>Lighting</code> /
+    <code>Color grade</code> / <code>Framing</code> 并排放在一起读，
+    于是发现了四条「单看合理、并排打架」的缺陷。</p>
+  <div class="note">
+    用户诉求：「现在这个项目，你觉得生成的视频脚本完美吗？能否达到预期效果？」
+    →「去优化，我想要最完美的效果。」<br>
+    这一轮没有沿用上一轮的结论，而是重新把编译产物逐字读了一遍。
+    四条缺陷里每一条都能通过当时全部 <b>253 项测试</b> ——
+    因为测试检查的是「字段是否合法」，从不检查两条指令之间是否自洽。
+  </div>
+</header>
+
+<h2>1 · 结论先行</h2>
+<div class="cards">
+  <div class="card"><h4>室内场景错配 &nbsp;12/48 → 0</h4>
+    <p>潜艇指挥舱里出现高空俯拍航母编队与开阔海面烈日。根因是 <code>interior</code>
+       被当成并列而非互斥，且 <code>setting</code> 从不参与排序。</p></div>
+  <div class="card"><h4>光质冲突 &nbsp;115 镜 → 0</h4>
+    <p>盛夏正午无云硬光配 <code>cool overcast</code> 阴天冷调。
+       根因是 <code>tod</code> 只有 day/night/dawn/dusk，表达不了光质。</p></div>
+  <div class="card"><h4>首帧姿势矛盾 &nbsp;151/312 → 0</h4>
+    <p>首帧写死 <code>weapon up</code>，而环境空镜、靠着舱壁坐下、探头呼吸海风
+       都被画成举枪站立。首帧是 image-to-video 的输入。</p></div>
+  <div class="card"><h4>机位标注覆盖 &nbsp;10/39 → 39/39</h4>
+    <p>29 个机位没有 <code>setting</code> 标注，走「未标注 = 不限」的放行分支 ——
+       只要不标注，室内场景就会拿到室外机位。</p></div>
+</div>
+
+<h2>2 · 最严重的一条：潜艇舱里的航母编队</h2>
+<p>证据直接来自编译产物。《核潜艇深海猎杀》第 1 镜同时写着三条互相打架的指令：</p>
+
+<div class="box box--bad" style="margin:14px 0">
+  <div class="box__hd">编译产物（修前）· 第 1 镜 · goal · 8s</div>
+  <div class="box__bd"><pre><span class="del">Scene:</span>    nuclear submarine control room, cramped compartment packed with dials,
+          periscope pedestal and a dive control panel, red battle lighting
+<span class="del">Camera:</span>   high aerial of a naval task force in formation, carrier at the centre
+          with escorts in a screen around it, long white wakes behind each hull
+<span class="del">Lighting:</span> hard direct sunlight over open sea, blinding specular glints scattered
+          off the swell, harsh white on painted steel</pre></div>
+</div>
+
+<p><b>一间潜艇指挥舱，配了高空俯拍航母编队 + 开阔海面烈日。</b>
+根因有三层，每一层单独看都「在工作」：</p>
+
+<div class="flow">
+  <span class="node node--live">① settingsOf 判定正确</span>
+  <span class="arrow">→</span>
+  <span class="node node--dead">② settingOk「相交即放行」</span>
+  <span class="arrow">→</span>
+  <span class="node node--dead">③ setting 从不参与排序</span>
+</div>
+
+<table>
+  <tr><th style="width:64px">层</th><th>发生了什么</th></tr>
+  <tr><td>①</td><td>场景判定其实是对的 —— <code>settingsOf()</code> 收到的是
+    <code>name + nameZh + kw</code>，中文名「核潜艇控制舱」命中 <code>interior</code> 规则，
+    返回 <code>['interior','water']</code>。</td></tr>
+  <tr><td>②</td><td>旧实现是 <code>settings.some(s =&gt; asset.setting.includes(s))</code> ——
+    场景 <code>['interior','water']</code> 与 <code>CAM-905</code> 的 <code>['water']</code>
+    <b>相交即放行</b>。但 <code>interior</code> 与室外类型是<b>互斥</b>不是并列：
+    一间舱室不可能同时是开阔海面。</td></tr>
+  <tr><td>③</td><td><code>setting</code> 只用于 <code>filter</code>，不进 <code>sort</code> ——
+    「通过过滤的」与「为该场景设计的」同分，胜负由哈希决定。
+    潜艇舱里能用的 <code>LGT-902 潜艇红色战斗照明</code> 与通用
+    <code>LGT-004 暴风雨光照</code> 打平。</td></tr>
+</table>
+
+<h3>修复对照</h3>
+<div class="pair">
+  <div class="box box--bad"><div class="box__hd">修前 · 25% 错配</div>
+    <div class="box__bd"><pre><span class="del">Scene:</span>    nuclear submarine control room
+<span class="del">Camera:</span>   high aerial of a naval task force
+<span class="del">Lighting:</span> hard direct sunlight over open sea
+<span class="del">Color:</span>    desaturated bleach-bypass</pre></div></div>
+  <div class="box box--good"><div class="box__hd">修后 · 0 错配</div>
+    <div class="box__bd"><pre><span class="ins">Scene:</span>    nuclear submarine control room
+<span class="ins">Camera:</span>   submarine periscope view, circular masked field
+<span class="ins">Lighting:</span> submarine red battle lighting, saturated red
+<span class="ins">Color:</span>    desaturated bleach-bypass</pre></div></div>
+</div>
+
+<p><b>四条修法：</b>① <code>settingOk()</code> 改成两档（场景含 <code>interior</code> 时资产必须
+显式支持 <code>interior</code>）；② 新增 <code>settingTier()</code> 接入机位/光照/调色三处<b>排序</b>；
+③ <b>39 个机位全部补齐 <code>setting</code> 权威标注</b>；④ 修正 7 盏舱内灯的 <code>tod</code>
+（潜艇在水下航行时指挥舱永远是红色战斗照明，与外界昼夜无关 —— 标成 <code>night</code>
+会让它在 tod 过滤第一层就被淘汰）。</p>
+
+<h2>3 · 光质：D-Day 的阴天海滩被拍成了烈日海滩</h2>
+<p>诺曼底海滩的环境正文里<b>明明白白写着</b>
+<code>overcast sky, sea foam, smoke, gritty cinematic atmosphere</code>，
+但光照选择器完全不看这个线索 —— 只因为 <code>LGT-015 开阔海面强光</code> 的
+<code>domain</code> 是 <code>['naval']</code>（比通用阴天灯更「具体」）就选中了它。</p>
+
+<div class="pair">
+  <div class="box box--bad"><div class="box__hd">修前 · 自相矛盾</div>
+    <div class="box__bd"><pre><span class="del">Lighting:</span>    hard direct sunlight over open sea
+               no cloud cover
+<span class="del">Color grade:</span> cool overcast, muted palette,
+               soft contrast</pre></div></div>
+  <div class="box box--good"><div class="box__hd">修后 · 自洽</div>
+    <div class="box__bd"><pre><span class="ins">Lighting:</span>    flat overcast daylight, soft
+               shadowless diffusion
+<span class="ins">Color grade:</span> cool overcast, muted palette,
+               soft contrast</pre></div></div>
+</div>
+
+<h3>排序从字典序改成加权求和</h3>
+<p>字典序会让维度互相「吃掉」：先比域、同域再比光质，光质就把<b>题材点名</b>
+（<code>kw</code>，如「诺曼底」「城市」）挤到了最后。改成加权求和：</p>
+<table>
+  <tr><th>维度</th><th style="width:120px">权重</th><th>理由</th></tr>
+  <tr><td>战场域</td><td><code>× 100</code></td><td>物理事实，错了最刺眼（轨道片配地面调色）</td></tr>
+  <tr><td>光质</td><td><code>+20 / 0 / −150</code></td>
+    <td>匹配加分、一方不挑光质不计、<b>冲突重罚到能压过「域」</b> ——
+        某个域可能只有一两个调色候选，域分会把唯一候选顶上来，
+        哪怕它的光质正好相反。<b>宁可退到不挑光质的通用调色，也不能自相矛盾。</b></td></tr>
+  <tr><td>题材点名</td><td><code>× 10</code></td><td>身份（「诺曼底」就该是《拯救大兵瑞恩》）</td></tr>
+  <tr><td>场景</td><td><code>× 2</code></td><td>末位区分</td></tr>
+</table>
+
+<p><b>另外两处：</b>次要灯必须与主灯<b>同光质</b>（旧代码只校验时段，导致北非沙漠的成片里
+主灯是「沙漠正午」而 character / plan 这些私密镜换成了「暴风雨光线」）；
+空战题材有个结构性死结 —— 40 盏灯里<b>没有一盏的 <code>domain</code> 含 <code>air</code></b>，
+6 盏晴天灯全在 ground/naval/orbital，而唯一的 air 域调色《壮志凌云》是 sunny。</p>
+
+<h2>4 · 首帧：姿势错了，整镜都会跟着错</h2>
+<p>首帧是 image-to-video 的输入 —— <b>姿势错了，Veo 会带着这个错姿势走完整镜</b>
+（「靠着舱壁坐下」如果首帧是举枪站立，模型会先让人站起来再坐下，或者干脆一直站着）。
+而 312 张首帧里 <b>196 张</b>写了 <code>weapon up</code>，其中 <b>151 张</b>的正文
+完全没有武器语义。</p>
+
+<table>
+  <tr><th>戏剧功能</th><th>正文</th><th style="width:150px">修前姿势</th><th style="width:190px">修后姿势</th></tr>
+  <tr><td><code>world</code></td><td>镜头缓缓升起，村庄的矮墙后在尘雾里铺开</td>
+    <td class="no">weapon up</td><td class="ok">weapon lowered, neutral stance</td></tr>
+  <tr><td><code>reaction</code></td><td>舱内灯一盏盏亮起来，米勒靠着舱壁坐下</td>
+    <td class="no">weapon up</td><td class="ok">seated or braced against a surface</td></tr>
+  <tr><td><code>close</code></td><td>指挥塔舱盖掀开，沃克探出头，第一次呼吸到海风</td>
+    <td class="no">weapon up</td><td class="ok">weapon lowered at their side</td></tr>
+  <tr><td><code>decision</code></td><td>佩德罗把手按在放飞铃上</td>
+    <td class="no">weapon up</td><td class="ok">hands working at a map or control</td></tr>
+</table>
+
+<p>新增 <code>poseFor()</code> 按<b>正文</b>分四档：静姿（跪/坐/靠/趴/蹲）→
+位移（撤离/穿过/奔跑）→ 持械（枪/射击/瞄准/弹匣）→ 手部操作（按在/画出/指着/摊开）→
+中性站姿。关键细节：<code>ARMED_HINT</code> <b>只收「主体手上拿着什么」的词，
+不收战场环境描述</b> —— 「迎着<b>火力</b>把舰载机放出去」「正面<b>压制</b>」形容的是战场
+不是这个人的手，把它们算进持械会让航母舰桥上的舰长也被画成举枪站立
+（这正是第一版修完还剩 9 例的原因）。</p>
+
+<h2>5 · 本轮我自己引入并修掉的缺陷</h2>
+<div class="warn">
+  <b><code>rain</code> 命中了 <code>terrain</code>。</b>
+  <code>skyOfText()</code> 第一版写的是裸 <code>rain</code>，而<b>每一个环境资产的第一行</b>都是
+  <code>brick-built LEGO set at minifigure scale: terrain, buildings and props…</code> ——
+  于是 <b>26 个题材全部被判成阴天</b>，库尔斯克草原的烈日也变成了阴天。<br><br>
+  加了词边界（<code>\brain\b</code>）之后，第二个误判又露出来：费卢杰的正文是
+  <code>harsh desert sun, dust haze</code> —— <b>烈日 + 悬浮沙尘</b>，是晴天。
+  把 <code>haze</code> 当阴天会让伊拉克城市战整片变成阴天，而《黑鹰坠落》的
+  <code>warm dusty, golden-tan cast</code> 恰恰就是这种暖沙尘。<br><br>
+  最终判定顺序改为「<b>明确的硬光词最优先</b> → 阴天 → 晴天」，并在测试里加了一条
+  专门的断言（「sky 判定不得被 terrain 之类的子串骗到」）锁住这个具体事实。
+</div>
+
+<h2>6 · 验证记录</h2>
+<table>
+  <tr><th>门禁</th><th>结果</th></tr>
+  <tr><td><code>python 02_Assets/validate.py</code></td>
+    <td class="ok">OK：810 资产，schemaVersion=3.7，jsonschema PASSED</td></tr>
+  <tr><td><code>node scripts/build-assets.mjs</code></td>
+    <td>810 资产，签名 <code>2a778c168cbc</code> → <b class="ok">e1515357a93c</b></td></tr>
+  <tr><td><code>node --test tests/*.test.mjs</code></td>
+    <td class="ok">259 / 259</td></tr>
+  <tr><td><code>node scripts/check-release.mjs</code></td>
+    <td class="ok"><code>{"ok":true,"violations":[]}</code></td></tr>
+  <tr><td><code>node scripts/run-blind-test.mjs --verify</code></td>
+    <td class="ok">一致性 100% / 可剪辑性 100% / 合规性 100% / 重生成率 96%</td></tr>
+  <tr><td>节奏回归（4056 镜扫描）</td>
+    <td class="ok">被内容真的升档仍为 0；4s 档仍 28.2%；曲线仍 climax 最快</td></tr>
+</table>
+
+<table>
+  <tr><th>指标</th><th style="width:180px">修前</th><th style="width:150px">修后</th></tr>
+  <tr><td>室内 Scene 配室外机位/光照</td><td class="no">12 / 48 镜（25%）</td><td class="ok">0</td></tr>
+  <tr><td>调色与光照光质冲突（组合）</td><td class="no">3 / 25</td><td class="ok">0 / 26</td></tr>
+  <tr><td>调色与光照光质冲突（全镜扫描）</td><td class="no">115 镜</td><td class="ok">0</td></tr>
+  <tr><td>首帧 <code>weapon up</code> 与正文矛盾</td><td class="no">151 / 312 张</td><td class="ok">0</td></tr>
+  <tr><td>首帧 <code>Action context</code> 是连接词</td><td class="no">稳定复现</td><td class="ok">0</td></tr>
+  <tr><td>机位 <code>setting</code> 标注覆盖</td><td class="no">10 / 39</td><td class="ok">39 / 39</td></tr>
+  <tr><td>测试</td><td>253</td><td class="ok">259 / 259</td></tr>
+</table>
+
+<h2>7 · 残余风险</h2>
+<p><b>1. 这些 prompt 仍然一次都没有真正跑过 Veo 3 / Flow。</b>
+本轮的每一条断言都是「prompt 内部自洽」，而不是「模型会拍出这个画面」。
+<code>README.md</code> 自己写着「本地运行采用确定性规则引擎……无需外部 API 依赖」——
+全部 259 项测试、810 项资产、盲测 100/100/100/96%，验证的都是<b>自我一致性</b>。
+要把「自洽」升级成「有效」，唯一的办法是拿几条编译产物真去生成、把结果喂回来做对照。
+<b>这是本项目当前最大的未知，且它无法靠继续增加静态断言来消除。</b></p>
+
+<p><b>2.</b> <code>skyOfText()</code> / <code>settingsOf()</code> 仍是正则判定 ——
+这个项目已经<b>第四次</b>被关键词骗。资产字段 <code>setting</code> / <code>sky</code>
+现在有了权威标注，但<b>环境资产的 <code>setting</code> 仍然是推导的</b>（106 个环境没有该字段）。</p>
+
+<p><b>3.</b> 调色的光质冲突靠 <b>−150 重罚</b>退到通用调色 ——
+「伊拉克战争城市清剿」这类题材会因此拿到《兄弟连》而不是更贴切的《黑鹰坠落》
+（当灯光确实是阴天时）。<b>这是有意的取舍：自洽优先于贴切。</b>
+根治办法是扩充调色池（目前只有 5 个），让每个域在每种光质下都有候选。</p>
+
+<p><b>4.</b> 本轮大量改动是<b>数据而非逻辑</b>。若 <code>.workbuddy-ai/</code> 下的
+patch 脚本丢失，<code>assets.json</code> 里的标注将无法从任何地方重建 ——
+这是与前几轮不同的风险：<b>数据改动需要把 patch 脚本本身也视为交付物</b>。</p>
+
+<footer>
+  LEGO War Universe · 6.7.5 画面自洽验收 ·
+  详见 <code>CHANGELOG.md</code>、<code>docs/对抗审查报告-角色与脚本智能.md</code>
+  第十一轮（§86–95）、<code>tests/scene-coherence.test.mjs</code>
+</footer>
+
+</div>
+</body>
+</html>
