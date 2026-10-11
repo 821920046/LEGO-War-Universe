@@ -14145,6 +14145,9 @@
         "goal",
         "world",
         "close"
+      ],
+      "setting": [
+        "open"
       ]
     },
     {
@@ -14164,6 +14167,10 @@
       "fn": [
         "approach",
         "escalate"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14183,6 +14190,9 @@
       "fn": [
         "escalate",
         "clash"
+      ],
+      "setting": [
+        "open"
       ]
     },
     {
@@ -14203,6 +14213,10 @@
         "escalate",
         "clash",
         "cost"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14222,6 +14236,9 @@
       "fn": [
         "contact",
         "clash"
+      ],
+      "setting": [
+        "interior"
       ]
     },
     {
@@ -14241,6 +14258,10 @@
       "fn": [
         "reveal",
         "character"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14259,6 +14280,10 @@
       "fn": [
         "observe",
         "aftermath"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14278,6 +14303,10 @@
         "goal",
         "clash",
         "decision"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14319,6 +14348,10 @@
         "clash",
         "escalate",
         "contact"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14338,6 +14371,10 @@
       "fn": [
         "escalate",
         "clash"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14356,6 +14393,10 @@
       "fn": [
         "observe",
         "enemy"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14374,6 +14415,10 @@
       "fn": [
         "contact",
         "approach"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14392,6 +14437,10 @@
       "fn": [
         "clash",
         "escalate"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14412,6 +14461,9 @@
         "observe",
         "world",
         "aftermath"
+      ],
+      "setting": [
+        "open"
       ]
     },
     {
@@ -14430,6 +14482,9 @@
       "fn": [
         "observe",
         "reveal"
+      ],
+      "setting": [
+        "open"
       ]
     },
     {
@@ -14449,6 +14504,9 @@
       "fn": [
         "clash",
         "reaction"
+      ],
+      "setting": [
+        "open"
       ]
     },
     {
@@ -14468,6 +14526,9 @@
       "fn": [
         "observe",
         "aftermath"
+      ],
+      "setting": [
+        "open"
       ]
     },
     {
@@ -14488,6 +14549,10 @@
         "plan",
         "decision",
         "character"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14508,6 +14573,10 @@
         "observe",
         "enemy",
         "contact"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14528,6 +14597,9 @@
         "reveal",
         "close",
         "goal"
+      ],
+      "setting": [
+        "open"
       ]
     },
     {
@@ -14549,7 +14621,8 @@
         "contact"
       ],
       "setting": [
-        "urban"
+        "interior",
+        "any"
       ]
     },
     {
@@ -14570,6 +14643,10 @@
         "reversal",
         "contact",
         "clash"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14612,6 +14689,10 @@
       "fn": [
         "cost",
         "reaction"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14631,6 +14712,10 @@
       "fn": [
         "approach",
         "escalate"
+      ],
+      "setting": [
+        "open",
+        "urban"
       ]
     },
     {
@@ -14662,6 +14747,9 @@
       "fn": [
         "clash",
         "escalate"
+      ],
+      "setting": [
+        "open"
       ]
     },
     {
@@ -14692,6 +14780,9 @@
       "fn": [
         "observe",
         "enemy"
+      ],
+      "setting": [
+        "open"
       ]
     },
     {
@@ -14723,6 +14814,10 @@
         "character",
         "reaction",
         "cost"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14814,6 +14909,7 @@
         "contact"
       ],
       "setting": [
+        "interior",
         "water"
       ]
     },
@@ -14843,6 +14939,10 @@
       "fn": [
         "clash",
         "escalate"
+      ],
+      "setting": [
+        "interior",
+        "any"
       ]
     },
     {
@@ -14902,6 +15002,9 @@
       "fn": [
         "observe",
         "world"
+      ],
+      "setting": [
+        "open"
       ]
     },
     {
@@ -14960,6 +15063,9 @@
       "fn": [
         "clash",
         "escalate"
+      ],
+      "setting": [
+        "open"
       ]
     },
     {
@@ -15019,6 +15125,7 @@
         "character"
       ],
       "setting": [
+        "interior",
         "orbital"
       ]
     }
@@ -15040,6 +15147,9 @@
       ],
       "setting": [
         "any"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15059,6 +15169,9 @@
       "setting": [
         "desert",
         "open"
+      ],
+      "sky": [
+        "sunny"
       ]
     },
     {
@@ -15077,6 +15190,9 @@
       ],
       "setting": [
         "any"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15094,6 +15210,9 @@
       ],
       "setting": [
         "any"
+      ],
+      "sky": [
+        "overcast"
       ]
     },
     {
@@ -15112,6 +15231,9 @@
       ],
       "setting": [
         "any"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15127,10 +15249,13 @@
         "strategic"
       ],
       "tod": [
-        "night"
+        "any"
       ],
       "setting": [
         "interior"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15142,7 +15267,8 @@
       "nameZh": "指挥中心蓝光",
       "domain": [
         "strategic",
-        "orbital"
+        "orbital",
+        "naval"
       ],
       "tod": [
         "night",
@@ -15150,6 +15276,9 @@
       ],
       "setting": [
         "interior"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15167,6 +15296,9 @@
       ],
       "setting": [
         "any"
+      ],
+      "sky": [
+        "overcast"
       ]
     },
     {
@@ -15184,6 +15316,9 @@
       ],
       "setting": [
         "any"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15200,6 +15335,9 @@
         "night"
       ],
       "setting": [
+        "any"
+      ],
+      "sky": [
         "any"
       ]
     },
@@ -15219,6 +15357,9 @@
       ],
       "setting": [
         "urban"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15235,6 +15376,9 @@
         "night"
       ],
       "setting": [
+        "any"
+      ],
+      "sky": [
         "any"
       ]
     },
@@ -15253,6 +15397,9 @@
       ],
       "setting": [
         "any"
+      ],
+      "sky": [
+        "overcast"
       ]
     },
     {
@@ -15271,6 +15418,9 @@
       ],
       "setting": [
         "any"
+      ],
+      "sky": [
+        "overcast"
       ]
     },
     {
@@ -15289,6 +15439,9 @@
       ],
       "setting": [
         "snow"
+      ],
+      "sky": [
+        "overcast"
       ]
     },
     {
@@ -15307,6 +15460,9 @@
       ],
       "setting": [
         "forest"
+      ],
+      "sky": [
+        "overcast"
       ]
     },
     {
@@ -15324,6 +15480,9 @@
         "night"
       ],
       "setting": [
+        "any"
+      ],
+      "sky": [
         "any"
       ]
     },
@@ -15343,6 +15502,9 @@
       ],
       "setting": [
         "any"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15360,6 +15522,9 @@
         "night"
       ],
       "setting": [
+        "any"
+      ],
+      "sky": [
         "any"
       ]
     },
@@ -15379,6 +15544,9 @@
       ],
       "setting": [
         "any"
+      ],
+      "sky": [
+        "overcast"
       ]
     },
     {
@@ -15397,6 +15565,9 @@
       ],
       "setting": [
         "interior"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15415,6 +15586,9 @@
       ],
       "setting": [
         "water"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15444,6 +15618,9 @@
       ],
       "setting": [
         "any"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15467,7 +15644,8 @@
       ],
       "domain": [
         "strategic",
-        "orbital"
+        "orbital",
+        "naval"
       ],
       "tod": [
         "night",
@@ -15475,6 +15653,9 @@
       ],
       "setting": [
         "interior"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15501,6 +15682,9 @@
       ],
       "setting": [
         "water"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15523,10 +15707,13 @@
         "naval"
       ],
       "tod": [
-        "night"
+        "any"
       ],
       "setting": [
         "interior"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15553,6 +15740,9 @@
       ],
       "setting": [
         "water"
+      ],
+      "sky": [
+        "overcast"
       ]
     },
     {
@@ -15572,13 +15762,17 @@
         "dust suspended in the beams, high contrast against the dark shaft"
       ],
       "domain": [
-        "strategic"
+        "strategic",
+        "ground"
       ],
       "tod": [
         "any"
       ],
       "setting": [
         "interior"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15605,6 +15799,9 @@
       ],
       "setting": [
         "water"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15630,6 +15827,9 @@
         "night"
       ],
       "setting": [
+        "any"
+      ],
+      "sky": [
         "any"
       ]
     },
@@ -15657,6 +15857,9 @@
       ],
       "setting": [
         "any"
+      ],
+      "sky": [
+        "overcast"
       ]
     },
     {
@@ -15684,6 +15887,9 @@
       "setting": [
         "forest",
         "shore"
+      ],
+      "sky": [
+        "overcast"
       ]
     },
     {
@@ -15710,6 +15916,9 @@
       ],
       "setting": [
         "any"
+      ],
+      "sky": [
+        "overcast"
       ]
     },
     {
@@ -15737,6 +15946,9 @@
       "setting": [
         "desert",
         "open"
+      ],
+      "sky": [
+        "sunny"
       ]
     },
     {
@@ -15764,6 +15976,9 @@
       "setting": [
         "orbital",
         "interior"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15790,6 +16005,9 @@
       ],
       "setting": [
         "orbital"
+      ],
+      "sky": [
+        "sunny"
       ]
     },
     {
@@ -15798,7 +16016,8 @@
       "nameZh": "开阔原野硬光",
       "series": "shared",
       "domain": [
-        "ground"
+        "ground",
+        "air"
       ],
       "tod": [
         "day"
@@ -15816,6 +16035,9 @@
       "origin": "visual-language-pack",
       "changelog": [
         "1.0 visual language gap fill"
+      ],
+      "sky": [
+        "sunny"
       ]
     },
     {
@@ -15824,7 +16046,8 @@
       "nameZh": "城市正午顶光",
       "series": "shared",
       "domain": [
-        "ground"
+        "ground",
+        "air"
       ],
       "tod": [
         "day"
@@ -15842,6 +16065,9 @@
       "origin": "visual-language-pack",
       "changelog": [
         "1.0 visual language gap fill"
+      ],
+      "sky": [
+        "sunny"
       ]
     },
     {
@@ -15868,6 +16094,9 @@
       "origin": "visual-language-pack",
       "changelog": [
         "1.0 visual language gap fill"
+      ],
+      "sky": [
+        "overcast"
       ]
     },
     {
@@ -15894,6 +16123,9 @@
       "origin": "visual-language-pack",
       "changelog": [
         "1.0 visual language gap fill"
+      ],
+      "sky": [
+        "sunny"
       ]
     }
   ],
@@ -15910,6 +16142,9 @@
         "any"
       ],
       "setting": [
+        "any"
+      ],
+      "sky": [
         "any"
       ]
     },
@@ -15928,6 +16163,9 @@
       "setting": [
         "shore",
         "water"
+      ],
+      "sky": [
+        "overcast"
       ]
     },
     {
@@ -15944,6 +16182,9 @@
       "kw": "现代 空军 战机 蓝天 清晰 鲜艳 modern air fighter vivid clean",
       "setting": [
         "air"
+      ],
+      "sky": [
+        "any"
       ]
     },
     {
@@ -15960,6 +16201,9 @@
       "setting": [
         "urban",
         "desert"
+      ],
+      "sky": [
+        "sunny"
       ]
     },
     {
@@ -15977,6 +16221,9 @@
         "open",
         "forest",
         "snow"
+      ],
+      "sky": [
+        "overcast"
       ]
     }
   ],

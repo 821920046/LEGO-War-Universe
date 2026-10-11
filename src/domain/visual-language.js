@@ -84,11 +84,47 @@ export function settingsOf(envText = '') {
   return [...out];
 }
 
-/** 资产是否允许出现在这些场景类型里（未标注 setting = 不限） */
+/**
+ * 资产是否允许出现在这些场景类型里（未标注 setting = 不限）。
+ *
+ * **为什么 `interior` 必须单独一档 —— 6.7.5 修复的头号缺陷。**
+ *
+ * 旧实现只有一句 `settings.some(s => asset.setting.includes(s))`，即「相交即放行」。
+ * 于是《核潜艇深海猎杀》这样翻车：场景 `nuclear submarine control room` 被正确推出
+ * `['interior','water']`，而 `LGT-015 开阔海面烈日` 标的是 `['water']` —— 二者相交，
+ * **一盏海面烈日就打进了潜艇舱**；机位同理，`CAM-905 编队航拍`（`['water']`）
+ * 让潜艇舱里出现了高空俯拍航母编队。Scene / Camera / Lighting 三条指令互相打架。
+ *
+ * 根因是 `interior` 与室外类型**不是并列关系，而是互斥关系**：
+ * 一间舱室不可能同时是开阔海面。所以判定必须分两档：
+ *   1. 场景含 interior → 资产必须**显式**支持 interior，否则出局（哪怕它标的是 water）。
+ *   2. 其余情况才用「相交即放行」。
+ *
+ * 实测：48 镜室内 Scene 中 12 镜（25%）错配室外机位/光照，修后为 0。
+ */
 function settingOk(asset, settings) {
-  if (!Array.isArray(asset?.setting) || asset.setting.length === 0) return true;
-  if (asset.setting.includes('any')) return true;
-  return settings.some(s => asset.setting.includes(s));
+  const st = asset?.setting;
+  if (!Array.isArray(st) || st.length === 0) return true;
+  if (st.includes('any')) return true;
+  if (settings.includes('interior') && !st.includes('interior')) return false;
+  return settings.some(s => st.includes(s));
+}
+
+/**
+ * 场景类型匹配档位：`2` = 精确命中该场景的专属类型 / `1` = 通用（`any`）/ `0` = 其他。
+ *
+ * **光有过滤不够 —— 还必须参与排序。** 旧代码里 setting 只用于 `filter`，
+ * 从不进 `sort`，于是「通过了过滤的」和「真正为这个场景设计的」同分，
+ * 由哈希决定胜负：潜艇舱里能用的 `LGT-902 潜艇红色战斗照明` 与
+ * 通用 `LGT-004 暴风雨光照` 打平，谁被选中全看运气。
+ */
+function settingTier(asset, settings) {
+  const st = asset?.setting;
+  if (!Array.isArray(st) || st.length === 0) return 0;
+  const specific = settings.find(s => s !== 'any' && st.includes(s));
+  if (specific) return 2;
+  if (st.includes('any')) return 1;
+  return 0;
 }
 
 /** 时代兼容的候选池。注意是**并集**，不是替换。 */
@@ -107,6 +143,43 @@ function hash(str) {
     h = Math.imul(h, 16777619);
   }
   return (h >>> 0);
+}
+
+/**
+ * 从环境正文推断**光质**（硬光晴天 / 漫射阴天）。
+ *
+ * 为什么不能只看 `tod`：`tod` 只有 day / night / dawn / dusk，正午与阴天同属 day。
+ * 而环境资产自己是写了光质的 —— `ENV-101 诺曼底海滩` 的正文里明明白白有
+ * `overcast sky, sea foam, smoke, gritty cinematic atmosphere`。
+ *
+ * 不看这个线索的代价很具体：诺曼底抢滩因为 `LGT-015 开阔海面强光` 的
+ * `domain` 是 `['naval']`（比通用阴天灯更"具体"）而被选中，
+ * 于是 D-Day 的阴天海滩被拍成了烈日海滩，还顺带把《拯救大兵瑞恩》
+ * （`sky=overcast`）挤出了候选池。
+ *
+ * @returns {'sunny'|'overcast'|'any'}
+ */
+export function skyOfText(envText = '') {
+  const t = String(envText || '');
+  /**
+   * **必须带词边界。** 第一版写的是裸 `rain`，而每一个环境资产的第一行都是
+   * `brick-built LEGO set at minifigure scale: terrain, buildings and props…`
+   * —— `rain` 命中了 `terrain`，于是 26 个题材**全部**被判成阴天，
+   * 库尔斯克草原的烈日也变成了阴天。（这是本次修复自己引入的缺陷，记在这里以防复发。）
+   */
+  /**
+   * **明确的硬光词最优先。** 费卢杰的正文是 `harsh desert sun, dust haze` ——
+   * 烈日 + 悬浮沙尘，是晴天。把 `haze` 当阴天会让伊拉克城市战整片变成阴天，
+   * 而《黑鹰坠落》的 `warm dusty, golden-tan cast` 恰恰就是这种暖沙尘。
+   */
+  const HARD_SUN = /\bharsh (desert )?sun|\bhard sun|\bhard summer|\bblazing\b|\bno cloud\b|烈日|骄阳|曝晒/i;
+  const OVERCAST = /\bovercast\b|\bgreys?\b|\bgrays?\b|\bdiffuse\b|\bstorms?\b|\bclouds?\b|\bfogs?\b|\bmists?\b|\bdrizzle\b|\brain\b|阴|灰|雾|霾|云|阴沉/i;
+  const SUNNY = /\bbright sun|\bclear sky\b|\bsunlight\b|\bsunlit\b|\bmidday\b|\bheat shimmer\b|晴朗|强光/i;
+  if (HARD_SUN.test(t)) return 'sunny';
+  // 其余情况阴天优先：环境里同时出现「阴云」与「阳光」时，通常是阴云压住了阳光
+  if (OVERCAST.test(t)) return 'overcast';
+  if (SUNNY.test(t)) return 'sunny';
+  return 'any';
 }
 
 /**
@@ -153,6 +226,8 @@ export function selectCameras({ r, intent, domain, tod, settings = ['open'], fns
     if (hits(a.domain, domain)) s += 40;
     if (isSpecific(a.domain, domain)) s += 6;
     if (Array.isArray(a.fn) && a.fn.includes(fn)) s += 30;
+    // 场景匹配进排序：为这个场景设计的机位必须压过「恰好没被过滤掉」的机位
+    s += settingTier(a, settings) * 8;
     s += themeMatch(a, themeText) * 2;
     return s;
   };
@@ -185,11 +260,20 @@ export function selectCameras({ r, intent, domain, tod, settings = ['open'], fns
  *
  * @returns {{ lightings: string[], tod: string }}
  */
-export function selectLightings({ r, intent, domain, tod, settings = ['open'], fns, themeText = '' }) {
+export function selectLightings({ r, intent, domain, tod, settings = ['open'], fns, themeText = '', sky = 'any' }) {
   const all = poolFor(r, 'lighting', intent.era);
   if (all.length === 0) return { lightings: fns.map(() => null), tod };
 
   const rank = (pool) => [...pool].sort((x, y) => {
+    // 光质最优先：环境正文写了 `overcast sky`，就不能因为某盏灯的 domain 更具体
+    // 而选一盏烈日灯（诺曼底抢滩此前就是这么被拍成海滩晴天的）
+    if (sky !== 'any') {
+      const gx = (skyOf(x) === sky ? 1 : 0) - (skyOf(y) === sky ? 1 : 0);
+      if (gx !== 0) return -gx;
+    }
+    // 场景匹配次之：潜艇舱就该用潜艇舱的灯，而不是「恰好没被过滤掉」的通用灯
+    const sx = settingTier(x, settings) - settingTier(y, settings);
+    if (sx !== 0) return -sx;
     const dx = (isSpecific(x.domain, domain) ? 1 : 0) - (isSpecific(y.domain, domain) ? 1 : 0);
     if (dx !== 0) return -dx;
     const tx = themeMatch(x, themeText) - themeMatch(y, themeText);
@@ -208,13 +292,29 @@ export function selectLightings({ r, intent, domain, tod, settings = ['open'], f
 
   const ordered = rank(pool);
   const primary = ordered[0];
-  // 次要灯必须与主灯同域同时段，否则宁可不换
-  const secondary = ordered.slice(1).find(a => hits(a.tod, tod)) || null;
+  /**
+   * 次要灯必须与主灯**同时段、同光质**，否则宁可不换。
+   *
+   * 旧代码只校验了 `hits(a.tod, tod)`，于是「北非沙漠」的成片里
+   * 主灯是「沙漠正午」(sunny)，而 character / plan / decision 这些私密镜
+   * 换成了「暴风雨光线」(overcast) —— 同一场戏的阳光在特写里突然变成阴天，
+   * 还顺带让调色（按主灯选的 sunny）在这些镜上自相矛盾（实测 10 镜）。
+   */
+  const sameSky = (a) => skyOf(a) === skyOf(primary) || skyOf(a) === 'any' || skyOf(primary) === 'any';
+  const secondary = ordered.slice(1).find(a => hits(a.tod, tod) && sameSky(a)) || null;
 
   const lightings = fns.map(fn => (
     secondary && INTIMATE_FNS.has(fn) ? secondary.id : primary.id
   ));
-  return { lightings, tod };
+  // 主灯的光质要往下传给调色：正午硬光配阴天冷调是自相矛盾（见 selectColorGrade）
+  return { lightings, tod, sky: skyOf(primary) };
+}
+
+/** 资产的光质倾向；未标注视为不挑光质 */
+function skyOf(asset) {
+  const s = asset?.sky;
+  if (!Array.isArray(s) || s.length === 0) return 'any';
+  return s.find(x => x !== 'any') || 'any';
 }
 
 /**
@@ -252,20 +352,52 @@ function kwHits(kw, theme) {
  *      这是区分「同为 ground 的《黑鹰坠落》与《兄弟连》」的唯一依据。
  *   3. **关键词命中** —— 见 `kwHits()`，只作末位区分。
  *
+ * 6.7.5 又加了一层 **光质一致性**（`sky`）：
+ *   `tod` 只有 day / night / dawn / dusk，**表达不了光质** —— 正午与阴天同属 day。
+ *   于是库尔斯克草原开场镜出现 `Lighting: hard clear midday sunlight, no cloud cover`
+ *   配 `Color grade: cool overcast, muted palette, soft contrast`，两条指令互相打架。
+ *   光质由主灯的 `sky` 给出，调色也标注了自己的倾向。
+ *
+ * 6.7.5 把排序从**字典序改成加权求和**。为什么必须改：
+ *   字典序下这些维度会互相"吃掉" —— 先比域，同域再比光质，光质就把
+ *   **题材点名**（`kw`，如「诺曼底」「城市」）挤到了最后，
+ *   于是「伊拉克战争城市清剿」丢掉了 kw 命中的《黑鹰坠落》。
+ *   加权求和让四个维度各占一个量级，谁都不会被完全盖住：
+ *
+ *     域     × 100   —— 物理事实，错了最刺眼（轨道片配地面调色）
+ *     光质    +20 / 0 / −150
+ *     题材点名 × 10
+ *     场景    × 2
+ *
+ * 光质是**三档而不是加分项**，这一点是实测逼出来的：
+ *   加分档（+20）压不住题材点名（+10）的组合拳 —— 库尔斯克草原是硬光晴天，
+ *   《兄弟连》凭题材点名也能拿下，于是 `hard midday sun` 配 `cool overcast` 照旧。
+ *   而**冲突必须重罚到能压过「域」**：作品的调色池里某个域可能只有一两个候选，
+ *   域分（+100）会把唯一候选顶上来，哪怕它的光质和灯正好相反。
+ *   −150 让「通用且不挑光质」的调色（如《好莱坞大片》）在这种情况下胜出 ——
+ *   **宁可不够贴切，也不能自相矛盾。**
+ *
  * @returns {string|null} 调色资产 ID
  */
-export function selectColorGrade({ r, intent, domain, settings = ['open'], theme = '' }) {
+export function selectColorGrade({ r, intent, domain, settings = ['open'], theme = '', sky = 'any' }) {
   const pool = poolFor(r, 'colorGrade', intent.era);
   if (pool.length === 0) return null;
+
+  const scoreOf = (a) => {
+    const dom = isSpecific(a.domain, domain) ? 2 : (hits(a.domain, domain) ? 1 : 0);
+    // 光质三档：匹配 +20 / 有一方不挑光质 0 / **冲突 −150**
+    const gs = skyOf(a);
+    let lit = 0;
+    if (sky !== 'any' && gs !== 'any') lit = (sky === gs) ? 20 : -150;
+    return dom * 100 + lit + kwHits(a.kw, theme) * 10 + settingTier(a, settings) * 2;
+  };
+  //
+  // 光质**不能做硬过滤**。第一版硬过滤让 F-22 制空巡逻（域 air）拿到《兄弟连》
+  // （域 ground）—— 唯一 air 域的《壮志凌云》是 sunny，被 overcast 的光质滤掉了。
+  // 改成重罚而不是滤除：域候选少时，宁可退到「不挑光质」的通用调色。
   const ranked = [...pool].sort((x, y) => {
-    const domTier = a => (isSpecific(a.domain, domain) ? 2 : (hits(a.domain, domain) ? 1 : 0));
-    const dx = domTier(x) - domTier(y);
-    if (dx !== 0) return -dx;
-    const sx = (settingOk(x, settings) && !(x.setting || []).includes('any') ? 1 : 0)
-      - (settingOk(y, settings) && !(y.setting || []).includes('any') ? 1 : 0);
-    if (sx !== 0) return -sx;
-    const kx = kwHits(x.kw, theme) - kwHits(y.kw, theme);
-    if (kx !== 0) return -kx;
+    const d = scoreOf(y) - scoreOf(x);
+    if (d !== 0) return d;
     return hash(x.id) - hash(y.id);
   });
   return ranked[0].id;
@@ -279,11 +411,14 @@ export function selectColorGrade({ r, intent, domain, settings = ['open'], theme
 export function planVisualLanguage({ r, intent, domain, fns, theme = '', envText = '', settingText = null }) {
   const themeText = `${theme} ${envText}`;
   const tod = timeOfDayOf({ intent, envText });
+  // 光质同样从环境正文推 —— 「诺曼底海滩」的正文里写着 overcast sky
+  const skyHint = skyOfText(envText);
   // 场景类型只从环境的**名称与关键词**推导，不用整段正文 ——
   // 正文里会出现布景细节（「远处一道村庄矮墙」），那不代表这场戏发生在城市。
   const settings = settingsOf(settingText === null ? envText : settingText);
   const cameras = selectCameras({ r, intent, domain, tod, settings, fns, themeText });
-  const { lightings } = selectLightings({ r, intent, domain, tod, settings, fns, themeText });
-  const colorGrade = selectColorGrade({ r, intent, domain, settings, theme });
-  return { cameras, lightings, colorGrade, tod, settings };
+  // 先定灯再定调色：调色必须知道自己要配的是硬光还是阴天
+  const { lightings, sky } = selectLightings({ r, intent, domain, tod, settings, fns, themeText, sky: skyHint });
+  const colorGrade = selectColorGrade({ r, intent, domain, settings, theme, sky });
+  return { cameras, lightings, colorGrade, tod, settings, sky };
 }
