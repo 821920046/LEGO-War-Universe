@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGO War Universe · 6.7.6 字段投递验收</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c222b; --line:#272e38;
+    --fg:#e8ecf1; --muted:#98a3b2; --dim:#6f7a89;
+    --bad:#ff5f5f; --good:#35d07f; --accent:#ffb454; --link:#5eb1ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:29px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0;font-size:14px}
+  .note{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--accent);
+    background:#1a1710;color:#e8dfd0;border-radius:0 8px 8px 0;font-size:13.5px}
+  .warn{margin:18px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f0d8d8;border-radius:0 8px 8px 0;font-size:13.5px}
+  h2{margin:46px 0 14px;font-size:20px;border-left:3px solid var(--accent);padding-left:12px}
+  h3{margin:26px 0 10px;font-size:15.5px;color:#cfd7e2}
+  p{margin:0 0 12px}
+  code{background:#0b0e12;padding:1px 6px;border-radius:4px;color:var(--accent);font-size:12.5px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{margin:0 0 8px;font-size:14px;color:var(--good)}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 6px}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .box__hd{padding:9px 14px;font-size:12.5px;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  .box--bad .box__hd{background:#1d1618;color:var(--bad);border-color:#5c2b2b}
+  .box--good .box__hd{background:#131e18;color:var(--good);border-color:#264d38}
+  .box__bd{padding:14px}
+  pre{margin:0;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
+    line-height:1.75;white-space:pre-wrap;color:#cfd7e2}
+  .del{color:var(--bad)} .ins{color:var(--good)} .dimtxt{color:var(--dim)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;background:var(--panel)}
+  td code{font-size:12px}
+  .ok{color:var(--good)} .no{color:var(--bad)} .blank{color:var(--dim)}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;font-size:13px}
+  .node{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 13px}
+  .node--dead{border-color:#5c2b2b;background:#1d1618;color:var(--bad)}
+  .node--live{border-color:#264d38;background:#131e18;color:var(--good)}
+  .arrow{color:var(--dim)}
+  .script{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px;margin:14px 0}
+  .script h4{margin:0 0 4px;font-size:14.5px;color:var(--fg)}
+  .script .meta{color:var(--dim);font-size:12.5px;margin:0 0 12px}
+  .script .meta b{color:var(--good);font-weight:600}
+  .script ol{margin:0;padding-left:0;list-style:none}
+  .script li{padding:7px 0;border-bottom:1px dashed #222831;font-size:13px;color:#cfd7e2}
+  .script li:last-child{border-bottom:none}
+  .fn{display:inline-block;min-width:76px;color:var(--accent);font-family:"Cascadia Mono",Consolas,monospace;font-size:11.5px}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px}
+  @media(max-width:880px){.pair{grid-template-columns:1fr}}
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">LEGO War Universe · 6.7.6 · Acceptance</p>
+  <h1>字段投递：设计好的景别必须到得了 Veo</h1>
+  <p class="sub">前六轮修的是「指令之间搭不搭配」。这一轮换了个查法 —— 逐个字段核对
+  「分镜设计好的东西有没有真的送出去」。</p>
+
+  <p class="note"><b>一句话结论</b>：<code>compiler.js</code> 对 <code>shotType</code> 的引用数为
+  <b>0</b>。分镜给每一镜都设计好了景别，<b>只有首帧编译器消费它，视频 prompt 里一个景别字都没有</b>。
+  实测 0 / 312 镜；仅 34% 镜头靠机位资产碰巧捎带景别词，其余 66% 把画面构图完全交给 Veo 决定。</p>
+
+  <p class="warn"><b>只加一行景别会制造新的自相矛盾。</b>机位资产自身的描述也带构图
+  （<code>tight insert close-up on hands</code>、<code>high aerial of a naval task force</code>）。
+  74 镜两侧都可判定的镜头里 <b>46 镜（62%）互斥</b>：<code>环境铺陈大远景</code> 拿到
+  <code>CAM-609 tight insert close-up on hands</code>，远景建镜头被拍成手部微距特写。
+  <b>这正是 6.7.5 刚消灭的错误类型</b>，所以修复必须双向：发射景别 + 让机位选取尊重景别。</p>
+</header>
+
+<h2>四项归零</h2>
+<div class="cards">
+  <div class="card"><h4>景别发射 0% → 100%</h4><p><code>Shot framing:</code> 行从不存在到 312/312 镜全覆盖。</p></div>
+  <div class="card"><h4>景别冲突 46 → 0</h4><p>机位自带景别与设计景别不再互斥。</p></div>
+  <div class="card"><h4>静默对白 78 → 0</h4><p>25% 的镜头不再命令 Veo 把「静默」念出声。</p></div>
+  <div class="card"><h4>weapon up 假阳性 38 → 0</h4><p>6.7.5 的遗留：两个消费者只修了一个。</p></div>
+  <div class="card"><h4>标记泄漏 592 → 0</h4><p>中文书名号不再进交付文本。</p></div>
+  <div class="card"><h4>悬空冒号 → 0</h4><p>「在炮塔上摊开地图：.」这种半句话消失。</p></div>
+</div>
+
+<h2>第 1 镜的完整产物（修好后第一次逐字审读）</h2>
+<div class="script">
+  <h4>库尔斯克坦克对决 · 第 1 镜</h4>
+  <p class="meta">fn <b>goal</b> · 8s · <b>任务简报中景 (Mission Briefing Medium)</b> · CHR-106 苏军坦克车长</p>
+  <pre><span class="dimtxt">Scene:</span> brick-built LEGO set at minifigure scale: … open Russian steppe under a hard summer sky …
+<span class="dimtxt">Subject(s):</span> [CHR-106] <span class="ins">【DELTA】</span>苏军坦克车长 / Soviet Tank Commander — LEGO minifigure, …
+<span class="dimtxt">Cast (must keep identical appearance across all shots):</span> 【DELTA】苏军坦克车长 (CHR-106).
+<span class="dimtxt">Action:</span> 伊万诺夫<span class="ins">（DELTA）</span>在炮塔上摊开地图：「两小时之内挡住敌方装甲集群，否则防线会被撕开。」
+<span class="dimtxt">Sound design (diegetic only, no music score):</span> 地图压过装甲板 · 引擎怠速.
+<span class="dimtxt">Radio dialogue (spoken in Chinese, playing over the action):</span> 全车注意，任务已下达。
+
+<span class="ins">Shot framing: medium shot, the subject framed from the waist up.</span>
+<span class="dimtxt">Camera:</span> tight over-the-shoulder follow shot behind a minifigure, 35mm lens, handheld micro-shake.
+<span class="dimtxt">Lighting:</span> hard clear midday sunlight over open ground, …
+<span class="dimtxt">Color grade:</span> warm dusty, golden-tan cast, crushed shadows, harsh gritty realism.
+
+<span class="dimtxt">Screen direction:</span> left-to-right. <span class="dimtxt">Subject state:</span> weathered / standard.
+
+<span class="dimtxt">Single continuous</span> 8-second shot, 9:16 aspect ratio.</pre>
+</div>
+
+<div class="pair">
+  <div class="box box--bad">
+    <div class="box__hd">修前 · 首帧 Framing &amp; Pose</div>
+    <div class="box__bd"><pre>Framing &amp; Pose: Mission Briefing Medium,
+the lead minifigure in the foreground,
+centred, <span class="del">weapon up</span>, frozen single instant…
+Action context (Chinese): 【DELTA】伊万诺夫在炮塔上摊开地图<span class="del">：.</span></pre>
+    <p style="color:var(--muted);font-size:12.5px;margin:10px 0 0">
+    「炮塔」的「炮」命中持械判据；冒号后紧跟句号；<code>【DELTA】</code> 泄漏进交付文本。</p></div>
+  </div>
+  <div class="box box--good">
+    <div class="box__hd">修后 · 首帧 Framing &amp; Pose</div>
+    <div class="box__bd"><pre>Framing &amp; Pose: Mission Briefing Medium,
+the lead minifigure in the foreground,
+centred, <span class="ins">hands working at a map or
+control, head lowered</span>, frozen single instant…
+Action context (Chinese): 伊万诺夫在炮塔上摊开地图<span class="ins">.</span></pre>
+    <p style="color:var(--muted);font-size:12.5px;margin:10px 0 0">
+    本镜人物在摊开地图，不是举枪站立。持械判定改为「动词 + 手持物」，
+    景物名词不再冒充武器。</p></div>
+  </div>
+</div>
+
+<h2>方法论错误：把镜头焦距词当景别档</h2>
+<p>第一版 <code>SIZE_EN</code> 匹配 <code>wide 28mm lens</code> / <code>wide 14mm lens</code> ——
+那是<b>焦距</b>不是景别；<code>overhead</code> / <code>top-down</code> / <code>low-angle</code> 是<b>机位角度</b>。
+据此算出「33 镜冲突」的虚高数字；改为只认真正的构图描述后，真实冲突是 46/74。</p>
+<div class="flow">
+  <div class="node node--dead">wide 28mm lens</div><span class="arrow">→</span>
+  <div class="node node--dead">误判为远景</div><span class="arrow">→</span>
+  <div class="node node--dead">33 镜（虚高）</div>
+</div>
+<div class="flow">
+  <div class="node node--live">tight insert close-up</div><span class="arrow">→</span>
+  <div class="node node--live">正确判为特写</div><span class="arrow">→</span>
+  <div class="node node--live">46 镜（真实）</div>
+</div>
+<p><b>教训</b>：这一轮的全部价值建立在「判定标准是否精确」上。一个宽松的正则会把结论从
+46 镜变成 33 镜 —— 方向都对，数量全错。</p>
+
+<h2>最重要的元发现：探针与实现同源，无法证伪自身</h2>
+<p><code>tests/scene-coherence.test.mjs</code> 的持械判据正则是
+<code>/枪|射击|开火|举枪|端枪|瞄准|弹匣|炮|…/</code> ——
+<b>和源码旧实现一模一样</b>。所以「炮塔」命中「炮」，探针认为「有武器语义」而放行。</p>
+<p>已换成语义独立判据：正判据必须是「动词 + 手持物」的完整说法，外加 7 条反向陷阱。</p>
+<table>
+  <tr><th>反向陷阱</th><th>为什么它不是此人手里的武器</th></tr>
+  <tr><td><code>炮塔</code></td><td class="no">坦克炮塔是物件</td></tr>
+  <tr><td><code>装甲集群</code></td><td class="no">敌军编队</td></tr>
+  <tr><td><code>炮兵阵地</code></td><td class="no">别人的阵地</td></tr>
+  <tr><td><code>机枪巢</code></td><td class="no">工事</td></tr>
+  <tr><td><code>舰炮</code></td><td class="no">舰上装备</td></tr>
+  <tr><td><code>第一架起飞</code></td><td class="no">「第一架」是飞机量词 —— 曾跨词命中「架起」</td></tr>
+  <tr><td><code>第二架起飞</code></td><td class="no">同上</td></tr>
+</table>
+
+<h2>夹具里的第二个隐藏 bug</h2>
+<p><code>compileAll()</code> 调 <code>buildRoster(r.roster, …)</code>，而
+<code>buildRoster(shots, …)</code> 读的是 <code>shot.subjects</code> ——
+<b>名册条目没有这个字段</b>。于是名册一直是空表，<code>Subject(s)</code> 行丢掉代号、
+<code>Cast</code> 行整行消失，「代号必须出现在视频脚本里」这条保证
+<b>从未被真正测到过</b>。</p>
+
+<h2>景别兜底：惯例不是设计</h2>
+<p>78 镜（25%）的标签只声明运镜与氛围 —— <code>揭示推轨镜头</code>、
+<code>载具主导 · 压力升级跟拍</code>、<code>残局静默收尾</code>。
+按<b>戏剧功能的通行惯例</b>兜底，且只给 <code>ws</code> / <code>ms</code> 两档，
+<b>不给 <code>cu</code></b>：特写必须由分镜明说，兜底不能替导演决定拍多近。</p>
+<table>
+  <tr><th>景别档</th><th>发射量</th><th>来源</th></tr>
+  <tr><td><code>medium shot, the subject framed from the waist up</code></td><td class="ok">130</td><td>标签写「中景」+ 兜底</td></tr>
+  <tr><td><code>close-up on the subject's face and hands</code></td><td class="ok">130</td><td>标签写「特写 / 近景」</td></tr>
+  <tr><td><code>extreme wide establishing shot, the subject small within a vast frame</code></td><td class="ok">26</td><td>标签写「大远景」</td></tr>
+  <tr><td><code>wide shot, the whole subject in frame with generous headroom</code></td><td class="ok">26</td><td>标签写「远景 / 远摄」+ 兜底</td></tr>
+</table>
+
+<h2>转写而非删除</h2>
+<p><code>【DELTA】</code> 直接删会弄丢人物归属：<code>Cast</code> 行绑定了
+<code>DELTA ↔ CHR-106</code>，删掉标记后 Action 里的人物名（伊万诺夫）与
+<code>Subject(s)</code> 里的资产（CHR-106）断联。改为 <code>（DELTA）</code>：
+中文书名号去掉（可能被渲染成屏幕文字，与 <code>no on-screen text</code> 冲突），
+圆括号保留归属。</p>
+<div class="flow">
+  <div class="node node--dead">【DELTA】伊万诺夫在炮塔上…</div><span class="arrow">→</span>
+  <div class="node node--live">伊万诺夫（DELTA）在炮塔上…</div>
+</div>
+
+<h2>验证</h2>
+<table>
+  <tr><th>闸门</th><th>结果</th></tr>
+  <tr><td><code>02_Assets/validate.py</code></td><td class="ok">OK 810 assets, schemaVersion 3.7</td></tr>
+  <tr><td><code>scripts/build-assets.mjs</code></td><td class="ok">签名 <code>e1515357a93c</code>（纯代码轮，签名不变）</td></tr>
+  <tr><td><code>npm test</code></td><td class="ok"><b>262 / 262</b>（259 → 262）</td></tr>
+  <tr><td><code>scripts/check-release.mjs</code></td><td class="ok"><code>{"ok":true,"violations":[]}</code></td></tr>
+  <tr><td><code>run-blind-test.mjs --verify</code></td><td class="ok">100 / 100 / 100 / <b>96%</b></td></tr>
+</table>
+<p><b>节奏零回归</b>：硬提升 <b>0 / 4056</b>、4 秒档仍 28.2%、
+曲线仍 <code>establish 7.27 → build 5.78 → climax 5.40 → resolve 5.41</code>。<br>
+<b>机位多样性未塌缩</b>：33 / 39 在用，前 3 个机位占 24.7%。</p>
+
+<h2>自我引入并修掉的缺陷（记录在案）</h2>
+<div class="box box--bad">
+  <div class="box__hd">三处自己引入的错</div>
+  <div class="box__bd">
+  <p style="margin:0 0 8px"><b>1 · 把焦距词当景别档</b> —— 算出虚高的 33 镜冲突，真实为 46。</p>
+  <p style="margin:0 0 8px"><b>2 · <code>第一架起飞</code> 跨词命中 <code>架起</code></b> ——
+  「第一架」是飞机量词 +「起飞」，被持械动词咬住：一架飞机起飞，人却被画成举枪站立。由测试抓出。
+  修法：<code>架起 / 端起 / 扛起 / 操起</code> 一律要求后接武器宾语。</p>
+  <p style="margin:0"><b>3 · 剥掉 <code>【DELTA】</code> 弄丢人物归属</b> —— 见上，改为转写。</p>
+  </div>
+</div>
+
+<h2>残余风险</h2>
+<ul style="color:var(--muted);font-size:13.5px;line-height:1.9">
+  <li><b>景别兜底是惯例不是设计。</b>78 镜按戏剧功能补了 <code>ws</code>/<code>ms</code>，
+  这是通行惯例，但终究不是那 78 镜自己的导演意图。</li>
+  <li><b><code>cameraSizeOf()</code> 只覆盖 9 / 39 个机位。</b>其余机位不带明确构图描述，
+  无法参与景别一致性判定 —— 不是错，是判不了。</li>
+  <li><b>Sound design 仍是全 prompt 里唯一的中文行</b>（312/312），用 <code>·</code> 分隔。
+  Veo 3 多语言可用，属设计取舍，本轮<b>刻意未动</b>。</li>
+</ul>
+
+<p class="warn"><b>边界没有变。</b>本轮修的是字段投递与内部自洽，仍未验证真实生成效果 ——
+这些 prompt 一次也没有跑过 Veo 3 / Flow。「自洽」与「有效」之间的那道墙，第七轮仍然没有推倒。</p>
+
+<footer>
+  <p>LEGO War Universe · 6.7.6 字段投递 · 2026-10-13 · 312 镜 / 26 题材 / 810 资产</p>
+</footer>
+</div>
+</body>
+</html>

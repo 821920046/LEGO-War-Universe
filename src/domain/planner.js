@@ -4,7 +4,7 @@ import { isEraCompatible } from './shot-spec.js';
 import { selectCast, buildRoster, rosterToJSON, aliasLabel, domainOfText, themeMatch } from './roster.js';
 import { selectBeats, renderTemplate, seedOf, buildOriginality, tagDramaticFunctions, FUNCTION_DURATION } from './narrative.js';
 import { buildStory, linkFor, detectArc, shotTypeFor, weatherFor } from './story.js';
-import { planVisualLanguage } from './visual-language.js';
+import { planVisualLanguage, sizeForShot } from './visual-language.js';
 
 /**
  * 依据时代、意图与关键词从注册表中筛选最适资产
@@ -328,15 +328,10 @@ export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverrid
   // 且机位全片去重。时段是灯光的硬约束 —— 夏季正午的草原不能再配「战火映照的夜空」。
   const envText = `${env?.name || ''} ${env?.nameZh || ''} ${(env?.lines || []).join(' ')}`;
   const settingText = `${env?.name || ''} ${env?.nameZh || ''} ${env?.kw || ''}`;
-  const visual = planVisualLanguage({
-    r,
-    intent,
-    domain: story.domain,
-    fns: beats.map(b => b.fn || null),
-    theme,
-    envText,
-    settingText
-  });
+  // 视觉语言方案（机位 / 灯光 / 调色）在 3b 之后才规划 —— 景别必须参与机位选取，
+  // 而每镜的景别要等 drafts 走完才知道（骨架步骤会用 shotTypeFor(slot) 覆盖节拍自己的）。
+  // 此前在这里就选完，等于**在还不知道要拍多大的时候就把机器定了**：
+  // 「环境铺陈大远景」因此拿到 CAM-609 手部微距，62% 的双侧可判镜头景别互斥（6.7.6）。
 
   // 3a. 第一遍：只确定逐镜「主体组合」+「正文内容」。
   // 动作文本里要写角色代号，而代号由「最终上镜的资产集合」决定，
@@ -450,6 +445,21 @@ export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverrid
   // 必须把主角 id 传进去：名册要保证主角拿到**指挥职务**（车长 / 舰长 / 突击队长…），
   // 否则会出现「装填手沃尔科夫在炮塔上摊开地图：全车注意，任务已下达」。
   const roster = buildRoster(drafts.map(d => ({ subjects: d.subjects })), r, { leadId: heroes[0]?.id || null });
+
+  // 3b-bis. 视觉语言方案 —— 此时每镜的景别已经确定，机位选取必须尊重它。
+  const visual = planVisualLanguage({
+    r,
+    intent,
+    domain: story.domain,
+    fns: beats.map(b => b.fn || null),
+    // 景别序列与 shots 一一对应：骨架步骤用它自己的景别，回退节拍才用节拍的。
+    // 与 rawShots 里 `shotType: slot ? shotTypeFor(slot) : beat.shotType` 必须同源，
+    // 否则选机器与定景别又会各说各话。
+    sizes: drafts.map(d => sizeForShot(d.slot ? shotTypeFor(d.slot) : d.beat.shotType, d.beat.fn)),
+    theme,
+    envText,
+    settingText
+  });
 
   const rawShots = drafts.map(({ beat, i, subjects, slot, action, audioCue, radioVoice, link }) => {
     const entryOf = id => roster.byId.get(id);
