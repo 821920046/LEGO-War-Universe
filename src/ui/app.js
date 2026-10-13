@@ -209,7 +209,9 @@ async function boot() {
       `🧱 乐高资产库 (${totalAssets}${customApplied.added ? ` · 自定义 ${customApplied.added}` : ''}${forgedApplied.added ? ` · 进化 ${forgedApplied.added}` : ''})`;
   }
   if ($('ai-brain-status')) {
-    $('ai-brain-status').textContent = '🧠 云端 AI 导演大脑：待调用（不可用时将自动回退本地引擎）';
+    // 6.8.4：待调用状态如实说明「后台没配 Key 就会走本地」，
+    // 并指向只读自检地址 —— 让「配了却没生效」有一个当场可查的答案。
+    $('ai-brain-status').textContent = '🧠 云端 AI：待调用（后台未配 Key 时将自动回退本地引擎 · 自检 /api/ai-brain?probe=1）';
   }
 
   // 初始化模型 Profile 选项
@@ -305,7 +307,7 @@ function renderDirectorNotesPanel(movieName, data) {
           createEl('span', { style: { fontSize: '22px' } }, '🎬'),
           createEl('span', {}, data.matchedMovie || movieName),
           createEl('span', { class: 'badge badge--info' }, data.genre || '好莱坞大片'),
-          createEl('span', { class: 'badge badge--ok' }, data.engine || '智能大脑')
+          createEl('span', { class: `badge ${data.isAiGenerated === true ? 'badge--ok' : 'badge--warn'}` }, data.engine || '智能大脑')
         ),
         createEl('p', { class: 'card__sub' },
           `导演：${data.director || '好莱坞名家'} · 上映年份：${data.year || '经典'} · 乐高适配引擎：已完成认证资产精准重构`)
@@ -388,7 +390,7 @@ function renderGeneratedPanel(themeText, data) {
           createEl('span', { style: { fontSize: '22px' } }, '🎬'),
           createEl('span', {}, themeText || '原创战争短片'),
           createEl('span', { class: 'badge badge--info' }, '原创生成'),
-          createEl('span', { class: 'badge badge--warn' }, data.engine || '本地引擎')
+          createEl('span', { class: `badge ${data.isAiGenerated === true ? 'badge--ok' : 'badge--warn'}` }, data.engine || '本地引擎')
         ),
         createEl('p', { class: 'card__sub' },
           `未命中策展影片，已由本地自主想象引擎按题材原创 —— 视角 × 重心 × 基调 共构思 ${variants.length || 1} 部，默认展示综合质量最高的一部。`)
@@ -652,6 +654,28 @@ function renderCharacterLineupPanel(project, roster = null) {
 }
 
 /**
+ * 把后台返回的 aiStatus 翻译成一句人话，直接显示在「本次引擎」徽章上。
+ *
+ * 存在的意义（6.8.4）：云端 AI 不可用时前端会静默回退本地引擎，
+ * 而此前界面**没有任何线索**说明为什么没走 AI —— 用户配了 Key、
+ * 以为生效了，实际一直在跑本地，只能来问「AI 不是已经配了 api 了吗」。
+ * 现在把后台的真实结论（没配 Key / 配了但全部调用失败 + 各自的 HTTP 错误）如实回显。
+ */
+function describeAiFallback(status) {
+  if (!status || typeof status !== 'object') return '';
+  if (status.reason === 'NO_KEYS_CONFIGURED') {
+    return '（后台未配置任何模型 Key —— 见 /api/ai-brain?probe=1 自检）';
+  }
+  if (status.reason === 'ALL_PROVIDERS_FAILED') {
+    const errs = (status.providers || [])
+      .filter(p => p.tried && p.error)
+      .map(p => `${p.id} ${p.error}`);
+    return errs.length ? `（云端调用失败 → ${errs.join('；')}）` : '（云端调用失败）';
+  }
+  return '';
+}
+
+/**
  * 执行电影深度转译（无缝调用后台免费大模型与智能兜底）
  */
 async function executeMovieTranspile(movieQuery) {
@@ -696,10 +720,16 @@ async function executeMovieTranspile(movieQuery) {
 
     setProgress('', false);
 
-    // 真实回显本次实际使用的引擎，而不是无条件宣称"云端大脑就绪"
+    // 真实回显本次实际使用的引擎，而不是无条件宣称"云端大脑就绪"。
+    // 6.8.4：**未使用云端 AI 时绝不再显示绿色。** 旧实现无条件设成 badge--ok，
+    // 于是「回退本地引擎」在界面上与「云端 AI 生效」长得一模一样 ——
+    // 用户配了 Key 却永远在跑本地，看不出任何异常。
     if ($('ai-brain-status')) {
-      $('ai-brain-status').textContent = `🧠 本次引擎：${result.engine || '未知'}`;
-      $('ai-brain-status').className = 'badge badge--ok';
+      const usedAi = result.isAiGenerated === true;
+      $('ai-brain-status').textContent = usedAi
+        ? `🧠 云端 AI 已生效：${result.engine || '未知'}`
+        : `🧠 未使用云端 AI：${result.engine || '未知'}${describeAiFallback(result.aiStatus)}`;
+      $('ai-brain-status').className = usedAi ? 'badge badge--ok' : 'badge badge--warn';
     }
 
     $('theme').value = result.themeZh;

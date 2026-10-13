@@ -220,5 +220,20 @@ test('ui boot smoke: 影院模式「深度转译」不再因作用域问题失�
 
   const intent = getEl('intent').textContent || '';
   assert.match(intent, /8 镜/, `没有生成 8 个镜头，intent 文案是：${JSON.stringify(intent)}`);
+
+  // 6.8.4：离线回退时「本次引擎」徽章绝不能再是绿色成功色。
+  // 旧实现无条件设成 badge--ok，于是「回退本地」与「云端 AI 生效」在界面上
+  // 长得一模一样 —— 用户配了 Key 却一直跑本地，看不出任何异常。
+  // 本桩把 /api/ai-brain 一律返回 503，因此这里必然走本地回退路径。
+  const badge = getEl('ai-brain-status');
+  assert.match(
+    badge.textContent, /未使用云端 AI/,
+    `本地回退必须如实说明，实际文案：${JSON.stringify(badge.textContent)}`
+  );
+  assert.match(
+    badge.className, /badge--warn/,
+    `本地回退不得显示为成功色，实际类名：${JSON.stringify(badge.className)}`
+  );
+
   assert.deepEqual(errors, [], `转译期间出现未捕获异常：\n${errors.join('\n')}`);
 });
