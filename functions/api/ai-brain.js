@@ -111,11 +111,87 @@ function cors(request, env = {}) {
 // 两条互补的入口：
 //   · GET  /api/ai-brain?probe=1 → 只读自检，只回答「配了没」（零外部调用、零额度消耗）
 //   · POST /api/ai-brain         → 响应体带 aiStatus，回答「为什么没用上」（含真实 HTTP 错误）
+// ── provider 表（6.8.5 起模型名可配置，且带候选列表）──────────────────────
+// 为什么必须有「候选列表」：**模型名会腐烂。**
+//
+// 6.8.5 实测发现，代码里硬编码的 `gemini-1.5-flash` 早已退役
+// （Google 官方退役表里连条目都没有；连 2.0 系列也已在 2026-06-01 关停），
+// 于是 Gemini 这条路**长期静默 404**，而用户在界面上完全看不出 ——
+// 因为失败只写进 console.warn、徽章又无条件显示绿色。
+//
+// 单点硬编码一个模型名 = 一次退役就永久失效；
+// 候选列表 + 环境变量覆盖，才能让「模型下线」退化成「换下一个」，
+// 而不是「整条路哑掉、还没人知道」。
 const PROVIDERS = [
-  { id: 'groq', envVar: 'GROQ_API_KEY', model: 'llama-3.3-70b-versatile' },
-  { id: 'openrouter', envVar: 'OPENROUTER_API_KEY', model: 'meta-llama/llama-3.3-70b-instruct:free' },
-  { id: 'gemini', envVar: 'GEMINI_API_KEY', model: 'gemini-1.5-flash' }
+  {
+    id: 'groq',
+    label: 'Groq',
+    envVar: 'GROQ_API_KEY',
+    modelEnvVar: 'GROQ_MODEL',
+    models: ['llama-3.3-70b-versatile'],
+    url: 'https://api.groq.com/openai/v1/chat/completions',
+    extraHeaders: {},
+    jsonMode: true
+  },
+  {
+    id: 'openrouter',
+    label: 'OpenRouter',
+    envVar: 'OPENROUTER_API_KEY',
+    modelEnvVar: 'OPENROUTER_MODEL',
+    models: ['meta-llama/llama-3.3-70b-instruct:free'],
+    url: 'https://openrouter.ai/api/v1/chat/completions',
+    extraHeaders: { 'HTTP-Referer': 'https://legowaruniverse.pages.dev', 'X-Title': 'LEGO War Universe' },
+    jsonMode: false
+  },
+  {
+    id: 'gemini',
+    label: 'Gemini',
+    envVar: 'GEMINI_API_KEY',
+    modelEnvVar: 'GEMINI_MODEL',
+    // 按 Google 官方退役表，2026-10 仍可用的免费档为 3.5 Flash-Lite / 3.8 Flash。
+    // 依次尝试，任一模型退役都不会让整条路彻底哑掉。
+    models: ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash'],
+    url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
+    extraHeaders: {},
+    jsonMode: true
+  }
 ];
+
+/**
+ * 解析某 provider 实际要尝试的模型列表。
+ * 环境变量（逗号 / 分号 / 空白分隔）优先，否则用内置候选。
+ * 这让「模型名退役」可以在不改代码的前提下由运维直接修掉。
+ */
+function modelsFor(provider, env = {}) {
+  const raw = String(env[provider.modelEnvVar] == null ? '' : env[provider.modelEnvVar]).trim();
+  if (raw) return raw.split(/[,;\s]+/).map(s => s.trim()).filter(Boolean);
+  return provider.models.slice();
+}
+
+/**
+ * 把 provider 的原始 HTTP 错误翻译成「人话 + 下一步怎么办」。
+ * 光有 `Groq HTTP 403` 用户仍然不知道该干什么 —— 这一层才是可操作的信息。
+ */
+function adviseProviderError(provider, model, message) {
+  const matched = /HTTP (\d{3})/.exec(String(message == null ? '' : message));
+  const status = matched ? Number(matched[1]) : null;
+  if (status === 401) {
+    return `${provider.label} 拒绝了这把 Key（401 未授权）：请到控制台重新生成并完整复制（注意别带多余空格），然后更新环境变量 ${provider.envVar} 并重新部署。`;
+  }
+  if (status === 403) {
+    return `${provider.label} 拒绝了这把 Key（403 禁止访问）：常见原因是 Key 无效 / 已撤销 / 账户受限或未完成验证 / 所在地区不支持。请到控制台确认 Key 状态，或换一把新 Key。`;
+  }
+  if (status === 404) {
+    return `${provider.label} 找不到模型「${model}」（404）：多半是这个模型名已经退役。用环境变量 ${provider.modelEnvVar} 指定一个当前可用的模型名即可，无需改代码。`;
+  }
+  if (status === 429) {
+    return `${provider.label} 额度用尽或触发限流（429）：换一个 provider，或等额度重置。`;
+  }
+  if (status === 413) {
+    return `${provider.label} 提示请求体积过大（413）：可减少镜头数或资产目录后再试。`;
+  }
+  return `${provider.label} 调用失败：${message}`;
+}
 
 /**
  * 密钥掩码：只保留长度与后四位，**绝不返回密钥本身**。
@@ -132,7 +208,8 @@ function providerReport(env = {}) {
   return PROVIDERS.map(p => ({
     id: p.id,
     envVar: p.envVar,
-    model: p.model,
+    modelEnvVar: p.modelEnvVar,
+    models: modelsFor(p, env),
     configured: Boolean(env[p.envVar]),
     keyHint: maskKey(env[p.envVar])
   }));
@@ -152,7 +229,7 @@ function buildAiStatus(attempts, env = {}) {
     ? null
     : (configured === 0
       ? '后台未配置任何模型 Key，本次由本地引擎生成。启用云端 AI：Cloudflare Pages → Settings → Environment variables → Production 配置 GROQ_API_KEY（类型选 Secret），然后重新部署。'
-      : '后台已配置模型 Key，但本次调用全部失败 —— 请看下方 providers 里每个 provider 的 error 字段（401=Key 无效，429=额度或限流，404=模型不可用）。');
+      : '后台已配置模型 Key，但本次调用全部失败 —— 请看 providers 里每个 provider 的 advice 字段（已把 HTTP 状态码翻译成具体怎么办：401/403=Key 被拒绝，404=模型名可能已退役，429=额度或限流）。');
 
   return {
     aiAvailable: Boolean(won),
@@ -378,79 +455,35 @@ function cleanAndParseJson(text) {
 }
 
 /**
- * 尝试调用 Groq 极速免费接口
+ * 调一次指定 provider 的指定模型。
+ *
+ * 6.8.5 起由「每个 provider 一个写死模型的函数」改为「通用函数 + 模型候选列表」——
+ * 起因是 `gemini-1.5-flash` 退役后整条路静默 404，而模型名硬编码在函数体里，
+ * 除了改代码没有任何办法修。现在模型名来自 PROVIDERS / 环境变量，可运维。
+ *
+ * 失败时抛出带 provider 名与 HTTP 状态码的错误，供 aiStatus 诊断字段使用。
  */
-async function callGroq(systemPrompt, userPrompt, apiKey) {
-  const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: 'llama-3.3-70b-versatile',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      temperature: 0.7,
-      response_format: { type: 'json_object' }
-    })
-  });
-  if (!res.ok) throw new Error(`Groq HTTP ${res.status}`);
-  const data = await res.json();
-  const content = data.choices?.[0]?.message?.content;
-  return cleanAndParseJson(content);
-}
+async function callProviderModel(provider, model, systemPrompt, userPrompt, apiKey) {
+  const body = {
+    model,
+    messages: [
+      { role: 'system', content: systemPrompt },
+      { role: 'user', content: userPrompt }
+    ],
+    temperature: 0.7
+  };
+  if (provider.jsonMode) body.response_format = { type: 'json_object' };
 
-/**
- * 尝试调用 OpenRouter 免费模型接口
- */
-async function callOpenRouter(systemPrompt, userPrompt, apiKey) {
-  const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+  const res = await fetch(provider.url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${apiKey}`,
-      'HTTP-Referer': 'https://legowaruniverse.pages.dev',
-      'X-Title': 'LEGO War Universe'
+      ...provider.extraHeaders
     },
-    body: JSON.stringify({
-      model: 'meta-llama/llama-3.3-70b-instruct:free',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      temperature: 0.7
-    })
+    body: JSON.stringify(body)
   });
-  if (!res.ok) throw new Error(`OpenRouter HTTP ${res.status}`);
-  const data = await res.json();
-  const content = data.choices?.[0]?.message?.content;
-  return cleanAndParseJson(content);
-}
-
-/**
- * 尝试调用 Google Gemini 免费接口 (通过 OpenAI 兼容端点)
- */
-async function callGemini(systemPrompt, userPrompt, apiKey) {
-  const res = await fetch('https://generativelanguage.googleapis.com/v1beta/openai/chat/completions', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`
-    },
-    body: JSON.stringify({
-      model: 'gemini-1.5-flash',
-      messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
-      ],
-      temperature: 0.7,
-      response_format: { type: 'json_object' }
-    })
-  });
-  if (!res.ok) throw new Error(`Gemini HTTP ${res.status}`);
+  if (!res.ok) throw new Error(`${provider.label} HTTP ${res.status}`);
   const data = await res.json();
   const content = data.choices?.[0]?.message?.content;
   return cleanAndParseJson(content);
@@ -551,53 +584,46 @@ export async function onRequest({ request, env = {} }) {
   const attempts = PROVIDERS.map(p => ({
     id: p.id,
     envVar: p.envVar,
-    model: p.model,
+    modelEnvVar: p.modelEnvVar,
     configured: Boolean(env[p.envVar]),
     tried: false,
     ok: false,
-    error: null
+    model: null,
+    attemptedModels: [],
+    error: null,
+    advice: null
   }));
-  const recordOf = id => attempts.find(a => a.id === id);
 
-  // 1. 尝试 Groq 免费通道
-  if (env.GROQ_API_KEY && !result) {
-    const record = recordOf('groq');
+  // 按顺序尝试，一个成功就停；每个 provider 内部还会按候选模型列表逐个试。
+  // 6.8.5 之前这里是三段写死的 if + 三个写死模型的函数，模型一退役就整条路哑掉。
+  for (const provider of PROVIDERS) {
+    if (result) break;
+    const record = attempts.find(a => a.id === provider.id);
+    if (!record.configured) continue;
+
+    const models = modelsFor(provider, env);
     record.tried = true;
-    try {
-      result = await callGroq(systemPrompt, userPrompt, env.GROQ_API_KEY);
-      usedEngine = 'Groq (llama-3.3-70b-versatile)';
-      record.ok = true;
-    } catch (e) {
-      record.error = e.message;
-      console.warn('Groq 调度跳过或失败:', e.message);
+    record.attemptedModels = models;
+    let lastError = null;
+
+    for (const model of models) {
+      try {
+        result = await callProviderModel(provider, model, systemPrompt, userPrompt, env[provider.envVar]);
+        usedEngine = `${provider.label} (${model})`;
+        record.ok = true;
+        record.model = model;
+        break;
+      } catch (e) {
+        lastError = e;
+        console.warn(`${provider.id}/${model} 调度失败:`, e.message);
+      }
     }
-  }
 
-  // 2. 尝试 OpenRouter 免费通道
-  if (env.OPENROUTER_API_KEY && !result) {
-    const record = recordOf('openrouter');
-    record.tried = true;
-    try {
-      result = await callOpenRouter(systemPrompt, userPrompt, env.OPENROUTER_API_KEY);
-      usedEngine = 'OpenRouter (llama-3.3:free)';
-      record.ok = true;
-    } catch (e) {
-      record.error = e.message;
-      console.warn('OpenRouter 调度跳过或失败:', e.message);
-    }
-  }
-
-  // 3. 尝试 Google Gemini 免费通道
-  if (env.GEMINI_API_KEY && !result) {
-    const record = recordOf('gemini');
-    record.tried = true;
-    try {
-      result = await callGemini(systemPrompt, userPrompt, env.GEMINI_API_KEY);
-      usedEngine = 'Google Gemini (gemini-1.5-flash)';
-      record.ok = true;
-    } catch (e) {
-      record.error = e.message;
-      console.warn('Gemini 调度跳过或失败:', e.message);
+    if (!record.ok && lastError) {
+      record.error = lastError.message;
+      // 把 HTTP 状态码翻译成「人话 + 下一步怎么办」——
+      // 光有 `Groq HTTP 403` 用户仍然不知道该干什么。
+      record.advice = adviseProviderError(provider, models[models.length - 1], lastError.message);
     }
   }
 
