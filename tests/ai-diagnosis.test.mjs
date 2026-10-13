@@ -12,12 +12,20 @@
  *   2. 自检**绝不泄露密钥**，也**不发起任何外部调用**；
  *   3. 既有契约不放宽（不带 probe 的 GET 仍然 405）；
  *   4. 生成响应必须带 aiStatus，如实说明为什么没用上云端 AI。
+ *
+ * 6.8.5 追加：模型名会腐烂 —— 必须有候选列表 + 环境变量覆盖。
+ * 6.8.6 追加：**把「慢」与「挂死」分开**。
+ *   6.8.5 让 Gemini 真的通了之后，线上实测单镜就要 30–59 秒；
+ *   而 fetch 完全没有超时，上游一旦不返回，请求就永远挂着 ——
+ *   前端既不报错也不回退，用户看到的就是死机。
+ *   因此这里立三条门禁：单次调用超时、整次请求总预算、逐模型耗时可见。
  */
 
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { onRequest } from '../functions/api/ai-brain.js';
+import { callAiBrain } from '../src/domain/ai-brain.js';
 
 const call = (body, method = 'POST', headers = {}, env = {}, url = 'https://lwu.example/api/ai-brain') => {
   const req = new Request(url, {
@@ -240,4 +248,185 @@ test('AI 诊断：源码里不得再硬编码已退役的模型名（防模型�
   const src = readFileSync(new URL('../functions/api/ai-brain.js', import.meta.url), 'utf8');
   assert.ok(!/['"]gemini-1\.5-flash['"]/.test(src), 'gemini-1.5-flash 早已退役，不得再硬编码');
   assert.ok(!/['"]gemini-2\.0-flash/.test(src), 'gemini-2.0 系列已于 2026-06-01 关停，不得再硬编码');
+});
+
+// ── 6.8.6：把「慢」与「挂死」分开 ──────────────────────────────────────
+// 起因：6.8.5 修好模型名之后云端 AI 真的通了，于是暴露出真正的问题 ——
+// 线上实测 requestedShots=1 也要 30.7s / 59.0s，requestedShots=4 更是 60s/90s 都等不到。
+// 它不是挂死，是**真的很慢**；但代码里的 fetch 没有任何超时，
+// 于是「慢」与「挂死」在行为上完全一样：请求一直挂着，前端既不报错也不回退。
+//
+// 三条门禁：单次调用超时 / 整次请求总预算 / 逐模型耗时可见。
+
+/** 永不返回的 fetch：模拟上游彻底挂死（而不是「慢」）。 */
+const hangingFetch = () => new Promise(() => {});
+
+test('AI 诊断：单次模型调用超时必须被中断，而不是无限等待', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = hangingFetch;
+  try {
+    const t0 = Date.now();
+    const res = await call({ query: '现代特战城市巷战', requestedShots: 1 }, 'POST', {}, {
+      GEMINI_API_KEY: 'k',
+      AI_PROVIDER_TIMEOUT_MS: '40',
+      AI_REQUEST_BUDGET_MS: '200'
+    });
+    const elapsed = Date.now() - t0;
+    const data = await res.json();
+
+    assert.ok(elapsed < 5000, `超时没有被真正执行，请求耗时 ${elapsed}ms`);
+    assert.equal(data.isAiGenerated, false);
+    assert.equal(data.aiStatus.timedOut, true, 'aiStatus 必须标记出发生过超时');
+
+    const gemini = data.aiStatus.providers.find(p => p.id === 'gemini');
+    assert.ok(gemini.calls.length >= 1, '必须留下逐次调用记录');
+    const first = gemini.calls[0];
+    assert.equal(first.model, 'gemini-3.8-flash');
+    assert.equal(first.ok, false);
+    assert.equal(first.timedOut, true, '超时必须被单独标出来，否则与 404/403 混为一谈');
+    assert.ok(first.ms >= 40, `必须记录真实耗时，实际 ${first.ms}ms`);
+    assert.match(first.error, /超时/);
+
+    // 光说「超时」不够，必须告诉用户下一步怎么办
+    assert.match(gemini.advice, /超时/);
+    assert.match(gemini.advice, /GEMINI_MODEL|AI_PROVIDER_TIMEOUT_MS/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('AI 诊断：必须逐模型记录耗时，才能测出到底哪个模型慢', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url, options) => {
+    const model = JSON.parse(options.body).model;
+    await new Promise(r => setTimeout(r, model === 'gemini-3.8-flash' ? 60 : 10));
+    if (model !== 'gemini-2.5-flash') return new Response('not found', { status: 404 });
+    return new Response(JSON.stringify({
+      choices: [{ message: { content: JSON.stringify({
+        matchedMovie: '测试片',
+        shots: [{
+          phase: 'establish',
+          action: '乐高特战小队推进。',
+          assets: { subjects: ['CHR-401'], environment: 'ENV-401', camera: 'CAM-401', lighting: 'LGT-001', colorGrade: 'CLR-001' }
+        }]
+      }) } }]
+    }), { status: 200, headers: { 'content-type': 'application/json' } });
+  };
+  try {
+    const data = await (await call({ query: '现代特战城市巷战', requestedShots: 1 }, 'POST', {}, { GEMINI_API_KEY: 'k' })).json();
+    const gemini = data.aiStatus.providers.find(p => p.id === 'gemini');
+
+    assert.deepEqual(
+      gemini.calls.map(c => c.model),
+      ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash'],
+      '必须逐个候选模型留下记录，顺序与实际尝试一致'
+    );
+    assert.deepEqual(gemini.calls.map(c => c.ok), [false, false, true]);
+    assert.ok(gemini.calls[0].ms >= 60, `第一个模型真的很慢，必须记录下来，实际 ${gemini.calls[0].ms}ms`);
+    assert.ok(
+      gemini.calls[0].ms > gemini.calls[1].ms,
+      '慢的模型与快的模型必须能区分开 —— 否则「哪个模型慢」永远只能靠猜'
+    );
+    assert.equal(gemini.totalMs, gemini.calls.reduce((s, c) => s + c.ms, 0), 'provider 级总耗时必须是逐次之和');
+    assert.equal(data.isAiGenerated, true);
+    assert.equal(data.aiStatus.activeProvider, 'gemini');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('AI 诊断：总预算耗尽后必须停止尝试，而不是继续烧时间', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = hangingFetch;
+  try {
+    const t0 = Date.now();
+    const data = await (await call({ query: '现代特战城市巷战', requestedShots: 1 }, 'POST', {}, {
+      GEMINI_API_KEY: 'k',
+      AI_PROVIDER_TIMEOUT_MS: '300',
+      AI_REQUEST_BUDGET_MS: '300'
+    })).json();
+    const elapsed = Date.now() - t0;
+
+    assert.ok(elapsed < 3000, `总预算没有生效，请求耗时 ${elapsed}ms`);
+    assert.equal(data.aiStatus.budgetMs, 300);
+    assert.equal(data.aiStatus.budgetExhausted, true, '总预算耗尽必须被如实标记');
+    const gemini = data.aiStatus.providers.find(p => p.id === 'gemini');
+    assert.ok(
+      gemini.calls.some(c => c.skipped === true),
+      '预算耗尽后剩余的候选模型必须被跳过，否则「总预算」只是装饰'
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('AI 诊断：自检必须报告当前生效的超时与预算', async () => {
+  const data = await (await probe({ AI_PROVIDER_TIMEOUT_MS: '1234', AI_REQUEST_BUDGET_MS: '5678' })).json();
+  assert.equal(data.timeouts.perModelMs, 1234);
+  assert.equal(data.timeouts.totalMs, 5678);
+  assert.equal(data.timeouts.perModelEnvVar, 'AI_PROVIDER_TIMEOUT_MS');
+  assert.equal(data.timeouts.totalEnvVar, 'AI_REQUEST_BUDGET_MS');
+});
+
+test('AI 诊断：非法超时配置一律退回默认，不能让 0 或负数把路径掐死', async () => {
+  const data = await (await probe({ AI_PROVIDER_TIMEOUT_MS: '0', AI_REQUEST_BUDGET_MS: '-5' })).json();
+  assert.equal(data.timeouts.perModelMs, 60000);
+  assert.equal(data.timeouts.totalMs, 120000);
+});
+
+test('6.8.6 · 前端：云端长时间不返回必须中断并如实回退，而不是无限等待', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = hangingFetch;
+  const progress = [];
+  try {
+    const t0 = Date.now();
+    const result = await callAiBrain({
+      query: '北极冰原上的雷达站遭遇突袭',
+      requestedShots: 2,
+      onProgress: (m) => progress.push(m),
+      timeoutMs: 60,
+      progressIntervalMs: 10
+    });
+    const elapsed = Date.now() - t0;
+
+    assert.ok(elapsed < 5000, `前端超时没有生效，耗时 ${elapsed}ms`);
+    assert.equal(result.isAiGenerated, false);
+    assert.ok(result.aiStatus, '前端超时也必须带诊断，否则徽章又只能含糊其辞');
+    assert.equal(result.aiStatus.reason, 'FRONTEND_TIMEOUT');
+    assert.ok(Array.isArray(result.shots) && result.shots.length > 0, '超时后仍必须出片（回退本地引擎）');
+    assert.ok(
+      progress.some(m => /已等待 \d+ 秒/.test(m)),
+      '等待期间必须有「已等待 N 秒」的心跳 —— 否则几十秒的合法等待与界面卡死观感完全一样'
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('6.8.6 · 前端：后台返回非 2xx 时必须回显状态码，不能含糊其辞', async () => {
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async () => new Response(JSON.stringify({ error: 'RATE_LIMITED' }), {
+    status: 429,
+    headers: { 'content-type': 'application/json' }
+  });
+  try {
+    const result = await callAiBrain({ query: '北极冰原上的雷达站遭遇突袭', requestedShots: 2 });
+    assert.equal(result.aiStatus.reason, 'BACKEND_ERROR');
+    assert.match(result.aiStatus.hint, /429/);
+    assert.match(result.aiStatus.hint, /RATE_LIMITED/);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('6.8.6 · 源码门禁：所有 fetch 都必须带超时（防「慢」与「挂死」再次混为一谈）', () => {
+  const backend = readFileSync(new URL('../functions/api/ai-brain.js', import.meta.url), 'utf8');
+  assert.ok(!/await\s+fetch\(/.test(backend), '后端所有 fetch 都必须包在 withTimeout 里');
+  assert.match(backend, /AbortController/, '超时必须真的 abort 底层连接，否则连接仍挂着白占额度');
+  assert.match(backend, /AI_PROVIDER_TIMEOUT_MS/);
+  assert.match(backend, /AI_REQUEST_BUDGET_MS/);
+
+  const frontend = readFileSync(new URL('../src/domain/ai-brain.js', import.meta.url), 'utf8');
+  assert.ok(!/await\s+fetch\(/.test(frontend), '前端 fetch 必须走 Promise.race 超时，否则后端挂住时界面会一直等');
+  assert.match(frontend, /FRONTEND_TIMEOUT_MS/);
 });

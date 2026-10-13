@@ -168,11 +168,76 @@ function modelsFor(provider, env = {}) {
   return provider.models.slice();
 }
 
+// ── 超时与总预算（6.8.6）────────────────────────────────────────────────
+// 起因：6.8.5 修好模型名之后，Gemini 这条路**真的通了** —— 于是线上出现了新症状：
+// 「点一次深度转译，页面长时间没反应」。实测线上（2026-10-13）：
+//   · requestedShots=1 → HTTP 200，但耗时 30.7s / 59.0s 两次；
+//   · requestedShots=4 → 客户端 60s / 90s 都没等到，看起来就是死机。
+//
+// 也就是说：**它不是挂死，是真的很慢**；但代码里的 fetch **完全没有超时**，
+// 于是「慢」和「挂死」在行为上完全一样 —— 上游一旦不返回，请求就永远挂着，
+// 前端既不报错也不回退，用户只能干等。
+//
+// 加两层上限，且都可用环境变量覆盖（默认值不合适时不必改代码）：
+//   · AI_PROVIDER_TIMEOUT_MS —— 单次模型调用上限，一次上游卡死不会吃掉整次请求；
+//   · AI_REQUEST_BUDGET_MS   —— 整次请求总预算，无论多少 provider / 候选模型，总时长有界。
+//
+// 默认值刻意给得比实测耗时宽松（单次 60s / 总计 120s）：
+// 先把「无界」变成「有界」并**测出真实耗时分布**，再依据数据收紧 ——
+// 而不是凭感觉定一个会把当前可用路径掐死的数字。
+const DEFAULT_PROVIDER_TIMEOUT_MS = 60000;
+const DEFAULT_REQUEST_BUDGET_MS = 120000;
+
+/** 解析超时配置：环境变量优先，非法值一律退回默认。 */
+function timeoutsFor(env = {}) {
+  const positive = (value, fallback) => {
+    const n = Number(value);
+    return Number.isFinite(n) && n > 0 ? n : fallback;
+  };
+  return {
+    perModelMs: positive(env.AI_PROVIDER_TIMEOUT_MS, DEFAULT_PROVIDER_TIMEOUT_MS),
+    totalMs: positive(env.AI_REQUEST_BUDGET_MS, DEFAULT_REQUEST_BUDGET_MS)
+  };
+}
+
+/**
+ * 给任意 Promise 加超时，超时后触发 onTimeout（用于 abort 底层连接）。
+ *
+ * 两个细节都不能省，否则会引入新 bug：
+ *   1. 必须给原始 promise 挂一个空 catch。Promise.race 一旦被 guard 抢先结束，
+ *      原始 promise 之后再 reject（abort 触发的 AbortError）就没有接收者，
+ *      会变成 unhandled rejection —— Node 会直接让测试进程失败。
+ *   2. onTimeout 只在**真的超时**时才调用，不能在 finally 里无条件调用。
+ */
+async function withTimeout(promise, timeoutMs, onTimeout) {
+  let timer = null;
+  let timedOut = false;
+  const guard = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      timedOut = true;
+      reject(new Error(`TIMEOUT_${timeoutMs}ms`));
+    }, timeoutMs);
+  });
+  promise.catch(() => { /* 见上：避免 race 结束后再抛成为 unhandled rejection */ });
+  try {
+    return await Promise.race([promise, guard]);
+  } finally {
+    clearTimeout(timer);
+    if (timedOut && typeof onTimeout === 'function') onTimeout();
+  }
+}
+
+const isTimeoutError = (err) => /^TIMEOUT_\d+ms$/.test(String(err && err.message ? err.message : ''));
+
 /**
  * 把 provider 的原始 HTTP 错误翻译成「人话 + 下一步怎么办」。
  * 光有 `Groq HTTP 403` 用户仍然不知道该干什么 —— 这一层才是可操作的信息。
  */
 function adviseProviderError(provider, model, message) {
+  // 超时没有 HTTP 状态码，必须单独判，否则会掉进兜底那句无信息量的「调用失败」。
+  if (/超时/.test(String(message == null ? '' : message))) {
+    return `${provider.label} 在限定时间内没有返回（超时）：多半是该模型当前排队严重或上游卡住。可以换更快的模型（环境变量 ${provider.modelEnvVar}），或调大 AI_PROVIDER_TIMEOUT_MS。`;
+  }
   const matched = /HTTP (\d{3})/.exec(String(message == null ? '' : message));
   const status = matched ? Number(matched[1]) : null;
   if (status === 401) {
@@ -217,19 +282,36 @@ function providerReport(env = {}) {
 
 /**
  * 汇总本次请求的 AI 使用结论。
- * @param {Array} attempts 逐个 provider 的尝试记录
+ * @param {Array} attempts 逐个 provider 的尝试记录（含各自的 calls 逐次耗时）
  * @param {object} env 运行时环境变量
+ * @param {object} meta 本次请求的预算与耗时信息
  */
-function buildAiStatus(attempts, env = {}) {
+function buildAiStatus(attempts, env = {}, meta = {}) {
   const configured = PROVIDERS.filter(p => env[p.envVar]).length;
   const won = attempts.find(a => a.ok) || null;
   const reason = won ? 'OK' : (configured === 0 ? 'NO_KEYS_CONFIGURED' : 'ALL_PROVIDERS_FAILED');
 
-  const hint = won
-    ? null
-    : (configured === 0
-      ? '后台未配置任何模型 Key，本次由本地引擎生成。启用云端 AI：Cloudflare Pages → Settings → Environment variables → Production 配置 GROQ_API_KEY（类型选 Secret），然后重新部署。'
-      : '后台已配置模型 Key，但本次调用全部失败 —— 请看 providers 里每个 provider 的 advice 字段（已把 HTTP 状态码翻译成具体怎么办：401/403=Key 被拒绝，404=模型名可能已退役，429=额度或限流）。');
+  // 「哪个模型慢、哪个模型挂」必须能从响应里直接读出来 ——
+  // 这正是 6.8.6 之前读不出来的东西：attemptedModels 只记了名字，
+  // 记不下「这个名字失败了、失败在哪、花了多久」。
+  const calls = attempts.flatMap(a => (a.calls || []).map(c => ({ provider: a.id, ...c })));
+  const timedOutCalls = calls.filter(c => c.timedOut);
+  const budgetExhausted = Boolean(meta.budgetExhausted);
+
+  let hint;
+  if (won) {
+    hint = null;
+  } else if (configured === 0) {
+    hint = '后台未配置任何模型 Key，本次由本地引擎生成。启用云端 AI：Cloudflare Pages → Settings → Environment variables → Production 配置 GROQ_API_KEY（类型选 Secret），然后重新部署。';
+  } else {
+    hint = '后台已配置模型 Key，但本次调用全部失败 —— 请看 providers 里每个 provider 的 advice 字段（已把 HTTP 状态码翻译成具体怎么办：401/403=Key 被拒绝，404=模型名可能已退役，429=额度或限流）。';
+    if (timedOutCalls.length) {
+      hint += ` 另有 ${timedOutCalls.length} 次是**超时**（${timedOutCalls.map(c => `${c.provider}/${c.model}`).join('、')}）：说明该模型排队严重或上游卡住，可换更快的模型或调大 AI_PROVIDER_TIMEOUT_MS。`;
+    }
+    if (budgetExhausted) {
+      hint += ' 本次请求还触发了总预算上限（AI_REQUEST_BUDGET_MS），后续候选模型未再尝试。';
+    }
+  }
 
   return {
     aiAvailable: Boolean(won),
@@ -237,6 +319,15 @@ function buildAiStatus(attempts, env = {}) {
     activeProvider: won ? won.id : null,
     configuredCount: configured,
     providers: attempts,
+    // ── 6.8.6：让「慢」可测量 ────────────────────────────────────────
+    // 有了逐次耗时，才能回答「到底是哪个模型慢/挂」，
+    // 而不是像 6.8.4 那样拿总耗时（latencyMs=193）去反推结论、反推出错。
+    calls,
+    timedOut: timedOutCalls.length > 0,
+    timedOutCalls: timedOutCalls.map(c => ({ provider: c.provider, model: c.model, ms: c.ms })),
+    budgetExhausted,
+    budgetMs: meta.budgetMs == null ? null : meta.budgetMs,
+    elapsedMs: meta.elapsedMs == null ? null : meta.elapsedMs,
     hint
   };
 }
@@ -245,6 +336,7 @@ function buildAiStatus(attempts, env = {}) {
 function buildProbeReport(env = {}) {
   const providers = providerReport(env);
   const anyConfigured = providers.some(p => p.configured);
+  const { perModelMs, totalMs } = timeoutsFor(env);
   return {
     ok: true,
     probe: true,
@@ -252,8 +344,15 @@ function buildProbeReport(env = {}) {
     configuredCount: providers.filter(p => p.configured).length,
     providerOrder: PROVIDERS.map(p => p.id),
     providers,
+    // 6.8.6：超时与预算是「为什么慢/为什么没反应」的直接答案，必须能一眼看到当前生效值。
+    timeouts: {
+      perModelMs,
+      totalMs,
+      perModelEnvVar: 'AI_PROVIDER_TIMEOUT_MS',
+      totalEnvVar: 'AI_REQUEST_BUDGET_MS'
+    },
     diagnosis: anyConfigured
-      ? '后台至少配置了一个模型 Key。若「深度转译」仍显示本地引擎，请点一次「深度转译」，响应里的 aiStatus.providers[].error 会给出真实失败原因（401=Key 无效，429=额度或限流，404=模型不可用）。'
+      ? '后台至少配置了一个模型 Key。若「深度转译」仍显示本地引擎，请点一次「深度转译」，响应里的 aiStatus.providers[].calls 会逐次给出每个模型的耗时与真实失败原因（401=Key 无效，429=额度或限流，404=模型不可用，超时=该模型排队严重）。'
       : '后台没有配置任何模型 Key（GROQ_API_KEY / OPENROUTER_API_KEY / GEMINI_API_KEY 均为空），因此所有生成都会走本地引擎 —— 功能完整、不联网、不花钱。想启用云端 AI，请按 howToFix 操作。',
     howToFix: [
       'Cloudflare 控制台 → 你的 Pages 项目 → Settings → Environment variables → Production',
@@ -462,8 +561,11 @@ function cleanAndParseJson(text) {
  * 除了改代码没有任何办法修。现在模型名来自 PROVIDERS / 环境变量，可运维。
  *
  * 失败时抛出带 provider 名与 HTTP 状态码的错误，供 aiStatus 诊断字段使用。
+ *
+ * 6.8.6 起**每一次网络等待都有上限**：响应头、响应体分别计时，
+ * 超时既 abort 底层连接、也抛出可读的错误（否则「慢」与「挂死」行为一致）。
  */
-async function callProviderModel(provider, model, systemPrompt, userPrompt, apiKey) {
+async function callProviderModel(provider, model, systemPrompt, userPrompt, apiKey, timeoutMs) {
   const body = {
     model,
     messages: [
@@ -474,17 +576,41 @@ async function callProviderModel(provider, model, systemPrompt, userPrompt, apiK
   };
   if (provider.jsonMode) body.response_format = { type: 'json_object' };
 
-  const res = await fetch(provider.url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': `Bearer ${apiKey}`,
-      ...provider.extraHeaders
-    },
-    body: JSON.stringify(body)
-  });
+  const controller = new AbortController();
+  const abort = () => { try { controller.abort(); } catch { /* abort 失败不影响超时语义 */ } };
+
+  let res;
+  try {
+    res = await withTimeout(fetch(provider.url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+        ...provider.extraHeaders
+      },
+      body: JSON.stringify(body),
+      signal: controller.signal
+    }), timeoutMs, abort);
+  } catch (err) {
+    if (isTimeoutError(err)) {
+      throw new Error(`${provider.label} 超时：${timeoutMs}ms 内未返回响应头（模型「${model}」）`);
+    }
+    throw err;
+  }
+
   if (!res.ok) throw new Error(`${provider.label} HTTP ${res.status}`);
-  const data = await res.json();
+
+  let data;
+  try {
+    // 响应头到了不代表响应体到齐：流式响应可能卡在传输中途，这里同样要计时。
+    data = await withTimeout(res.json(), timeoutMs, abort);
+  } catch (err) {
+    if (isTimeoutError(err)) {
+      throw new Error(`${provider.label} 超时：${timeoutMs}ms 内未读完响应体（模型「${model}」）`);
+    }
+    throw err;
+  }
+
   const content = data.choices?.[0]?.message?.content;
   return cleanAndParseJson(content);
 }
@@ -578,6 +704,12 @@ export async function onRequest({ request, env = {} }) {
   let result = null;
   let usedEngine = 'None';
 
+  // 本次请求的超时与总预算（6.8.6）。deadline 用绝对时间，
+  // 这样「还要不要开始下一次调用」是一个可以算出来的问题，而不是凭感觉。
+  const { perModelMs, totalMs } = timeoutsFor(env);
+  const deadline = startTime + totalMs;
+  let budgetExhausted = false;
+
   // 逐个 provider 的尝试记录 —— 这是「为什么没用上 AI」的唯一证据来源。
   // 此前这些失败只写进 console.warn（用户在页面上永远看不到），
   // 于是「配了 Key 却一直跑本地」没有任何可观测的线索。
@@ -589,7 +721,12 @@ export async function onRequest({ request, env = {} }) {
     tried: false,
     ok: false,
     model: null,
+    ms: null,
     attemptedModels: [],
+    // 6.8.6：逐次调用记录。attemptedModels 只记名字，答不了
+    // 「哪个名字失败了、失败在哪、花了多久」—— 而那才是排查要的东西。
+    calls: [],
+    totalMs: 0,
     error: null,
     advice: null
   }));
@@ -597,7 +734,7 @@ export async function onRequest({ request, env = {} }) {
   // 按顺序尝试，一个成功就停；每个 provider 内部还会按候选模型列表逐个试。
   // 6.8.5 之前这里是三段写死的 if + 三个写死模型的函数，模型一退役就整条路哑掉。
   for (const provider of PROVIDERS) {
-    if (result) break;
+    if (result || budgetExhausted) break;
     const record = attempts.find(a => a.id === provider.id);
     if (!record.configured) continue;
 
@@ -607,28 +744,58 @@ export async function onRequest({ request, env = {} }) {
     let lastError = null;
 
     for (const model of models) {
+      // 开始下一次调用之前先看预算：剩余时间不够就不要再发起，
+      // 否则「总预算」只是装饰 —— 一次 60s 的调用就能把 120s 的预算吃掉一半以上。
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) {
+        budgetExhausted = true;
+        record.calls.push({ model, ok: false, ms: 0, error: '跳过：整次请求总预算已耗尽', timedOut: false, skipped: true });
+        break;
+      }
+      // 单次上限再被剩余预算夹一次，保证「总时长有界」是硬保证。
+      const callTimeout = Math.min(perModelMs, remaining);
+      const callStart = Date.now();
+
       try {
-        result = await callProviderModel(provider, model, systemPrompt, userPrompt, env[provider.envVar]);
+        result = await callProviderModel(provider, model, systemPrompt, userPrompt, env[provider.envVar], callTimeout);
+        const ms = Date.now() - callStart;
+        record.calls.push({ model, ok: true, ms, error: null, timedOut: false, skipped: false });
         usedEngine = `${provider.label} (${model})`;
         record.ok = true;
         record.model = model;
+        record.ms = ms;
         break;
       } catch (e) {
+        const ms = Date.now() - callStart;
         lastError = e;
-        console.warn(`${provider.id}/${model} 调度失败:`, e.message);
+        record.calls.push({
+          model,
+          ok: false,
+          ms,
+          error: e.message,
+          timedOut: /超时/.test(e.message),
+          skipped: false
+        });
+        console.warn(`${provider.id}/${model} 调度失败（${ms}ms）:`, e.message);
       }
     }
 
+    record.totalMs = record.calls.reduce((sum, c) => sum + (c.ms || 0), 0);
     if (!record.ok && lastError) {
       record.error = lastError.message;
-      // 把 HTTP 状态码翻译成「人话 + 下一步怎么办」——
+      // 把 HTTP 状态码 / 超时翻译成「人话 + 下一步怎么办」——
       // 光有 `Groq HTTP 403` 用户仍然不知道该干什么。
       record.advice = adviseProviderError(provider, models[models.length - 1], lastError.message);
     }
   }
 
   // 本次请求的 AI 结论：无论走云端还是回退本地，都如实带在响应里。
-  const aiStatus = buildAiStatus(attempts, env);
+  const aiStatus = buildAiStatus(attempts, env, {
+    budgetExhausted,
+    budgetMs: totalMs,
+    perModelMs,
+    elapsedMs: Date.now() - startTime
+  });
 
   // 4. 若无云端 Key 或调用均异常，自动由本地引擎无缝兜底。
   //

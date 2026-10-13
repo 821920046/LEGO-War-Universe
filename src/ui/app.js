@@ -211,7 +211,8 @@ async function boot() {
   if ($('ai-brain-status')) {
     // 6.8.4：待调用状态如实说明「后台没配 Key 就会走本地」，
     // 并指向只读自检地址 —— 让「配了却没生效」有一个当场可查的答案。
-    $('ai-brain-status').textContent = '🧠 云端 AI：待调用（后台未配 Key 时将自动回退本地引擎 · 自检 /api/ai-brain?probe=1）';
+    // 6.8.6：同时预告云端可能要等几十秒，避免用户误以为卡死。
+    $('ai-brain-status').textContent = '🧠 云端 AI：待调用（未配 Key 时自动回退本地引擎 · 云端可能需要几十秒 · 自检 /api/ai-brain?probe=1）';
   }
 
   // 初始化模型 Profile 选项
@@ -666,6 +667,19 @@ function describeAiFallback(status) {
   if (status.reason === 'NO_KEYS_CONFIGURED') {
     return '（后台未配置任何模型 Key —— 见 /api/ai-brain?probe=1 自检）';
   }
+  // 6.8.6：等待超时 / 接口不可达都必须说清楚，不能又退化成一句「未使用云端 AI」。
+  if (status.reason === 'FRONTEND_TIMEOUT') {
+    return `（前端等待超时，已中断请求 —— ${status.hint || '云端长时间未返回'}）`;
+  }
+  if (status.reason === 'FRONTEND_UNREACHABLE') {
+    return '（后台接口不可达：纯静态打开 / 网络中断 / 后端未部署）';
+  }
+  if (status.reason === 'BACKEND_EMPTY_RESULT') {
+    return '（后台返回 200 但没有可用分镜）';
+  }
+  if (status.reason === 'BACKEND_ERROR') {
+    return `（${status.hint || '后台返回错误'}）`;
+  }
   if (status.reason === 'ALL_PROVIDERS_FAILED') {
     const errs = (status.providers || [])
       .filter(p => p.tried && p.error)
@@ -678,11 +692,15 @@ function describeAiFallback(status) {
 /**
  * 可操作的失败说明：把后台的 advice（HTTP 状态码 → 下一步怎么办）拼成一段提示。
  *
- * 只在用户**确实配了 Key 但调用失败**时返回内容 —— 没配 Key 是正常状态
- * （系统本来就支持纯本地运行），不该每次生成都弹提示打扰用户。
+ * 只在用户**确实配了 Key 但调用失败**、或**等了很久被前端掐断**时返回内容 ——
+ * 没配 Key 是正常状态（系统本来就支持纯本地运行），不该每次生成都弹提示打扰用户。
  */
 function aiFallbackAdvice(status) {
-  if (!status || status.reason !== 'ALL_PROVIDERS_FAILED') return '';
+  if (!status) return '';
+  if (status.reason === 'FRONTEND_TIMEOUT') {
+    return status.hint || '前端等待超时，本次已回退本地引擎。';
+  }
+  if (status.reason !== 'ALL_PROVIDERS_FAILED') return '';
   return (status.providers || [])
     .filter(p => p.tried && (p.advice || p.error))
     .map(p => p.advice || `${p.id}：${p.error}`)
@@ -740,15 +758,18 @@ async function executeMovieTranspile(movieQuery) {
     // 用户配了 Key 却永远在跑本地，看不出任何异常。
     if ($('ai-brain-status')) {
       const usedAi = result.isAiGenerated === true;
+      // 6.8.6：把真实耗时也写进徽章。云端 AI 单镜就要几十秒，
+      // 用户有权利知道「这次生效了、但它有多慢」——否则只会觉得界面卡了。
+      const secs = Number.isFinite(result.latencyMs) ? ` · ${(result.latencyMs / 1000).toFixed(1)}s` : '';
       $('ai-brain-status').textContent = usedAi
-        ? `🧠 云端 AI 已生效：${result.engine || '未知'}`
+        ? `🧠 云端 AI 已生效：${result.engine || '未知'}${secs}`
         : `🧠 未使用云端 AI：${result.engine || '未知'}${describeAiFallback(result.aiStatus)}`;
       $('ai-brain-status').className = usedAi ? 'badge badge--ok' : 'badge badge--warn';
 
-      // 只在「配了 Key 但调用失败」时给出可操作提示（含下一步怎么办）。
+      // 只在「配了 Key 但调用失败」或「等到超时被掐断」时给出可操作提示（含下一步怎么办）。
       // 没配 Key 是正常状态，不该每次生成都弹窗打扰。
       const advice = usedAi ? '' : aiFallbackAdvice(result.aiStatus);
-      if (advice) toast(`云端 AI 调用失败，本次已回退本地引擎：\n${advice}`, 'error', 9000);
+      if (advice) toast(`云端 AI 未生效，本次已回退本地引擎：\n${advice}`, 'error', 9000);
     }
 
     $('theme').value = result.themeZh;
