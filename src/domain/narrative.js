@@ -409,12 +409,12 @@ export function phaseBeatPool(phase, { seed = 1, hasEnemy = false, hasSupport = 
  *        跨阶段也要传，否则「上一阶段收尾」与「下一阶段开场」可能撞成同一功能
  *        （例如 build 收在 escalate、climax 又开在 escalate，连看两镜一模一样）。
  */
-export function expandBeats(phase, { need = 0, seed = 1, hasEnemy = false, hasSupport = false, hasVehicle = false, excludeIds = [], prevFn: seedPrevFn = null } = {}) {
+export function expandBeats(phase, { need = 0, seed = 1, hasEnemy = false, hasSupport = false, hasVehicle = false, excludeIds = [], prevFn: seedPrevFn = null, arc: arcOverride = null } = {}) {
   const want = Math.max(0, Number(need) || 0);
   const pool = phaseBeatPool(phase, { seed, hasEnemy, hasSupport, hasVehicle, excludeIds });
   if (pool.length === 0 || want === 0) return [];
 
-  const arc = PHASE_ARC[phase] || [];
+  const arc = (Array.isArray(arcOverride) && arcOverride.length) ? arcOverride : (PHASE_ARC[phase] || []);
   const used = new Set();
   const out = [];
   let prevFn = seedPrevFn;
@@ -484,7 +484,7 @@ export function expandBeats(phase, { need = 0, seed = 1, hasEnemy = false, hasSu
  * @param {boolean} params.hasVehicle 是否有载具
  * @returns {Array<object>} 长度为 n 的节拍数组（id 全局唯一）
  */
-export function selectBeats({ n, seed = 1, hasEnemy = false, hasSupport = false, hasVehicle = false }) {
+export function selectBeats({ n, seed = 1, hasEnemy = false, hasSupport = false, hasVehicle = false, arc = null, vehicleFirst = false }) {
   const count = Math.max(1, Number(n) || 1);
   const gates = { hasEnemy, hasSupport, hasVehicle };
 
@@ -494,10 +494,17 @@ export function selectBeats({ n, seed = 1, hasEnemy = false, hasSupport = false,
     phaseCounts[Math.min(3, Math.floor((i * 4) / count))]++;
   }
 
+  // **叙事重心（6.8.0）**：调用方可以整体改排每个阶段的戏剧功能弧。
+  // 缺省走 `PHASE_ARC`；给了 `arc.establish` 等键就用调用方的顺序。
+  // 弧线顺序是这套引擎里**最便宜的「换一部电影」的旋钮** ——
+  // 功能集合不变（因此「相邻功能互异」「四阶段覆盖」两条不变式自动保持），
+  // 但观众先看到什么、压力在哪一段堆积，完全不同。
+  const arcOf = (phase) => (arc && Array.isArray(arc[phase]) && arc[phase].length ? arc[phase] : PHASE_ARC[phase]);
+
   const picked = [];
   let prevFn = null;
   PHASES.forEach((phase, pi) => {
-    const batch = expandBeats(phase, { need: phaseCounts[pi], seed, ...gates, prevFn });
+    const batch = expandBeats(phase, { need: phaseCounts[pi], seed, ...gates, prevFn, arc: arcOf(phase) });
     picked.push(...batch);
     if (batch.length) prevFn = batch[batch.length - 1].fn;
   });
@@ -528,7 +535,8 @@ export function selectBeats({ n, seed = 1, hasEnemy = false, hasSupport = false,
   // 修法：在不改变戏剧功能（fn）的前提下，把已有的一两镜**换成同 fn 的载具镜**。
   // 因为 fn 不变，戏剧弧线与「相邻功能互异」两条不变式都自动保持。
   if (hasVehicle) {
-    const wantVehicles = count >= 8 ? 2 : 1;
+    // `vehicleFirst`（6.8.0「装备视角」）：至少 3 镜载具，短片也保证 2 镜。
+    const wantVehicles = vehicleFirst ? Math.max(3, Math.ceil(count / 4)) : (count >= 8 ? 2 : 1);
     let have = picked.filter(b => b.focus === 'vehicle').length;
     if (have < wantVehicles) {
       const vehiclePool = usableBeats(gates).filter(b => b.focus === 'vehicle');

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGO War Universe · 6.8.0 自主想象力验收</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c222b; --line:#272e38;
+    --fg:#e8ecf1; --muted:#98a3b2; --dim:#6f7a89;
+    --bad:#ff5f5f; --good:#35d07f; --accent:#ffb454; --link:#5eb1ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:29px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0;font-size:14px}
+  .note{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--accent);
+    background:#1a1710;color:#e8dfd0;border-radius:0 8px 8px 0;font-size:13.5px}
+  .warn{margin:18px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f0d8d8;border-radius:0 8px 8px 0;font-size:13.5px}
+  h2{margin:46px 0 14px;font-size:20px;border-left:3px solid var(--accent);padding-left:12px}
+  h3{margin:26px 0 10px;font-size:15.5px;color:#cfd7e2}
+  p{margin:0 0 12px}
+  code{background:#0b0e12;padding:1px 6px;border-radius:4px;color:var(--accent);font-size:12.5px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{margin:0 0 8px;font-size:14px;color:var(--good)}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .pair{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:14px 0 6px}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .box__hd{padding:9px 14px;font-size:12.5px;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  .box--bad .box__hd{background:#1d1618;color:var(--bad);border-color:#5c2b2b}
+  .box--good .box__hd{background:#131e18;color:var(--good);border-color:#264d38}
+  .box__bd{padding:14px}
+  pre{margin:0;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
+    line-height:1.75;white-space:pre-wrap;color:#cfd7e2}
+  .del{color:var(--bad)} .ins{color:var(--good)} .dimtxt{color:var(--dim)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;background:var(--panel)}
+  td code{font-size:12px}
+  .ok{color:var(--good)} .no{color:var(--bad)} .blank{color:var(--dim)}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;font-size:13px}
+  .node{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 13px}
+  .node--dead{border-color:#5c2b2b;background:#1d1618;color:var(--bad)}
+  .node--live{border-color:#264d38;background:#131e18;color:var(--good)}
+  .arrow{color:var(--dim)}
+  .script{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px;margin:14px 0}
+  .script h4{margin:0 0 4px;font-size:14.5px;color:var(--fg)}
+  .script .meta{color:var(--dim);font-size:12.5px;margin:0 0 12px}
+  .script .meta b{color:var(--good);font-weight:600}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+  .vchip{display:inline-flex;align-items:center;gap:8px;font-size:12px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+  .vchip--best{border-color:#264d38;background:#131e18}
+  .vchip__badge{font-size:10px;font-weight:700;color:#0b1a0e;background:var(--good);
+    border-radius:99px;padding:1px 7px}
+  .vchip__score{font-family:"Cascadia Mono",Consolas,monospace;font-size:11px;color:var(--good)}
+  .vchip--dim{opacity:.55}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px}
+  @media(max-width:880px){.pair{grid-template-columns:1fr}}
+</style>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">LEGO War Universe · 6.8.0 · Acceptance</p>
+  <h1>自主想象力：一句描述构思 N 部电影，前端只留最好的那一部</h1>
+  <p class="sub">前十二轮修的都是「一部片子的质量」。本轮用户指出的是另一个维度 ——
+  换任何一句描述，拿到的都是同一部电影。</p>
+
+  <p class="note"><b>一句话结论</b>：<code>planFilm</code> 的 seed 只由 <code>主题｜镜头数</code>
+  决定，<b>视角 / 叙事重心 / 基调三个维度根本没有参数化</b>——它们是常量。
+  实测 408 镜 → 332 个不同骨架，<b>34.6% 的镜头与其它片子共用同一个句子骨架</b>。
+  同时环境选型还是「正则筛子集 → 排序 → <b>取第一个</b>」，题材词与环境名对不上时排序全 0，
+  退化成资产库数组顺序：<b>「黎明时分强渡冰河」与「月球表面争夺登月舱」双双拿到中东沙漠</b>
+  —— 而库里明明有 <code>ENV-507 泛滥的沼泽地</code> / <code>ENV-503 渡河点</code> /
+  <code>ENV-703 月面基地</code>，只是选不到。</p>
+
+  <p class="warn"><b>「多方案」不是把一部片换四次皮。</b>首个版本生成 4 个方案后才发现
+  其中两部<b>骨架重合 88%</b>，只能靠扣分事后打折。最终做法是<b>候选池放大 3 倍、
+  打分排序后贪心挑选，与已入选方案骨架重合 &gt; 45% 就跳过</b>；
+  判据也一并收紧：<code>【代号】人名</code> 整段归一成一个 <code>P</code> ——
+  不归一的话「只换了人名」的两部片会被算成完全不同，「重合率 0%」这个数字是假的。</p>
+</header>
+
+<h2>四项结果</h2>
+<div class="cards">
+  <div class="card"><h4>场景正确 3/12 → 11/12</h4><p>任意提示词里「选对或说得通」的比例。</p></div>
+  <div class="card"><h4>最高骨架重合 88% → 13%–50%</h4><p>6 个题材实测：13 / 50 / 13 / 25 / 38 / 38。判据同时收紧（人名不计入骨架）。</p></div>
+  <div class="card"><h4>一句描述 1 → 4 部电影</h4><p>四个方案可切换，前端<b>默认只展示打分第一的那部</b>。</p></div>
+  <div class="card"><h4>测试 262 → 274 / 274</h4><p>盲测基线零回归：100 / 100 / 100 / 96。</p></div>
+  <div class="card"><h4>资产 810 项零改动</h4><p>构建签名仍为 <code>e1515357a93c</code>；本轮是纯代码轮。</p></div>
+  <div class="card"><h4>生成耗时 0.4 – 1.0 秒</h4><p>4 个方案（含 12 次候选生成与打分）在浏览器里同步完成。</p></div>
+</div>
+
+<h2>① 场景选型：同一个沙漠，装下了所有题材</h2>
+
+<p>修前的选型链路是 <code>ARC_ENV</code> 正则筛子集 → <code>themeMatch</code> 排序 →
+<b>取第一个</b>。当题材词与环境名对不上时，排序结果<b>全为 0</b>，
+<code>sort</code> 退化为数组原序，而 <code>ENV-001 中东沙漠</code> 恰好是数组第一项。</p>
+
+<table>
+  <tr><th>提示词</th><th>修前</th><th>修后</th></tr>
+  <tr><td>雨夜潜入敌方港口炸毁潜艇</td><td class="no">ENV-904 核潜艇控制舱</td><td class="ok">ENV-614 夜间工业港区</td></tr>
+  <tr><td>黎明时分强渡冰河</td><td class="no">ENV-001 中东沙漠</td><td class="ok">ENV-306 北极冰原监听哨站</td></tr>
+  <tr><td>月球表面争夺登月舱</td><td class="no">ENV-001 中东沙漠</td><td class="ok">ENV-703 月面基地</td></tr>
+  <tr><td>狙击小组雪山之巅</td><td class="no">ENV-508 暴风雪山口</td><td class="ok">ENV-603 雪山隘口</td></tr>
+  <tr><td>侦察班穿越沼泽</td><td class="no">ENV-001 中东沙漠</td><td class="ok">ENV-507 泛滥的沼泽地</td></tr>
+  <tr><td>工兵城区拆弹</td><td class="no">ENV-103 废弃工业厂区</td><td class="ok">ENV-008 费卢杰城区街道</td></tr>
+  <tr><td>雷雨云缝隙缠斗</td><td class="no">ENV-003 联军空军基地</td><td class="ok">ENV-617 前进简易机场</td></tr>
+  <tr><td><b>现代特战小队渗透敌方地下指挥掩体</b>（界面默认示例）</td><td class="no">ENV-508 暴风雪山口</td><td class="ok">ENV-640 现代高科技地下指挥掩体</td></tr>
+</table>
+
+<h3>新选型器：六条腿加权 + 三道闸</h3>
+<table>
+  <tr><th>腿</th><th>分值</th><th>为什么这么定</th></tr>
+  <tr><td>专名（最长公共子串 ≥3）</td><td><code>len × 2.5</code>，封顶 8</td><td>第一版按二元词切，<code>库尔斯克</code> → <code>库尔｜尔斯｜斯克</code>，<b>26 个内置题材当场劣化 10 个</b></td></tr>
+  <tr><td>字面二元词（只在 <code>nameZh</code>/<code>kw</code> 上数）</td><td>4 / 命中</td><td>正文里 <code>sky</code> / <code>ocean</code> 到处都是，会白送分</td></tr>
+  <tr><td>概念桥</td><td>3 / 命中</td><td>用户说「强渡」，库里写「渡河点」；只收概念不收题材</td></tr>
+  <tr><td>场地域</td><td>+8 / −8（第一轮只软罚 −3）</td><td>只从人写字段推；从正文推会把「中东沙漠」因 <code>clear sky</code> 判成 air</td></tr>
+  <tr><td>时代亲和</td><td>+5 软加分</td><td>硬过滤会把更合适的环境一票否决</td></tr>
+  <tr><td>原型亲和</td><td>+10（<b>第一轮权重为 0</b>）</td><td>否则「港口炸潜艇」会被原型亲和一路送进潜艇舱</td></tr>
+</table>
+
+<p>三道闸：<b>题材直接证据（≥6 就定）→ 原型亲和（≥8 就定）→ 时代扩容</b>；
+同级排序为 分数 → <b>具体度</b> → id 散列 —— 具体度必须是第二键：
+「穿越沼泽」里沼泽地与争夺中的桥梁<b>同得 17 分</b>，直接跳散列会把沼泽片送到桥上。</p>
+
+<h2>② 四个方案：同一句描述，四部不同的电影</h2>
+
+<p>提示词（界面默认示例）：<code>现代特战小队在暴风雨之夜渗透敌方地下指挥掩体</code>，8 镜。</p>
+
+<table>
+  <tr><th>#</th><th>方案（视角 · 重心 · 基调）</th><th>分数</th><th>主角</th><th>戏剧功能序列</th><th>首镜机位 / 灯光</th></tr>
+  <tr>
+    <td><b>1</b> <span class="ok">最优</span></td>
+    <td>士兵视角 · 人物重心 · 史诗</td><td class="ok">95.8</td>
+    <td>现代坦克车长（PHANTOM 邓肯）</td>
+    <td><code>character → goal → observe → plan → decision → quiet → reaction → aftermath</code></td>
+    <td>机械臂微距跟拍 / 阴天散射光</td>
+  </tr>
+  <tr>
+    <td>2</td><td>装备视角 · 人物重心 · 冷峻</td><td>94.3</td>
+    <td>动力外骨骼特战队员（OBSIDIAN 哈里森）</td>
+    <td><code>character → goal → observe → plan → decision → quiet → reaction → aftermath</code></td>
+    <td>机械臂微距跟拍 / 阴天散射光</td>
+  </tr>
+  <tr>
+    <td>3</td><td>指挥官视角 · 战术重心 · 惊悚</td><td>92.8</td>
+    <td>动力外骨骼特战队员（MERIDIAN 沃克）</td>
+    <td><code>goal → world → plan → reveal → decision → reversal → aftermath → close</code></td>
+    <td>过肩跟随 / 暴风雨光线</td>
+  </tr>
+  <tr>
+    <td>4</td><td>敌方视角 · 动作重心 · 纪实</td><td>92.55</td>
+    <td><b>敌方</b>坦克车长（VECTOR 克劳斯）</td>
+    <td><code>goal → world → contact → escalate → clash → escalate → aftermath → reaction</code></td>
+    <td>过肩跟随 / 暴风雨光线</td>
+  </tr>
+</table>
+
+<p>四个方案的<b>最高两两骨架重合为 13%</b>（修前同一句描述只有一部片子；
+首个多方案版本是 88%）。第 4 个方案是<b>敌方视角</b>——正反方整体互换，
+观众跟着对面那个人看完这场战斗。</p>
+
+<h2>③ 前端：只展示最优，其余折叠成一排筹码</h2>
+
+<div class="script">
+  <h4>生成后状态栏下方（真实 DOM 结构）</h4>
+  <p class="meta">默认展示 <b>方案 1</b>；切到备选只换工程内容，不占版面</p>
+  <div class="chips">
+    <div class="vchip vchip--best"><span>1</span><b>士兵视角 · 人物重心 · 史诗</b><span class="vchip__badge">最优</span><span class="vchip__score">95.8</span></div>
+    <div class="vchip vchip--dim"><span>2</span><b>装备视角 · 人物重心 · 冷峻</b><span class="vchip__score">94.3</span></div>
+    <div class="vchip vchip--dim"><span>3</span><b>指挥官视角 · 战术重心 · 惊悚</b><span class="vchip__score">92.8</span></div>
+    <div class="vchip vchip--dim"><span>4</span><b>敌方视角 · 动作重心 · 纪实</b><span class="vchip__score">92.55</span></div>
+  </div>
+  <pre><span class="dimtxt">共构思出 4 部不同的电影，默认展示最优秀的一部</span>
+按综合质量（时代/光质/物理自洽 · 戏剧覆盖 · 对白密度 · 骨架多样性 · 切题度）择优</pre>
+</div>
+
+<p>三条实现约束：<b>① 候选只活在内存</b> —— N 份完整 plan 会让 localStorage 成倍膨胀，
+而工程的核心产物本来就是被选中的那一部；<b>② 只有最优方案跑完整自我进化</b> ——
+否则四份方案把学习账本灌成四倍，主力资产统计全部失真，备选复用同一批锻造资产；
+<b>③ 切换后立刻落库并重新渲染</b>，刷新页面回到最优方案。</p>
+
+<h2>④ 择优打分：与生成实现语义独立</h2>
+
+<p>6.7.6 的元发现（探针与实现同源就无法证伪自身）在本轮继续成立：
+<code>variant-score.js</code> <b>不重跑任何选择逻辑</b>，只对已经编译出来的 plan 做测量。</p>
+
+<table>
+  <tr><th>维度</th><th>权重</th><th>读什么</th></tr>
+  <tr><td>时代自洽</td><td>22</td><td>逐镜看灯光 / 机位 / 调色的 <code>series</code> 与 <code>intent.era</code> 是否相容</td></tr>
+  <tr><td>光质自洽</td><td>18</td><td>主灯光 <code>sky</code> 与调色 <code>sky</code> 是否冲突</td></tr>
+  <tr><td>物理自洽</td><td>16</td><td>地面载具不得开进纯海环境（<b>复核产物</b>，不是生成时过滤）</td></tr>
+  <tr><td>戏剧覆盖</td><td>14</td><td>用了多少种戏剧功能</td></tr>
+  <tr><td>相邻互异</td><td>8</td><td>相邻两镜是否真的承担不同功能</td></tr>
+  <tr><td>对白密度</td><td>8</td><td>有人话的镜头占比，理想区间 0.35 – 0.8</td></tr>
+  <tr><td>骨架多样</td><td>8</td><td>一部片内部不同句子骨架的比例</td></tr>
+  <tr><td>切题度</td><td>6</td><td>用户描述里的实词有多少真的出现在成片正文里</td></tr>
+</table>
+
+<p class="warn"><b>权重是人为判断，不是实测分布。</b>依据是「错了有多刺眼」
+（时代与物理矛盾 &gt; 自洽 &gt; 覆盖 &gt; 密度 &gt; 多样 &gt; 切题）。
+若日后要调，应先把 26 个内置题材的分项分布打出来再动。</p>
+
+<h2>⑤ 最优方案的第 1 镜（真实编译产物）</h2>
+<div class="script">
+  <h4>现代特战小队在暴风雨之夜渗透敌方地下指挥掩体 · 第 1 镜</h4>
+  <p class="meta">方案 1（士兵视角 · 人物重心 · 史诗）· fn <b>character</b> · 6s · 9:16</p>
+  <pre><span class="dimtxt">Scene:</span> LEGO underground fortified joint operations command bunker, reinforced blast-resistant
+concrete walls built from dark bluish grey bricks with exposed conduits, panoramic holographic
+battlefield map table in center surrounded by tiered operator consoles, blue and amber ambient glow
+from multiple multi-monitor tactical displays, dim overhead fluorescent strip lights casting moody
+shadows on tactical operators.
+<span class="dimtxt">Subject(s):</span> [CHR-615] 现代坦克车长 — LEGO minifigure, standard minifigure height, black armor crew
+helmet with boom mic and dust goggles, nomex tanker coveralls with shoulder holster, leather gloves,
+headset cable trailing into the hatch, equipment: binoculars, map board …
+<span class="dimtxt">Action:</span> <span class="ins">（PHANTOM）</span>邓肯把一张被汗浸皱的照片塞回胸袋，低声说：「一小时，够吗？」
+<span class="ins">（OBSIDIAN）</span>哈里森没回答，只是把弹匣压紧。
+<span class="dimtxt">Sound design (diegetic only, no music score):</span> 布料摩擦 · 金属弹匣入位的轻响.
+
+<span class="ins">Shot framing: close-up on the subject's face and hands.</span>
+<span class="dimtxt">Camera:</span> robotic-arm macro follow shot gliding inches from LEGO studs and mold seams,
+precise stabilized movement, shallow depth of field, tactile plastic texture in sharp detail.
+<span class="dimtxt">Lighting:</span> flat overcast daylight, soft shadowless diffusion, muted cool tones.
+<span class="dimtxt">Color grade:</span> cool overcast, muted palette, soft contrast, classic war-drama look.
+
+<span class="dimtxt">Screen direction:</span> left-to-right. <span class="dimtxt">Subject state:</span> weathered / standard.
+
+<span class="dimtxt">Single continuous 6-second shot, 9:16 aspect ratio.</span></pre>
+</div>
+
+<p>场景是 <code>ENV-640 现代高科技地下指挥掩体</code>（修前是 <code>ENV-508 暴风雪山口</code>），
+代号以<b>圆括号</b>转写而非中文书名号（6.7.6 定的口径：书名号可能被渲染成屏幕文字，
+而 negative prompt 恰恰写着 <code>no on-screen text</code>）。</p>
+
+<h2>⑥ 本轮自己引入并修掉的三个缺陷</h2>
+
+<div class="pair">
+  <div class="box box--bad">
+    <div class="box__hd">① diversify() 读了不存在的字段</div>
+    <div class="box__bd"><pre><span class="del">- const skelOf = c => (c?.film?.shots || [])
+-     .map(s => skeletonOf(s.action));</span>
+<span class="ins">+ const skelOf = c => (c?.film?.plan?.shots || [])
++     .map(s => skeletonOf(s.action));</span>
+
+`film` 是 planFilm 的返回值（{ intent, plan, … }），
+镜头在 `film.plan.shots` 里。
+读错 → curS 恒为空 → `if (!curS.length) continue`
+→ <b>整个去重加罚静默跳过</b>。
+「4 个方案里 3 个是同一部片」一次也没被抓到过。</pre></div>
+  </div>
+  <div class="box box--bad">
+    <div class="box__hd">② 时代池与校验器不是同一把尺子</div>
+    <div class="box__bd"><pre><span class="del">- const eraEnvs = allEnvs.filter(a => a.series === intent.era);</span>
+<span class="ins">+ const eraEnvs = allEnvs.filter(a => isEraCompatible(a.series, intent.era));</span>
+
+planner 用「精确相等」，validateShotSpec 用
+isEraCompatible（Modern ↔ Modern High-Tech 互通）。
+界面默认示例判为 Modern 后，唯一的
+ENV-640 现代高科技地下指挥掩体<b>连被打分的机会都没有</b>：
+它在全库拿 44 分，时代池里最好的「暴风雪山口」
+只有 9 分（一个「暴风」二元词）却过线当选。</pre></div>
+  </div>
+</div>
+
+<div class="pair">
+  <div class="box box--bad">
+    <div class="box__hd">③ 探针自己也会骗人</div>
+    <div class="box__bd"><pre><span class="del">- toneHit(a, tone, 'colorGrade')   // 键不存在 → 恒 false</span>
+<span class="ins">+ toneHit(a, tone, 'grade')</span>
+
+统计基调覆盖率时把 kind 写成了 'colorGrade'，
+而 tone-prefs.js 的键是 'grade'，
+于是得出「调色基调覆盖率 0/5」的假结论。
+
+<b>探针写错比不写更危险</b> —— 它会让人以为
+修好了、或者修坏了。</pre></div>
+  </div>
+  <div class="box box--bad">
+    <div class="box__hd">④ 战略域被当成与地面互斥</div>
+    <div class="box__bd"><pre><span class="del">- const domLock = domain && domain !== 'ground';</span>
+<span class="ins">+ const domLock = domain && domain !== 'ground'
++                && domain !== 'strategic';</span>
+
+导弹阵地<b>就建在地面上</b>，战略域与地面域是
+上下位不是并列互斥。此前的互斥把「中东沙漠」
+当成「地面专属景物」滤掉，
+海湾战争的防空阵地被搬进空军基地，
+连带把沙漠暖调《黑鹰坠落》换成二战冷调《兄弟连》。</pre></div>
+  </div>
+</div>
+
+<h2>⑦ 遗留风险（如实记录）</h2>
+<table>
+  <tr><th>风险</th><th>现状</th></tr>
+  <tr><td><b>基调仍是最弱的一维</b></td><td>它只做同分决胜（+6），压不过「域 + 功能 + 景别」的物理分；实测 4 种基调在 8 镜片里只改出 1 处机位差异。让它参与池内筛选会与光质 / 场景 / 时代的硬约束打架，本轮选择先不动。</td></tr>
+  <tr><td><b>少数题材压不到 45% 以下</b></td><td>斯大林格勒狙击手题材的节拍文本池本身窄，8 镜里有 4 镜只能共用骨架，换种子重试也只能降到 <b>50%</b>（已从 75% 降下来）。</td></tr>
+  <tr><td><b>候选方案不落库</b></td><td>刷新页面后备选消失，需要重新点一次生成（约 0.4 – 1.0 秒）。生成是确定性的，结果不变。</td></tr>
+  <tr><td class="no"><b>边界没有变</b></td><td>本轮验证的是「多部片子的<b>差异度</b>与<b>自洽度</b>」，这些 prompt 依旧<b>一次也没有跑过 Veo 3 / Flow</b>。「自洽」与「有效」之间的那道墙，第十三轮依旧没有推倒。</td></tr>
+</table>
+
+<h2>⑧ 五道闸门</h2>
+<div class="flow">
+  <span class="node node--live">02_Assets/validate.py ✓</span><span class="arrow">→</span>
+  <span class="node node--live">build-assets.mjs ✓</span><span class="arrow">→</span>
+  <span class="node node--live">npm test 273/273 ✓</span><span class="arrow">→</span>
+  <span class="node node--live">check-release.mjs ✓</span><span class="arrow">→</span>
+  <span class="node node--live">盲测 100/100/100/96 ✓</span>
+</div>
+<table>
+  <tr><th>闸门</th><th>结果</th></tr>
+  <tr><td>资产校验</td><td class="ok">810 项，schemaVersion 3.7，签名 <code>e1515357a93c</code>（未变）</td></tr>
+  <tr><td>单元测试</td><td class="ok">274 / 274（新增 <code>tests/variants.test.mjs</code> 11 例）</td></tr>
+  <tr><td>发布审查</td><td class="ok"><code>{ "ok": true, "violations": [] }</code></td></tr>
+  <tr><td>盲测基线</td><td class="ok">一致性 100% · 可剪辑性 100% · 合规 100% · 稳定性 96%</td></tr>
+  <tr><td>版本</td><td class="ok">6.7.6 → <b>6.8.0</b></td></tr>
+</table>
+
+<footer>LEGO War Universe · 6.8.0 自主想象力 · 2026-10-13 · 810 资产 / 273 测试 / 零资产改动</footer>
+</div>
+</body>
+</html>

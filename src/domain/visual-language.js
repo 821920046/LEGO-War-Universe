@@ -35,6 +35,7 @@
  */
 import { isEraCompatible } from './shot-spec.js';
 import { themeMatch } from './roster.js';
+import { toneHit } from './tone-prefs.js';
 
 /** 戏剧功能里「近身 / 私密」的一类：这些镜头允许换一盏次要灯，制造景别差 */
 const INTIMATE_FNS = new Set(['character', 'plan', 'decision', 'cost', 'reaction', 'close', 'quiet']);
@@ -294,7 +295,7 @@ export function timeOfDayOf({ intent = {}, envText = '' } = {}) {
  * @param {string} [p.themeText] 题材 + 环境文本，用于「点名优先」
  * @returns {string[]} 与 fns 等长的机位资产 ID 数组
  */
-export function selectCameras({ r, intent, domain, tod, settings = ['open'], fns, sizes, themeText = '' }) {
+export function selectCameras({ r, intent, domain, tod, settings = ['open'], fns, sizes, themeText = '', tone = null }) {
   const all = poolFor(r, 'camera', intent.era);
   if (all.length === 0) return fns.map(() => null);
 
@@ -317,14 +318,26 @@ export function selectCameras({ r, intent, domain, tod, settings = ['open'], fns
     const cs = cameraSizeOf(a);
     if (size && cs) s += (cs === size ? 20 : -35 * Math.abs(SIZE_RANK[cs] - SIZE_RANK[size]));
     s += themeMatch(a, themeText) * 2;
+    // 基调偏好：只做**同分或接近时的决胜**（+6），压不过光质冲突与域命中。
+    if (tone && toneHit(a, tone, 'camera')) s += 6;
     return s;
   };
+
+  // **景别是硬偏好，不只是一个权重。** 6.8.0 实测：轨道空间站 escalate 镜
+  // （设计中景）拿到 CAM-004 爆炸特写（close-up）—— 池里只有一个 orbital 机位，
+  // 域 40 + 功能 30 = 70 分压过一档冲突的 −35。而 `selectCameras` 的调用方
+  // 已经按景别筛过一遍「该用谁」，选机器时再被域加分反超，等于把景别又扔了。
+  // 做法：**只要池里存在景别相符的机位，就只在它们内部排序**；
+  // 一个都没有时才退回全池（那说明库里没有这种景别的机位，不是选型器的错）。
+  const sizeOk = (a, size) => !size || !cameraSizeOf(a) || cameraSizeOf(a) === size;
 
   const used = new Set();
   const out = [];
   fns.forEach((fn, idx) => {
     const size = Array.isArray(sizes) ? (sizes[idx] || null) : null;
-    const ranked = [...pool].sort((x, y) => {
+    const exact = pool.filter(a => sizeOk(a, size));
+    const scope = exact.length ? exact : pool;
+    const ranked = [...scope].sort((x, y) => {
       const dx = score(x, fn, size) - score(y, fn, size);
       if (dx !== 0) return -dx;
       // 同分时按散列打散，让不同题材从不同的机位起手（确定性，但不同片不同）
@@ -349,7 +362,7 @@ export function selectCameras({ r, intent, domain, tod, settings = ['open'], fns
  *
  * @returns {{ lightings: string[], tod: string }}
  */
-export function selectLightings({ r, intent, domain, tod, settings = ['open'], fns, themeText = '', sky = 'any' }) {
+export function selectLightings({ r, intent, domain, tod, settings = ['open'], fns, themeText = '', sky = 'any', tone = null }) {
   const all = poolFor(r, 'lighting', intent.era);
   if (all.length === 0) return { lightings: fns.map(() => null), tod };
 
@@ -367,6 +380,11 @@ export function selectLightings({ r, intent, domain, tod, settings = ['open'], f
     if (dx !== 0) return -dx;
     const tx = themeMatch(x, themeText) - themeMatch(y, themeText);
     if (tx !== 0) return -tx;
+    // 基调偏好排在最后：只打破平局，绝不压过光质 / 场景 / 域。
+    if (tone) {
+      const gx = (toneHit(x, tone, 'lighting') ? 1 : 0) - (toneHit(y, tone, 'lighting') ? 1 : 0);
+      if (gx !== 0) return -gx;
+    }
     return hash(x.id) - hash(y.id);
   });
 
@@ -468,7 +486,7 @@ function kwHits(kw, theme) {
  *
  * @returns {string|null} 调色资产 ID
  */
-export function selectColorGrade({ r, intent, domain, settings = ['open'], theme = '', sky = 'any' }) {
+export function selectColorGrade({ r, intent, domain, settings = ['open'], theme = '', sky = 'any', tone = null }) {
   const pool = poolFor(r, 'colorGrade', intent.era);
   if (pool.length === 0) return null;
 
@@ -478,7 +496,8 @@ export function selectColorGrade({ r, intent, domain, settings = ['open'], theme
     const gs = skyOf(a);
     let lit = 0;
     if (sky !== 'any' && gs !== 'any') lit = (sky === gs) ? 20 : -150;
-    return dom * 100 + lit + kwHits(a.kw, theme) * 10 + settingTier(a, settings) * 2;
+    return dom * 100 + lit + kwHits(a.kw, theme) * 10 + settingTier(a, settings) * 2
+      + (tone && toneHit(a, tone, 'grade') ? 5 : 0);
   };
   //
   // 光质**不能做硬过滤**。第一版硬过滤让 F-22 制空巡逻（域 air）拿到《兄弟连》
@@ -497,7 +516,7 @@ export function selectColorGrade({ r, intent, domain, settings = ['open'], theme
  *
  * @returns {{ cameras: string[], lightings: string[], colorGrade: string|null, tod: string }}
  */
-export function planVisualLanguage({ r, intent, domain, fns, sizes, theme = '', envText = '', settingText = null }) {
+export function planVisualLanguage({ r, intent, domain, fns, sizes, theme = '', envText = '', settingText = null, tone = null }) {
   const themeText = `${theme} ${envText}`;
   const tod = timeOfDayOf({ intent, envText });
   // 光质同样从环境正文推 —— 「诺曼底海滩」的正文里写着 overcast sky
@@ -505,9 +524,9 @@ export function planVisualLanguage({ r, intent, domain, fns, sizes, theme = '', 
   // 场景类型只从环境的**名称与关键词**推导，不用整段正文 ——
   // 正文里会出现布景细节（「远处一道村庄矮墙」），那不代表这场戏发生在城市。
   const settings = settingsOf(settingText === null ? envText : settingText);
-  const cameras = selectCameras({ r, intent, domain, tod, settings, fns, sizes, themeText });
+  const cameras = selectCameras({ r, intent, domain, tod, settings, fns, sizes, themeText, tone });
   // 先定灯再定调色：调色必须知道自己要配的是硬光还是阴天
-  const { lightings, sky } = selectLightings({ r, intent, domain, tod, settings, fns, themeText, sky: skyHint });
-  const colorGrade = selectColorGrade({ r, intent, domain, settings, theme, sky });
+  const { lightings, sky } = selectLightings({ r, intent, domain, tod, settings, fns, themeText, sky: skyHint, tone });
+  const colorGrade = selectColorGrade({ r, intent, domain, settings, theme, sky, tone });
   return { cameras, lightings, colorGrade, tod, settings, sky };
 }
