@@ -28,8 +28,9 @@ import { planFilm, contentSeconds, FIT_TOLERANCE } from '../src/domain/planner.j
 import { buildRoster } from '../src/domain/roster.js';
 import { compileShot } from '../src/domain/compiler.js';
 import { compileKeyframeImage } from '../src/domain/image-compiler.js';
-import { timeOfDayOf, settingsOf } from '../src/domain/visual-language.js';
+import { timeOfDayOf, settingsOf, sizeForShot, cameraSizeOf } from '../src/domain/visual-language.js';
 import { LINK_BY_PREV } from '../src/domain/story.js';
+import { stripInternalMarkers, hasSpokenDialogue } from '../src/domain/prompt-hygiene.js';
 
 const registry = createRegistry(assets, profiles, { references: [] });
 const PROFILE = [...registry.profileById.keys()][0];
@@ -272,9 +273,13 @@ test('6.7.3 · 因果连接词必须是摄影机拍得到的东西，不得是�
 test('6.7.3 · 编译后的视频 prompt 必须包含音效与无线电对白', () => {
   // 这是本轮最「便宜」的一处损失：180/180 个镜头的 audioCue / radioVoice 都有内容，
   // 而编译后的 prompt 里一个字都没有 —— Veo 3 是带音频生成的模型。
+  //
+  // 6.7.6 起这条断言改成**双向**：有台词的必须进 prompt，且**内部标记不得进**；
+  // 只有舞台提示的（「（静默）」「（没有按下通话键）」）整行不得出现 ——
+  // 那一行的语义是 "spoken in Chinese"，不拦就等于命令 Veo 把「静默」念出声（78/312 镜）。
   const p = plan('库尔斯克坦克对决');
   const roster = buildRoster(p.shots, registry, { leadId: p.story?.protagonist?.id });
-  let checked = 0;
+  let checked = 0, silent = 0;
   for (const s of p.shots) {
     const out = compileShot(s, registry, registry.profileById.get(p.profileId), roster);
     assert.ok(out.prompt.includes('Sound design'), `${s.fn}: prompt 缺少声音设计段`);
@@ -282,11 +287,19 @@ test('6.7.3 · 编译后的视频 prompt 必须包含音效与无线电对白', 
       assert.ok(out.prompt.includes(s.audioCue), `${s.fn}: 音效没进 prompt：${s.audioCue}`);
       checked++;
     }
-    if (s.radioVoice) {
-      assert.ok(out.prompt.includes(s.radioVoice), `${s.fn}: 无线电对白没进 prompt`);
+    if (hasSpokenDialogue(s.radioVoice)) {
+      // 台词本体必须进 prompt，且不得带【代号】这类内部标记
+      const spoken = stripInternalMarkers(s.radioVoice).trim();
+      assert.ok(out.prompt.includes(spoken), `${s.fn}: 无线电对白没进 prompt：${spoken}`);
+      assert.doesNotMatch(out.prompt, /Radio dialogue[^\n]*【/, `${s.fn}: 内部标记泄漏进 Radio 行`);
+    } else if (String(s.radioVoice || '').trim()) {
+      // 纯舞台提示：整行必须**不出现**
+      assert.doesNotMatch(out.prompt, /Radio dialogue/, `${s.fn}: 纯舞台提示不应发射 Radio dialogue 行`);
+      silent++;
     }
   }
   assert.ok(checked >= 10, `只有 ${checked} 镜带音效，样本不足`);
+  assert.ok(silent > 0, `没有一条纯舞台提示样本，判据失效`);
 });
 
 test('6.7.3 · 关键帧 prompt 必须是静止构图，不得把整段叙事塞进去', () => {

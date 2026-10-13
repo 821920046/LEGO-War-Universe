@@ -127,6 +127,89 @@ function settingTier(asset, settings) {
   return 0;
 }
 
+/* ------------------------------------------------------------------ *
+ * 景别档（6.7.6 新增维度）
+ *
+ * 6.7.3–6.7.5 三轮都在选「哪台机器、什么角度、什么运动」，唯独没人问
+ * 「这台机器拍出来的**画幅大小**对不对」。于是分镜写好的
+ * `环境铺陈大远景 (Establishing Extreme Wide)` 会拿到
+ * `CAM-609 tight insert close-up on hands working, 85mm macro feel` ——
+ * 远景建镜头被拍成手部微距特写。实测 74 镜两侧都能判出景别，
+ * 其中 46 镜（62%）互相矛盾，且全部通过了当时 259 个测试。
+ *
+ * **焦距词不是景别档** —— 这是第一版实测翻车的地方。`wide 28mm lens` /
+ * `wide 14mm lens` 说的是焦距，`overhead` / `top-down` / `low-angle`
+ * 说的是机位角度。把它们当景别档算，第一版得出「33 镜冲突」的虚高数字。
+ * 只认**真正的构图描述**。
+ * ------------------------------------------------------------------ */
+
+/** 景别档的远近序：越近越大。用于给「差几档」定惩罚轻重。 */
+export const SIZE_RANK = { ews: 0, ws: 1, fs: 2, ms: 3, cu: 4 };
+
+/** 景别标签（中文）→ 尺寸档。识别不出返回 null（不猜）。 */
+const SIZE_ZH_RULES = [
+  ['cu', /特写|近景|微距/],
+  ['ms', /中景|双人|二人/],
+  ['fs', /全景/],
+  ['ews', /大远景/],
+  ['ws', /远景|远摄/]
+];
+
+export function sizeOfLabel(shotType = '') {
+  const t = String(shotType || '');
+  for (const [v, re] of SIZE_ZH_RULES) if (re.test(t)) return v;
+  return null;
+}
+
+/**
+ * 标签没写尺寸档时的兜底 —— 按**戏剧功能的通行惯例**，不是猜。
+ *
+ * 「建立世界 / 揭示」按惯例是宽景；「人物 / 计划 / 抉择 / 静默」这类私密镜头
+ * 按惯例是中景。只给 `ws` 与 `ms` 两档（最通行、最不容易错），
+ * **不给 `cu`** —— 特写必须由分镜明说，兜底不能替导演决定拍多近。
+ *
+ * 实测 78 镜（25%）的标签只声明了运镜与氛围（`揭示推轨镜头` /
+ * `载具主导 · 压力升级跟拍` / `残局静默收尾`），不兜底就等于把构图留给随机。
+ */
+const DEFAULT_SIZE_BY_FN = {
+  world: 'ws', goal: 'ws', reveal: 'ws',
+  character: 'ms', plan: 'ms', decision: 'ms', quiet: 'ms', reaction: 'ms',
+  observe: 'ms', approach: 'ms', aftermath: 'ms', contact: 'ms', escalate: 'ms',
+  reversal: 'ms', cost: 'ms', clash: 'ms', close: 'ms'
+};
+
+/** 本镜应有的尺寸档：优先分镜明说的，其次按戏剧功能兜底。**探针与编译器必须同用这个函数**，
+ *  否则「选机器时信的景别」与「写进 prompt 的景别」又会各说各话。 */
+export function sizeForShot(shotType, fn) {
+  return sizeOfLabel(shotType) || DEFAULT_SIZE_BY_FN[fn] || null;
+}
+
+/** 机位资产自带的构图档；只认构图描述，不认焦距与机位角度。 */
+const CAMERA_SIZE_RULES = [
+  ['cu', /close-?up|insert close-?up|macro|tight on/i],
+  ['ms', /over-the-shoulder|two-?shot/i],
+  ['ws', /full battlefield|reveal the (full|whole)|high aerial|aerial of |overlook|high-altitude (drone|reconnaissance)|drone shot|very high altitude|top-down satellite/i]
+];
+
+export function cameraSizeOf(asset) {
+  const t = (asset?.lines || []).join(' ');
+  for (const [v, re] of CAMERA_SIZE_RULES) if (re.test(t)) return v;
+  return null;
+}
+
+/** 尺寸档 → 英文构图指令。视频 prompt 里此前一个景别字都没有，
+ *  `shotType` 被 image-compiler 消费，**视频编译器引用数为 0**。 */
+export function framingInstruction(size) {
+  const INSTR = {
+    ews: 'extreme wide establishing shot, the subject small within a vast frame',
+    ws: 'wide shot, the whole subject in frame with generous headroom',
+    fs: 'full shot, the subject framed head to toe',
+    ms: 'medium shot, the subject framed from the waist up',
+    cu: "close-up on the subject's face and hands"
+  };
+  return INSTR[size] || null;
+}
+
 /** 时代兼容的候选池。注意是**并集**，不是替换。 */
 function poolFor(r, kind, era) {
   const all = r.byKind.get(kind) || [];
@@ -211,7 +294,7 @@ export function timeOfDayOf({ intent = {}, envText = '' } = {}) {
  * @param {string} [p.themeText] 题材 + 环境文本，用于「点名优先」
  * @returns {string[]} 与 fns 等长的机位资产 ID 数组
  */
-export function selectCameras({ r, intent, domain, tod, settings = ['open'], fns, themeText = '' }) {
+export function selectCameras({ r, intent, domain, tod, settings = ['open'], fns, sizes, themeText = '' }) {
   const all = poolFor(r, 'camera', intent.era);
   if (all.length === 0) return fns.map(() => null);
 
@@ -221,13 +304,18 @@ export function selectCameras({ r, intent, domain, tod, settings = ['open'], fns
   const todOnly = all.filter(a => hits(a.tod, tod));
   const pool = strict.length ? strict : (todOnly.length ? todOnly : all);
 
-  const score = (a, fn) => {
+  const score = (a, fn, size) => {
     let s = 0;
     if (hits(a.domain, domain)) s += 40;
     if (isSpecific(a.domain, domain)) s += 6;
     if (Array.isArray(a.fn) && a.fn.includes(fn)) s += 30;
     // 场景匹配进排序：为这个场景设计的机位必须压过「恰好没被过滤掉」的机位
     s += settingTier(a, settings) * 8;
+    // 景别：**冲突按差几档线性重罚**。差 4 档（远景建镜头 vs 手部微距）
+    // 要能被域与戏剧功能的总分压过去 —— 那正是 6.7.5 的同族错误。
+    // 域 40 + 功能 30 = 70，4 档罚 140，所以冲突时景别必胜。
+    const cs = cameraSizeOf(a);
+    if (size && cs) s += (cs === size ? 20 : -35 * Math.abs(SIZE_RANK[cs] - SIZE_RANK[size]));
     s += themeMatch(a, themeText) * 2;
     return s;
   };
@@ -235,8 +323,9 @@ export function selectCameras({ r, intent, domain, tod, settings = ['open'], fns
   const used = new Set();
   const out = [];
   fns.forEach((fn, idx) => {
+    const size = Array.isArray(sizes) ? (sizes[idx] || null) : null;
     const ranked = [...pool].sort((x, y) => {
-      const dx = score(x, fn) - score(y, fn);
+      const dx = score(x, fn, size) - score(y, fn, size);
       if (dx !== 0) return -dx;
       // 同分时按散列打散，让不同题材从不同的机位起手（确定性，但不同片不同）
       return (hash(x.id + fn + idx) - hash(y.id + fn + idx));
@@ -408,7 +497,7 @@ export function selectColorGrade({ r, intent, domain, settings = ['open'], theme
  *
  * @returns {{ cameras: string[], lightings: string[], colorGrade: string|null, tod: string }}
  */
-export function planVisualLanguage({ r, intent, domain, fns, theme = '', envText = '', settingText = null }) {
+export function planVisualLanguage({ r, intent, domain, fns, sizes, theme = '', envText = '', settingText = null }) {
   const themeText = `${theme} ${envText}`;
   const tod = timeOfDayOf({ intent, envText });
   // 光质同样从环境正文推 —— 「诺曼底海滩」的正文里写着 overcast sky
@@ -416,7 +505,7 @@ export function planVisualLanguage({ r, intent, domain, fns, theme = '', envText
   // 场景类型只从环境的**名称与关键词**推导，不用整段正文 ——
   // 正文里会出现布景细节（「远处一道村庄矮墙」），那不代表这场戏发生在城市。
   const settings = settingsOf(settingText === null ? envText : settingText);
-  const cameras = selectCameras({ r, intent, domain, tod, settings, fns, themeText });
+  const cameras = selectCameras({ r, intent, domain, tod, settings, fns, sizes, themeText });
   // 先定灯再定调色：调色必须知道自己要配的是硬光还是阴天
   const { lightings, sky } = selectLightings({ r, intent, domain, tod, settings, fns, themeText, sky: skyHint });
   const colorGrade = selectColorGrade({ r, intent, domain, settings, theme, sky });
