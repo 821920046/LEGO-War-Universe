@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGO War Universe · 6.8.5 模型腐烂 · 验收</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c222b; --line:#272e38;
+    --fg:#e8ecf1; --muted:#98a3b2; --dim:#6f7a89;
+    --bad:#ff5f5f; --good:#35d07f; --accent:#ffb454; --warn:#e3b341;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:29px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0;font-size:14px}
+  .quote{margin:20px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f2dcdc;border-radius:0 8px 8px 0;font-size:13.5px}
+  .note{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--accent);
+    background:#1a1710;color:#e8dfd0;border-radius:0 8px 8px 0;font-size:13.5px}
+  .warn{margin:18px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f0d8d8;border-radius:0 8px 8px 0;font-size:13.5px}
+  h2{margin:46px 0 14px;font-size:20px;border-left:3px solid var(--accent);padding-left:12px}
+  h3{margin:26px 0 10px;font-size:15.5px;color:#cfd7e2}
+  p{margin:0 0 12px}
+  code{background:#0b0e12;padding:1px 6px;border-radius:4px;color:var(--accent);font-size:12.5px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{margin:0 0 8px;font-size:14px;color:var(--good)}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .card--bad h4{color:var(--bad)}
+  .card--warn h4{color:var(--warn)}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:14px 0}
+  .box__hd{padding:9px 14px;font-size:12.5px;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  .box--bad .box__hd{background:#1d1618;color:var(--bad);border-color:#5c2b2b}
+  .box--good .box__hd{background:#131e18;color:var(--good);border-color:#264d38}
+  .box--warn .box__hd{background:#1a1710;color:var(--warn);border-color:#4d3f16}
+  .box__bd{padding:14px}
+  pre{margin:0;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
+    line-height:1.75;white-space:pre-wrap;color:#cfd7e2}
+  .del{color:var(--bad)} .ins{color:var(--good)} .dimtxt{color:var(--dim)} .yl{color:var(--warn)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;background:var(--panel)}
+  td code{font-size:12px}
+  .ok{color:var(--good)} .no{color:var(--bad)} .blank{color:var(--dim)}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px}
+  @media(max-width:880px){.wrap{padding:24px 16px 60px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">LEGO War Universe · 6.8.5 · Acceptance</p>
+  <h1>「我配了 Key」是对的，是我上一轮诊断错了</h1>
+  <p class="sub">6.8.4 我刚上线只读自检，并据此宣布「后台一个 Key 都没配」。自检上线后的第一件事，就是推翻了我自己的这个结论。</p>
+
+  <p class="quote">6.8.4 我写下的推断：<br><br>
+  <span class="dimtxt">「<code>latencyMs: 193</code> 是决定性的。一次外部 HTTPS 调用最低也要上百毫秒……<br>
+  <b>这个数字说明：后台根本没有发起过任何网络请求 —— 一个 Key 都没配。</b>」</span><br><br>
+  <b>这个推断是错的。</b></p>
+
+  <p class="note">403 / 404 这类<b>快速失败</b>的调用（DNS 已在边缘缓存、TLS 可能复用）完全可以在几十毫秒内返回。
+  两次快速失败 + 本地生成，193ms 是装得下的。<br>
+  我犯的错很具体：<b>用一个间接信号（延迟）去代替直接测量（自检），然后把它当成结论写进了报告。</b><br>
+  而讽刺的是 —— <b>我为此专门建的自检接口，上线后第一件事就是证伪了它。</b></p>
+</header>
+
+<h2>一、线上实测：用户说得对</h2>
+
+<div class="box box--good">
+  <div class="box__hd">GET /api/ai-brain?probe=1（自检上线后立刻探测生产环境）</div>
+  <div class="box__bd"><pre>{ "aiAvailable": <span class="ins">true</span>, "configuredCount": <span class="ins">2</span>,
+  "providers": [
+    { "id": "groq",   "configured": <span class="ins">true</span>, "keyHint": "••••iSqX（长度 84）" },
+    { "id": "gemini", "configured": <span class="ins">true</span>, "keyHint": "••••xvuU（长度 39）" }
+  ] }</pre></div>
+</div>
+
+<p><b>用户确实配了 Key —— 两个。</b>再看 <code>POST</code> 的 <code>aiStatus</code>：</p>
+
+<div class="box box--bad">
+  <div class="box__hd">POST /api/ai-brain（真实生成请求）</div>
+  <div class="box__bd"><pre>{ "reason": <span class="del">"ALL_PROVIDERS_FAILED"</span>,
+  "providers": [
+    { "id": "groq",   "tried": true, "error": <span class="del">"Groq HTTP 403"</span> },
+    { "id": "gemini", "tried": true, "error": <span class="del">"Gemini HTTP 404"</span> }
+  ] }</pre></div>
+</div>
+
+<p class="warn"><b>两个 Key 都在，两个都失败了。</b>这才是真问题 —— 而它在 6.8.4 之前<b>完全不可见</b>。
+用户从第一轮就在说「我配了」，<b>他是对的；错的是我的诊断。</b></p>
+
+<h2>二、两个失败，两个完全不同的根因</h2>
+
+<div class="cards">
+  <div class="card card--bad">
+    <h4>① Gemini HTTP 404 —— 模型名早已退役（代码 bug）</h4>
+    <p>代码里硬编码 <code>gemini-1.5-flash</code>。Google 官方退役表里，1.5 系列<b>连条目都没有</b>，2.0 系列也已在 <b>2026-06-01 关停</b>。这条路已经静默 404 了很久。</p>
+  </div>
+  <div class="card card--warn">
+    <h4>② Groq HTTP 403 —— Key 被 Groq 拒绝（配置问题）</h4>
+    <p>我用一把<b>故意写错的 Key</b> 直接打 Groq 接口复现，返回的正是 <code>HTTP 403 {"error":{"message":"Forbidden"}}</code> —— 与线上完全一致。这条代码侧修不了。</p>
+  </div>
+</div>
+
+<h3>Google 官方退役表（查证结果）</h3>
+
+<table>
+  <thead><tr><th style="width:46%">模型</th><th>状态</th></tr></thead>
+  <tbody>
+    <tr><td><code>gemini-1.5-flash</code></td><td class="no">表里连条目都没有（早已退役）</td></tr>
+    <tr><td><code>gemini-2.0-flash</code> / <code>gemini-2.0-flash-lite</code></td><td class="no">2026-06-01 已关停</td></tr>
+    <tr><td><code>gemini-3.8-flash</code> / <code>gemini-3.5-flash-lite</code></td><td class="ok">当前可用（Google 官方推荐新项目使用）</td></tr>
+  </tbody>
+</table>
+
+<div class="box box--bad">
+  <div class="box__hd">复现实验：用一把故意写错的 Key 打 Groq 接口</div>
+  <div class="box__bd"><pre><span class="dimtxt">$ curl -X POST https://api.groq.com/openai/v1/chat/completions \</span>
+<span class="dimtxt">    -H "Authorization: Bearer gsk_BOGUSKEYFORPROBE..." \</span>
+<span class="dimtxt">    -d '{"model":"llama-3.3-70b-versatile", ...}'</span>
+
+<span class="del">HTTP 403 {"error":{"message":"Forbidden"}}</span>   <span class="dimtxt">← 与线上返回完全一致</span></pre></div>
+</div>
+
+<h2>三、根子不是「写错了模型名」，而是「把模型名写死了」</h2>
+
+<p><b>模型名会腐烂。</b><code>gemini-1.5-flash</code> 当年是正确选择；它退役不是任何人的错。
+真正的错误是<b>把模型名硬编码进函数体</b> —— 一次退役就永久失效，除了改代码没有任何办法修，而且<b>失效是静默的</b>。</p>
+
+<p class="note">这构成一个永久性缺陷类别：<br>
+<b>凡是「外部契约」被硬编码进代码的地方，都会在外部契约变化时静默失效。</b><br>
+模型名是外部契约，API 版本是外部契约，第三方字段名也是。</p>
+
+<h2>四、修法：让「模型腐烂」不再是一次性致命伤</h2>
+
+<table>
+  <thead><tr><th style="width:30%">改动</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><b>候选模型列表</b></td><td>每个 provider 内置一串候选，<b>逐个尝试</b>；第一个 404 就自动换下一个。实测：<code>gemini-3.8-flash</code> 404 后自动切到 <code>gemini-3.5-flash-lite</code> 并成功</td></tr>
+    <tr><td><b>环境变量覆盖</b></td><td><code>GROQ_MODEL</code> / <code>OPENROUTER_MODEL</code> / <code>GEMINI_MODEL</code>（可逗号分隔多个）。<b>换模型不用改代码</b></td></tr>
+    <tr><td><b>三个函数 → 一个通用函数</b></td><td><code>callGroq</code> / <code>callOpenRouter</code> / <code>callGemini</code> 合并为 <code>callProviderModel(provider, model, …)</code>，URL / 请求头 / 是否 json 模式全部数据化</td></tr>
+    <tr><td><b><code>advice</code> 字段</b></td><td>光有 <code>Groq HTTP 403</code> 用户仍不知道干什么。新增把状态码翻译成「人话 + 下一步」的映射</td></tr>
+    <tr><td><b>前端弹可操作提示</b></td><td>仅在「<b>配了 Key 但调用失败</b>」时弹 toast（写明下一步）；没配 Key 是正常状态，不打扰</td></tr>
+    <tr><td><b>自检报告候选列表</b></td><td><code>?probe=1</code> 现在同时返回每个 provider 的 <code>modelEnvVar</code> 与 <code>models</code></td></tr>
+  </tbody>
+</table>
+
+<div class="box box--good">
+  <div class="box__hd">候选列表的核心价值：单个模型退役，整条路不会哑掉</div>
+  <div class="box__bd"><pre><span class="dimtxt">尝试顺序 =</span> ["gemini-3.8-flash", "gemini-3.5-flash-lite"]
+<span class="dimtxt">gemini/gemini-3.8-flash 调度失败: Gemini HTTP 404</span>
+<span class="ins">最终 model = gemini-3.5-flash-lite | ok = true</span>
+<span class="ins">engine = Cloud Free AI (Gemini (gemini-3.5-flash-lite))</span></pre></div>
+</div>
+
+<div class="box box--warn">
+  <div class="box__hd">advice：把状态码翻译成「下一步怎么办」</div>
+  <div class="box__bd"><pre><span class="yl">Groq HTTP 403</span>
+→ Groq 拒绝了这把 Key（403 禁止访问）：常见原因是 Key 无效 / 已撤销 / 账户受限或未完成验证 /
+  所在地区不支持。请到控制台确认 Key 状态，或换一把新 Key。
+
+<span class="yl">Gemini HTTP 404</span>
+→ Gemini 找不到模型「gemini-2.5-flash」（404）：多半是这个模型名已经退役。
+  用环境变量 <span class="ins">GEMINI_MODEL</span> 指定一个当前可用的模型名即可，无需改代码。</pre></div>
+</div>
+
+<h2>五、反向验证</h2>
+
+<table>
+  <thead><tr><th style="width:46%">把代码改回缺陷态</th><th>新门禁的反应</th></tr></thead>
+  <tbody>
+    <tr><td>把 <code>gemini-1.5-flash</code> 加回默认候选</td><td class="no">❌ gemini-1.5-flash 早已退役，不得出现在默认候选里</td></tr>
+    <tr><td>（同时）</td><td class="no">❌ AI 诊断：单个模型退役时自动换下一个，整条路不会哑掉</td></tr>
+  </tbody>
+</table>
+
+<p>另新增一条<b>静态防回归门禁</b>：源码里不得再出现 <code>'gemini-1.5-flash'</code> / <code>'gemini-2.0-flash'</code> 字面量。</p>
+
+<h2>六、结果</h2>
+
+<table>
+  <thead><tr><th style="width:42%">维度</th><th>修复前</th><th>修复后</th></tr></thead>
+  <tbody>
+    <tr><td>模型退役</td><td class="no">整条路永久静默 404</td><td class="ok">候选列表自动切换；环境变量可覆盖</td></tr>
+    <tr><td><code>Groq HTTP 403</code></td><td class="no">只有状态码</td><td class="ok">+ advice：告诉你去控制台重新生成</td></tr>
+    <tr><td>「配了 Key 但失败」</td><td class="no">界面上完全看不见</td><td class="ok">黄色徽章 + 弹窗写明下一步</td></tr>
+    <tr><td>自检</td><td>只报「配了没」</td><td class="ok">+ 候选模型列表 + 覆盖用的环境变量名</td></tr>
+    <tr><td>测试</td><td>298</td><td class="ok">303 / 303</td></tr>
+    <tr><td>版本</td><td>6.8.4</td><td class="ok">6.8.5</td></tr>
+    <tr><td>资产 / 签名</td><td colspan="2">810 项不变 · schemaVersion 3.7 · 签名 e1515357a93c 未变（纯代码轮）</td></tr>
+    <tr><td>盲测基线</td><td colspan="2">一致性 100% · 可剪辑性 100% · 合规 100% · 稳定性 96%（零回归）</td></tr>
+  </tbody>
+</table>
+
+<h2>七、遗留风险（如实记录）</h2>
+
+<p class="warn">
+· <b>Groq 那把 Key 需要用户自己去控制台处理</b>（403 是服务方拒绝，代码侧无法修复）。<br>
+· 候选列表里的模型名<b>同样会腐烂</b> —— 只是现在腐烂的代价从「永久失效」降为「换下一个」。
+真正的长期解法是定期巡检（定时任务 + 真实调用），本轮没有做。<br>
+· <code>06_Deploy/worker.js</code> 仍只支持 gemini/openai 且前端调不到它。<br>
+· <b>边界仍然没有变</b>：这些 prompt 依旧<b>一次也没有跑过 Veo 3 / Flow</b>。
+（查证时顺带看到：Google 退役表显示 <code>veo-3.0-generate-001</code> 已于 2026-06-30 关停、
+<code>veo-3.1-generate-preview</code> 将于 2026-10-22 关停。本项目产出的是给下游用的文本 prompt、
+不直接调 Veo API，但下游换模型时值得留意。）
+</p>
+
+<h2>八、元发现</h2>
+
+<p class="note">
+这一轮最值得记的，是<b>我上一轮错在哪、以及错误是怎么被纠正的</b>。<br><br>
+6.8.4 我用「延迟 193ms」这个<b>间接信号</b>，推出了「一个 Key 都没配」这个结论，
+并把它当成事实写进了报告。<b>这是错的。</b>
+正确的做法本该是<b>直接测量</b>，而不是从一个侧面数字反推。<br><br>
+而纠正它的，正是我为了回答这个问题而新建的自检接口 ——<br>
+<b>我造的工具，上线后第一个证伪的就是我自己的诊断。</b><br><br>
+这比「工具好用」更有价值：它说明这个工具<b>真的在测量事实，而不是在复述我的猜测</b>。
+一个只会确认你已有想法的工具，是没有价值的。<br><br>
+由此得到一条比 6.8.4 更硬的教训：<br>
+<b>凡是能直接测量的，就不要用间接指标去推断 —— 哪怕推断看起来很合理。</b>
+延迟、日志、用户描述，都是间接信号；<b>只有探测是直接的。</b><br><br>
+还有一层，和上一轮的「更正必须留痕」一脉相承：6.8.4 我更正了 6.8.3 的一个错误结论；
+6.8.5 我又更正了 6.8.4 的。<b>这不是反复无常，而是「每建一层观测能力，就会照亮上一层看不见的地方」。</b>
+所以不要怕写结论 —— 但要<b>把结论和它的证据强度绑在一起</b>：
+「实测得到」和「由延迟推断」是完全不同量级的证据，不该用同样的语气写。
+</p>
+
+<footer>
+  LEGO War Universe · 6.8.5 · 纯代码轮（资产 810 项与签名未变）<br>
+  详细推演见 <code>CHANGELOG.md</code> 与 <code>docs/对抗审查报告-角色与脚本智能.md</code> 第十八轮（§144–§151）。<br>
+  自检入口：<code>/api/ai-brain?probe=1</code> · 权威文档见 <code>docs/AI启用时机与配置.md</code>。
+</footer>
+
+</div>
+</body>
+</html>

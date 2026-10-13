@@ -34,17 +34,54 @@ https://你的站点/api/ai-brain?probe=1
 后四位足够你确认「这是我刚配的那把」，又不构成泄露。
 
 **如果 `configured: true` 但页面还是显示本地引擎**，说明 Key 配上了但调用失败。
-这时点一次「深度转译」，响应里的 `aiStatus.providers[].error` 会给出**真实的 HTTP 状态码**：
+这时点一次「深度转译」，响应里的 `aiStatus.providers[].error` 会给出**真实的 HTTP 状态码**，
+旁边的 `advice` 字段则直接告诉你**下一步怎么办**：
 
-| error | 含义 | 怎么办 |
+| error | 含义 | advice 会怎么说 |
 | --- | --- | --- |
-| `Groq HTTP 401` | Key 无效或已被撤销 | 重新生成一把 Key |
+| `Groq HTTP 401` | Key 无效 / 未授权 | 到控制台重新生成并完整复制，更新 `GROQ_API_KEY` 后重新部署 |
+| `Groq HTTP 403` | **Key 被拒绝**（无效 / 已撤销 / 账户受限 / 地区不支持） | 到控制台确认 Key 状态，或换一把新 Key |
+| `Groq HTTP 404` | **模型名已退役** | 用环境变量 `GROQ_MODEL` 指定一个当前可用的模型名（不用改代码） |
 | `Groq HTTP 429` | 额度用尽 / 触发限流 | 换一个 provider，或等额度重置 |
-| `Groq HTTP 404` | 模型名不可用 | 检查 provider 的模型是否下线 |
 | `NOT_CONFIGURED` | 这个 provider 压根没配 | 见 `howToFix` |
 
 **页面上也能看出来**：顶部「本次引擎」徽章现在**只在云端 AI 真正生效时才是绿色**；
 回退本地时是**黄色**，并直接写出原因（例如「后台未配置任何模型 Key」）。
+**如果你确实配了 Key 但调用失败，还会额外弹一条提示，写明具体是哪一步出了问题。**
+
+> **真实案例（6.8.5 实测）**：某次线上自检显示 `configuredCount: 2`（Groq + Gemini 都配了），
+> 但 `POST` 返回 `ALL_PROVIDERS_FAILED`：
+> `groq → Groq HTTP 403`（Key 被 Groq 拒绝）、`gemini → Gemini HTTP 404`（模型名退役）。
+> **两个 Key 都在，两个都失败了 —— 而在 6.8.4 之前，这个真相在界面上完全看不见。**
+
+---
+
+## 零点五、模型名会腐烂：怎么换模型（6.8.5 新增）
+
+**这是一个必须知道的永久性事实：模型名会下线。** 硬编码一个模型名 = 一次退役就永久失效。
+
+真实例子：代码里曾硬编码 `gemini-1.5-flash`。按 Google 官方退役表，
+1.5 系列早已退役（表里连条目都没有），连 2.0 系列也已在 **2026-06-01 关停**。
+于是 Gemini 这条路**长期静默 404** —— 而失败只写进 `console.warn`，
+徽章又无条件显示绿色，**没有任何人知道它坏了**。
+
+**现在的做法：候选列表 + 环境变量覆盖。**
+
+| 环境变量 | 作用 | 默认候选 |
+| --- | --- | --- |
+| `GROQ_MODEL` | 覆盖 Groq 模型名 | `llama-3.3-70b-versatile` |
+| `OPENROUTER_MODEL` | 覆盖 OpenRouter 模型名 | `meta-llama/llama-3.3-70b-instruct:free` |
+| `GEMINI_MODEL` | 覆盖 Gemini 模型名 | `gemini-3.8-flash` → `gemini-3.5-flash-lite` → `gemini-2.5-flash` |
+
+- 不配这些变量时，会用**内置候选列表**逐个尝试 —— 第一个 404 就自动换下一个，
+  **单个模型退役不会让整条路哑掉**。
+- 要指定模型，用**逗号 / 分号 / 空格**分隔可以写多个，按顺序尝试：
+
+  ```
+  GEMINI_MODEL=gemini-3.8-flash,gemini-3.5-flash-lite
+  ```
+
+- **换模型不需要改代码**，改环境变量 + 重新部署即可。
 
 ---
 

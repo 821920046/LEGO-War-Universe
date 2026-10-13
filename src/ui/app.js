@@ -676,6 +676,20 @@ function describeAiFallback(status) {
 }
 
 /**
+ * 可操作的失败说明：把后台的 advice（HTTP 状态码 → 下一步怎么办）拼成一段提示。
+ *
+ * 只在用户**确实配了 Key 但调用失败**时返回内容 —— 没配 Key 是正常状态
+ * （系统本来就支持纯本地运行），不该每次生成都弹提示打扰用户。
+ */
+function aiFallbackAdvice(status) {
+  if (!status || status.reason !== 'ALL_PROVIDERS_FAILED') return '';
+  return (status.providers || [])
+    .filter(p => p.tried && (p.advice || p.error))
+    .map(p => p.advice || `${p.id}：${p.error}`)
+    .join('\n');
+}
+
+/**
  * 执行电影深度转译（无缝调用后台免费大模型与智能兜底）
  */
 async function executeMovieTranspile(movieQuery) {
@@ -730,6 +744,11 @@ async function executeMovieTranspile(movieQuery) {
         ? `🧠 云端 AI 已生效：${result.engine || '未知'}`
         : `🧠 未使用云端 AI：${result.engine || '未知'}${describeAiFallback(result.aiStatus)}`;
       $('ai-brain-status').className = usedAi ? 'badge badge--ok' : 'badge badge--warn';
+
+      // 只在「配了 Key 但调用失败」时给出可操作提示（含下一步怎么办）。
+      // 没配 Key 是正常状态，不该每次生成都弹窗打扰。
+      const advice = usedAi ? '' : aiFallbackAdvice(result.aiStatus);
+      if (advice) toast(`云端 AI 调用失败，本次已回退本地引擎：\n${advice}`, 'error', 9000);
     }
 
     $('theme').value = result.themeZh;
