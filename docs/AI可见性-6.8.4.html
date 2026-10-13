@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGO War Universe · 6.8.4 让失败可见 · 验收</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c222b; --line:#272e38;
+    --fg:#e8ecf1; --muted:#98a3b2; --dim:#6f7a89;
+    --bad:#ff5f5f; --good:#35d07f; --accent:#ffb454; --warn:#e3b341;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:29px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0;font-size:14px}
+  .quote{margin:20px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f2dcdc;border-radius:0 8px 8px 0;font-size:13.5px}
+  .note{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--accent);
+    background:#1a1710;color:#e8dfd0;border-radius:0 8px 8px 0;font-size:13.5px}
+  .warn{margin:18px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f0d8d8;border-radius:0 8px 8px 0;font-size:13.5px}
+  h2{margin:46px 0 14px;font-size:20px;border-left:3px solid var(--accent);padding-left:12px}
+  h3{margin:26px 0 10px;font-size:15.5px;color:#cfd7e2}
+  p{margin:0 0 12px}
+  code{background:#0b0e12;padding:1px 6px;border-radius:4px;color:var(--accent);font-size:12.5px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{margin:0 0 8px;font-size:14px;color:var(--good)}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .card--bad h4{color:var(--bad)}
+  .card--warn h4{color:var(--warn)}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:14px 0}
+  .box__hd{padding:9px 14px;font-size:12.5px;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  .box--bad .box__hd{background:#1d1618;color:var(--bad);border-color:#5c2b2b}
+  .box--good .box__hd{background:#131e18;color:var(--good);border-color:#264d38}
+  .box--warn .box__hd{background:#1a1710;color:var(--warn);border-color:#4d3f16}
+  .box__bd{padding:14px}
+  pre{margin:0;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
+    line-height:1.75;white-space:pre-wrap;color:#cfd7e2}
+  .del{color:var(--bad)} .ins{color:var(--good)} .dimtxt{color:var(--dim)} .yl{color:var(--warn)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;background:var(--panel)}
+  td code{font-size:12px}
+  .ok{color:var(--good)} .no{color:var(--bad)} .blank{color:var(--dim)}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;font-size:13px}
+  .node{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 13px}
+  .node--dead{border-color:#5c2b2b;background:#1d1618;color:var(--bad)}
+  .node--live{border-color:#264d38;background:#131e18;color:var(--good)}
+  .arrow{color:var(--dim)}
+  .badge-demo{display:inline-block;padding:3px 10px;border-radius:999px;font-size:12px;border:1px solid}
+  .b-ok{background:rgba(63,185,80,.12);border-color:rgba(63,185,80,.35);color:#56d364}
+  .b-warn{background:rgba(210,153,34,.12);border-color:rgba(210,153,34,.4);color:#e3b341}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px}
+  @media(max-width:880px){.wrap{padding:24px 16px 60px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">LEGO War Universe · 6.8.4 · Acceptance</p>
+  <h1>「AI 不是已经配了 api 了吗」：让失败可见</h1>
+  <p class="sub">上一轮刚写完「怎么配置 AI」的权威文档，用户紧接着说：我配了，还是用不了。于是这次不再推理 —— 直接探测线上。</p>
+
+  <p class="quote">用户追问：<b>「AI不是已经配了api了吗?还不能使用吗」</b><br><br>
+  <span class="dimtxt">6.8.3 花了整整一轮把「怎么配置 AI」写成逐条对得上代码的文档。<br>
+  按理说用户拿着它应该能自己解决 —— 但他没有。</span></p>
+
+  <p class="note"><b>这时候有两条路：</b>① 继续读代码、继续猜他配错了哪里，再写一份更详细的文档；
+  ② <b>直接测量</b> —— 线上到底有没有 Key？发一个请求就知道。<br>
+  我选了第二条。整个过程不到 5 分钟，拿到了确定答案。<br>
+  <b>用户说的「我配了」和系统实际的状态，是需要分别测量的两件事。</b></p>
+</header>
+
+<h2>一、第一性证据：线上到底有没有 Key</h2>
+
+<p>对 <code>https://lego-war-universe.pages.dev/api/ai-brain</code> 直接发 POST：</p>
+
+<table>
+  <thead><tr><th style="width:30%">探测</th><th>结果</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>抽象题材<br><span class="dimtxt">（不命中策展库）</span></td>
+      <td><code>engine = 本地自主想象引擎 · 离线生成（非云端 AI）</code><br>
+          <code>isAiGenerated: false</code><br>
+          <b class="no">latencyMs: 193</b></td>
+    </tr>
+    <tr><td><code>GET /api/ai-brain?probe=1</code></td><td class="no">405 METHOD_NOT_ALLOWED —— 根本没有自检接口</td></tr>
+    <tr><td><code>GET /api/compose/health</code></td><td class="blank">返回 index.html（该路由不存在）</td></tr>
+  </tbody>
+</table>
+
+<p class="warn"><b><code>latencyMs: 193</code> 是决定性的。</b>
+一次外部 HTTPS 调用（DNS + TCP + TLS + 响应）最低也要上百毫秒；而 193ms 还要装下完整的本地生成。
+<b>这个数字说明：后台根本没有发起过任何网络请求 —— 一个 Key 都没配。</b></p>
+
+<h2>二、根因：三个「看不见」叠成一个信息黑洞</h2>
+
+<p>诊断出「没配 Key」之后，真正值得追的问题是：<b>为什么用户配了之后，界面上看不出任何异常？</b></p>
+
+<div class="cards">
+  <div class="card card--bad">
+    <h4>① 前端静默回退</h4>
+    <p><code>callAiBrain</code> 在接口失败时直接走本地引擎，<b>不提示原因</b>。用户看不到任何错误。</p>
+  </div>
+  <div class="card card--bad">
+    <h4>② 徽章无条件绿色</h4>
+    <p><code>$('ai-brain-status').className = 'badge badge--ok'</code> 是<b>写死</b>的，与是否真的用了 AI <b>完全无关</b>。</p>
+  </div>
+  <div class="card card--bad">
+    <h4>③ 没有自检入口</h4>
+    <p>provider 失败只写进 <code>console.warn</code>，用户永远看不到；<code>?probe=1</code> 返回 405 —— <b>连查都没得查</b>。</p>
+  </div>
+</div>
+
+<p class="note">三层叠起来，形成一个完美的信息黑洞：<br>
+<b>配了 Key 没用上 → 界面看不出异常 → 只能来问「不是配了吗」。</b><br><br>
+这里有一个值得记下的转化 —— <b>错误一旦被静默吞掉，它就不再是错误，而变成了一个用户体验问题。</b>
+一个「配置没生效」的技术问题，被三层静默包装成了「功能正常」的假象。</p>
+
+<h2>三、修复前 vs 修复后：徽章长什么样</h2>
+
+<div class="box box--bad">
+  <div class="box__hd">修复前 · 无论走没走 AI，都是这个绿色</div>
+  <div class="box__bd">
+    <p style="margin:0 0 10px"><span class="badge-demo b-ok">🧠 本次引擎：本地自主想象引擎 · 离线生成（非云端 AI）</span></p>
+    <pre><span class="del">$('ai-brain-status').className = 'badge badge--ok';   // ← 写死的</span>
+<span class="dimtxt">// 文案写着「非云端 AI」，但颜色是成功的绿色 —— 用户扫一眼只会觉得「一切正常」</span></pre>
+  </div>
+</div>
+
+<div class="box box--good">
+  <div class="box__hd">修复后 · 只有云端 AI 真的生效才是绿色</div>
+  <div class="box__bd">
+    <p style="margin:0 0 8px"><span class="badge-demo b-ok">🧠 云端 AI 已生效：Cloud Free AI (Groq (llama-3.3-70b-versatile))</span></p>
+    <p style="margin:0 0 10px"><span class="badge-demo b-warn">🧠 未使用云端 AI：本地自主想象引擎 · 离线生成（非云端 AI）（后台未配置任何模型 Key —— 见 /api/ai-brain?probe=1 自检）</span></p>
+    <pre><span class="ins">const usedAi = result.isAiGenerated === true;</span>
+<span class="ins">$('ai-brain-status').className = usedAi ? 'badge badge--ok' : 'badge badge--warn';</span>
+<span class="ins">// 黄色 = 走的本地引擎，并直接写出原因（没配 Key / 云端调用失败 → groq Groq HTTP 401）</span></pre>
+  </div>
+</div>
+
+<h2>四、修法</h2>
+
+<table>
+  <thead><tr><th style="width:26%">层</th><th>改动</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>后端 · 只读自检</td>
+      <td>新增 <code>GET /api/ai-brain?probe=1</code>：报告哪个 Key 配了、哪个没配。掩码只给<b>后四位与长度</b>（<code>••••1234（长度 56）</code>），<b>不发起任何外部调用、不消耗额度、不返回密钥本身</b>。不带 probe 的 GET 仍然 405（契约不放宽）</td>
+    </tr>
+    <tr>
+      <td>后端 · 诊断随响应回传</td>
+      <td>所有响应体新增 <code>aiStatus</code>：<code>aiAvailable</code> / <code>reason</code>（<code>OK</code> / <code>NO_KEYS_CONFIGURED</code> / <code>ALL_PROVIDERS_FAILED</code>）/ 每个 provider 的 <code>configured</code> / <code>tried</code> / <code>error</code>（<b>真实 HTTP 状态码</b>）/ <code>hint</code></td>
+    </tr>
+    <tr>
+      <td>前端 · 徽章诚实</td>
+      <td>仅当 <code>isAiGenerated === true</code> 才是绿色；回退本地一律<b>黄色</b>并写出原因。策展面板那处无条件 <code>badge--ok</code> 同样修正</td>
+    </tr>
+    <tr>
+      <td>文档</td>
+      <td><code>docs/AI启用时机与配置.md</code> 新增「零、5 秒自查」章节；README 部署章节补上<b>此前完全缺失</b>的 <code>GROQ_API_KEY</code> 一行</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>自检长什么样</h3>
+
+<div class="box box--warn">
+  <div class="box__hd">GET /api/ai-brain?probe=1 —— 只读、零额度、不泄露密钥</div>
+  <div class="box__bd"><pre>{
+  <span class="yl">"aiAvailable": false,</span>          <span class="dimtxt">// ← 一句话结论</span>
+  <span class="yl">"configuredCount": 0,</span>          <span class="dimtxt">// ← 配了几个 Key（0 = 一个都没配）</span>
+  "providers": [
+    { "id": "groq",       "envVar": "GROQ_API_KEY",       "configured": false, "keyHint": null },
+    { "id": "openrouter", "envVar": "OPENROUTER_API_KEY", "configured": false, "keyHint": null },
+    { "id": "gemini",     "envVar": "GEMINI_API_KEY",     "configured": false, "keyHint": null }
+  ],
+  "diagnosis": "后台没有配置任何模型 Key……",
+  "howToFix": ["Cloudflare 控制台 → ……", "……"]
+}</pre></div>
+</div>
+
+<p><b>设计取舍：</b>自检<b>只回答「配了没」，不主动验证 Key 是否有效</b> —— 因为验证有效性必须真的调用一次、会消耗额度。
+而「配了但无效」这件事，点一次「深度转译」就能从 <code>aiStatus.providers[].error</code> 看到真实 HTTP 状态码：
+<b>用真实路径做体检，不额外花钱。</b></p>
+
+<h3>error 码对照表</h3>
+
+<table>
+  <thead><tr><th style="width:30%">error</th><th style="width:34%">含义</th><th>怎么办</th></tr></thead>
+  <tbody>
+    <tr><td><code>Groq HTTP 401</code></td><td>Key 无效或已被撤销</td><td>重新生成一把 Key</td></tr>
+    <tr><td><code>Groq HTTP 429</code></td><td>额度用尽 / 触发限流</td><td>换一个 provider，或等额度重置</td></tr>
+    <tr><td><code>Groq HTTP 404</code></td><td>模型名不可用</td><td>检查 provider 的模型是否下线</td></tr>
+    <tr><td><code>NOT_CONFIGURED</code></td><td>这个 provider 压根没配</td><td>见 <code>howToFix</code></td></tr>
+  </tbody>
+</table>
+
+<h2>五、反向验证（证明门禁真的抓得住，而不是恒绿）</h2>
+
+<table>
+  <thead><tr><th style="width:46%">把代码改回缺陷态</th><th>新门禁的反应</th></tr></thead>
+  <tbody>
+    <tr><td>徽章改回无条件 <code>badge--ok</code></td><td class="no">❌ 本地回退不得显示为成功色，实际类名："badge badge--ok"</td></tr>
+    <tr><td>兜底响应移除 <code>aiStatus</code></td><td class="no">❌ 兜底响应缺少 aiStatus，前端将无法解释原因</td></tr>
+  </tbody>
+</table>
+
+<h2>六、一处自我更正</h2>
+
+<div class="box box--bad">
+  <div class="box__hd">6.8.3 我写下的结论（错的）</div>
+  <div class="box__bd"><pre><span class="del">「AI 路径依然没有任何自动化测试。」</span></pre></div>
+</div>
+
+<div class="box box--good">
+  <div class="box__hd">6.8.4 更正后的事实</div>
+  <div class="box__bd"><pre><span class="ins">tests/backend-ai-brain.test.mjs 有 14 条测试，tests/imagination-681.test.mjs 也在测这个端点，</span>
+<span class="ins">包含用 mock fetch 覆盖的 provider 成功 / 失败 / 内容治理分支。</span>
+<span class="ins">真实缺口不是「零覆盖」，而是更精确的一件事：</span>
+<span class="ins">「没有覆盖『Key 没配』这一支」—— 而它恰恰是线上唯一实际发生的那一支。</span></pre></div>
+</div>
+
+<p class="note"><b>代码写错了会被测试抓住，结论写错了不会。</b>
+一个错误的结论会安静地留在报告里，被后续每一轮当成事实引用。
+所以这一轮我把它<b>明写在 CHANGELOG 里</b>，而不是悄悄改掉 —— <b>更正必须留痕，否则它就变成了另一种静默。</b></p>
+
+<h2>七、结果</h2>
+
+<table>
+  <thead><tr><th style="width:46%">维度</th><th>修复前</th><th>修复后</th></tr></thead>
+  <tbody>
+    <tr><td>「Key 配了没」</td><td class="no">无从查证（405）</td><td class="ok">?probe=1 只读自检，掩码回显</td></tr>
+    <tr><td>「为什么没用上」</td><td class="no">只在 console.warn</td><td class="ok">aiStatus.reason + 真实 HTTP 错误</td></tr>
+    <tr><td>本地回退的视觉</td><td class="no">绿色（与云端 AI 无差别）</td><td class="ok">黄色 + 直接写明原因</td></tr>
+    <tr><td>测试</td><td>291</td><td class="ok">298 / 298（新增 7 条诊断门禁）</td></tr>
+    <tr><td>版本</td><td>6.8.3</td><td class="ok">6.8.4</td></tr>
+    <tr><td>资产 / 签名</td><td colspan="2">810 项不变 · schemaVersion 3.7 · 签名 e1515357a93c 未变（纯代码轮）</td></tr>
+    <tr><td>盲测基线</td><td colspan="2">一致性 100% · 可剪辑性 100% · 合规 100% · 稳定性 96%（零回归）</td></tr>
+  </tbody>
+</table>
+
+<h2>八、遗留风险（如实记录）</h2>
+
+<p class="warn">
+· 自检<b>只回答「配了没」，不主动验证 Key 有效性</b>（那需要真的调用、会消耗额度）。
+「配了但无效」要靠点一次「深度转译」看 <code>aiStatus.providers[].error</code>。<br>
+· <code>06_Deploy/worker.js</code> 仍只支持 gemini/openai，前端调不到它。<br>
+· <code>public/build-manifest.json</code> 的 <code>builtAt</code> 仍是时间戳，每次构建都让工作区变脏。<br>
+· <b>边界仍然没有变</b>：这些 prompt 依旧<b>一次也没有跑过 Veo 3 / Flow</b>。
+前四轮推倒的都是自洽性问题（生成重复 / 输入不决定输出 / 作用域嵌套 / 文档失真），
+这一轮是第五堵墙：<b>可观测性</b>。
+<b>五堵墙全部是「我的系统在骗我或骗用户」，没有一堵是「内容不够好」。</b>
+</p>
+
+<h2>九、元发现</h2>
+
+<p class="note">
+6.8.3 的教训是「<b>文档是最没有门禁的那一层</b>」。这一轮更进一层：<br><br>
+<b>错误一旦被静默吞掉，它就不再是错误，而变成了一个用户体验问题。</b><br><br>
+后台把 provider 的失败写进 <code>console.warn</code>（用户看不到），
+前端把回退画成绿色（用户以为成功），
+自检接口根本不存在（用户无从查证）——
+三个「看不见」叠起来，把一个<b>配置问题</b>伪装成了<b>功能正常</b>。<br><br>
+这一轮还验证了一件前几轮反复出现、但这次终于说清楚的事：<br>
+<b>用户说的「我配了」和系统实际的状态，是需要分别测量的两件事。</b>
+我没有去问用户「你配在哪了」，而是直接探测线上 —— 5 分钟拿到确定答案。<br>
+<b>凡是能实测的，就不要靠提问去猜。</b><br><br>
+以及一条关于「诚实的边界」的自我更正：上一轮我写「AI 路径零测试」，这一轮发现是错的。<br>
+<b>写进报告的错误结论，比写错的代码更危险 —— 代码会被测试抓住，结论不会。</b>
+</p>
+
+<footer>
+  LEGO War Universe · 6.8.4 · 纯代码轮（资产 810 项与签名未变）<br>
+  详细推演见 <code>CHANGELOG.md</code> 与 <code>docs/对抗审查报告-角色与脚本智能.md</code> 第十七轮（§137–§143）。<br>
+  自检入口：<code>/api/ai-brain?probe=1</code> · 权威文档见 <code>docs/AI启用时机与配置.md</code>。
+</footer>
+
+</div>
+</body>
+</html>

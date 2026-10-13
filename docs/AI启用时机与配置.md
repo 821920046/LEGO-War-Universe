@@ -6,6 +6,48 @@
 
 ---
 
+## 零、5 秒自查：AI 到底配上了没（6.8.4 新增）
+
+**不要再靠猜。** 直接打开这个地址（把域名换成你自己的）：
+
+```
+https://你的站点/api/ai-brain?probe=1
+```
+
+它返回一份只读报告，**不会发起任何外部请求、不消耗任何额度、也不返回密钥本身**：
+
+```jsonc
+{
+  "aiAvailable": false,          // ← 一句话结论：后台现在用不了云端 AI
+  "configuredCount": 0,          // ← 配了几个 Key（0 = 一个都没配）
+  "providers": [
+    { "id": "groq", "envVar": "GROQ_API_KEY", "configured": false, "keyHint": null },
+    { "id": "openrouter", "envVar": "OPENROUTER_API_KEY", "configured": false, "keyHint": null },
+    { "id": "gemini", "envVar": "GEMINI_API_KEY", "configured": false, "keyHint": null }
+  ],
+  "diagnosis": "后台没有配置任何模型 Key……",
+  "howToFix": ["Cloudflare 控制台 → ……", "……"]
+}
+```
+
+配好之后，`configured` 会变成 `true`，并给出**掩码**（例如 `••••1234（长度 56）`）——
+后四位足够你确认「这是我刚配的那把」，又不构成泄露。
+
+**如果 `configured: true` 但页面还是显示本地引擎**，说明 Key 配上了但调用失败。
+这时点一次「深度转译」，响应里的 `aiStatus.providers[].error` 会给出**真实的 HTTP 状态码**：
+
+| error | 含义 | 怎么办 |
+| --- | --- | --- |
+| `Groq HTTP 401` | Key 无效或已被撤销 | 重新生成一把 Key |
+| `Groq HTTP 429` | 额度用尽 / 触发限流 | 换一个 provider，或等额度重置 |
+| `Groq HTTP 404` | 模型名不可用 | 检查 provider 的模型是否下线 |
+| `NOT_CONFIGURED` | 这个 provider 压根没配 | 见 `howToFix` |
+
+**页面上也能看出来**：顶部「本次引擎」徽章现在**只在云端 AI 真正生效时才是绿色**；
+回退本地时是**黄色**，并直接写出原因（例如「后台未配置任何模型 Key」）。
+
+---
+
 ## 一、什么时候会走云端 AI（真实路由）
 
 | 入口 | 走哪条路 |
@@ -31,7 +73,8 @@
 
 ### 怎么判断「这一次到底用的是不是 AI」
 
-看返回里的 `engine` 字段 —— 页面顶部那个「本次引擎」小标签就是它：
+看返回里的 `engine` 字段 —— 页面顶部那个「本次引擎」小标签就是它
+（**6.8.4 起还会用颜色区分**：绿色 = 云端 AI 真的生效，黄色 = 走的本地引擎）：
 
 | `engine` 文案 | 含义 |
 | --- | --- |
@@ -144,4 +187,5 @@ GROQ_API_KEY=gsk_...
 
 - **想用 AI**：配 Key（`GROQ_API_KEY` 优先）+ **Redeploy**。
 - **不想用 AI**：什么都不用做。
-- **想知道有没有在用**：看页面顶部的「本次引擎」标签。
+- **想知道有没有在用**：看页面顶部的「本次引擎」标签（绿=云端，黄=本地）。
+- **想知道为什么没在用**：打开 `/api/ai-brain?probe=1`。

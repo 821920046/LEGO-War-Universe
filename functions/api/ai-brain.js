@@ -102,6 +102,93 @@ function cors(request, env = {}) {
   return {};
 }
 
+// ── AI 可用性诊断（6.8.4）────────────────────────────────────────────────
+// 存在的意义：前端在云端不可用时**静默回退本地引擎**，而此前响应体里没有任何
+// 字段说明「为什么没走 AI」。于是用户配了 Key、以为生效了，实际永远在跑本地，
+// 却看不出原因 —— 只能来问「AI 不是已经配了 api 了吗」。
+//
+// 这里把「后台到底有没有 Key、每个 provider 是成功还是失败」如实报出来。
+// 两条互补的入口：
+//   · GET  /api/ai-brain?probe=1 → 只读自检，只回答「配了没」（零外部调用、零额度消耗）
+//   · POST /api/ai-brain         → 响应体带 aiStatus，回答「为什么没用上」（含真实 HTTP 错误）
+const PROVIDERS = [
+  { id: 'groq', envVar: 'GROQ_API_KEY', model: 'llama-3.3-70b-versatile' },
+  { id: 'openrouter', envVar: 'OPENROUTER_API_KEY', model: 'meta-llama/llama-3.3-70b-instruct:free' },
+  { id: 'gemini', envVar: 'GEMINI_API_KEY', model: 'gemini-1.5-flash' }
+];
+
+/**
+ * 密钥掩码：只保留长度与后四位，**绝不返回密钥本身**。
+ * 后四位足以让用户确认「这是我新配的那把 key」，而不构成泄露。
+ */
+function maskKey(value) {
+  const key = String(value == null ? '' : value);
+  if (!key) return null;
+  return key.length <= 4 ? `••••（长度 ${key.length}）` : `••••${key.slice(-4)}（长度 ${key.length}）`;
+}
+
+/** 每个 provider 的「配置态」报告（不发起任何外部调用）。 */
+function providerReport(env = {}) {
+  return PROVIDERS.map(p => ({
+    id: p.id,
+    envVar: p.envVar,
+    model: p.model,
+    configured: Boolean(env[p.envVar]),
+    keyHint: maskKey(env[p.envVar])
+  }));
+}
+
+/**
+ * 汇总本次请求的 AI 使用结论。
+ * @param {Array} attempts 逐个 provider 的尝试记录
+ * @param {object} env 运行时环境变量
+ */
+function buildAiStatus(attempts, env = {}) {
+  const configured = PROVIDERS.filter(p => env[p.envVar]).length;
+  const won = attempts.find(a => a.ok) || null;
+  const reason = won ? 'OK' : (configured === 0 ? 'NO_KEYS_CONFIGURED' : 'ALL_PROVIDERS_FAILED');
+
+  const hint = won
+    ? null
+    : (configured === 0
+      ? '后台未配置任何模型 Key，本次由本地引擎生成。启用云端 AI：Cloudflare Pages → Settings → Environment variables → Production 配置 GROQ_API_KEY（类型选 Secret），然后重新部署。'
+      : '后台已配置模型 Key，但本次调用全部失败 —— 请看下方 providers 里每个 provider 的 error 字段（401=Key 无效，429=额度或限流，404=模型不可用）。');
+
+  return {
+    aiAvailable: Boolean(won),
+    reason,
+    activeProvider: won ? won.id : null,
+    configuredCount: configured,
+    providers: attempts,
+    hint
+  };
+}
+
+/** GET /api/ai-brain?probe=1 的响应体：只读、无副作用、不泄露密钥。 */
+function buildProbeReport(env = {}) {
+  const providers = providerReport(env);
+  const anyConfigured = providers.some(p => p.configured);
+  return {
+    ok: true,
+    probe: true,
+    aiAvailable: anyConfigured,
+    configuredCount: providers.filter(p => p.configured).length,
+    providerOrder: PROVIDERS.map(p => p.id),
+    providers,
+    diagnosis: anyConfigured
+      ? '后台至少配置了一个模型 Key。若「深度转译」仍显示本地引擎，请点一次「深度转译」，响应里的 aiStatus.providers[].error 会给出真实失败原因（401=Key 无效，429=额度或限流，404=模型不可用）。'
+      : '后台没有配置任何模型 Key（GROQ_API_KEY / OPENROUTER_API_KEY / GEMINI_API_KEY 均为空），因此所有生成都会走本地引擎 —— 功能完整、不联网、不花钱。想启用云端 AI，请按 howToFix 操作。',
+    howToFix: [
+      'Cloudflare 控制台 → 你的 Pages 项目 → Settings → Environment variables → Production',
+      '新增 GROQ_API_KEY，类型必须选 Secret（加密），不要选 Text',
+      '点一次 Redeploy / 重新部署 —— 环境变量改动不重新部署不生效（最高频的坑）',
+      '重新打开本地址，确认对应 provider 的 configured 变成 true'
+    ],
+    docs: 'docs/AI启用时机与配置.md',
+    note: '本接口只报告 Key 是否存在（掩码显示后四位与长度），绝不返回密钥本身，也不会发起任何外部请求、不消耗任何额度。'
+  };
+}
+
 function governResponse(responseBody, inputGovernance) {
   const outputGovernance = checkContentGovernance(JSON.stringify(responseBody));
   if (outputGovernance.status === 'blocked') {
@@ -378,21 +465,31 @@ export async function onRequest({ request, env = {} }) {
       status: 204,
       headers: {
         ...headers,
-        'access-control-allow-methods': 'POST, OPTIONS',
+        'access-control-allow-methods': 'GET, POST, OPTIONS',
         'access-control-allow-headers': 'content-type'
       }
     });
   }
 
-  if (request.method !== 'POST') {
+  // 只读自检：GET /api/ai-brain?probe=1
+  // 必须在 405 之前拦截，但不能放宽「非 POST 一律 405」的既有契约 ——
+  // 因此只认带 probe 参数的 GET，其余方法原样 405。
+  const url = new URL(request.url);
+  const isProbe = request.method === 'GET' && url.searchParams.has('probe');
+
+  if (!isProbe && request.method !== 'POST') {
     return json({ error: 'METHOD_NOT_ALLOWED' }, 405, headers);
   }
 
-  // 基础限流保护
+  // 基础限流保护（probe 与生成共用同一窗口）
   const clientIp = request.headers.get('cf-connecting-ip') || 'anonymous';
   const rl = checkRateLimit(clientIp);
   if (rl.limited) {
     return json({ error: 'RATE_LIMITED', retryAfterMs: rl.retryAfterMs }, 429, headers);
+  }
+
+  if (isProbe) {
+    return json(buildProbeReport(env), 200, headers);
   }
 
   let body;
@@ -448,35 +545,64 @@ export async function onRequest({ request, env = {} }) {
   let result = null;
   let usedEngine = 'None';
 
+  // 逐个 provider 的尝试记录 —— 这是「为什么没用上 AI」的唯一证据来源。
+  // 此前这些失败只写进 console.warn（用户在页面上永远看不到），
+  // 于是「配了 Key 却一直跑本地」没有任何可观测的线索。
+  const attempts = PROVIDERS.map(p => ({
+    id: p.id,
+    envVar: p.envVar,
+    model: p.model,
+    configured: Boolean(env[p.envVar]),
+    tried: false,
+    ok: false,
+    error: null
+  }));
+  const recordOf = id => attempts.find(a => a.id === id);
+
   // 1. 尝试 Groq 免费通道
   if (env.GROQ_API_KEY && !result) {
+    const record = recordOf('groq');
+    record.tried = true;
     try {
       result = await callGroq(systemPrompt, userPrompt, env.GROQ_API_KEY);
       usedEngine = 'Groq (llama-3.3-70b-versatile)';
+      record.ok = true;
     } catch (e) {
+      record.error = e.message;
       console.warn('Groq 调度跳过或失败:', e.message);
     }
   }
 
   // 2. 尝试 OpenRouter 免费通道
   if (env.OPENROUTER_API_KEY && !result) {
+    const record = recordOf('openrouter');
+    record.tried = true;
     try {
       result = await callOpenRouter(systemPrompt, userPrompt, env.OPENROUTER_API_KEY);
       usedEngine = 'OpenRouter (llama-3.3:free)';
+      record.ok = true;
     } catch (e) {
+      record.error = e.message;
       console.warn('OpenRouter 调度跳过或失败:', e.message);
     }
   }
 
   // 3. 尝试 Google Gemini 免费通道
   if (env.GEMINI_API_KEY && !result) {
+    const record = recordOf('gemini');
+    record.tried = true;
     try {
       result = await callGemini(systemPrompt, userPrompt, env.GEMINI_API_KEY);
       usedEngine = 'Google Gemini (gemini-1.5-flash)';
+      record.ok = true;
     } catch (e) {
+      record.error = e.message;
       console.warn('Gemini 调度跳过或失败:', e.message);
     }
   }
+
+  // 本次请求的 AI 结论：无论走云端还是回退本地，都如实带在响应里。
+  const aiStatus = buildAiStatus(attempts, env);
 
   // 4. 若无云端 Key 或调用均异常，自动由本地引擎无缝兜底。
   //
@@ -515,7 +641,8 @@ export async function onRequest({ request, env = {} }) {
         era: local.era || intent.era,
         assetUsage: { catalogSize: validIds.size, matched: 0, unknown: [] },
         proposedAssets: [],
-        latencyMs
+        latencyMs,
+        aiStatus
       };
       const governed = governResponse(responseBody, inputGovernance);
       return json(governed.body, governed.status, headers);
@@ -554,7 +681,8 @@ export async function onRequest({ request, env = {} }) {
         era: generated.era || intent.era,
         assetUsage: { catalogSize: validIds.size, matched: 0, unknown: [] },
         proposedAssets: [],
-        latencyMs
+        latencyMs,
+        aiStatus
       };
       const governed = governResponse(responseBody, inputGovernance);
       return json(governed.body, governed.status, headers);
@@ -585,7 +713,8 @@ export async function onRequest({ request, env = {} }) {
       era: fallback.era || intent.era,
       assetUsage: { catalogSize: validIds.size, matched: 0, unknown: [] },
       proposedAssets: [],
-      latencyMs
+      latencyMs,
+      aiStatus
     };
     const governed = governResponse(responseBody, inputGovernance);
     return json(governed.body, governed.status, headers);
@@ -662,7 +791,8 @@ export async function onRequest({ request, env = {} }) {
     },
     // 模型建议新增、但资产库暂缺的现代/未来战争装备 —— 交给前端进化引擎锻造落地
     proposedAssets: Array.isArray(result.proposedAssets) ? result.proposedAssets.slice(0, 8) : [],
-    latencyMs
+    latencyMs,
+    aiStatus
   };
   const governed = governResponse(responseBody, inputGovernance);
   return json(governed.body, governed.status, headers);
