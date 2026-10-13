@@ -5,7 +5,7 @@
   "scripts": {
     "build": "node scripts/build-assets.mjs",
     "test": "node --experimental-vm-modules --test tests/*.test.mjs",
-    "test:smoke": "node tests/smoke.mjs",
+    "test:smoke": "node --experimental-vm-modules --test tests/ui-boot.test.mjs",
     "verify": "python 02_Assets/validate.py 02_Assets/assets.json && npm run build && npm test && node scripts/check-release.mjs"
   }
 }

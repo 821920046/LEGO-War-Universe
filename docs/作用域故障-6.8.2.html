@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGO War Universe · 6.8.2 作用域故障 · 验收</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c222b; --line:#272e38;
+    --fg:#e8ecf1; --muted:#98a3b2; --dim:#6f7a89;
+    --bad:#ff5f5f; --good:#35d07f; --accent:#ffb454; --link:#5eb1ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:29px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0;font-size:14px}
+  .quote{margin:20px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f2dcdc;border-radius:0 8px 8px 0;font-size:13.5px}
+  .note{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--accent);
+    background:#1a1710;color:#e8dfd0;border-radius:0 8px 8px 0;font-size:13.5px}
+  .warn{margin:18px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f0d8d8;border-radius:0 8px 8px 0;font-size:13.5px}
+  h2{margin:46px 0 14px;font-size:20px;border-left:3px solid var(--accent);padding-left:12px}
+  h3{margin:26px 0 10px;font-size:15.5px;color:#cfd7e2}
+  p{margin:0 0 12px}
+  code{background:#0b0e12;padding:1px 6px;border-radius:4px;color:var(--accent);font-size:12.5px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{margin:0 0 8px;font-size:14px;color:var(--good)}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .card--bad h4{color:var(--bad)}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:14px 0}
+  .box__hd{padding:9px 14px;font-size:12.5px;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  .box--bad .box__hd{background:#1d1618;color:var(--bad);border-color:#5c2b2b}
+  .box--good .box__hd{background:#131e18;color:var(--good);border-color:#264d38}
+  .box__bd{padding:14px}
+  pre{margin:0;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
+    line-height:1.75;white-space:pre-wrap;color:#cfd7e2}
+  .del{color:var(--bad)} .ins{color:var(--good)} .dimtxt{color:var(--dim)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;background:var(--panel)}
+  td code{font-size:12px}
+  .ok{color:var(--good)} .no{color:var(--bad)} .blank{color:var(--dim)}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;font-size:13px}
+  .node{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 13px}
+  .node--dead{border-color:#5c2b2b;background:#1d1618;color:var(--bad)}
+  .node--live{border-color:#264d38;background:#131e18;color:var(--good)}
+  .arrow{color:var(--dim)}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px}
+  @media(max-width:880px){.wrap{padding:24px 16px 60px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">LEGO War Universe · 6.8.2 · Acceptance</p>
+  <h1>「renderVariantPicker is not defined」：三个函数被缩进骗了</h1>
+  <p class="sub">报错说它未定义，可它明明写在模块顶层 —— 这个矛盾本身就是线索。</p>
+
+  <p class="quote">✕ <b>转译失败: renderVariantPicker is not defined</b><br>
+  转译异常: renderVariantPicker is not defined<br><br>
+  <span class="dimtxt">▲ ReferenceError: renderVariantPicker is not defined<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;at renderCurrentProject (app.js:1353:5)<br>
+  &nbsp;&nbsp;&nbsp;&nbsp;at boot (app.js:242:2)</span></p>
+
+  <p class="note"><b>顶格的 <code>function</code> 声明会被提升到作用域顶端 —— 它不可能 "not defined"。</b>
+  所以只剩一种解释：<b>它看着在顶层，实际不在。</b><br>
+  6.8.0 新增这三个函数时，我把它们插在了 <code>$('plan').onclick = …</code> 之后，
+  而那行位于 <code>bindGlobalEvents()</code> 体内（第 787 行开、第 1265 行才闭合）——
+  三个函数被无声地吞成了 <code>bindGlobalEvents</code> 的<b>局部函数</b>。</p>
+</header>
+
+<h2>一、定位方法：不要数括号，让 V8 自己回答</h2>
+
+<p>第一反应是数括号。我写了个括号深度扫描器，它说文件末尾深度是 1、这两个函数都在深度 1 ——
+但这和运行时矛盾：如果 <code>renderCurrentProject</code> 在深度 1，<code>boot()</code>（深度 0）就调不到它，
+而栈里明明写着 <code>at boot → at renderCurrentProject</code>。
+我的扫描器不认正则字面量（这个文件里满是 <code>replace(/…/g, …)</code>），<b>它不可信</b>。</p>
+
+<p>换成<b>不依赖我自己写的任何解析逻辑</b>的判据：给每个顶格函数追加一句
+<code>export { 名字 }</code> 再交给 V8 解析 —— <b>只有真正的模块顶层绑定才能被导出</b>。</p>
+
+<div class="box box--bad">
+  <div class="box__hd">判据输出 · 修复前</div>
+  <div class="box__bd"><pre><span class="del">describeIntent          不是顶层 ❌</span>
+<span class="del">applyVariantCandidate   不是顶层 ❌</span>
+<span class="del">renderVariantPicker     不是顶层 ❌</span>
+<span class="ins">renderCurrentProject    顶层 ✅</span></div>
+</div>
+
+<div class="box box--good">
+  <div class="box__hd">判据输出 · 修复后（全仓 265 个顶格声明）</div>
+  <div class="box__bd"><pre><span class="ins">13 个抽样名字全部为模块顶层绑定 ✅</span>
+<span class="ins">存在问题的文件 0 个 ✅</span></div>
+</div>
+
+<h2>二、真实结构：一个根因，两个症状</h2>
+
+<div class="box box--bad">
+  <div class="box__hd">src/ui/app.js · 修复前</div>
+  <div class="box__bd"><pre>787  <span class="ins">function bindGlobalEvents() {</span>          <span class="dimtxt">← 开</span>
+1010   $('plan').onclick = async () =&gt; {...};   <span class="dimtxt">← 本应在这里结束（1058 行 };) </span>
+<span class="del">1060   function describeIntent() {...}         ← 被误吞进来</span>
+<span class="del">1080   function applyVariantCandidate() {...}  ← 被误吞进来</span>
+<span class="del">1147   function renderVariantPicker() {...}    ← 被误吞进来</span>
+1199   // 8. 导出工程 JSON                      <span class="dimtxt">← 本该紧跟 1058 行</span>
+1265 <span class="ins">}</span>                                         <span class="dimtxt">← bindGlobalEvents 真正闭合</span>
+1344 <span class="ins">function renderCurrentProject() {</span>         <span class="dimtxt">← 模块顶层，够不到那三个函数</span></pre></div>
+</div>
+
+<p>注意 <code>bindGlobalEvents</code> <b>自己</b>调用它们是好的（第 1053/1054 行就在同一个作用域里）——
+<b>这个 bug 只在「从外层调用」时才暴露</b>。而模块顶层恰好有两处外层调用：</p>
+
+<h3>症状 A · 页面加载后镜头列表整块空白</h3>
+<div class="flow">
+  <span class="node">boot()</span><span class="arrow">→</span>
+  <span class="node">第 242 行 renderCurrentProject()</span><span class="arrow">→</span>
+  <span class="node">第 1353 行 renderVariantPicker()</span><span class="arrow">→</span>
+  <span class="node node--dead">ReferenceError，boot 中断</span>
+</div>
+
+<h3>症状 B · 点「深度转译」弹「转译失败」</h3>
+<div class="flow">
+  <span class="node">executeMovieTranspile()</span><span class="arrow">→</span>
+  <span class="node">第 754 行 renderVariantPicker()</span><span class="arrow">→</span>
+  <span class="node node--dead">抛错 → 被 catch 成「转译异常」</span>
+</div>
+
+<p class="warn"><b>它为什么藏了这么久？</b> <code>renderCurrentProject</code> 里那处调用外面有守卫：
+<code>if (!currentProject.variant || variant 过期) { renderVariantPicker(); }</code> ——
+<b>生成过一次之后页面是好的</b>（variant 刚写进去、标签也对得上），<b>刷新或打开旧工程才炸</b>。
+所以 6.8.0 上线时自测「看着没问题」。</p>
+
+<p class="warn"><b>时间线：6.8.0 引入 → 6.8.1 加重 → 6.8.2 才修。</b>
+用同一判据复核 <code>a5eb8d9</code>（6.8.0），三个函数同样不是顶层；
+而 6.8.1 又在 <code>executeMovieTranspile</code> 里加了一处<b>无条件调用</b>（第 754 行），
+把「偶尔炸」变成「每次都炸」—— 这一轮才会被撞上。</p>
+
+<h2>三、为什么五道门禁全绿却一条都没拦住</h2>
+
+<table>
+  <thead><tr><th style="width:34%">门禁</th><th>为什么放过它</th></tr></thead>
+  <tbody>
+    <tr><td><code>syntax.test.mjs</code>（解析每个模块）</td>
+        <td>函数写在顶层还是写在别的函数里，<b>都是合法语法</b></td></tr>
+    <tr><td>288 条单测</td>
+        <td>全部只覆盖 <code>src/domain/**</code>，纯函数、不碰 DOM</td></tr>
+    <tr><td><code>validate.py</code> / <code>build-assets</code></td>
+        <td>只关心资产 JSON</td></tr>
+    <tr><td><code>check-release.mjs</code></td>
+        <td>只关心发布面（版本号、签名、文件齐全）</td></tr>
+    <tr><td><code>run-blind-test.mjs</code></td>
+        <td>只走 domain 层编译链，从不加载 <code>app.js</code></td></tr>
+  </tbody>
+</table>
+
+<p><code>app.js</code> 在 Node 里 import 不进来（要 DOM），所以<b>它从来没有被真正执行过一次</b>。
+最讽刺的是 <code>tests/syntax.test.mjs</code> 的注释里早就写着这句话：
+「……让整个页面白屏，而全部单测绿灯、发布门禁也通过 —— <b>测试通过 ≠ 页面能跑</b>」。
+写这段注释的时候，我以为「解析一遍」就等于「页面能跑」。
+<b>它只做到了「解析」，没做到「运行」—— 而这两者之间的缝，正好装得下这个 bug。</b></p>
+
+<h2>四、修法</h2>
+
+<div class="cards">
+  <div class="card">
+    <h4>① 纯搬移</h4>
+    <p>三个函数从 <code>bindGlobalEvents()</code> 体内移到它结束之后。
+    逐行比对行内容多重集：<b>完全一致</b>，行数 1404 → 1404 —— 机械证明没丢代码。</p>
+  </div>
+  <div class="card">
+    <h4>② 静态作用域门禁</h4>
+    <p><code>tests/syntax.test.mjs</code> 新增：每个顶格函数声明都必须是真正的模块顶层绑定。
+    能<b>定位到名字</b>。</p>
+  </div>
+  <div class="card">
+    <h4>③ 动态启动冒烟</h4>
+    <p><code>tests/ui-boot.test.mjs</code>（新增）：最小 DOM 桩<b>真的把 app.js 跑起来</b>。
+    能抓到静态看不出的运行期问题。</p>
+  </div>
+  <div class="card">
+    <h4>④ 顺手修掉悬空脚本</h4>
+    <p><code>test:smoke</code> 原本指向<b>不存在的</b> <code>tests/smoke.mjs</code> ——
+    一个指向空气的脚本不会报错、也没人发现。</p>
+  </div>
+</div>
+
+<h2>五、反向验证：证明门禁不是恒绿</h2>
+
+<p>一条从不失败的测试等于没有测试。两条新门禁都用<b>修复前的文件</b>跑过 ——
+同一套桩，只换文件：</p>
+
+<div class="box box--bad">
+  <div class="box__hd">修复前 · 阶段 1 页面加载 / 阶段 2 点「深度转译」</div>
+  <div class="box__bd"><pre><span class="del">console.error: ReferenceError: renderVariantPicker is not defined</span>
+<span class="del">[manifest] 资产或工作台初始化失败</span>
+<span class="dimtxt">…（镜头列表整块空白）</span>
+
+<span class="del">[transpile-progress] 转译异常: renderVariantPicker is not defined</span>
+<span class="del">✕ 转译失败: renderVariantPicker is not defined</span></pre></div>
+</div>
+
+<div class="box box--good">
+  <div class="box__hd">修复后 · 同样两步</div>
+  <div class="box__bd"><pre><span class="ins">异常：无</span>
+<span class="ins">[manifest] 构建 6.8.2 · 认证资产 810 · 签名 e1515357a93c</span>
+
+<span class="ins">[ai-brain-status] 🧠 本次引擎：本地自主想象引擎 · 离线生成（非云端 AI）</span>
+<span class="ins">[intent] 🎬 未命中策展影片，已按你的题材原创生成《雪山坚机》！8 镜分镜已生成</span></pre></div>
+</div>
+
+<p class="dimtxt" style="font-size:12.5px">桩的说明：<code>fetch</code> 只读三个静态 JSON，
+其余接口（含 <code>/api/ai-brain</code>）一律返回 503 —— 复刻用户控制台里的离线环境。</p>
+
+<h2>六、结果</h2>
+
+<table>
+  <thead><tr><th style="width:46%">维度</th><th>修复前</th><th>修复后</th></tr></thead>
+  <tbody>
+    <tr><td>页面加载 <code>boot()</code></td><td class="no">ReferenceError，镜头列表空白</td><td class="ok">正常，manifest 显示构建信息</td></tr>
+    <tr><td>影院模式「深度转译」</td><td class="no">「转译失败: renderVariantPicker is not defined」</td><td class="ok">正常生成 8 镜</td></tr>
+    <tr><td>非顶层函数（265 个顶格声明）</td><td class="no">3 个</td><td class="ok">0 个</td></tr>
+    <tr><td>测试</td><td>288</td><td class="ok">291 / 291</td></tr>
+    <tr><td>门禁</td><td>5 道</td><td class="ok">5 道 + 静态作用域 + 动态启动</td></tr>
+    <tr><td>资产 / 签名</td><td colspan="2">810 项不变 · <code>schemaVersion</code> 3.7 · 签名 <code>e1515357a93c</code> 未变（纯代码轮）</td></tr>
+    <tr><td>盲测基线</td><td colspan="2">一致性 100% · 可剪辑性 100% · 合规 100% · 稳定性 96%（零回归）</td></tr>
+  </tbody>
+</table>
+
+<h2>七、遗留风险（如实记录）</h2>
+
+<p class="warn">
+· <b>启动冒烟只覆盖「加载 + 一次影院转译」。</b>导出、抽屉、工程切换、自我进化面板、审核队列
+这些交互路径<b>仍然只有静态契约检查</b>（id 存不存在），没有运行时覆盖。<br>
+· <code>public/build-manifest.json</code> 的 <code>builtAt</code> 是时间戳，每次 <code>npm run build</code>
+都会让工作区变脏 —— 长期噪音，本轮没动。<br>
+· <b>边界仍然没有变</b>：这些 prompt 依旧<b>一次也没有跑过 Veo 3 / Flow</b>。
+本轮推倒的是第三堵我自己的墙 —— 前两堵是「输入不决定输出」（6.8.1）与「生成内容重复」（6.8.0）。
+<b>三堵墙都是自洽性问题，不是有效性问题。</b>
+</p>
+
+<h2>八、元发现</h2>
+
+<p class="note">
+6.8.1 我写下的教训是「<b>测量维度的选择本身就是一种偏见</b>」。这一轮的教训更具体：<br>
+<b>门禁的覆盖面本身就是一种偏见。</b>五道门禁全围着 <code>src/domain/**</code> 打转 ——
+那是「好测的部分」。于是测试体系在整体上给人一种「都覆盖了」的错觉，
+而<b>用户真正会打开的那个文件，一行都没被执行过</b>。<br>
+<b>一个恒绿的门禁比没有门禁更危险：它提供的是虚假的安全感。</b><br><br>
+还有一层：用户两次投诉，两次都精准指向我<b>没有测量的那一维</b> ——
+第一次是「输入变了输出没变」（我从没测过跨题材差异），
+第二次是「页面直接报错」（我从没执行过页面）。
+<b>用户不是在给我挑错，他是在替我指出我的盲区。</b>
+</p>
+
+<footer>
+  LEGO War Universe · 6.8.2 · 纯代码轮（资产 810 项与签名未变）<br>
+  详细推演见 <code>CHANGELOG.md</code> 与 <code>docs/对抗审查报告-角色与脚本智能.md</code> 第十五轮（§120–§128）。
+</footer>
+
+</div>
+</body>
+</html>

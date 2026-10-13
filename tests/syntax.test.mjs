@@ -86,6 +86,100 @@ test('syntax gate: every shipped module parses', () => {
   assert.equal(failures.length, 0, `以下模块存在语法错误：\n${failures.join('\n\n')}`);
 });
 
+/**
+ * 作用域门禁：**顶格的函数声明必须真的是模块顶层绑定**。
+ *
+ * 为什么语法门禁抓不到这个（6.8.1 实测漏网）：
+ *   `function renderVariantPicker() {}` 写在模块顶层，还是写在 `bindGlobalEvents()`
+ *   体内，**都是完全合法的语法** —— 上面那条 parse 门禁一律放行。
+ *   但两者的语义天差地别：后者是外层函数的局部函数，模块顶层的调用方拿不到它，
+ *   运行到那里就是 `ReferenceError: renderVariantPicker is not defined`。
+ *
+ * 这正是用户截图里的故障：6.8.0 把 `describeIntent` / `applyVariantCandidate` /
+ * `renderVariantPicker` 插在了 `$('plan').onclick = …` 之后，而那行位于
+ * `bindGlobalEvents()` 体内 —— 三个函数被无声地吞进了外层函数。
+ * 顶格的 `renderCurrentProject` 调用它们必然抛错；页面一加载 `boot()` 就断在
+ * `renderCurrentProject`，镜头列表整块空白；点「深度转译」也抛同一个错，
+ * 被 catch 住后弹出「转译失败」。
+ * 265 个函数声明、288 条单测、五道门禁全绿，没有一条发现它。
+ *
+ * 判据（用真解析器，不靠我自己数括号 —— 手写的括号扫描器连正则字面量都不认）：
+ *   给每个「没有 export 的顶格函数声明」追加一句 `export { 名字 }` 再解析。
+ *   只有真正的模块顶层绑定才能被导出；不是的话 V8 直接报
+ *   `Export 'X' is not defined in module`。
+ *
+ * 前提假设：本仓库里嵌套函数一律缩进，**顶格**即意味着作者认为它在模块顶层。
+ * 若将来确实需要在函数体内写顶格函数，请改为缩进 —— 那正是本门禁要区分的语义。
+ */
+function exportedNames(src) {
+  const out = new Set();
+  for (const m of src.matchAll(/^export\s+(?:async\s+)?function\s+([A-Za-z_$][\w$]*)/gm)) out.add(m[1]);
+  for (const m of src.matchAll(/^export\s+(?:const|let|var)\s+([A-Za-z_$][\w$]*)/gm)) out.add(m[1]);
+  for (const m of src.matchAll(/^export\s*\{([^}]*)\}/gm)) {
+    for (const piece of m[1].split(',')) {
+      const name = piece.trim().split(/\s+as\s+/)[0].trim();
+      if (name) out.add(name);
+    }
+  }
+  return out;
+}
+
+function nestedTopLevelFunctions(src, identifier) {
+  const declared = [...src.matchAll(/^(?:export\s+)?(?:async\s+)?function\s+([A-Za-z_$][\w$]*)/gm)].map(m => m[1]);
+  // 已经导出的名字不能再追加一次，否则报的是「重复导出」而非「不在顶层」
+  const already = exportedNames(src);
+  const probe = [...new Set(declared)].filter(n => !already.has(n));
+  if (!probe.length) return [];
+
+  try {
+    // eslint-disable-next-line no-new
+    new vm.SourceTextModule(src + `\nexport { ${probe.join(', ')} };\n`, { identifier });
+    return [];
+  } catch { /* 有嫌疑，逐个定位 */ }
+
+  const bad = [];
+  for (const name of probe) {
+    try {
+      // eslint-disable-next-line no-new
+      new vm.SourceTextModule(src + `\nexport { ${name} };\n`, { identifier });
+    } catch {
+      bad.push(name);
+    }
+  }
+  return bad;
+}
+
+test('scope gate: every top-level function declaration is a real module binding', () => {
+  if (!hasSourceTextModule) {
+    assert.fail(
+      '作用域门禁无法执行：需要 vm.SourceTextModule（请通过 `npm test` 运行，其中已带 '
+      + '--experimental-vm-modules）。这条门禁宁可显式失败，也不静默跳过 —— '
+      + '它拦的正是「语法合法但运行时 ReferenceError」这类白屏级故障。'
+    );
+  }
+
+  const files = ROOTS.flatMap(r => collect(r));
+  assert.ok(files.length > 10, `预期收集到多个源文件，实际 ${files.length}`);
+
+  const failures = [];
+  let declaredTotal = 0;
+  for (const file of files) {
+    const src = readFileSync(file, 'utf8');
+    declaredTotal += [...src.matchAll(/^(?:export\s+)?(?:async\s+)?function\s+([A-Za-z_$][\w$]*)/gm)].length;
+    const bad = nestedTopLevelFunctions(src, file);
+    if (bad.length) {
+      failures.push(`${file}\n  顶格声明却不在模块顶层（被外层函数/块吞掉了）：${bad.join(', ')}`);
+    }
+  }
+
+  assert.ok(declaredTotal > 100, `预期扫描到上百个函数声明，实际 ${declaredTotal}（正则失效？）`);
+  assert.equal(
+    failures.length, 0,
+    '以下模块存在「看着在顶层、实际是局部」的函数，模块顶层的调用方会 ReferenceError：\n'
+    + failures.join('\n')
+  );
+});
+
 test('syntax gate: index.html mounts exactly one module entry and the roster containers', async () => {
   const html = readFileSync('index.html', 'utf8');
   assert.match(html, /<script type="module" src="\.\/src\/ui\/app\.js"><\/script>/);
