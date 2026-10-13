@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGO War Universe · 6.8.6 超时与预算 · 验收</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c222b; --line:#272e38;
+    --fg:#e8ecf1; --muted:#98a3b2; --dim:#6f7a89;
+    --bad:#ff5f5f; --good:#35d07f; --accent:#ffb454; --warn:#e3b341;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:29px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0;font-size:14px}
+  .quote{margin:20px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f2dcdc;border-radius:0 8px 8px 0;font-size:13.5px}
+  .note{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--accent);
+    background:#1a1710;color:#e8dfd0;border-radius:0 8px 8px 0;font-size:13.5px}
+  .warn{margin:18px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f0d8d8;border-radius:0 8px 8px 0;font-size:13.5px}
+  h2{margin:46px 0 14px;font-size:20px;border-left:3px solid var(--accent);padding-left:12px}
+  h3{margin:26px 0 10px;font-size:15.5px;color:#cfd7e2}
+  p{margin:0 0 12px}
+  code{background:#0b0e12;padding:1px 6px;border-radius:4px;color:var(--accent);font-size:12.5px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{margin:0 0 8px;font-size:14px;color:var(--good)}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .card--bad h4{color:var(--bad)}
+  .card--warn h4{color:var(--warn)}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:14px 0}
+  .box__hd{padding:9px 14px;font-size:12.5px;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  .box--bad .box__hd{background:#1d1618;color:var(--bad);border-color:#5c2b2b}
+  .box--good .box__hd{background:#131e18;color:var(--good);border-color:#264d38}
+  .box--warn .box__hd{background:#1a1710;color:var(--warn);border-color:#4d3f16}
+  .box__bd{padding:14px}
+  pre{margin:0;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
+    line-height:1.75;white-space:pre-wrap;color:#cfd7e2}
+  .del{color:var(--bad)} .ins{color:var(--good)} .dimtxt{color:var(--dim)} .yl{color:var(--warn)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;background:var(--panel)}
+  td code{font-size:12px}
+  .ok{color:var(--good)} .no{color:var(--bad)} .blank{color:var(--dim)}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px}
+  @media(max-width:880px){.wrap{padding:24px 16px 60px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">LEGO War Universe · 6.8.6 · Acceptance</p>
+  <h1>把「慢」和「挂死」分开</h1>
+  <p class="sub">6.8.5 把模型名修好之后，云端 AI 真的通了。然后用户看到的是：点一次「深度转译」，页面几十秒没反应。</p>
+
+  <p class="quote">我在 6.8.5 结尾写下的判断：<br><br>
+  <span class="dimtxt">「<b>可复现 —— 这是我引入的回归。</b>修复前 POST 1.79s 返回；现在挂死 60s+。」</span><br><br>
+  <b>这个判断半对半错。</b>「60s+ 没返回」是事实；<b>「挂死」是推测。</b></p>
+
+  <p class="note">这一轮要做的第一件事，就是把这个推测变成测量。实测结果：<br><br>
+  <code>POST requestedShots=1</code> → <b class="ins">HTTP 200</b>，<code>time_total</code> <b>30.69s</b><br>
+  <code>POST requestedShots=1</code>（再来一次） → <b class="ins">HTTP 200</b>，<code>time_total</code> <b>58.99s</b><br><br>
+  <b>它不是挂死，是真的很慢。</b></p>
+
+  <p class="warn">但真正的问题在下一句：<b>当时的代码对 <code>fetch</code> 一行超时都没有。</b><br>
+  于是「慢」与「挂死」在行为上<b>完全一样</b> —— 请求一直挂着，前端既不报错也不回退，
+  用户只能干等，看起来就是死机。<br><br>
+  <b>所以「它没挂死」并不能让这个 bug 消失。</b>一个分不清「慢」和「挂死」的系统，
+  从用户视角看就是坏的 —— 这正是 6.8.4「让失败可见」没做完的另一半。</p>
+</header>
+
+<h2>一、根因：一行超时都没有</h2>
+
+<div class="box box--bad">
+  <div class="box__hd">functions/api/ai-brain.js · 6.8.6 之前</div>
+  <div class="box__bd"><pre><span class="del">const res = await fetch(provider.url, {</span>
+<span class="del">  method: 'POST',</span>
+<span class="del">  headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },</span>
+<span class="del">  body: JSON.stringify(body)</span>
+<span class="del">});</span>
+<span class="dimtxt">// ← 没有 signal、没有 timeout、没有上限。</span>
+<span class="dimtxt">//   上游不返回，这个 await 就永远不返回。</span></pre></div>
+</div>
+
+<p>两层上限 + 逐次耗时，缺一不可：</p>
+
+<div class="cards">
+  <div class="card card--bad">
+    <h4>① 单次调用无超时</h4>
+    <p>一次上游卡死就能吃掉整次请求的全部时间，且没有痕迹。</p>
+  </div>
+  <div class="card card--bad">
+    <h4>② 整次请求无预算</h4>
+    <p>3 个候选模型 × 无上限 = 总时长不可预测，用户不知道要等多久。</p>
+  </div>
+  <div class="card card--bad">
+    <h4>③ 逐次耗时读不出来</h4>
+    <p><code>attemptedModels</code> 只记名字，试完只留最后一条 <code>error</code>，「哪个模型慢」只能靠猜。</p>
+  </div>
+</div>
+
+<h2>二、顺带量到一个此前根本量不到的东西</h2>
+
+<p>第二次实测拿到 <code>engine = Cloud Free AI (Gemini (gemini-3.5-flash-lite))</code>，
+而上一轮实测是 <code>Gemini (gemini-2.5-flash)</code> —— <b>两次成功的模型不一样。</b>
+这说明候选列表里第 1 个 <code>gemini-3.8-flash</code> 一直失败、第 2/3 个间歇成功。</p>
+
+<p>先核实这两个名字是不是真的（上一轮是从搜索结果里抄的，属于<b>二手事实</b>）：
+Firebase AI Logic 官方文档列出 <code>gemini-3.8-flash</code>，Google Cloud 模型页列出
+<code>Gemini 3.5 Flash-Lite</code>。<b>两个名字都是真的</b> —— 所以第 1 个候选的失败
+<b>不是「名字写错了」，而是间歇性失败</b>（额度 / 限流 / 上游过载）。</p>
+
+<div class="box box--warn">
+  <div class="box__hd">6.8.5 能给出的全部信息 —— 回答不了「为什么」</div>
+  <div class="box__bd"><pre>{ "attemptedModels": ["gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-2.5-flash"],
+  "error": <span class="yl">"…只有最后一条失败的原因…"</span> }
+<span class="dimtxt">// 三个模型试完，中间发生了什么完全丢失。</span></pre></div>
+</div>
+
+<div class="box box--good">
+  <div class="box__hd">6.8.6 · aiStatus.providers[].calls —— 逐次调用记录</div>
+  <div class="box__bd"><pre>"calls": [
+  { "model": "gemini-3.8-flash",      "ok": <span class="del">false</span>, "ms": <b>812</b>,   "error": "Gemini HTTP 429",
+    "timedOut": false, "skipped": false },
+  { "model": "gemini-3.5-flash-lite", "ok": <span class="ins">true</span>,  "ms": <b>57341</b>, "error": null,
+    "timedOut": false, "skipped": false },
+  { "model": "gemini-2.5-flash",      "ok": <span class="del">false</span>, "ms": 0,     "error": "跳过：整次请求总预算已耗尽",
+    "timedOut": false, "skipped": <b>true</b> }
+]</pre></div>
+</div>
+
+<p><code>ms</code> = 这一次真实花了多久；<code>timedOut</code> = 是不是超时（与 404/403 区分开）；
+<code>skipped</code> = 因为总预算耗尽<b>没有尝试</b>（而不是试了没成）。
+有了它，「哪个模型慢、哪个模型挂」第一次变成<b>能直接读出来的数字</b>，
+而不是靠总耗时去反推 —— <b>而反推正是 6.8.4 出错的原因。</b></p>
+
+<h2>三、修法</h2>
+
+<table>
+  <thead><tr><th>层面</th><th>做法</th><th>默认值 / 可覆盖</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>单次调用</td>
+      <td><code>withTimeout()</code> + <code>AbortController.abort()</code>；<b>响应头与响应体分别计时</b></td>
+      <td>60s · <code>AI_PROVIDER_TIMEOUT_MS</code></td>
+    </tr>
+    <tr>
+      <td>整次请求</td>
+      <td>每次调用前判 <code>deadline - Date.now()</code>；单次超时再被剩余预算夹一次</td>
+      <td>120s · <code>AI_REQUEST_BUDGET_MS</code></td>
+    </tr>
+    <tr>
+      <td>前端等待</td>
+      <td><code>fetch</code> 加超时 + 每 5 秒刷新「已等待 N 秒」心跳</td>
+      <td>100s</td>
+    </tr>
+    <tr>
+      <td>失败归因</td>
+      <td><code>FRONTEND_TIMEOUT</code> / <code>FRONTEND_UNREACHABLE</code> / <code>BACKEND_ERROR</code>（含状态码）/ <code>BACKEND_EMPTY_RESULT</code></td>
+      <td>徽章如实翻译，不再一律「未使用云端 AI」</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>默认值<b>刻意给得比实测宽松</b>（单次 60s / 总计 120s）：先把「无界」变成「有界」、
+并测出真实耗时分布，再依据数据收紧。实测单镜就要 30–59 秒，
+<b>如果我拍脑袋写 12 秒，AI 会重新变成「永远用不上」</b> —— 修一个 bug 不能顺手制造一个更大的。</p>
+
+<h2>四、反向验证：四条门禁，四个都真的会红</h2>
+
+<table>
+  <thead><tr><th>反向改动</th><th>结果</th></tr></thead>
+  <tbody>
+    <tr><td>① 后端超时不再触发（guard 永不 reject）</td><td class="ok">✅ 红 —— 用例 13 超时挂死</td></tr>
+    <tr><td>② 后端去掉总预算（<code>remaining = Infinity</code>）</td><td class="ok">✅ 红 —— <b>只有</b>「总预算耗尽后必须停止尝试」失败</td></tr>
+    <tr><td>③ 后端不记逐次耗时（<code>ms = null</code>）</td><td class="ok">✅ 红 —— 「单次超时」与「逐模型耗时」两条失败</td></tr>
+    <tr><td>④ 前端超时不再触发</td><td class="ok">✅ 红 —— 进程因超时挂死</td></tr>
+  </tbody>
+</table>
+
+<p class="dimtxt">边界：① 跑出来是 <code># fail 0 / # cancelled 8</code> —— node 的 <code>--test-timeout</code>
+把超时用例记为 <b>cancelled</b> 而非 failed，并<b>取消同文件剩余用例</b>。
+所以 ① 只能证明用例 13 抓到了它，后面 8 条是级联取消，<b>不算独立证据</b>。②③ 是干净的定向证据。</p>
+
+<h2>五、我这一轮最该记下来的错误：反向验证工具自己是个假绿</h2>
+
+<p>第一版反向验证脚本用 <code>child_process.execFileSync</code> 跑子进程。它输出了：</p>
+
+<div class="box box--good">
+  <div class="box__hd">它打印的</div>
+  <div class="box__bd"><pre>反向验证通过：每一条新门禁都确实能抓住它对应的缺陷。</pre></div>
+</div>
+
+<div class="box box--bad">
+  <div class="box__hd">而真相是</div>
+  <div class="box__bd"><pre>code=<b>EBUSY</b> signal=null  msg=spawnSync ...\node.exe EBUSY
+real 0m<b>0.578s</b></pre></div>
+</div>
+
+<p><b>子进程一次都没起来，一条测试都没跑，0.578 秒就「通过」了。</b>
+<code>spawnSync</code> 抛了 <code>EBUSY</code>，而我的 catch 把「任何非零结果」都当成了「门禁红了」。
+于是这个工具<b>完美地复现了它要防的那类 bug</b>：
+<b class="del">把「什么都没发生」报告成「一切正常」。</b></p>
+
+<div class="cards">
+  <div class="card">
+    <h4>重建 · ①</h4>
+    <p>不再从 node 里 spawn node（沙箱下会 <code>EBUSY</code>），改为外层 bash 驱动 + <code>cp</code>/<code>mv</code> 还原。</p>
+  </div>
+  <div class="card">
+    <h4>重建 · ②</h4>
+    <p>打补丁用独立工具，<b>未命中就以退出码 2 明确失败</b> —— 不允许「悄悄什么也没改」也算通过。</p>
+  </div>
+  <div class="card">
+    <h4>重建 · ③</h4>
+    <p>用 <code>--test-timeout</code> 把挂死变成<b>有界的失败</b>，并打印失败用例名与 <code>code=/signal=/status=</code>。</p>
+  </div>
+</div>
+
+<h2>六、结果与边界</h2>
+
+<table>
+  <thead><tr><th>维度</th><th>修复前</th><th>修复后</th></tr></thead>
+  <tbody>
+    <tr><td>单次调用</td><td class="no">完全没有超时（可无限挂住）</td><td class="ok">超时 + <code>abort</code>，可环境变量覆盖</td></tr>
+    <tr><td>整次请求</td><td class="no">无上限</td><td class="ok">总预算 + 剩余候选明确 <code>skipped</code></td></tr>
+    <tr><td>「哪个模型慢」</td><td class="no">读不出来</td><td class="ok"><code>calls[].ms</code> 逐次可见</td></tr>
+    <tr><td>前端等待</td><td class="no">界面看起来死机</td><td class="ok">「已等待 N 秒」心跳 + 100s 上限 + 如实回退</td></tr>
+    <tr><td>失败原因</td><td class="no">一律「未使用云端 AI」</td><td class="ok">含状态码与下一步建议</td></tr>
+    <tr><td>测试</td><td>303</td><td class="ok"><b>311 / 311</b></td></tr>
+    <tr><td>版本</td><td>6.8.5</td><td class="ok"><b>6.8.6</b></td></tr>
+  </tbody>
+</table>
+
+<p>资产 810 项、<code>schemaVersion</code> 3.7、签名 <code>e1515357a93c</code> <b>均未变</b>（纯代码轮）。
+盲测零回归：一致性 100% / 可剪辑性 100% / 合规 100% / 稳定性 96%。</p>
+
+<h3>遗留风险（如实记录）</h3>
+<ul>
+  <li><b>单镜 30–59 秒仍然太慢，本轮没有解决。</b>只做到「把无界变有界、把慢变成可测量」。
+      根因很可能是 system prompt 极大（导演指令 + 资产目录 + 固定阵容）每次尝试都要重传，
+      加上第 1 个候选白跑一次。<b>收紧超时与精简 prompt 留给下一轮 —— 因为现在终于有
+      <code>calls[].ms</code> 可以依据了。</b></li>
+  <li><b><code>gemini-3.8-flash</code> 为什么一直失败尚无定论。</b>候选列表让它退化成「换下一个」，
+      但没诊断出是 429 / 上游过载 / 免费档配额中的哪一种。</li>
+  <li><b>默认超时 60s / 120s 是暂定值</b>，依据只有两次线上实测，样本太少。</li>
+  <li>Groq 那把 Key 仍被 Groq 拒绝（403），<b>只能由用户到控制台重新生成</b>，代码侧修不了。</li>
+  <li>候选模型名<b>将来同样会腐烂</b>，只是代价从「永久哑掉」降为「换下一个」；定时真调用的健康检查仍未做。</li>
+  <li><code>06_Deploy/worker.js</code> 仍只支持 gemini/openai 且前端调不到它。</li>
+  <li><code>public/build-manifest.json</code> 的 <code>builtAt</code> 时间戳仍会让工作区变脏。</li>
+  <li><b>边界仍然没有变：这些 prompt 依旧一次也没有跑过 Veo 3 / Flow。</b></li>
+</ul>
+
+<footer>
+  LEGO War Universe · 6.8.6 · 把「慢」和「挂死」分开 ·
+  测试 311/311 · 资产 810 / <code>e1515357a93c</code> · 盲测 100·100·100·96<br>
+  元发现：<b>验证工具本身也需要被验证</b> —— 一个「恒绿」的反向验证脚本，
+  比没有反向验证更危险，因为它伪造的正是「我验证过了」这件事。
+</footer>
+
+</div>
+</body>
+</html>
