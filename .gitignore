@@ -6,6 +6,12 @@
 .env
 .env.local
 .env.*.local
+# Cloudflare 的本地环境变量约定文件（wrangler pages dev / wrangler dev 会读它）。
+# 6.8.3 之前**没有**忽略它 —— 按标准流程建 .dev.vars 填真 Key 会被 git 提交上去，
+# 等于把 API Key 直接推到远端。凡是可能装密钥的文件都必须在这里列全。
+.dev.vars
+.dev.vars.*
+.wrangler/
 
 # Node / Python artifacts
 node_modules/

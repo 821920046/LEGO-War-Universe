@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGO War Universe · 6.8.3 AI 配置真相 · 验收</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c222b; --line:#272e38;
+    --fg:#e8ecf1; --muted:#98a3b2; --dim:#6f7a89;
+    --bad:#ff5f5f; --good:#35d07f; --accent:#ffb454; --link:#5eb1ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:29px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0;font-size:14px}
+  .quote{margin:20px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f2dcdc;border-radius:0 8px 8px 0;font-size:13.5px}
+  .note{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--accent);
+    background:#1a1710;color:#e8dfd0;border-radius:0 8px 8px 0;font-size:13.5px}
+  .warn{margin:18px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f0d8d8;border-radius:0 8px 8px 0;font-size:13.5px}
+  h2{margin:46px 0 14px;font-size:20px;border-left:3px solid var(--accent);padding-left:12px}
+  h3{margin:26px 0 10px;font-size:15.5px;color:#cfd7e2}
+  p{margin:0 0 12px}
+  code{background:#0b0e12;padding:1px 6px;border-radius:4px;color:var(--accent);font-size:12.5px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{margin:0 0 8px;font-size:14px;color:var(--good)}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .card--bad h4{color:var(--bad)}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:14px 0}
+  .box__hd{padding:9px 14px;font-size:12.5px;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  .box--bad .box__hd{background:#1d1618;color:var(--bad);border-color:#5c2b2b}
+  .box--good .box__hd{background:#131e18;color:var(--good);border-color:#264d38}
+  .box__bd{padding:14px}
+  pre{margin:0;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
+    line-height:1.75;white-space:pre-wrap;color:#cfd7e2}
+  .del{color:var(--bad)} .ins{color:var(--good)} .dimtxt{color:var(--dim)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;background:var(--panel)}
+  td code{font-size:12px}
+  .ok{color:var(--good)} .no{color:var(--bad)} .blank{color:var(--dim)}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;font-size:13px}
+  .node{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 13px}
+  .node--dead{border-color:#5c2b2b;background:#1d1618;color:var(--bad)}
+  .node--live{border-color:#264d38;background:#131e18;color:var(--good)}
+  .arrow{color:var(--dim)}
+  .tag{display:inline-block;font-size:11.5px;padding:1px 7px;border-radius:20px;
+    border:1px solid var(--line);color:var(--muted);margin-right:6px}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px}
+  @media(max-width:880px){.wrap{padding:24px 16px 60px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">LEGO War Universe · 6.8.3 · Acceptance</p>
+  <h1>「什么时候该用 AI，还要怎么配置」：答案不该藏在代码里</h1>
+  <p class="sub">一个知识性问题，暴露了整条流水线从未检查过的一类资产 —— 文档。</p>
+
+  <p class="quote">用户提问：<b>「什么时候该用AI，还要怎么配置」</b><br><br>
+  <span class="dimtxt">这不是一个 bug 报告。没有任何东西是红的：<br>
+  五道门禁全绿、测试 291 全过、盲测 100 / 100 / 100 / 96。<br>
+  可这个问题的答案，仓库里<b>没有一处是对的</b>。</span></p>
+
+  <p class="note"><b>代码有门禁，文档没有。</b>语法错误会让 <code>npm test</code> 变红，
+  作用域错误会被启动冒烟抓到 —— 可 <code>06_Deploy/README.md</code> 可以连续几个月
+  描述一个<b>不存在的系统</b>，没有任何一条流水线会因此变红。</p>
+</header>
+
+<h2>一、三份文档，三份都和代码对不上</h2>
+
+<table>
+  <thead><tr><th style="width:20%">文档</th><th style="width:40%">它写的</th><th>代码里的实情</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>06_Deploy/README.md</code></td>
+      <td class="no">AI 端点是 <code>/api/compose</code>；10 个 provider；支持 <code>MODELS</code> / <code>ROTATE</code> / <code>TIMEOUT_MS</code>；网页里有「启用 AI 增强」勾选框</td>
+      <td><b>全都不存在。</b>真实 AI 端点是 <code>/api/ai-brain</code>，只有 3 个 provider，前端没有任何开关。<code>grep "MODELS\|ROTATE\|TIMEOUT_MS"</code> 全仓库 0 命中</td>
+    </tr>
+    <tr>
+      <td><code>.env.example</code></td>
+      <td class="no">「本地开发时配置到 <code>.env</code> 中」</td>
+      <td><b>代码里没有任何 dotenv 加载</b>（<code>grep dotenv</code> 为空），<code>.env</code> 根本不会被读取</td>
+    </tr>
+    <tr>
+      <td><code>README.md</code></td>
+      <td class="no">本地部署用 <code>python -m http.server 8080</code></td>
+      <td>那<b>只提供静态文件、没有 Functions</b> —— 本地这么起永远走本地引擎，配了 Key 也用不上</td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="warn">第三行最阴：它<b>不是错</b>，<code>python -m http.server</code> 确实能起一个网页。
+但它起的是一个<b>没有后端</b>的网页 —— 页面能打开、能点「深度转译」、也能出分镜，
+<b>一切看起来都正常</b>，只是永远走本地引擎。用户配了 Key、照着做了、功能"能用"，
+于是<b>没有任何理由怀疑自己配错了</b>。这比直接报错更糟：<b>一个静默的失败，
+用户会以为自己成功了。</b></p>
+
+<h2>二、逐行核对出的真实路由</h2>
+
+<p>核对方式：直接读代码，不读文档。</p>
+
+<div class="flow">
+  <span class="node">影院模式「🎬 深度转译」</span>
+  <span class="arrow">→</span>
+  <span class="node node--live">POST /api/ai-brain</span>
+  <span class="arrow">→</span>
+  <span class="node">成功：云端 AI</span>
+  <span class="arrow">/</span>
+  <span class="node node--dead">失败或未配 Key：本地引擎（不报错）</span>
+</div>
+
+<div class="flow">
+  <span class="node">自由模式「⚡ 自由战术分镜策划」</span>
+  <span class="arrow">→</span>
+  <span class="node node--dead">从不调 AI · 纯本地 planVariants</span>
+</div>
+
+<h3>后台 provider 顺序（<code>functions/api/ai-brain.js</code> 第 452–479 行）</h3>
+
+<p>按顺序尝试，<b>只要一个成功就停</b>；三个都没有 / 都失败 → 回退本地，<b>不报错</b>。</p>
+
+<table>
+  <thead><tr><th style="width:8%">顺序</th><th style="width:34%">环境变量</th><th>模型</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><code>GROQ_API_KEY</code></td><td><code>llama-3.3-70b-versatile</code></td></tr>
+    <tr><td>2</td><td><code>OPENROUTER_API_KEY</code></td><td><code>meta-llama/llama-3.3-70b-instruct:free</code></td></tr>
+    <tr><td>3</td><td><code>GEMINI_API_KEY</code></td><td><code>gemini-1.5-flash</code></td></tr>
+  </tbody>
+</table>
+
+<h3>怎么判断「这一次到底用的是不是 AI」</h3>
+
+<p>看返回里的 <code>engine</code> 字段 —— 页面顶部那个「本次引擎」小标签就是它：</p>
+
+<table>
+  <thead><tr><th style="width:52%"><code>engine</code> 文案</th><th>含义</th></tr></thead>
+  <tbody>
+    <tr><td class="ok"><code>Cloud Free AI (Groq (llama-3.3-70b-versatile))</code></td><td>✅ 云端 AI 生效</td></tr>
+    <tr><td><code>本地自主想象引擎 · 离线生成（非云端 AI）</code></td><td>未配 Key 或接口不可达</td></tr>
+    <tr><td><code>策展致敬库 · 离线复刻（手写分镜，非 AI 生成）</code></td><td>命中 9 部策展影片，交付手写复刻</td></tr>
+    <tr><td class="blank"><code>… 生成引擎不可用，已退回通用军事分镜</code></td><td>极端兜底</td></tr>
+  </tbody>
+</table>
+
+<p class="note"><b>这条自查路径，此前仓库里没有任何一处写过。</b>用户上一轮（6.8.1）
+截图里那句「没有使用AI吗」的疑问，本来应该有一个<b>当场可验证</b>的答案 —— 却没有。</p>
+
+<h2>三、顺手挖出的一个密钥泄露面</h2>
+
+<div class="box box--bad">
+  <div class="box__hd">6.8.3 之前的 .gitignore（节选）</div>
+  <div class="box__bd"><pre><span class="del">.env</span>
+<span class="del">.env.local</span>
+<span class="del">.env.*.local</span>
+<span class="dimtxt">（……没有 .dev.vars）</span></pre></div>
+</div>
+
+<p><code>.dev.vars</code> 正是 <b>Cloudflare 的本地环境变量约定文件</b> ——
+<code>wrangler pages dev</code> 官方文档明确要求你建它来放本地密钥。
+也就是说：<b>仓库主动邀请你创建一个会被提交上去的密钥文件。</b>
+这不是「文档没写」，是<b>仓库配置本身在制造泄露</b>。</p>
+
+<div class="box box--good">
+  <div class="box__hd">6.8.3 之后</div>
+  <div class="box__bd"><pre><span class="ins">.env</span>
+<span class="ins">.env.local</span>
+<span class="ins">.env.*.local</span>
+<span class="ins"># Cloudflare 的本地环境变量约定文件（wrangler pages dev / wrangler dev 会读它）。</span>
+<span class="ins"># 6.8.3 之前**没有**忽略它 —— 按标准流程建 .dev.vars 填真 Key 会被 git 提交上去，</span>
+<span class="ins"># 等于把 API Key 直接推到远端。凡是可能装密钥的文件都必须在这里列全。</span>
+<span class="ins">.dev.vars</span>
+<span class="ins">.dev.vars.*</span>
+<span class="ins">.wrangler/</span></pre></div>
+</div>
+
+<p class="note"><b>教训：</b><code>.gitignore</code> 的完备性，不能按「我知道哪些文件装密钥」来写，
+要按「<b>这套工具链会让人创建哪些装密钥的文件</b>」来写。<code>.dev.vars</code> 就是后者的典型 ——
+我不该"知道"它，我该<b>推导</b>出它：既然项目用 Cloudflare Pages、既然本地要用 <code>wrangler</code>，
+那 <code>wrangler</code> 的密钥约定文件就必然会被创建。</p>
+
+<h2>四、一个孤儿目录</h2>
+
+<p><code>06_Deploy/</code> 在仓库里<b>没有任何一处被引用</b>：<code>README.md</code> 不提它、
+<code>docs/</code> 不提它、<code>package.json</code> 的脚本不指向它。而它的名字叫
+<code>06_Deploy</code>（第六步：部署）—— <b>一个按命名看起来最该被信任的目录，恰恰是错的。</b></p>
+
+<p>孤儿目录的危险不在"没人看"，而在"<b>某天有人会看</b>"。用户今天问的「怎么配置」，
+就是那个"某天"。他打开这个目录，照着做，然后失败，然后困惑 —— 而我从没检查过它。</p>
+
+<h2>五、修法</h2>
+
+<table>
+  <thead><tr><th style="width:38%">文件</th><th>改动</th></tr></thead>
+  <tbody>
+    <tr><td><code>docs/AI启用时机与配置.md</code>（新增 147 行）</td><td>权威答案：真实路由表 / provider 顺序 / <code>engine</code> 自查 / 何时<b>该</b>用 AI / 生产与本地配置步骤 / 6 个真实踩过的坑</td></tr>
+    <tr><td><code>06_Deploy/README.md</code></td><td><b>整篇重写。</b>删掉 10 provider 表与 <code>MODELS</code>/<code>ROTATE</code>/<code>TIMEOUT_MS</code> 等虚构机制，改成逐行核对过的真实内容</td></tr>
+    <tr><td><code>.env.example</code></td><td>更正「配置到 <code>.env</code>」的错误说明；写清生产配 Pages 环境变量（<b>类型选 Secret</b>、<b>必须 Redeploy</b>）、本地配 <code>.dev.vars</code>、不配 Key 不是故障</td></tr>
+    <tr><td><code>.gitignore</code></td><td>补 <code>.dev.vars</code> / <code>.dev.vars.*</code> / <code>.wrangler/</code></td></tr>
+    <tr><td><code>scripts/build-assets.mjs</code></td><td>版本 6.8.2 → <b>6.8.3</b></td></tr>
+  </tbody>
+</table>
+
+<h3>什么时候「该」用 AI —— 设计判断，不是配置项</h3>
+
+<div class="cards">
+  <div class="card">
+    <h4>✅ 该用</h4>
+    <p>抽象 / 叙事型主题（「一个老兵在废墟里回忆战友」）· 风格迁移（「像《黑鹰坠落》那种感觉」）· 需要原创立意（logline / twist / hook）—— 这三类本地规则引擎天生做不好。</p>
+  </div>
+  <div class="card card--bad">
+    <h4>❌ 不该用</h4>
+    <p>明确的历史战役 / 装备题材（本地有 810 项真实资产 + 时代门控，确定、毫秒级、免费）· 已点名 9 部策展影片（手写复刻本来就比模型稳）· 需要可复现（本地确定性，AI 带 <code>temperature: 0.7</code>）。</p>
+  </div>
+  <div class="card">
+    <h4>边界</h4>
+    <p><b>AI 只负责「选资产 + 写动作句 + 声明戏剧功能」。</b>最终 Prompt 仍由本地编译器按 Production Bible 组装 —— 风格块、negative、角色一致性描述<b>不会被 AI 改写</b>。</p>
+  </div>
+</div>
+
+<p>这条边界回答了「什么时候该用 AI」的深层问题：<b>不是"AI 能不能做"，
+而是"我允许 AI 做哪一段"。</b>一旦想清楚交付物里哪部分必须确定，AI 的适用范围自然就划出来了。</p>
+
+<h2>六、结果</h2>
+
+<table>
+  <thead><tr><th style="width:46%">维度</th><th>修复前</th><th>修复后</th></tr></thead>
+  <tbody>
+    <tr><td>「怎么配 AI」的正确答案</td><td class="no">仓库里 0 处正确</td><td class="ok">1 份权威文档，逐条对得上代码</td></tr>
+    <tr><td><code>06_Deploy/README.md</code> 与代码一致</td><td class="no">❌ 虚构 10 provider</td><td class="ok">✅ 整篇重写</td></tr>
+    <tr><td><code>.env</code> 是否会被读取</td><td class="no">文档说会，实际不会</td><td class="ok">文档如实说明不会</td></tr>
+    <tr><td><code>.dev.vars</code> 泄露风险</td><td class="no">会被提交</td><td class="ok">已加入 .gitignore</td></tr>
+    <tr><td>版本</td><td>6.8.2</td><td class="ok">6.8.3</td></tr>
+    <tr><td>测试 / 门禁</td><td colspan="2">291 / 291 · 5 道全绿（无回归）</td></tr>
+    <tr><td>资产 / 签名</td><td colspan="2">810 项不变 · <code>schemaVersion</code> 3.7 · 签名 <code>e1515357a93c</code> 未变（纯文档/配置轮）</td></tr>
+    <tr><td>盲测基线</td><td colspan="2">一致性 100% · 可剪辑性 100% · 合规 100% · 稳定性 96%（零回归）</td></tr>
+  </tbody>
+</table>
+
+<h2>七、遗留风险（如实记录）</h2>
+
+<p class="warn">
+· <b>AI 路径依然没有任何自动化测试。</b><code>/api/ai-brain</code> 的 3 个 provider 分支、
+限流、CORS、<code>governResponse</code> 都没有覆盖 —— 本轮只修了文档，没修这条空白。
+而且要诚实：就算补上测试，也只能验证"路由对不对"，<b>验证不了"模型产出的分镜好不好看"</b>。<br>
+· <code>06_Deploy/worker.js</code> 仍然只支持 gemini/openai，前端调不到它。
+本轮只是把这一点<b>如实写进文档</b>，没有动代码 —— 因为动它属于新增能力，不属于回答"怎么配置"。<br>
+· <code>public/build-manifest.json</code> 的 <code>builtAt</code> 是时间戳，每次 <code>npm run build</code> 都让工作区变脏。本轮没动。<br>
+· <b>边界仍然没有变</b>：这些 prompt 依旧<b>一次也没有跑过 Veo 3 / Flow</b>。
+前三轮推倒的是「生成重复」（6.8.0）、「输入不决定输出」（6.8.1）、「作用域嵌套」（6.8.2）——
+<b>全是自洽性问题</b>。这一轮连自洽性都不涉及，纯粹是<b>知识与文档的准确性</b>问题。
+</p>
+
+<h2>八、元发现</h2>
+
+<p class="note">
+前三轮的教训分别是：「<b>测量维度的选择本身就是一种偏见</b>」（6.8.1）、
+「<b>门禁的覆盖面本身就是一种偏见</b>」（6.8.2）。<br><br>
+这一轮的教训是：<b>文档是最没有门禁的那一层。</b>
+代码有语法门禁、作用域门禁、启动冒烟、盲测、发布检查五道防线。
+而 <code>06_Deploy/README.md</code> 可以连续几个月描述一个不存在的系统，
+<b>没有任何一条流水线会因此变红。</b>于是它腐烂得最彻底 —— 因为它连"被发现"的机会都没有。<br><br>
+更值得记的是<b>这个 bug 的暴露方式</b>：它不是被我测出来的，是<b>用户问出来的</b>。
+用户问「怎么配置」，等于替我执行了一次「文档与代码一致性检查」——
+而我此前从未把这项检查写进任何流程。<br>
+<b>凡是"人照着做会失败"的知识，都需要一条门禁；否则它一定会腐烂。</b><br><br>
+还有一层，和前两轮是同一个模式：<br>
+用户第一次投诉「输入变了输出没变」→ 我发现了"我从没测过跨题材差异"；<br>
+用户第二次投诉「页面报错」→ 我发现了"我从没执行过页面"；<br>
+用户第三次问「怎么配置」→ 我发现了"我从没核对过文档"。<br>
+<b>三次都是用户替我发现盲区。</b>而三次我都应该能自己发现 —— 只要我肯问自己一句：<br>
+<b>"这段知识，如果有人照着做，会不会失败？如果会，我测过吗？"</b>
+</p>
+
+<footer>
+  LEGO War Universe · 6.8.3 · 纯文档 / 配置轮（资产 810 项与签名未变）<br>
+  详细推演见 <code>CHANGELOG.md</code> 与 <code>docs/对抗审查报告-角色与脚本智能.md</code> 第十六轮（§129–§136）。<br>
+  权威答案见 <code>docs/AI启用时机与配置.md</code>。
+</footer>
+
+</div>
+</body>
+</html>
