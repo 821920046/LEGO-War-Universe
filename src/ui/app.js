@@ -1057,6 +1057,74 @@ function bindGlobalEvents() {
     renderCurrentProject();
   };
 
+  // 8. 导出工程 JSON
+  $('export-btn').onclick = () => {
+    if (!currentProject) return;
+    const jsonStr = storeManager.export(currentProject);
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${currentProject.name || 'lwu-film'}.json`;
+    a.click();
+    // 立即 revoke 会在部分浏览器上赶在下载开始前销毁 blob，延后释放
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    toast('工程 JSON 已导出', 'success');
+  };
+
+  // 9. 导出剪映分镜表 CSV
+  $('export-csv-btn').onclick = () => {
+    if (!currentProject || !currentProject.shots || currentProject.shots.length === 0) {
+      toast('当前影片暂无镜头，请先选择一部电影或生成分镜计划', 'warn');
+      return;
+    }
+    exportToCapCutCSV(
+      currentProject.shots,
+      activeRegistry,
+      currentProject.theme || currentProject.name,
+      ensureRoster()
+    );
+    toast('剪映分镜表 CSV 已导出', 'success');
+  };
+
+  // 10. 打开乐高资产库抽屉
+  $('asset-manager-btn').onclick = () => {
+    renderAssetManager($('asset-drawer'), activeRegistry);
+  };
+
+  // 10b. 切换自我进化面板
+  if ($('evolution-btn')) {
+    $('evolution-btn').onclick = () => {
+      const section = $('evolution-section');
+      if (!section) return;
+      const showing = section.style.display !== 'none';
+      section.style.display = showing ? 'none' : 'block';
+      if (!showing) refreshEvolutionPanel();
+    };
+  }
+
+  // 11. 导入工程
+  $('import-btn').onclick = () => $('import-file').click();
+  $('import-file').onchange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const content = await file.text();
+    const result = await storeManager.import(content);
+    if (result.violations) {
+      toast(`导入失败：${result.violations.map(v => v.code).join(', ')}`, 'error', 5000);
+      return;
+    }
+    currentStore.projects.push(result.project);
+    currentStore.currentProjectId = result.project.id;
+    currentProject = result.project;
+    const saved = await persist();
+    renderTabs();
+    renderCurrentProject();
+    if (saved) toast('工程导入成功', 'success');
+    $('import-file').value = '';
+  };
+}
+
 /** 年代/任务/合规状态的说明行，生成与切换方案共用同一套措辞 */
 function describeIntent(intent, warnings) {
   const ERA_SOURCE = { override: '手动指定', battle: '识别为历史战役', explicit: '命中时代词', platform: '由装备型号推断' };
@@ -1194,74 +1262,6 @@ function renderVariantPicker() {
 
   box.appendChild(head);
   box.appendChild(row);
-}
-
-  // 8. 导出工程 JSON
-  $('export-btn').onclick = () => {
-    if (!currentProject) return;
-    const jsonStr = storeManager.export(currentProject);
-    const blob = new Blob([jsonStr], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${currentProject.name || 'lwu-film'}.json`;
-    a.click();
-    // 立即 revoke 会在部分浏览器上赶在下载开始前销毁 blob，延后释放
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
-    toast('工程 JSON 已导出', 'success');
-  };
-
-  // 9. 导出剪映分镜表 CSV
-  $('export-csv-btn').onclick = () => {
-    if (!currentProject || !currentProject.shots || currentProject.shots.length === 0) {
-      toast('当前影片暂无镜头，请先选择一部电影或生成分镜计划', 'warn');
-      return;
-    }
-    exportToCapCutCSV(
-      currentProject.shots,
-      activeRegistry,
-      currentProject.theme || currentProject.name,
-      ensureRoster()
-    );
-    toast('剪映分镜表 CSV 已导出', 'success');
-  };
-
-  // 10. 打开乐高资产库抽屉
-  $('asset-manager-btn').onclick = () => {
-    renderAssetManager($('asset-drawer'), activeRegistry);
-  };
-
-  // 10b. 切换自我进化面板
-  if ($('evolution-btn')) {
-    $('evolution-btn').onclick = () => {
-      const section = $('evolution-section');
-      if (!section) return;
-      const showing = section.style.display !== 'none';
-      section.style.display = showing ? 'none' : 'block';
-      if (!showing) refreshEvolutionPanel();
-    };
-  }
-
-  // 11. 导入工程
-  $('import-btn').onclick = () => $('import-file').click();
-  $('import-file').onchange = async (e) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const content = await file.text();
-    const result = await storeManager.import(content);
-    if (result.violations) {
-      toast(`导入失败：${result.violations.map(v => v.code).join(', ')}`, 'error', 5000);
-      return;
-    }
-    currentStore.projects.push(result.project);
-    currentStore.currentProjectId = result.project.id;
-    currentProject = result.project;
-    const saved = await persist();
-    renderTabs();
-    renderCurrentProject();
-    if (saved) toast('工程导入成功', 'success');
-    $('import-file').value = '';
-  };
 }
 
 function refreshOutputs() {

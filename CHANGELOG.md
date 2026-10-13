@@ -1,6 +1,158 @@
 # Changelog — LEGO War Universe Production System
 ---
 
+## 2026-10-13 · 6.8.2 「转译失败: renderVariantPicker is not defined」：三个函数被缩进骗了
+
+> 用户实测反馈（截图）：页面顶部弹红框「**转译失败: renderVariantPicker is not defined**」，
+> 状态行写「转译异常: renderVariantPicker is not defined」，控制台报
+> `ReferenceError: renderVariantPicker is not defined at renderCurrentProject (app.js:1353:5) at boot (app.js:242:2)`。
+
+**资产数据**：810 项不变，`schemaVersion` 3.7，构建签名仍为 **`e1515357a93c`**（纯代码轮）。
+**测试**：288 → **291** 例（新增 1 条静态作用域门禁 + 2 条启动冒烟）。
+**版本**：6.8.1 → **6.8.2**。
+**盲测基线**：一致性 100% / 可剪辑性 100% / 合规 100% / 稳定性 96%（零回归）。
+
+### 第一性诊断：`function` 写在哪，比它叫什么重要
+
+报错说 `renderVariantPicker` 未定义，但它在源码里明明是**顶格的函数声明**（第 1147 行）：
+
+```js
+function renderVariantPicker() {
+```
+
+顶格的 `function` 声明会被提升，**理论上不可能 "not defined"**。所以只剩一种解释：
+它看着在顶层，实际不在。用 V8 的模块链接器复核（给每个顶格函数追加一句
+`export { 名字 }` 再解析 —— 只有真正的模块顶层绑定才能被导出）：
+
+```
+describeIntent          不是顶层 ❌
+applyVariantCandidate   不是顶层 ❌
+renderVariantPicker     不是顶层 ❌
+renderCurrentProject    顶层 ✅
+```
+
+真实结构是这样：
+
+```
+787  function bindGlobalEvents() {          ← 开
+1010   $('plan').onclick = async () => {...};   ← 本应在这里结束（1058 行 };）
+1060   function describeIntent() {...}        ← 被误吞进来
+1080   function applyVariantCandidate() {...}  ← 被误吞进来
+1147   function renderVariantPicker() {...}    ← 被误吞进来
+1199   // 8. 导出工程 JSON                      ← 本该紧跟 1058 行
+1265 }                                         ← bindGlobalEvents 真正闭合
+1344 function renderCurrentProject() {         ← 模块顶层，够不到那三个函数
+```
+
+`describeIntent` / `applyVariantCandidate` / `renderVariantPicker` 是
+**`bindGlobalEvents` 的局部函数**。模块顶层的调用方拿不到它们 ——
+而 `bindGlobalEvents` 自己调用它们（第 1053/1054 行）是没问题的，
+所以**这个 bug 只在「从外层调用」时暴露**。
+
+### 两个症状、一个根因
+
+| 症状 | 路径 |
+| --- | --- |
+| 页面加载后镜头列表**整块空白** | `boot()` → `renderCurrentProject()`（第 242 行）→ 第 1353 行 `renderVariantPicker()` → 抛错 → `boot` 中断 |
+| 点「深度转译」弹**转译失败** | `executeMovieTranspile()` → 第 754 行 `renderVariantPicker()` → 抛错 → 被 catch 成「转译异常」 |
+
+`renderCurrentProject` 里那处调用外面有个守卫：
+
+```js
+if (!currentProject.variant
+    || currentProject.variant.theme !== currentProject.theme
+    || !variantCandidates.some(c => c.spec.label === currentProject.variant.label)) {
+  renderVariantPicker();   // ← 只有「没有方案 / 方案过期」时才走到这里
+}
+```
+
+所以**生成过一次之后页面是好的，刷新或打开旧工程才炸** —— 这正是它藏了这么久的原因。
+
+### 缺陷是 6.8.0 引入的，6.8.1 没修
+
+用同一套判据复核 `a5eb8d9`（6.8.0）：三个函数同样不是顶层。
+6.8.1 又在第 754 行加了一处**无条件调用**，把「偶尔炸」变成「每次都炸」。
+也就是说：6.8.0 的自主想象能力从上线起就没在真实浏览器里跑通过。
+
+### 为什么五道门禁一条都没拦住
+
+| 门禁 | 为什么放过它 |
+| --- | --- |
+| `syntax.test.mjs`（解析每个模块） | 函数写在顶层还是写在别的函数里，**都是合法语法** |
+| 274→288 条单测 | 全部只覆盖 `src/domain/**`，纯函数、不碰 DOM |
+| `validate.py` / `build-assets` | 只关心资产 JSON |
+| `check-release.mjs` | 只关心发布面（版本号、签名、文件齐全） |
+| `run-blind-test.mjs` | 只走 domain 层的编译链，从不加载 `app.js` |
+
+`app.js` 在 Node 里根本 import 不进来（要 DOM），于是**它从来没有被真正执行过一次**。
+`tests/syntax.test.mjs` 的注释里其实早就写着这句话：
+
+> 「单元测试只覆盖 domain 层……**测试通过 ≠ 页面能跑**」
+
+那条门禁只做到了「解析」，没做到「运行」。
+
+### 修法
+
+| 层 | 改动 |
+| --- | --- |
+| `src/ui/app.js` | 把三个函数从 `bindGlobalEvents()` 体内**搬到它结束之后**（纯搬移，行内容多重集逐行比对完全一致，无增删） |
+| `tests/syntax.test.mjs` | 新增**作用域门禁**：每个顶格函数声明都必须是真正的模块顶层绑定 |
+| `tests/ui-boot.test.mjs`（新增） | **启动冒烟**：用最小 DOM 桩真的把 `app.js` 跑起来 |
+| `package.json` | `test:smoke` 原本指向一个**不存在的** `tests/smoke.mjs`（悬空脚本），改为指向上面这条 |
+
+### 验证：同一套桩，前后对照
+
+两条新门禁都做了**反向验证**（用修复前的文件跑，必须失败）：
+
+```
+修复前  →  ReferenceError: renderVariantPicker is not defined
+           manifest 文案 = 「资产或工作台初始化失败」
+           [transpile-progress] 转译异常: renderVariantPicker is not defined
+修复后  →  无异常
+           manifest 文案 = 「构建 6.8.2 · 认证资产 810 · 签名 e1515357a93c」
+           [intent] 🎬 未命中策展影片，已按你的题材原创生成《雪山坚机》！8 镜分镜已生成
+```
+
+### 本轮自己的失误
+
+| # | 失误 | 怎么被抓到 |
+| --- | --- | --- |
+| 1 | 手写的括号深度扫描器**不可信**（不认正则字面量，恒多算 1 层） | 它说 `renderCurrentProject` 在深度 1，而 V8 说它在顶层 —— 换成真解析器才定案 |
+| 2 | 第一版作用域检测**假阳性满屏**（对 `export function` 又追加一次 `export { 同名 }` → 重复导出） | 全仓扫描报出 40+ 个「非顶层」，显然不对 |
+| 3 | 启动冒烟的相对路径写成 `../../src/ui/app.js`（测试在 `tests/` 下，只需上一层） | 测试自己报 `Cannot find module` |
+| 4 | 两条冒烟测试各自 `import` 一次 —— ESM 有模块缓存，第二次是空操作，`boot()` 不会重跑 | 第二条测试的 `intent` 恒为空 |
+| 5 | 差点漏掉**反向验证** | 是它证明了这两条门禁真的能抓到该缺陷，而不是恒绿 |
+
+### 结果
+
+| 维度 | 修复前 | 修复后 |
+| --- | --- | --- |
+| 页面加载 `boot()` | `ReferenceError`，镜头列表空白 | 正常，manifest 显示构建信息 |
+| 影院模式「深度转译」 | 「转译失败: renderVariantPicker is not defined」 | 正常生成 8 镜 |
+| 非顶层函数（265 个顶格声明） | 3 个 | **0 个** |
+| 测试 | 288 | **291 / 291** |
+| 门禁 | 5 道 | **5 道 + 2 条新防线**（静态作用域 + 动态启动） |
+
+**遗留风险（如实记录）**：
+- `docs` 里那份「对抗审查报告」此前十三轮都在测**生成内容的质量**，
+  却从没有一条测试**执行过 `app.js`**。本轮补上的启动冒烟只覆盖
+  「加载 + 一次影院转译」，其余交互路径（导出、抽屉、工程切换、自我进化面板）
+  仍然只有静态契约检查，没有运行时覆盖。
+- `public/build-manifest.json` 的 `builtAt` 是时间戳，每次 `npm run build` 都会
+  让工作区变脏 —— 这是长期存在的噪音，本轮没动。
+- **边界仍然没有变**：这些 prompt 依旧**一次也没有跑过 Veo 3 / Flow**。
+
+### 元发现（6.8.2）
+
+> 6.8.1 我写下的教训是「**测量维度的选择本身就是一种偏见**」。
+> 这一轮的教训更具体：**门禁的覆盖面本身就是一种偏见**。
+> 五道门禁全部围着 `src/domain/**` 打转 —— 那是「好测的部分」，
+> 于是测试体系在整体上给人一种「都覆盖了」的错觉，
+> 而**用户真正会打开的那个文件，一行都没被执行过**。
+> 一个恒绿的门禁比没有门禁更危险：它提供的是**虚假的安全感**。
+
+---
+
 ## 2026-10-13 · 6.8.1 「换了输入脚本却不变」：删掉静默兜底，让输入真的决定输出
 
 > 用户实测反馈（截图）：「换了两次内容了，每次第一个脚本的内容都是『两架战术直升机在
