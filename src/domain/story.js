@@ -533,28 +533,83 @@ const TEXTURE = {
     }
   ],
   character: [
+    // ── 通用组（陆战域之外判不出域、或该域没有专属条目时走这一组）──────────────
+    //
+    // 6.8.1：这一组原本只有 2 条，而且**两条都是「被汗浸皱的照片」**。域匹配又只认
+    // naval / air / orbital，于是「斯大林格勒巷战」「库尔斯克坦克会战」「丛林游击战伏击」
+    // 这类题材的 establish 人物镜**永远是同一句照片**——探针实测 40 个题材里
+    // 23 个（57%）的首镜都是「照片塞回胸袋」。这就是用户说的「换个主题，第一个脚本
+    // 还是同一句」的第二个实例（第一个是策展库兜底）。
+    //
+    // 现在铺成 4 条互不相同的「人味」母题；照片只保留 1 条 —— 它确实是战争片的经典
+    // 意象，但不该是唯一的意象。
     {
       fn: 'character', phase: 'establish', focus: 'squad',
-      action: '{link}{supportCallsign}把一张被汗浸皱的照片塞回胸袋，低声说：「{deadline}，够吗？」{heroCallsign}没回答，只是把弹匣压紧。',
-      audioCue: '布料摩擦 · 金属弹匣入位的轻响',
+      action: '{link}{supportCallsign}把弹匣一颗一颗压满，倒过来在膝盖上磕了磕，递给{heroCallsign}。{heroCallsign}接过去掂了掂，没说话。',
+      audioCue: '弹簧压缩的细响 · 金属磕在布料上的闷声',
       radioVoice: '【无线电】（没有按下通话键）'
     },
+    {
+      fn: 'character', phase: 'establish', focus: 'hero',
+      action: '{link}{heroCallsign}把头盔摘下来搁在膝盖上，用袖口把面罩上的灰擦掉，再戴回去，扣紧带子。',
+      audioCue: '织物摩擦 · 卡扣合上的两声脆响',
+      radioVoice: '【无线电】（没有按下通话键）'
+    },
+    {
+      fn: 'character', phase: 'establish', focus: 'squad',
+      action: '{link}{supportCallsign}拧开水壶递过去，{heroCallsign}摇头。{supportCallsign}自己灌了一口，拧紧收好，谁也没提刚才那道命令。',
+      audioCue: '水壶盖的螺纹声 · 吞咽声被刻意压低',
+      radioVoice: '【无线电】（没有按下通话键）'
+    },
+    {
+      fn: 'character', phase: 'establish', focus: 'hero',
+      action: '{link}{heroCallsign}从胸袋里摸出一张被汗浸皱的照片，看了两秒，又塞了回去。',
+      audioCue: '布料摩擦 · 极轻的弦乐单音',
+      radioVoice: '【无线电】（没有按下通话键）'
+    },
+    {
+      fn: 'character', phase: 'establish', focus: 'hero',
+      action: '{link}{heroCallsign}把弹匣一个一个插回胸挂，每插一个都用掌根按一下底盖，听那一声卡到位。',
+      audioCue: '卡扣逐声到位 · 尼龙织带被拉紧的摩擦',
+      radioVoice: '【无线电】（没有按下通话键）'
+    },
+    {
+      fn: 'character', phase: 'establish', focus: 'squad',
+      action: '{link}{supportCallsign}朝{heroCallsign}比了个手势，指了指{place}的另一侧。{heroCallsign}点了下头，把手套拉紧。',
+      audioCue: '手套绷紧的细响 · 远处零星的环境底噪',
+      radioVoice: '【无线电】（没有按下通话键）'
+    },
+    // ── 陆战域专属 ─────────────────────────────────────────────────────
+    {
+      fn: 'character', phase: 'establish', focus: 'hero', domains: ['ground'],
+      action: '{link}{heroCallsign}把靴带重新系了一遍，系得很慢，每一个结都拽紧。系完他抬头看了一眼{place}的方向。',
+      audioCue: '靴带绷紧的细响 · 风把碎屑吹过地面',
+      radioVoice: '【无线电】（没有按下通话键）'
+    },
+    {
+      fn: 'character', phase: 'establish', focus: 'squad', domains: ['ground'],
+      action: '{link}{supportCallsign}把口袋里的东西一件件摆在地上：半包烟、一枚硬币。{heroCallsign}看了一眼，也掏出了自己那份。',
+      audioCue: '零星物件落在帆布上的轻响 · 无人说话',
+      radioVoice: '【无线电】（没有按下通话键）'
+    },
+    // ── 指挥 / 电子战域：这类题材的人味不在肉体上，在屏幕上 ─────────────────
+    {
+      fn: 'character', phase: 'establish', focus: 'hero', domains: ['strategic'],
+      action: '{link}{heroCallsign}的手指悬在确认键上方停了三秒，屏幕上的倒计时一格一格往下走，他始终没有按下去。',
+      audioCue: '设备风扇的持续白噪 · 倒计时的电子滴答',
+      radioVoice: '【无线电】（没有按下通话键）'
+    },
+    {
+      fn: 'character', phase: 'establish', focus: 'squad', domains: ['strategic'],
+      action: '{link}{supportCallsign}把一副耳机递过去，{heroCallsign}戴上，里面只有电流声。两个人隔着屏幕对看了一眼。',
+      audioCue: '耳机里的电流底噪 · 键盘零星的敲击',
+      radioVoice: '【无线电】（没有按下通话键）'
+    },
+    // ── 海战域 ────────────────────────────────────────────────────────
     {
       fn: 'character', phase: 'establish', focus: 'squad', domains: ['naval'],
       action: '{link}{supportCallsign}在声呐屏的余光里看了{heroCallsign}一眼，低声说：「{deadline}，够吗？」{heroCallsign}没回答，只是把手按在冰凉的舱壁上，感受那台机器的心跳。',
       audioCue: '声呐滴答 · 舱壁传导的机械低鸣',
-      radioVoice: '【无线电】（没有按下通话键）'
-    },
-    {
-      fn: 'character', phase: 'establish', focus: 'squad', domains: ['air'],
-      action: '{link}{supportCallsign}在数据链上敲了一行字给{heroCallsign}：「{deadline}，够吗？」{heroCallsign}在座舱盖的反光里看了自己一眼，把一张折了角的照片塞进飞行服内袋，按平，扣好。',
-      audioCue: '座舱通风声 · 织物扣合的轻响',
-      radioVoice: '【无线电】（没有按下通话键）'
-    },
-    {
-      fn: 'character', phase: 'establish', focus: 'squad', domains: ['orbital'],
-      action: '{link}{supportCallsign}把家人的照片贴在舷窗内侧，让它和外面那道地球的弧线并排挂着。{heroCallsign}看了一眼，什么也没说。',
-      audioCue: '通风系统白噪 · 极轻的弦乐单音',
       radioVoice: '【无线电】（没有按下通话键）'
     },
     {
@@ -566,22 +621,30 @@ const TEXTURE = {
       audioCue: '声呐滴答 · 舱壁传导的机械低鸣',
       radioVoice: '【无线电】（没有按下通话键）'
     },
+    // ── 空战域 ────────────────────────────────────────────────────────
     {
-      fn: 'character', phase: 'establish', focus: 'hero', domains: ['air'],
-      action: '{link}{heroCallsign}在座舱盖的反光里看了自己一眼，把一张折了角的照片塞进飞行服内袋，按平，扣好。',
-      audioCue: '座舱通风声 · 织物扣合的轻响',
+      fn: 'character', phase: 'establish', focus: 'squad', domains: ['air'],
+      action: '{link}{supportCallsign}在数据链上敲了一行字给{heroCallsign}：「{deadline}，够吗？」{heroCallsign}没有回字，只是把氧气面罩的带子又勒紧了一格。',
+      audioCue: '座舱通风声 · 面罩卡扣合紧的一声',
       radioVoice: '【无线电】（没有按下通话键）'
     },
     {
-      fn: 'character', phase: 'establish', focus: 'hero', domains: ['orbital'],
-      action: '{link}{heroCallsign}把家人的照片贴在舷窗内侧，让它和外面那道地球的弧线并排挂着，谁也没说话。',
+      fn: 'character', phase: 'establish', focus: 'hero', domains: ['air'],
+      action: '{link}{heroCallsign}在座舱盖的反光里看了自己一眼，把膝板上那张写满数字的便签按平，塞回夹层。',
+      audioCue: '座舱通风声 · 纸页被压进夹板的轻响',
+      radioVoice: '【无线电】（没有按下通话键）'
+    },
+    // ── 太空域 ────────────────────────────────────────────────────────
+    {
+      fn: 'character', phase: 'establish', focus: 'squad', domains: ['orbital'],
+      action: '{link}{supportCallsign}把家人的照片贴在舷窗内侧，让它和外面那道地球的弧线并排挂着。{heroCallsign}看了一眼，什么也没说。',
       audioCue: '通风系统白噪 · 极轻的弦乐单音',
       radioVoice: '【无线电】（没有按下通话键）'
     },
     {
-      fn: 'character', phase: 'establish', focus: 'hero',
-      action: '{link}{heroCallsign}从胸袋里摸出一张被汗浸皱的照片，看了两秒，又塞了回去。',
-      audioCue: '布料摩擦 · 极轻的弦乐单音',
+      fn: 'character', phase: 'establish', focus: 'hero', domains: ['orbital'],
+      action: '{link}{heroCallsign}一格一格收紧手套上的魔术贴，确认每一道系绳都挂牢了，才把手伸向舱门把手。',
+      audioCue: '魔术贴撕开的脆响 · 通风系统的白噪',
       radioVoice: '【无线电】（没有按下通话键）'
     }
   ],
@@ -1779,14 +1842,26 @@ export function storySteps(arcId, fn, gates = {}) {
     : [];
   const generic = shared.filter(s => !Array.isArray(s.domains));
 
-  // 组内按题材哈希做**确定性轮转**：同一战场域的两部片子（中途岛 vs 太平洋岛屿抢滩）
-  // 不该连收尾特写都用同一句。轮转只发生在组内，因此不会把 naval 条挤到 generic 后面。
-  const rotate = (arr) => {
+  // 组内按题材哈希做**确定性洗牌**。
+  //
+  // 早期是「整体轮转 k 位」，只有 `arr.length` 种排列 —— 6 条通用节拍里，
+  // 不同题材撞上同一偏移的概率高得离谱：实测 10 个题材里有 4 个的开场是同一句
+  // （「把头盔摘下来擦掉面罩上的灰」），用户看到的仍是「换个主题还是同一句」。
+  // 洗牌有 `len!` 种排列，同样的种子下分布好一个数量级。
+  // 洗牌只发生在**组内**，因此不会把 naval 条挤到 generic 后面（域优先的语义不变）。
+  const shuffle = (arr, salt) => {
     if (arr.length < 2 || !Number.isInteger(gates.seed)) return arr;
-    const k = ((gates.seed % arr.length) + arr.length) % arr.length;
-    return k === 0 ? arr : [...arr.slice(k), ...arr.slice(0, k)];
+    const out = [...arr];
+    let s = (gates.seed ^ salt) >>> 0;
+    for (let i = out.length - 1; i > 0; i--) {
+      // 32 位 LCG（常数取自 Numerical Recipes）：确定性、跨平台一致
+      s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+      const j = s % (i + 1);
+      [out[i], out[j]] = [out[j], out[i]];
+    }
+    return out;
   };
-  const sharedOrdered = [...rotate(matched), ...rotate(generic)];
+  const sharedOrdered = [...shuffle(matched, 0x9e3779b9), ...shuffle(generic, 0x85ebca6b)];
 
   const usable = (s) => {
     if ((s.focus === 'clash' || s.focus === 'enemy') && !hasEnemy) return false;
@@ -1823,9 +1898,18 @@ export function buildStory({ theme = '', intent = {}, cast = {}, env = null, reg
   // 描述的是同一个战场（潜艇片不会拿到「镜头从云层上方拉开」）。
   const domain = domainOfText(`${theme} ${intent.setting || ''}`)?.key || null;
 
-  // 轮转键同时取题材与原型：只取题材时，「中途岛航母对决」与「太平洋岛屿抢滩」这类
+  // 洗牌键同时取题材与原型：只取题材时，「中途岛航母对决」与「太平洋岛屿抢滩」这类
   // 同域不同原型的片子有 1/2 概率抽到同一条收尾特写；混入原型哈希后两边一起变。
-  const withGates = { ...gates, vocab, domain, seed: (fnv1a(String(theme || '')) ^ fnv1a(arc.id)) >>> 0 };
+  // 调用方若已给出 seed（planFilm 的 seed 还含方案加盐），一律沿用，不要覆盖 ——
+  // 覆盖会让同一题材的四个方案共用同一套节拍顺序。
+  const withGates = {
+    ...gates,
+    vocab,
+    domain,
+    seed: Number.isInteger(gates.seed)
+      ? gates.seed
+      : ((fnv1a(String(theme || '')) ^ fnv1a(arc.id)) >>> 0)
+  };
   const fns = new Set(Object.keys(SLOTS[arc.id] || {}).concat(Object.keys(TEXTURE)));
   const slots = {};
   for (const fn of fns) {

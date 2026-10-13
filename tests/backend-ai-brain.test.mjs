@@ -40,7 +40,11 @@ test('Backend AI Brain: gracefully falls back to built-in engine and outputs ful
   assert.ok(data.matchedMovie.includes('壮志凌云'));
   assert.equal(data.shots.length, 4);
   assert.ok(data.shots[0].action.includes('隐形五代战机'));
-  assert.ok(data.engine.includes('本地高保真离线引擎'));
+  // 6.8.1：离线兜底现在要如实区分「策展复刻」与「原创生成」，不能再笼统写
+  // 「本地高保真离线引擎」——那句话让用户以为内容是 AI 生成的。
+  assert.equal(data.contentKind, 'curated');
+  assert.equal(data.isAiGenerated, false);
+  assert.ok(data.engine.includes('策展致敬库'), `引擎标签应如实标注为策展复刻：${data.engine}`);
   assert.equal(data.governance.status, 'passed');
 });
 

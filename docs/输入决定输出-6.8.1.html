@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGO War Universe · 6.8.1 输入决定输出 · 验收</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c222b; --line:#272e38;
+    --fg:#e8ecf1; --muted:#98a3b2; --dim:#6f7a89;
+    --bad:#ff5f5f; --good:#35d07f; --accent:#ffb454; --link:#5eb1ff;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:29px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0;font-size:14px}
+  .quote{margin:20px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f2dcdc;border-radius:0 8px 8px 0;font-size:13.5px}
+  .note{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--accent);
+    background:#1a1710;color:#e8dfd0;border-radius:0 8px 8px 0;font-size:13.5px}
+  .warn{margin:18px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f0d8d8;border-radius:0 8px 8px 0;font-size:13.5px}
+  h2{margin:46px 0 14px;font-size:20px;border-left:3px solid var(--accent);padding-left:12px}
+  h3{margin:26px 0 10px;font-size:15.5px;color:#cfd7e2}
+  p{margin:0 0 12px}
+  code{background:#0b0e12;padding:1px 6px;border-radius:4px;color:var(--accent);font-size:12.5px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{margin:0 0 8px;font-size:14px;color:var(--good)}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:14px 0}
+  .box__hd{padding:9px 14px;font-size:12.5px;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  .box--bad .box__hd{background:#1d1618;color:var(--bad);border-color:#5c2b2b}
+  .box--good .box__hd{background:#131e18;color:var(--good);border-color:#264d38}
+  .box__bd{padding:14px}
+  pre{margin:0;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
+    line-height:1.75;white-space:pre-wrap;color:#cfd7e2}
+  .del{color:var(--bad)} .ins{color:var(--good)} .dimtxt{color:var(--dim)}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;background:var(--panel)}
+  td code{font-size:12px}
+  .ok{color:var(--good)} .no{color:var(--bad)} .blank{color:var(--dim)}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:12px 0;font-size:13px}
+  .node{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 13px}
+  .node--dead{border-color:#5c2b2b;background:#1d1618;color:var(--bad)}
+  .node--live{border-color:#264d38;background:#131e18;color:var(--good)}
+  .arrow{color:var(--dim)}
+  .script{background:var(--panel);border:1px solid var(--line);border-radius:12px;
+    padding:16px 18px;margin:14px 0}
+  .script h4{margin:0 0 4px;font-size:14.5px;color:var(--fg)}
+  .script .meta{color:var(--dim);font-size:12.5px;margin:0 0 12px}
+  .script .meta b{color:var(--good);font-weight:600}
+  .shot{display:flex;gap:12px;padding:9px 0;border-top:1px solid var(--line);font-size:13.5px}
+  .shot:first-of-type{border-top:none}
+  .shot__n{flex:0 0 22px;color:var(--dim);font-family:"Cascadia Mono",Consolas,monospace;font-size:12px;padding-top:2px}
+  .shot__fn{flex:0 0 84px;color:var(--accent);font-family:"Cascadia Mono",Consolas,monospace;font-size:11.5px;padding-top:3px}
+  .shot__act{flex:1}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+  .vchip{display:inline-flex;align-items:center;gap:8px;font-size:12px;
+    background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+  .vchip--best{border-color:#264d38;background:#131e18}
+  .vchip--pen{border-color:#5c2b2b;background:#1d1618;color:#e8c8c8}
+  .vchip__badge{font-size:10px;font-weight:700;color:#0b1a0e;background:var(--good);
+    border-radius:99px;padding:1px 7px}
+  .vchip__pen{font-size:10px;font-weight:700;color:#2a0d0d;background:var(--bad);
+    border-radius:99px;padding:1px 7px}
+  .vchip__score{font-family:"Cascadia Mono",Consolas,monospace;font-size:11px;color:var(--good)}
+  .vchip--pen .vchip__score{color:var(--bad)}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px}
+  @media(max-width:880px){.shot__fn{flex:0 0 62px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">LEGO War Universe · 6.8.1 · Acceptance</p>
+  <h1>删掉静默兜底，让输入真的决定输出</h1>
+  <p class="sub">前十三轮我一直在自己造场景测重复。这一轮用户直接给了截图 ——
+  三句话，三处都指对了。</p>
+
+  <p class="quote">「换了两次内容了，每次第一个脚本的内容都是『<b>两架战术直升机在灰尘弥漫的
+  城市街道低空悬停，四根粗索降绳掷下，特战队员呈战术姿态顺绳滑降，周围街道楼顶人影攒动。</b>』
+  这到底是什么意思，<b>没有使用AI吗</b>」</p>
+
+  <p class="note"><b>那句话确实不是 AI 生成的</b> —— 它是《黑鹰坠落》第 1 镜的<b>手写</b>复刻文本
+  （<code>CINEMA_DATABASE</code>）。而 <code>transpileMovieToLego</code> 的结尾写着：<br>
+  <code>else { match = CINEMA_DATABASE.find(m =&gt; m.id === 'black-hawk-down') } // 通用硬派军事兜底</code><br>
+  于是<b>任何没命中库里 9 部影片的输入，都被静默替换成《黑鹰坠落》</b>。
+  <b>用 git HEAD 的旧版本实测 12 条任意输入，10 条拿到同一句直升机开场。</b><br>
+  更关键的是触发条件：<code>callAiBrain</code> 先请求 <code>/api/ai-brain</code>，失败才走本地 ——
+  <b>纯静态离线打开、或没配云端 Key 时，这条兜底就是主路径。</b>
+  用户看到的不是「边缘情况」，是「默认行为」。</p>
+</header>
+
+<h2>五项结果</h2>
+<div class="cards">
+  <div class="card"><h4>同一句开场 10/12 → 0/12</h4><p>未命中的输入不再被替换成《黑鹰坠落》，而是交给生成引擎。</p></div>
+  <div class="card"><h4>「照片开场」65% → 5%</h4><p>40 个题材里，首镜是「被汗浸皱的照片」的从 <b>26 个</b>降到 <b>2 个</b>。</p></div>
+  <div class="card"><h4>首镜骨架去重 21/40</h4><p>40 个差异极大的题材，最高频的那一句只占 15%。</p></div>
+  <div class="card"><h4>两种产出如实分标</h4><p>「策展致敬库 · 离线复刻（手写分镜，非 AI 生成）」vs「本地自主想象引擎 · 离线生成（非云端 AI）」。</p></div>
+  <div class="card"><h4>测试 274 → 288 / 288</h4><p>盲测基线零回归：100 / 100 / 100 / 96。</p></div>
+  <div class="card"><h4>资产 810 项零改动</h4><p>构建签名仍为 <code>e1515357a93c</code>；本轮是纯代码轮。</p></div>
+</div>
+
+<h2>① 一句 <code>else</code> 把整条生成链路短路了</h2>
+
+<div class="flow">
+  <span class="node">用户输入任意题材</span>
+  <span class="arrow">→</span>
+  <span class="node">callAiBrain</span>
+  <span class="arrow">→</span>
+  <span class="node">POST /api/ai-brain</span>
+  <span class="arrow">→</span>
+  <span class="node node--dead">不可达（离线 / 无 Key）</span>
+  <span class="arrow">→</span>
+  <span class="node node--dead">transpileMovieToLego 的 else 兜底</span>
+  <span class="arrow">→</span>
+  <span class="node node--dead">《黑鹰坠落》手写分镜</span>
+</div>
+
+<p>修前的完整实测（<code>git HEAD</code> 版本，12 条输入）：</p>
+
+<table>
+  <tr><th style="width:23%">输入</th><th style="width:26%">修前 matchedMovie</th><th>修前第 1 镜</th></tr>
+  <tr><td>黑鹰坠落</td><td class="blank">黑鹰坠落（应当如此）</td><td class="dimtxt">两架战术直升机在灰尘弥漫的城市街道低空悬停…</td></tr>
+  <tr><td>二战诺曼底登陆</td><td class="ok">拯救大兵瑞恩（正确）</td><td class="dimtxt">希金斯登陆艇在汹涌灰暗的海水中剧烈颠簸冲向奥马哈海滩…</td></tr>
+  <tr><td>随便写一个没听过的名字</td><td class="no">黑鹰坠落</td><td class="no">两架战术直升机在灰尘弥漫的城市街道低空悬停…</td></tr>
+  <tr><td>现代城市巷战</td><td class="no">黑鹰坠落</td><td class="no">两架战术直升机在灰尘弥漫的城市街道低空悬停…</td></tr>
+  <tr><td>北极冰原潜艇猎杀</td><td class="no">黑鹰坠落</td><td class="no">两架战术直升机在灰尘弥漫的城市街道低空悬停…</td></tr>
+  <tr><td>蒙古骑兵草原突袭</td><td class="no">边境杀手（题材推错）</td><td class="no">夕阳血红色的余晖中，四名全副武装的特战队员呈战术楔形…</td></tr>
+  <tr><td>赛博朋克黑客攻防</td><td class="no">黑鹰坠落</td><td class="no">两架战术直升机在灰尘弥漫的城市街道低空悬停…</td></tr>
+  <tr><td>古代攻城战</td><td class="no">黑鹰坠落</td><td class="no">两架战术直升机在灰尘弥漫的城市街道低空悬停…</td></tr>
+  <tr><td>沙漠风暴坦克对决</td><td class="no">黑鹰坠落</td><td class="no">两架战术直升机在灰尘弥漫的城市街道低空悬停…</td></tr>
+  <tr><td>丛林游击战伏击</td><td class="no">黑鹰坠落</td><td class="no">两架战术直升机在灰尘弥漫的城市街道低空悬停…</td></tr>
+  <tr><td>南极科考站遇袭</td><td class="no">黑鹰坠落</td><td class="no">两架战术直升机在灰尘弥漫的城市街道低空悬停…</td></tr>
+  <tr><td>火车站台争夺战</td><td class="no">黑鹰坠落</td><td class="no">两架战术直升机在灰尘弥漫的城市街道低空悬停…</td></tr>
+</table>
+
+<p><b>10 / 12 拿到同一句。</b>而且「蒙古骑兵草原突袭 →《边境杀手》」说明连
+「按题材推导原型」那一步也是错的：推出来的<b>仍然是固定分镜</b>。</p>
+
+<h2>② 修法：把「匹配」与「兜底」拆开</h2>
+
+<div class="box box--bad">
+  <div class="box__hd">修前 · cinema-homage.js</div>
+  <div class="box__bd"><pre><span class="del">const match = hit.film || CINEMA_DATABASE.find(m =&gt; m.id === 'black-hawk-down'); // 通用硬派军事兜底</span>
+<span class="dimtxt">// 任何没命中 9 部影片的输入 → 静默变成《黑鹰坠落》</span></pre></div>
+</div>
+
+<div class="box box--good">
+  <div class="box__hd">修后 · cinema-homage.js</div>
+  <div class="box__bd"><pre><span class="ins">export function matchCuratedFilm(query) {
+  // 只回答「有没有命中」。两个方向分开看：
+  //   · title.includes(q) —— 用户只打了片名的一部分（「黑鹰」→《黑鹰坠落》）
+  //   · q.includes(alias) —— 用户在一句话里点名了这部片（「二战诺曼底登陆」→ 含『诺曼底』）
+  // 删掉了反向的 alias.includes(q)：它让『战』『无人机』这类泛词也能命中。
+  …
+  return { film: null, kind: 'none' };   // 没命中就如实说没命中
+}</span>
+
+<span class="ins">export function transpileMovieToLego(query, requestedShots = 4, registry = null, { genericFallback = <b>false</b> } = {}) {</span>
+  const hit = matchCuratedFilm(query);
+  const match = hit.film || (genericFallback ? CINEMA_DATABASE.find(m =&gt; m.id === 'black-hawk-down') : null);
+  if (!match) {
+    return { error: 'NO_CURATED_MATCH', matchedMovie: null, matchKind: 'none', shots: [] };
+  }</pre></div>
+</div>
+
+<p><b><code>genericFallback</code> 的默认值从 <code>true</code> 翻成 <code>false</code>，
+是这轮最有价值的一行改动。</b>它把「静默兜底」从<b>默认行为</b>改成<b>显式 opt-in</b> ——
+想兜底的调用方必须写 <code>{ genericFallback: true }</code>，这个动作本身就是一次自我声明：
+「我知道我在要一个通用军事兜底」。<b>默认值决定了错误有多容易被犯。</b></p>
+
+<h3>命中与生成分成两条路，且各自如实标注</h3>
+
+<div class="flow">
+  <span class="node">输入</span>
+  <span class="arrow">→</span>
+  <span class="node">matchCuratedFilm()</span>
+  <span class="arrow">→</span>
+  <span class="node node--live">命中 → 策展复刻<br><small>策展致敬库 · 离线复刻（手写分镜，非 AI 生成）</small></span>
+</div>
+<div class="flow">
+  <span class="node">输入</span>
+  <span class="arrow">→</span>
+  <span class="node">matchCuratedFilm()</span>
+  <span class="arrow">→</span>
+  <span class="node node--live">未命中 → generateLocally()<br><small>本地自主想象引擎 · 离线生成（非云端 AI）</small></span>
+</div>
+
+<p>新增 <code>local-engine.js</code> 让<b>前端与后台共用</b>同一个 <code>generateLocally()</code> ——
+此前后台 worker 只能去 import 前端客户端（<code>ai-brain.js</code>），这是说不通的，
+也正是后台那条路没被覆盖到、静默退化的原因。</p>
+
+<h2>③ 修完之后，同一个 bug 换了张脸又出现了</h2>
+
+<p>删掉兜底之后，我以为问题解决了。实测 40 个题材，
+<b>26 个（65%）的首镜仍然是同一句</b> —— 只是从「同一部片」变成了「同一句话」：</p>
+
+<div class="box box--bad">
+  <div class="box__hd">修前 · 40 题材的首镜分布（Top 5）</div>
+  <div class="box__bd"><pre><span class="del">11×</span>  P袋里摸出一张被汗浸皱的照片看了两秒又塞了回去…
+<span class="del"> 6×</span>  P胸袋里摸出一张被汗浸皱的照片看了两秒又塞了回去…
+<span class="del"> 4×</span>  P张被汗浸皱的照片塞回胸袋低声说QP答只是把弹匣压紧…
+<span class="del"> 3×</span>  P从胸袋里摸出一张被汗浸皱的照片看了两秒又塞了回去…
+<span class="del"> 2×</span>  P一张被汗浸皱的照片塞回胸袋低声说QP没回答只是把弹匣压紧…
+<span class="dimtxt">—— 合计 26 / 40 = 65%，全部是「照片」母题</span></pre></div>
+</div>
+
+<p>根因在 <code>TEXTURE.character</code>：8 条节拍里 <b>5 条是照片母题</b>，
+而域匹配只认 <code>naval</code> / <code>air</code> / <code>orbital</code> ——
+<b>陆战与指挥题材永远落到那 2 条通用条目，而它们两条都是照片。</b></p>
+
+<p>这是<b>同一个 bug 的第二个实例</b>：不是「兜底到某一部片」，而是「兜底到某一句话」。</p>
+
+<h3>修法：池子重铺 + 确定性洗牌</h3>
+
+<table>
+  <tr><th style="width:20%">组</th><th style="width:12%">条数</th><th>内容</th></tr>
+  <tr><td>通用</td><td>6</td><td>压弹匣 / 擦面罩 / 让水壶 / <b>摸照片（只留 1 条）</b> / 插回胸挂 / 打手势</td></tr>
+  <tr><td><code>ground</code></td><td>2</td><td>系靴带 / 把口袋里的东西摆在地上</td></tr>
+  <tr><td><code>strategic</code></td><td>2</td><td>手指悬在确认键上 / 递一副耳机</td></tr>
+  <tr><td><code>naval</code> <code>air</code> <code>orbital</code></td><td>各 2</td><td>保留原有域专属节拍，各自补一条非照片的</td></tr>
+</table>
+
+<p><b>排列数才是真正的瓶颈。</b>原先的 <code>rotate</code> 是「整体轮转 k 位」——
+只有 <code>arr.length</code> 种排列。实测 10 个题材里有 <b>4 个</b>的开场撞成同一句
+（都是「把头盔摘下来擦掉面罩上的灰」）。换成种子驱动的<b>确定性洗牌</b>后有
+<code>len!</code> 种排列。</p>
+
+<p>顺带发现 <code>planFilm</code> 把自己的 <code>seed</code>（含方案加盐）算好之后
+<b>没有传给</b> <code>buildStory</code> —— 后者自己重算了一个不含加盐的。
+结果同一题材的 4 个方案共用同一套节拍顺序，「4 个不同方案」的开场仍然可能是同一句。</p>
+
+<div class="box box--good">
+  <div class="box__hd">修后 · 40 题材的首镜分布（Top 5）</div>
+  <div class="box__bd"><pre><span class="ins"> 6×</span>  N把头盔摘下来搁在膝盖上用袖口把面罩上的灰擦掉再戴回去扣紧带子…
+<span class="ins"> 4×</span>  N在声呐屏的余光里看了N一眼低声说QN没回答只是把手按在冰凉的舱壁上…
+<span class="ins"> 4×</span>  N把弹匣一颗一颗压满倒过来在膝盖上磕了磕递给NN接过去掂了掂没说话…
+<span class="ins"> 4×</span>  N把弹匣一个一个插回胸挂每插一个都用掌根按一下底盖听那一声卡到位…
+<span class="ins"> 2×</span>  N把靴带重新系了一遍系得很慢每一个结都拽紧系完他抬头看了一眼…
+<span class="dimtxt">—— 首镜骨架去重 21 / 40，最高频 6 / 40 = 15%
+—— 首镜是「照片」的：2 / 40 = 5%</span></pre></div>
+</div>
+
+<h2>④ 最危险的那个：度量本身是坏的</h2>
+
+<p>上面「修前」那 5 行里，<code>P袋里摸出</code> / <code>P胸袋里摸出</code> /
+<code>P从胸袋里摸出</code> 看起来是 3 个不同骨架。<b>它们其实是同一句话。</b></p>
+
+<div class="box box--bad">
+  <div class="box__hd">同一个节拍，只换人名 → 算出 3 个不同骨架</div>
+  <div class="box__bd"><pre>【TANGO】<b>米勒</b>从胸袋里摸出一张被汗浸皱的照片…      → <span class="del">P袋里摸出…</span>
+【VECTOR】<b>邓肯</b>从胸袋里摸出一张被汗浸皱的照片…     → <span class="del">P袋里摸出…</span>
+【LANTERN】<b>伊万诺夫</b>从胸袋里摸出一张被汗浸皱的照片… → <span class="del">P从胸袋里摸出…</span>
+【OVERSEER】<b>施密特</b>从胸袋里摸出一张被汗浸皱的照片…  → <span class="del">P胸袋里摸出…</span>
+
+<span class="dimtxt">正则 /【[^】]*】[\u4e00-\u9fa5]{2,4}/ 的贪心量词按「后面还有多少汉字」吃 2–4 字：
+「米勒」+「从胸」吃 4 字；「伊万诺夫」只能吃 4 字（人名本身就是 4 字）；
+「施密特」+「从」吃 4 字 —— 人名长度不同，切点就不同。</span></pre></div>
+</div>
+
+<div class="box box--good">
+  <div class="box__hd">修后 · 先按名册人名整段替换，再兜底</div>
+  <div class="box__bd"><pre>export function rosterNames(roster) { /* persona || name || nameZh，长度 ≥2 */ }
+
+export function skeletonOf(action, names = []) {
+  // 长名优先，避免「伊万诺夫」被更短的「伊万」抢先切掉
+  for (const n of [...names].sort((a, b) =&gt; b.length - a.length)) s = s.split(n).join('N');
+  …
+}
+<span class="dimtxt">→ 4 个人名全部归一，同一节拍恒为 1 个骨架</span></pre></div>
+</div>
+
+<p class="warn"><b>这意味着 6.8.0 那句「重合率降到 13–50%」是建立在一个低估重复的度量上的。</b>
+这不是产品 bug，是<b>度量 bug</b>；而度量 bug 比产品 bug 更危险 ——
+<b>它会让你相信一个不存在的改善。</b><br>
+6.7.6 的教训是「探针与实现同源就无法证伪自身」（两边共用同一套粗糙正则）。
+这次的变体是「探针的正则自己就不稳」。两次的共性：
+<b>度量模块必须比被测对象更保守、更可验证</b>，不能顺手复用一套凑合的正则。</p>
+
+<h2>⑤ 前端：两种产出分开呈现</h2>
+
+<p>原先无论哪条路，前端都会渲染同一块「拉片面版」，并写「已成功解构并转译《xxx》」——
+<b>原创生成的片子根本没有被解构的导演</b>，拿它去显示等于凭空捏造。</p>
+
+<table>
+  <tr><th style="width:16%">contentKind</th><th style="width:30%">看板</th><th>话术</th></tr>
+  <tr><td><code>curated</code></td><td><code>renderDirectorNotesPanel</code>（含导演 / 年份）</td><td class="blank">「已成功解构并转译《xxx》」</td></tr>
+  <tr><td><code>generated</code></td><td><code>renderGeneratedPanel</code>（新增）</td><td class="ok">「未命中策展影片，已按你的题材原创生成《…》」，并说明视角 / 重心 / 基调</td></tr>
+</table>
+
+<h2>⑥ 修后的真实产物</h2>
+
+<h3>路由：题材走生成、片名走复刻</h3>
+<table>
+  <tr><th style="width:20%">输入</th><th style="width:22%">命中策展库</th><th>修后第 1 镜</th></tr>
+  <tr><td>现代城市巷战</td><td class="ok">未命中 → 生成</td><td>【PILGRIM】克劳斯把口袋里的东西一件件摆在地上：半包烟、一枚硬币。【VECTOR】施密特看了一眼，也掏出了自己那份。</td></tr>
+  <tr><td>随便写一个没听过的名字</td><td class="ok">未命中 → 生成</td><td>【LANTERN】伊万诺夫把头盔摘下来搁在膝盖上，用袖口把面罩上的灰擦掉，再戴回去，扣紧带子。</td></tr>
+  <tr><td>北极冰原潜艇猎杀</td><td class="ok">未命中 → 生成</td><td>指挥舱里只有声呐的滴答声。【CROSSBOW】邓肯指着海图上一片空白：「两小时之内找到敌方战略潜艇，否则编队会被伏击。」</td></tr>
+  <tr><td>蒙古骑兵草原突袭</td><td class="ok">未命中 → 生成</td><td>【OVERLORD】哈里森把弹匣一个一个插回胸挂，每插一个都用掌根按一下底盖，听那一声卡到位。</td></tr>
+  <tr><td>赛博朋克黑客攻防</td><td class="ok">未命中 → 生成</td><td>【LANTERN】邓肯把一副耳机递过去，【KESTREL】沃克戴上，里面只有电流声。两个人隔着屏幕对看了一眼。</td></tr>
+  <tr><td>古代攻城战</td><td class="ok">未命中 → 生成</td><td>【TANGO】米勒把弹匣一个一个插回胸挂，每插一个都用掌根按一下底盖，听那一声卡到位。</td></tr>
+  <tr><td>黑鹰坠落</td><td class="blank">命中（exact）</td><td class="dimtxt">两架战术直升机在灰尘弥漫的城市街道低空悬停…（用户确实点了这部片，复刻是正确的）</td></tr>
+</table>
+
+<h3>原创生成样本：古代攻城战（8 镜）</h3>
+<div class="script">
+  <h4>古代攻城战</h4>
+  <p class="meta">引擎：<b>本地自主想象引擎 · 离线生成（非云端 AI）</b> ·
+    contentKind：<b>generated</b> · matchedMovie：<b>null</b>（没有声称解构任何影片）</p>
+  <div class="shot"><span class="shot__n">1</span><span class="shot__fn">character</span><span class="shot__act">【TANGO】米勒把弹匣一个一个插回胸挂，每插一个都用掌根按一下底盖，听那一声卡到位。</span></div>
+  <div class="shot"><span class="shot__n">2</span><span class="shot__fn">goal</span><span class="shot__act">【TANGO】米勒把地图摊在开阔地的断墙上：「一小时之内拿下敌方阵地，否则全连白死。」</span></div>
+  <div class="shot"><span class="shot__n">3</span><span class="shot__fn">observe</span><span class="shot__act">准星里，【PILGRIM】雷曼的巡逻队正从掩体一线尽头经过。【FALCON】邓肯没有开火，只是数人数。</span></div>
+  <div class="shot"><span class="shot__n">4</span><span class="shot__fn">plan</span><span class="shot__act">视线移开，「正面压制，侧翼绕过去。」【TANGO】米勒在图上画出两条箭头，「三分钟后同时动。」</span></div>
+  <div class="shot"><span class="shot__n">5</span><span class="shot__fn">decision</span><span class="shot__act">手按住地图，退回去重新组织，还是趁现在打进去。【TANGO】米勒选择了打进去。</span></div>
+  <div class="shot"><span class="shot__n">6</span><span class="shot__fn">quiet</span><span class="shot__act">他点了头，全片第一次彻底安静。开阔地里只有水滴砸在钢板上的声音，【OVERLORD】哈里森数着自己的心跳。</span></div>
+  <div class="shot"><span class="shot__n">7</span><span class="shot__fn">reaction</span><span class="shot__act">风把硝烟吹散了一角。【FALCON】邓肯把手里的枪垂到身侧。</span></div>
+  <div class="shot"><span class="shot__n">8</span><span class="shot__fn">aftermath</span><span class="shot__act">枪声停了。【KILO】沃克站在打空的阵地上，慢慢把枪放下。</span></div>
+</div>
+
+<p>同一题材的四个方案（前端默认只展示打分第一的那部）：</p>
+<div class="chips">
+  <span class="vchip vchip--best"><span class="vchip__badge">最优</span>装备视角 · 人物重心 · 史诗<span class="vchip__score">94</span></span>
+  <span class="vchip">指挥官视角 · 动作重心 · 纪实<span class="vchip__score">92.25</span></span>
+  <span class="vchip">士兵视角 · 战术重心 · 冷峻<span class="vchip__score">91</span></span>
+  <span class="vchip vchip--pen"><span class="vchip__pen">换皮折减</span>敌方视角 · 人物重心 · 惊悚<span class="vchip__score">56.4</span></span>
+</div>
+
+<p>第 4 个方案与第 1 个同为「人物重心」、骨架重合过高，被去重惩罚从 94 折到 56.4，
+<b>并被重排到最后</b> —— 修前它是排在第三位的（扣了分但没重排，
+择优器会把重复品留在靠前的位置）。</p>
+
+<h2>⑦ 本轮自己引入并修掉的五个缺陷</h2>
+
+<table>
+  <tr><th style="width:5%">#</th><th style="width:44%">缺陷</th><th>怎么被抓到的</th></tr>
+  <tr><td>1</td><td><b>度量 bug 又犯了一次</b>（第 ④ 节本身就是我先写出来的）</td><td>手算同节拍不同人名的骨架，发现 3 个不同结果</td></tr>
+  <tr><td>2</td><td>新写的陆战节拍 <b>7.59s 超了 6s 档容差上限 6.90s</b></td><td><code>pacing.test.mjs</code></td></tr>
+  <tr><td>3</td><td><code>generateLocally</code> 没给 <code>profileId</code> 兜底 → <code>planFilm</code> 抛 <code>Unknown profile</code> → <b>后端静默退化</b></td><td>探针（<b>不是</b>测试）</td></tr>
+  <tr><td>4</td><td><code>diversify</code> 原地改 <code>score</code> → 重复调用<b>叠加惩罚</b></td><td>本轮「扣分后重排」的改动引爆了它</td></tr>
+  <tr><td>5</td><td><code>skeletonOf</code> 改成 <code>export function</code> 后忘了删末尾的 <code>export { skeletonOf }</code> → <code>Duplicate export</code></td><td>运行即报错</td></tr>
+</table>
+
+<p class="warn">第 3 条的教训最值得记：<b>新链路的第一次实测必须覆盖「后台调用」这条路。</b>
+我的第一版探针只测了前端 <code>generateLocally</code>，它「看起来工作了」；
+而后端走的是另一条 import 路径（<code>functions/api/ai-brain.js</code>），
+里面 <code>profileId</code> 为 undefined，整条链路静默返回 null，
+于是后端又退回了通用军事兜底 —— <b>修完之后问题依然存在，只是换了个理由。</b></p>
+
+<h2>⑧ 门禁与遗留风险</h2>
+
+<table>
+  <tr><th style="width:34%">门禁</th><th>结果</th></tr>
+  <tr><td><code>02_Assets/validate.py</code></td><td class="ok">810 assets，ID 唯一，schemaVersion=3.7</td></tr>
+  <tr><td><code>scripts/build-assets.mjs</code></td><td class="ok">签名 <code>e1515357a93c</code>（与 6.8.0 一致 —— 纯代码轮）</td></tr>
+  <tr><td><code>npm test</code></td><td class="ok">288 / 288</td></tr>
+  <tr><td><code>scripts/check-release.mjs</code></td><td class="ok"><code>{"ok":true,"violations":[]}</code></td></tr>
+  <tr><td><code>scripts/run-blind-test.mjs --verify</code></td><td class="ok">一致性 100% / 可剪辑性 100% / 合规 100% / 稳定性 96%</td></tr>
+</table>
+
+<p><b>遗留风险（如实记录）：</b></p>
+<ul>
+  <li><b>跨题材开场重复只是从 65% 压到 5%，没有根除。</b>上限由池子大小决定
+    （通用 6 条 / 每域 2 条）。继续压只能继续铺内容 —— 这不是算法问题，
+    是「一个 6 条的池子里，最常用的那条必然占 1/6」。</li>
+  <li><b>同题材 4 方案的开场是 2–3 种而非 4 种</b>：4 个方案铺在 3 个「叙事重心」上，
+    按鸽笼原理必然有两个共用重心。要根治得让「重心」参与更多组合，而不是继续调排列。</li>
+  <li><b><code>domainOfText</code> 对古代 / 历史题材有空白</b>（<code>城堡</code>
+    <code>草原</code> <code>骑兵</code> <code>沙漠风暴</code> 都判不出域），
+    这些题材只能落到通用池。补域规则会同时影响环境与演员选型，本轮没动。</li>
+  <li><b>策展库仍只有 9 部</b>，且现在只有「真的点名影片」才命中。
+    想让更多经典片走复刻路线，是内容工作量。</li>
+  <li><b>边界仍然没有变</b>：这些 prompt 依旧<b>一次也没有跑过 Veo 3 / Flow</b>。
+    第十四轮推倒的是一堵我自己的墙，不是「自洽 ↔ 有效」那堵。</li>
+</ul>
+
+<p class="note"><b>元发现（第十四轮）</b><br>
+用户的一句「没有使用AI吗」，比我自己设计的十二轮重复度探针都更有诊断力。
+原因不是他更聪明，而是<b>他站在我看不见的路径上</b> ——
+离线、无 Key、随手输一个不存在的片名。<br>
+前十三轮我测的是「同一题材的多个方案像不像」，从没测过
+「<b>不同题材的输出有没有变</b>」。6.8.0 把前者从 88% 压到 13–50%，
+而后者一直是 0% 变化。<b>测量维度的选择本身就是一种偏见</b>：
+只测自己想得到改善的地方，就会漏掉「压根没接通」这种更严重的问题。</p>
+
+<footer>
+  LEGO War Universe · 6.8.1 · 生成于 <code>2026-10-13</code> ·
+  资产 810 项 / schemaVersion 3.7 / 签名 <code>e1515357a93c</code> ·
+  测试 288 / 288 · 本文所有数字均来自本轮实测（修复前数据由 <code>git HEAD</code> 版本跑出）。
+</footer>
+
+</div>
+</body>
+</html>

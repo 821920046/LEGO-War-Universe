@@ -31,7 +31,11 @@ import {
 } from '../src/domain/evolution.js';
 
 import { validateFilmPlan } from '../src/domain/shot-spec.js';
-import { transpileMovieToLego } from '../src/domain/cinema-homage.js';
+// 6.8.1：这条用例的主题是「自由题材」，必须走生成引擎。
+// 原先用 transpileMovieToLego 是错的 —— 那个函数只负责「把某部策展影片转译成乐高分镜」，
+// 在未点名影片时会返回 { error: 'NO_CURATED_MATCH' }（旧实现则是静默退回《黑鹰坠落》，
+// 于是这条用例其实一直在用黑鹰坠落的分镜、还假装它来自无人机题材）。
+import { generateLocally } from '../src/domain/local-engine.js';
 
 const registry = createRegistry(assets, profiles, { references: [] });
 const validIds = collectValidIds(assets);
@@ -156,7 +160,8 @@ test('Evolution: promotions require repeated use across multiple themes', () => 
 
 test('Evolution: evolve forges, records, promotes and enriches end to end', () => {
   const theme = '现代战争：无人机蜂群与高超音速导弹突袭';
-  const local = transpileMovieToLego(theme, 8);
+  const local = generateLocally({ theme, requestedShots: 8, registry });
+  assert.ok(local, '自由题材必须能由生成引擎产出，而不是退回某个固定条目');
   assert.equal(local.era, 'Modern High-Tech');
 
   let ledger = createLedger();

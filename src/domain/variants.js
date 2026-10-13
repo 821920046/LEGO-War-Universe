@@ -28,7 +28,7 @@
  */
 
 import { planFilm } from './planner.js';
-import { skeletonOf } from './variant-score.js';
+import { skeletonOf, rosterNames } from './variant-score.js';
 
 /**
  * 选方案时的候选池放大倍数。
@@ -45,8 +45,10 @@ const SIMILARITY_MAX = 0.45;
 
 /** 两部片子的句子骨架重合率（只看重合，不看顺序） */
 function skeletonOverlap(a, b) {
-  const sa = (a?.film?.plan?.shots || []).map(s => skeletonOf(s.action));
-  const sb = (b?.film?.plan?.shots || []).map(s => skeletonOf(s.action));
+  // 带名册人名：不同方案的正反方是互换的（enemy 视角），不带人名表的话
+  // 「只换了角色」会被当成不同骨架，重合率虚低（见 skeletonOf 的说明）
+  const sa = (a?.film?.plan?.shots || []).map(s => skeletonOf(s.action, rosterNames(a?.film?.plan?.roster)));
+  const sb = (b?.film?.plan?.shots || []).map(s => skeletonOf(s.action, rosterNames(b?.film?.plan?.roster)));
   if (!sa.length || !sb.length) return 0;
   const set = new Set(sb);
   return sa.filter(s => set.has(s)).length / sa.length;
