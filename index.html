@@ -324,6 +324,31 @@
 
     /* ---------- Status ---------- */
     #intent { margin-top: 16px; font-size: 13px; font-weight: 550; color: var(--text-2); line-height: 1.6; }
+
+    /* 多方案切换器：默认只展示最优方案，备选折叠成一排筹码 */
+    #variant-picker { margin-top: 12px; }
+    #variant-picker[hidden] { display: none; }
+    .variant-picker__head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 8px; }
+    .variant-picker__title { font-size: 13px; font-weight: 700; color: var(--text); }
+    .variant-picker__sub { font-size: 11px; color: var(--text-3); }
+    .variant-picker__chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .variant-chip {
+      display: inline-flex; align-items: center; gap: 8px; font: inherit; font-size: 12px; text-align: left;
+      color: var(--text-2); background: var(--bg-elev); border: 1px solid var(--border);
+      border-radius: var(--r-md); padding: 8px 12px; cursor: pointer;
+      transition: background var(--dur), border-color var(--dur), color var(--dur);
+    }
+    .variant-chip:hover { background: var(--surface-2); border-color: var(--accent-line); color: var(--text); }
+    .variant-chip.is-best { border-color: var(--ok-line, var(--accent-line)); }
+    .variant-chip.is-active { background: var(--surface-3); color: var(--text); border-color: var(--accent); box-shadow: var(--shadow-1); }
+    .variant-chip__rank { font-family: var(--mono); font-size: 11px; color: var(--text-3); }
+    .variant-chip__label { font-weight: 600; }
+    .variant-chip__score { font-family: var(--mono); font-size: 11px; color: var(--ok); }
+    .variant-chip__badge {
+      font-size: 10px; font-weight: 700; color: var(--ok-text, #0b1a0e);
+      background: var(--ok); border-radius: var(--r-pill); padding: 1px 7px;
+    }
+    .variant-chip__note { font-size: 10px; color: var(--warn); }
     .ok { color: #7EE787 !important; }
     .warn { color: #EBC55F !important; }
     .bad { color: #FFB4AE !important; }
@@ -489,6 +514,10 @@
 
     <!-- 状态指示与治理警告 -->
     <p id="intent"></p>
+
+    <!-- 多方案切换：同一段描述生成 N 部不同的电影，默认只展示最优的一部 -->
+    <div id="variant-picker" hidden></div>
+
     <section id="violations"></section>
     <section id="review-container" style="margin-top:14px;"></section>
 

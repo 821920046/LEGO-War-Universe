@@ -1,5 +1,6 @@
 import { createRegistry } from '../domain/registry.js';
-import { planFilm } from '../domain/planner.js';
+import { planVariants } from '../domain/variants.js';
+import { scoreCandidate, diversify } from '../domain/variant-score.js';
 import { compileShot } from '../domain/compiler.js';
 import { validateFilmPlan } from '../domain/shot-spec.js';
 import { transpileMovieToLego, CINEMA_DATABASE } from '../domain/cinema-homage.js';
@@ -30,6 +31,18 @@ let activeRegistryData = null;
 let activeProfile = null;
 let evolutionLedger = null;
 let transpiling = false;
+/**
+ * 当前主题下的候选方案集（按分数降序，[0] 即「最经典最完美」的那部）。
+ *
+ * **只活在内存里，不落库**：N 份完整 plan 会让 localStorage 成倍膨胀，
+ * 而工程的核心产物本来就是「被选中的那一部」。刷新页面后回到最优方案，
+ * 想看备选就再点一次生成 —— 反正生成是完全确定性的，结果不会变。
+ */
+let variantCandidates = [];
+/** 当前展示中的方案在 variantCandidates 里的下标 */
+let activeVariantIndex = 0;
+/** 最优方案的进化成果，切换备选时复用同一批锻造资产，避免重复记录学习账本 */
+let variantEvolution = null;
 
 /**
  * 统一渲染进化面板（含重置交互），避免在 boot / 切换 / 生成后重复实现。
@@ -897,51 +910,177 @@ function bindGlobalEvents() {
     // 战役年表能覆盖所有写法），与其让它猜错，不如给用户一个否决权。
     const eraOverride = $('era')?.value || 'auto';
 
-    const { intent, plan, warnings } = planFilm({
+    // 一次生成 N 部**不同**的电影，前端默认只展示最优的那一部。
+    //
+    // 旧行为是「一句描述 → 一部片」：seed 只由 `主题|镜头数` 决定，视角、重心、
+    // 基调全写死。用户换任何题材，拿到的都是同一条流水线的同一部电影 —— 只是名词
+    // 被换来换去（实测 408 镜里 34.6% 与其它片子共用同一个句子骨架），这就是
+    // 「没有创新能力」的量化形态。现在把「换一部片」拆成三个正交旋钮
+    // （视角 × 叙事重心 × 基调）枚举展开，再由与生成实现语义独立的打分器择优。
+    const { candidates } = planVariants({
       theme: themeText,
       requestedShots,
       profileId,
-      era: eraOverride
+      era: eraOverride,
+      count: 4,
+      score: scoreCandidate
     }, activeRegistry);
 
-    if (intent.governance.status !== 'blocked' && intent.governance.status !== 'review_required') {
-      // 年代来源要显示出来：「识别为库尔斯克会战 → 二战」与「未识别，按现代处理」
-      // 是两种完全不同的可信度，用户必须能分辨。
-      const ERA_SOURCE = { override: '手动指定', battle: '识别为历史战役', explicit: '命中时代词', platform: '由装备型号推断' };
-      const sourceNote = ERA_SOURCE[intent.eraSource] ? `（${ERA_SOURCE[intent.eraSource]}）` : '';
-      text($('intent'), intent.needsConfirmation
-        ? `需确认年代：未识别出时代，将按现代处理 —— 可在右侧手动指定。${warnings.filter(w => w !== 'Era needs confirmation').join('；')}`
-        : `年代：${intent.era || '未指定'}${sourceNote} · 任务：${intent.task} · 状态：合规放行`);
-      $('intent').className = intent.needsConfirmation ? 'warn' : 'ok';
+    const ranked = diversify(candidates).filter(c => c.film);
+    if (!ranked.length) {
+      toast('方案生成失败，请调整主题描述后重试', 'error');
+      return;
     }
 
-    const selectedAr = $('aspect-ratio').value || '9:16';
-    plan.shots.forEach(s => { s.aspectRatio = selectedAr; });
-
-    // 自由模式同样接入自我进化：现代/未来战争题材会触发缺口锻造
-    const evolution = runEvolution({
-      theme: themeText,
-      engine: 'Local Planner (本地规划器)',
-      era: intent.era,
-      shots: plan.shots
-    });
-    reportEvolution(evolution, $('intent'));
-
-    currentProject.shots = evolution.shots;
-    currentProject.theme = themeText;
-    currentProject.intent = intent;
-    // 名册与原创立意随计划一起落库，供定妆表 / 编译 Prompt / CSV 共用同一套代号
-    currentProject.roster = Array.isArray(plan.roster) ? plan.roster : null;
-    currentProject.originality = plan.originality || null;
-    currentProject.aspectRatio = selectedAr;
-    currentProject.directorNotes = null;
-    currentProject.matchedMovie = null;
-    $('director-notes-panel').style.display = 'none';
-    ensureRoster();
+    // 候选集只进内存（见上方声明），最优方案才是要落库的那一份。
+    variantCandidates = ranked;
+    variantEvolution = null;
+    activeVariantIndex = 0;
+    applyVariantCandidate(ranked[0], true);
+    renderVariantPicker();
 
     await persist();
     renderCurrentProject();
   };
+
+/** 年代/任务/合规状态的说明行，生成与切换方案共用同一套措辞 */
+function describeIntent(intent, warnings) {
+  const ERA_SOURCE = { override: '手动指定', battle: '识别为历史战役', explicit: '命中时代词', platform: '由装备型号推断' };
+  const sourceNote = ERA_SOURCE[intent.eraSource] ? `（${ERA_SOURCE[intent.eraSource]}）` : '';
+  if (intent.governance?.status === 'blocked' || intent.governance?.status === 'review_required') return null;
+  return {
+    className: intent.needsConfirmation ? 'warn' : 'ok',
+    text: intent.needsConfirmation
+      ? `需确认年代：未识别出时代，将按现代处理 —— 可在右侧手动指定。${warnings.filter(w => w !== 'Era needs confirmation').join('；')}`
+      : `年代：${intent.era || '未指定'}${sourceNote} · 任务：${intent.task} · 状态：合规放行`
+  };
+}
+
+/**
+ * 把某个候选方案设为当前工程。
+ *
+ * 只有最优方案会跑完整的自我进化（锻造/晋升只记录一次，否则四份方案会把学习
+ * 账本灌成四倍，主力资产的统计全部失真）；备选方案只复用已锻造出的那一批资产，
+ * 视觉丰富度不打折，账本也不会被重复记账。
+ */
+function applyVariantCandidate(candidate, evolveNow = false) {
+  const film = candidate.film;
+  const { intent, plan, warnings } = film;
+  // 主题必须以输入框为准：currentProject.theme 要到下面才更新，
+  // 直接用旧值会让自我进化把这部片记到上一个题材的名下。
+  const themeText = $('theme').value.trim();
+
+  const summary = describeIntent(intent, warnings || []);
+  const intentEl = $('intent');
+  if (intentEl) {
+    if (summary) {
+      intentEl.textContent = summary.text;
+      intentEl.className = summary.className;
+    } else {
+      intentEl.textContent = '内容合规校验未通过，本次方案不予展示';
+      intentEl.className = 'warn';
+    }
+  }
+
+  const selectedAr = $('aspect-ratio').value || '9:16';
+  plan.shots.forEach(s => { s.aspectRatio = selectedAr; });
+
+  let shots = plan.shots;
+  if (evolveNow) {
+    const evolution = runEvolution({
+      theme: themeText,
+      engine: 'Local Planner (本地规划器)',
+      era: intent.era,
+      shots
+    });
+    variantEvolution = evolution;
+    shots = evolution.shots;
+    reportEvolution(evolution, intentEl);
+  } else if (variantEvolution?.forged?.length) {
+    const enriched = enrichShotsWithForged(shots, variantEvolution.forged, activeRegistry);
+    shots = enriched.shots;
+  }
+
+  currentProject.shots = shots;
+  currentProject.theme = themeText;
+  currentProject.intent = intent;
+  // 记录当前展示的是哪一套方案（含分数与排名），刷新后仍能说明「这是择优结果」
+  const rank = Math.max(0, variantCandidates.indexOf(candidate)) + 1;
+  currentProject.variant = {
+    ...candidate.spec,
+    theme: themeText,
+    score: Number.isFinite(candidate.score) ? candidate.score : null,
+    rank,
+    total: variantCandidates.length
+  };
+  // 名册与原创立意随计划一起落库，供定妆表 / 编译 Prompt / CSV 共用同一套代号
+  currentProject.roster = Array.isArray(plan.roster) ? plan.roster : null;
+  currentProject.originality = plan.originality || null;
+  currentProject.aspectRatio = selectedAr;
+  currentProject.directorNotes = null;
+  currentProject.matchedMovie = null;
+  $('director-notes-panel').style.display = 'none';
+  ensureRoster();
+}
+
+/**
+ * 多方案切换器。
+ *
+ * 用户的要求是「前端页面只保留最经典、最完美、内容最好的那一部」——
+ * 所以默认展示的就是打分第一的方案，其余只以一行小字筹码挂在状态栏下面，
+ * 想看才看，不占版面、也不干扰判断。
+ */
+function renderVariantPicker() {
+  const box = $('variant-picker');
+  if (!box) return;
+  box.replaceChildren();
+
+  if (variantCandidates.length < 2) {
+    box.hidden = true;
+    return;
+  }
+  box.hidden = false;
+
+  const head = createEl('div', { class: 'variant-picker__head' },
+    createEl('span', { class: 'variant-picker__title' },
+      `共构思出 ${variantCandidates.length} 部不同的电影，默认展示最优秀的一部`),
+    createEl('span', { class: 'variant-picker__sub' }, '按综合质量（时代/光质/物理自洽 · 戏剧覆盖 · 对白密度 · 骨架多样性 · 切题度）择优')
+  );
+
+  const row = createEl('div', { class: 'variant-picker__chips' });
+  variantCandidates.forEach((c, i) => {
+    const best = i === 0;
+    const cls = ['variant-chip'];
+    if (best) cls.push('is-best');
+    if (i === activeVariantIndex) cls.push('is-active');
+    const chip = createEl('button', {
+      class: cls.join(' '),
+      type: 'button',
+      title: c.error ? `该方案生成失败：${c.error}` : '切换到这个方案',
+      onclick: async () => {
+        if (i === activeVariantIndex) return;
+        activeVariantIndex = i;
+        applyVariantCandidate(variantCandidates[i], false);
+        renderVariantPicker();
+        await persist();
+        renderCurrentProject();
+        toast(best ? '已切换到最优方案' : `已切换到备选方案 ${i + 1}`, 'info', 2500);
+      }
+    },
+      createEl('span', { class: 'variant-chip__rank' }, String(i + 1)),
+      createEl('span', { class: 'variant-chip__label' }, c.spec.label),
+      best ? createEl('span', { class: 'variant-chip__badge' }, '最优') : null,
+      c.detail?.diversityPenalty
+        ? createEl('span', { class: 'variant-chip__note' }, `与前作重合 ${(c.detail.diversityPenalty * 100).toFixed(0)}%`)
+        : null,
+      c.score > -Infinity ? createEl('span', { class: 'variant-chip__score' }, c.score.toFixed(1)) : null
+    );
+    row.appendChild(chip);
+  });
+
+  box.appendChild(head);
+  box.appendChild(row);
+}
 
   // 8. 导出工程 JSON
   $('export-btn').onclick = () => {
@@ -1090,6 +1229,15 @@ function refreshOutputs() {
 
 function renderCurrentProject() {
   if (!currentProject) return;
+  // 候选方案只活在内存里，换工程/导入后必须作废，否则切换器还挂着上一部片的选择
+  if (!currentProject.variant
+      || currentProject.variant.theme !== currentProject.theme
+      || !variantCandidates.some(c => c.spec.label === currentProject.variant.label)) {
+    variantCandidates = [];
+    variantEvolution = null;
+    activeVariantIndex = 0;
+    renderVariantPicker();
+  }
   if (currentProject.theme) $('theme').value = currentProject.theme;
   if (currentProject.aspectRatio) {
     if ($('aspect-ratio')) $('aspect-ratio').value = currentProject.aspectRatio;

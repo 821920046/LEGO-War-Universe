@@ -5,6 +5,8 @@ import { selectCast, buildRoster, rosterToJSON, aliasLabel, domainOfText, themeM
 import { selectBeats, renderTemplate, seedOf, buildOriginality, tagDramaticFunctions, FUNCTION_DURATION } from './narrative.js';
 import { buildStory, linkFor, detectArc, shotTypeFor, weatherFor } from './story.js';
 import { planVisualLanguage, sizeForShot } from './visual-language.js';
+import { pickEnvironment, themeDomainOf } from './environment-pick.js';
+import { ANGLES, EMPHASES, TONES, EMPHASIS_ARC } from './variants.js';
 
 /**
  * 依据时代、意图与关键词从注册表中筛选最适资产
@@ -178,6 +180,19 @@ function vehicleFitsEnv(vehicle, env) {
 }
 
 /**
+ * 6.8.0 方案规格归一化。未知字段一律回落默认值，保证旧调用点行为不变。
+ * `variant = null`（前端未传）时所有旋钮都在默认档 —— 现有 262 个测试因此不受影响。
+ */
+function normalizeVariant(variant) {
+  const v = variant || {};
+  const angle = ANGLES[v.angle] ? v.angle : 'commander';
+  const emphasis = EMPHASIS_ARC[v.emphasis] ? v.emphasis : null;
+  const tone = TONES[v.tone] ? v.tone : null;
+  const seedSalt = String(v.seedSalt || '');
+  return { angle, emphasis, tone, seedSalt };
+}
+
+/**
  * 确定性影片分镜规划器
  *
  * 设计要点（相对旧实现的第一性修正）：
@@ -190,15 +205,18 @@ function vehicleFitsEnv(vehicle, env) {
  * @param {number} params.requestedShots 镜头数量
  * @param {string} params.profileId 模型配置文件 ID
  * @param {object} r 资产注册表
+ * @param {object} [params.variant] 6.8.0 方案规格：{ angle, emphasis, tone, seedSalt }
  * @returns {{ intent: object, plan: object, warnings: string[], governance: object }}
  */
-export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverride = null }, r) {
+export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverride = null, variant = null }, r) {
   // 时代可以由用户在界面上显式钉死（历史题材的年代识别永远是启发式的，
   // 给用户一个否决权比让它猜更可靠）。覆盖后 needsConfirmation 自动为 false。
   const intent = parseIntentWithOverrides(theme, { era: eraOverride });
   const n = Math.max(1, Math.min(150, Number(requestedShots) || 4));
   const profile = r.profileById.get(profileId);
   if (!profile) throw new Error('Unknown profile');
+  // 6.8.0 方案规格：三个正交旋钮（视角 / 重心 / 基调）+ 一个确定性加盐。
+  const spec = normalizeVariant(variant);
 
   // 任务原型：整条链路的第一分叉点。选环境、选装备、写剧本都要用它。
   // 抢滩题材点名要登陆艇（而不是被 taskAffinity 判成 combat 的谢尔曼坦克），
@@ -216,7 +234,7 @@ export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverrid
     warnings.push('Content blocked by safety policy: ' + intent.governance.reasons.join('; '));
   }
 
-  // 1. 环境自适应挑选（考虑气象物理兼容）
+  // 1. 环境自适应挑选（气象物理兼容）
   //
   // 优先级：**气象物理约束 > 任务原型点名 > 显式战场设定 > 战场域**。
   //
@@ -245,30 +263,60 @@ export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverrid
     'embassy-evac': '使馆|大使馆|撤离|embassy|城市|街区|urban'
   };
 
-  let envTerm = '';
-  let envExclude = '';
+  let arcTerm = '';
   if (intent.weather === 'snow') {
     // 气象是**物理约束**，优先级高于一切题材偏好：沙漠里不会下暴雪。
-    envTerm = 'snow|arctic|winter|雪原|雪山|雪地|冰原';
-    envExclude = 'desert|沙丘|沙漠|绿洲';
+    arcTerm = 'snow|arctic|winter|雪原|雪山|雪地|冰原';
   } else if (ARC_ENV[arc.id]) {
-    envTerm = ARC_ENV[arc.id];
+    arcTerm = ARC_ENV[arc.id];
   } else if (intent.setting === 'naval') {
-    envTerm = 'sea|carrier|ocean|远海|海域|海面|风暴|甲板|航母';
+    arcTerm = 'sea|carrier|ocean|远海|海域|海面|风暴|甲板|航母';
   } else if (intent.setting === 'urban') {
-    envTerm = 'urban|city|street|城市|巷战';
+    arcTerm = 'urban|city|street|城市|巷战';
   } else if (intent.setting === 'underground') {
-    envTerm = '地下|坑道|隧道|掩体|指挥|bunker|tunnel|metro|地铁';
+    arcTerm = '地下|坑道|隧道|掩体|指挥|bunker|tunnel|metro|地铁';
   } else {
     const dom = domainOfText(theme);
-    if (dom?.key === 'orbital') envTerm = '空间站|轨道|太空|失重|零重力|气闸|舱外|月面|station|orbital|zero-g';
-    else if (dom?.key === 'air') envTerm = 'air|sky|cloud|机场|停机坪|山地|峡谷|观察哨|高空';
-    else if (dom?.key === 'naval') envTerm = 'sea|ocean|远海|海域|海面|风暴|甲板|航母';
-    else if (dom?.key === 'strategic') envTerm = 'silo|missile|基地|沙漠|山地|发射';
-    else if (dom?.key === 'ground') envTerm = 'urban|city|desert|street|城市|巷战|沙漠|山地';
+    if (dom?.key === 'orbital') arcTerm = '空间站|轨道|太空|失重|零重力|气闸|舱外|月面|station|orbital|zero-g';
+    else if (dom?.key === 'air') arcTerm = 'air|sky|cloud|机场|停机坪|山地|峡谷|观察哨|高空';
+    else if (dom?.key === 'naval') arcTerm = 'sea|ocean|远海|海域|海面|风暴|甲板|航母';
+    else if (dom?.key === 'strategic') arcTerm = 'silo|missile|基地|沙漠|山地|发射';
+    else if (dom?.key === 'ground') arcTerm = 'urban|city|desert|street|城市|巷战|沙漠|山地';
   }
 
-  const env = pick(r, 'environment', intent, envTerm, envExclude, theme) || pick(r, 'environment', intent);
+  // 硬物理约束：暴雪题材排除沙漠环境（保留旧规则）。
+  const envHardExclude = intent.weather === 'snow' ? ['desert|沙丘|沙漠|绿洲|丛林|密林|热带'] : [];
+  const allEnvs = r.byKind.get('environment') || [];
+  // **时代池必须与校验器用同一把尺子。** 6.8.0 实测翻车：这里写的是
+  // `a.series === intent.era`（精确相等），而 `validateShotSpec` 用的是
+  // `isEraCompatible`（Modern ↔ Modern High-Tech、WWII ↔ Pacific 互通）。
+  // 于是默认占位题材「渗透敌方地下指挥掩体」判为 Modern 时代后，
+  // 唯一的 `ENV-640 现代高科技地下指挥掩体`（Modern High-Tech 系列）
+  // **连被打分的机会都没有**，时代池里最好的「暴风雪山口」凭一个「暴风」二元词
+  // 过线当选 —— 44 分的直接证据输给 9 分的巧合。
+  const eraEnvs = allEnvs.filter(a => isEraCompatible(a.series, intent.era));
+  const envPool = eraEnvs.length > 0 ? eraEnvs : allEnvs;
+
+  // 战场域从题材原文推（与 buildStory 的 domain 判定同源，但这里只需要 key）
+  // 6.8.0：改用 `themeDomainOf` 而非 `domainOfText` —— 后者按「地面优先」排序，
+  // 「一群机器人在月球表面争夺登月舱」因为「机器人」被判成 ground，
+  // 拿去选环境会把 ENV-703 月面基地按「域冲突」扣死。选环境要的是
+  // **事件发生在哪个空间**（轨道/空中/海上/地面），不是**谁出场**。
+  const themeDomain = themeDomainOf(theme) || domainOfText(theme)?.key || arc.domain || null;
+
+  // 6.8.0：环境选型改为「主题词加权 + 场地域 + 物理硬约束」。
+  // 旧实现是 ARC_ENV 正则筛子集 → themeMatch 排序 → **取第一个**；题材词与环境名
+  // 对不上时排序全 0，退化成资产库数组顺序，于是「强渡冰河」拿到中东沙漠、
+  // 「月球表面夺舱」拿到中东沙漠（库里明明有 ENV-703 月面基地）。
+  const env = pickEnvironment({
+    pool: envPool,
+    all: allEnvs,
+    theme,
+    domain: themeDomain,
+    arcTerm,
+    hardExclude: envHardExclude,
+    era: intent.era
+  }) || pick(r, 'environment', intent);
 
   // 2. 从真实资产库挑选演员（正反双方），并给出逐镜轮换的摄影机/灯光短名单
   // 必须把 theme 与 setting 都传进去：选角引擎据此判定「战场域」，
@@ -288,8 +336,25 @@ export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverrid
     const fallbackSubject = pick(r, 'character', intent) || pick(r, 'vehicle', intent);
     if (fallbackSubject) heroes = [fallbackSubject];
   }
-  const enemies = cast.enemies;
+  let enemies = cast.enemies;
   const vehicles = cast.vehicles.filter(v => vehicleFitsEnv(v, env));
+
+  // ── 6.8.0 视角旋钮：这部片站在谁那边 ─────────────────────────────
+  //
+  // `enemy` 用**整组置换**实现而不是逐镜改判：heroes 与 enemies 互换后，
+  // 下游所有逻辑（主角轮转、敌我对峙镜、名册、logline）自动改成对面那个人
+  // 的视角，一处改动换来一致的「敌方叙事」。
+  // `grunt` 把主角从[0]（通常是军官/车长这类指挥角色）换成[1]起的执行层 ——
+  // 选角引擎按「域 + 题材点名度」排序，[0] 几乎总是最像指挥的那个。
+  // `machine` 让载具优先上镜（见下面 wantVehicles），主角仍是人，但片子围着装备转。
+  if (spec.angle === 'enemy' && enemies.length && heroes.length) {
+    const swap = heroes;
+    heroes = enemies;
+    enemies = swap;
+  } else if (spec.angle === 'grunt' && heroes.length >= 2) {
+    const lead = heroes.shift();
+    heroes.push(lead);
+  }
 
   if (cast.enemyFallback && enemies.length === 0) {
     warnings.push('该时代资产库暂无敌对阵营角色，本片以单向行动叙事呈现。');
@@ -303,13 +368,17 @@ export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverrid
   // 3. 选节拍（同一阶段内不重复）。
   //    这一层只负责**结构**：相位覆盖、相邻戏剧功能互异、载具与敌军必须上镜。
   //    它回答的是「这一镜在故事里做什么」，不回答「这一镜具体发生了什么」。
-  const seed = seedOf(`${theme}|${n}`);
+  const seed = seedOf(`${theme}|${n}${spec.seedSalt ? `|${spec.seedSalt}` : ''}`);
   const gates = {
     hasEnemy: enemies.length > 0,
     hasSupport: heroes.length >= 2,
     hasVehicle: vehicles.length > 0
   };
-  const beats = selectBeats({ n, seed, ...gates });
+  const beats = selectBeats({
+    n, seed, ...gates,
+    arc: spec.emphasis ? EMPHASIS_ARC[spec.emphasis] : null,
+    vehicleFirst: spec.angle === 'machine'
+  });
 
   // 3-0. 剧本内核：按题材识别任务原型，取本片专属的剧本骨架。
   //
@@ -458,7 +527,8 @@ export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverrid
     sizes: drafts.map(d => sizeForShot(d.slot ? shotTypeFor(d.slot) : d.beat.shotType, d.beat.fn)),
     theme,
     envText,
-    settingText
+    settingText,
+    tone: spec.tone
   });
 
   const rawShots = drafts.map(({ beat, i, subjects, slot, action, audioCue, radioVoice, link }) => {
@@ -576,6 +646,9 @@ export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverrid
   const plan = {
     intent,
     profileId,
+    // 6.8.0：方案规格随计划一起冻结。UI 要显示「这一部是什么视角/重心/基调」，
+    // 且重渲染时必须复现同一部，不能再凭主题重新推一遍。
+    variant: { ...spec },
     shots: functioned.shots,
     cast: {
       heroes: heroes.map(a => a.id),
