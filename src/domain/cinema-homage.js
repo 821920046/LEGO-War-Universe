@@ -25,9 +25,10 @@ export const CINEMA_DATABASE = [
     id: 'modern-drone-warfare',
     title: '现代无人战争 (Modern Drone Warfare)',
     aliases: [
-      '无人机战争', '无人战争', '蜂群', '巡飞弹', '现代战争', '高科技战争',
-      '电磁炮', '激光武器', '高超音速', '网络战', '机器人战争', '无人作战',
-      '无人机', 'drone war', 'modern warfare', 'drone', 'swarm'
+      // 6.8.1：别名只保留**能指认这一条目**的词。此前的『蜂群 / 巡飞弹 / 现代战争 /
+      // 电磁炮 / 高超音速 / 网络战…』全是题材词 —— 它们会把「无人机蜂群作战」这类
+      // 自由主题硬拽进这条固定分镜，正是「换个主题还是同一句」的成因之一。
+      '无人机战争', '无人战争', '现代无人战争', 'drone war', 'modern drone warfare'
     ],
     director: 'LWU 现代战争视听实验室',
     year: '2026',
@@ -90,7 +91,7 @@ export const CINEMA_DATABASE = [
   {
     id: 'top-gun-maverick',
     title: '壮志凌云：独行侠 (Top Gun: Maverick)',
-    aliases: ['壮志凌云', 'top gun', '独行侠', 'maverick', '阿汤哥', '战斗机'],
+    aliases: ['壮志凌云', '壮志凌云：独行侠', 'top gun', 'top gun maverick', '独行侠', 'maverick', '阿汤哥'],
     director: '约瑟夫·科辛斯基 (Joseph Kosinski)',
     year: '2022',
     era: 'Modern High-Tech',
@@ -153,7 +154,7 @@ export const CINEMA_DATABASE = [
   {
     id: 'black-hawk-down',
     title: '黑鹰坠落 (Black Hawk Down)',
-    aliases: ['黑鹰坠落', 'black hawk down', '摩加迪沙', '城市巷战', '索降'],
+    aliases: ['黑鹰坠落', 'black hawk down', '摩加迪沙'],
     director: '雷德利·斯科特 (Ridley Scott)',
     year: '2001',
     era: 'Modern',
@@ -219,7 +220,7 @@ export const CINEMA_DATABASE = [
   {
     id: 'gravity',
     title: '地心引力 (Gravity)',
-    aliases: ['地心引力', 'gravity', '太空站', '空间站', '失重', '宇航员'],
+    aliases: ['地心引力', 'gravity'],
     director: '阿方索·卡隆 (Alfonso Cuarón)',
     year: '2013',
     era: 'Orbital',
@@ -281,7 +282,7 @@ export const CINEMA_DATABASE = [
   {
     id: 'edge-of-tomorrow',
     title: '明日边缘 (Edge of Tomorrow)',
-    aliases: ['明日边缘', 'edge of tomorrow', '外骨骼', '动力机甲', '阿汤哥科幻'],
+    aliases: ['明日边缘', 'edge of tomorrow'],
     director: '道格·里曼 (Doug Liman)',
     year: '2014',
     era: 'Modern High-Tech',
@@ -345,7 +346,7 @@ export const CINEMA_DATABASE = [
   {
     id: 'the-wandering-earth',
     title: '流浪地球 (The Wandering Earth)',
-    aliases: ['流浪地球', 'wandering earth', '行星发动机', '太空电梯', '吴京', '郭帆'],
+    aliases: ['流浪地球', 'wandering earth', '行星发动机', '太空电梯', '郭帆'],
     director: '郭帆 (Frant Gwo)',
     year: '2019',
     era: 'Orbital',
@@ -408,7 +409,7 @@ export const CINEMA_DATABASE = [
   {
     id: 'sicario',
     title: '边境杀手 (Sicario)',
-    aliases: ['边境杀手', 'sicario', '暗夜突击', '夜视仪', '微光暗杀'],
+    aliases: ['边境杀手', 'sicario'],
     director: '丹尼斯·维伦纽瓦 (Denis Villeneuve)',
     year: '2015',
     era: 'Modern',
@@ -533,7 +534,7 @@ export const CINEMA_DATABASE = [
   {
     id: 'dunkirk',
     title: '敦刻尔克 (Dunkirk)',
-    aliases: ['敦刻尔克', 'dunkirk', '诺兰战争', '防波堤'],
+    aliases: ['敦刻尔克', 'dunkirk', '诺兰战争'],
     director: '克里斯托弗·诺兰 (Christopher Nolan)',
     year: '2017',
     era: 'WWII',
@@ -596,6 +597,49 @@ export const CINEMA_DATABASE = [
 ];
 
 /**
+ * 命中一部**策展影片**。
+ *
+ * **这里绝不「兜底到某一片」。** 旧实现在最后一句写了
+ * `match = CINEMA_DATABASE.find(m => m.id === 'black-hawk-down') // 通用硬派军事兜底`，
+ * 于是**任何没命中库里 9 部影片的输入，都会拿到《黑鹰坠落》那份手写分镜** ——
+ * 用户实测反馈：「换了两次内容了，每次第一个脚本的内容都是『两架战术直升机在灰尘弥漫的
+ * 城市街道低空悬停…』，这到底是什么意思，没有使用AI吗」。
+ * 那句话确实不是 AI 生成的，它是《黑鹰坠落》第 1 镜的手写复刻文本，
+ * 而用户换多少次输入都会拿到同一句，因为**输入根本没参与选片**。
+ *
+ * 现在把「匹配」与「兜底」拆开：本函数只回答「有没有命中」，
+ * 没命中时由调用方决定是**改用生成引擎真的写一部**（`ai-brain.js` 的做法），
+ * 而不是伪装成另一部电影。
+ *
+ * @returns {{ film: object|null, kind: 'exact'|'none' }}
+ */
+export function matchCuratedFilm(query) {
+  const q = String(query || '').trim().toLowerCase();
+  if (!q) return { film: null, kind: 'none' };
+
+  // 命中必须建立在「用户真的指认了这部片」之上。两个方向要分开看：
+  //   · title.includes(q)  —— 用户只打了片名的一部分（「黑鹰」→《黑鹰坠落》）；
+  //   · q.includes(alias)  —— 用户在一句话里点名了这部片（「二战诺曼底登陆」→ 含『诺曼底』）。
+  // 6.8.1 删掉了此前的 `alias.includes(q)` 反向匹配：它让『战』『无人机』这类
+  // 单字/泛词也能命中，等于把题材词当成片名。
+  const exact = CINEMA_DATABASE.find(item => {
+    const title = item.title.toLowerCase();
+    if (q.length >= 2 && (title.includes(q) || item.id.toLowerCase() === q)) return true;
+    return item.aliases.some(alias => {
+      const a = alias.toLowerCase();
+      return a === q || (a.length >= 2 && q.includes(a));
+    });
+  });
+  if (exact) return { film: exact, kind: 'exact' };
+
+  // 6.8.1 删除了原先的「按题材推导视听原型」（inferred）一步。
+  // 它把「蒙古骑兵草原突袭」推成《边境杀手》、把「无人机」推成现代无人战争——
+  // 全是固定分镜，用户换个主题拿到的还是同一部。既然本地生成引擎已经能按题材
+  // 真的写一部（且一次给 4 个不同方案），就没有理由再用固定条目顶替。
+  return { film: null, kind: 'none' };
+}
+
+/**
  * 输入电影名字或关键词，进行好莱坞深度视听解构与乐高分镜转译
  *
  * 相对旧实现的关键修正：
@@ -608,36 +652,25 @@ export const CINEMA_DATABASE = [
  * @param {string} query 电影名称或搜索词
  * @param {number} requestedShots 镜头数量 (4 / 8 / 12)
  * @param {object} registry 资产注册表（可选；传入后才会补入真实敌军/载具并注入代号）
+ * @param {object} [options]
+ * @param {boolean} [options.genericFallback] 未命中策展影片时，是否退回《黑鹰坠落》的
+ *   通用硬派军事分镜。
+ *
+ *   **默认 false（6.8.1 起）。** 这个参数原本默认 true，而 true 意味着「任何没命中
+ *   9 部影片的输入，都会静默变成《黑鹰坠落》」—— 用户实测就是这个现象。
+ *   现在把它翻成 opt-in：只有**明确知道自己在要一个通用军事兜底**的调用方才传 true
+ *   （见 `ai-brain.js` 的最后一层降级），其余一律拿到 `{ error: 'NO_CURATED_MATCH' }`，
+ *   由上层改用生成引擎真的写一部。
  * @returns {object} 包含完整的电影解构档案、导演视听语法拉片笔记、乐高分镜脚本
  */
-export function transpileMovieToLego(query, requestedShots = 4, registry = null) {
+export function transpileMovieToLego(query, requestedShots = 4, registry = null, { genericFallback = false } = {}) {
   const q = String(query || '').trim().toLowerCase();
 
-  // 1. 精确与别名深度匹配
-  let match = CINEMA_DATABASE.find(item => {
-    if (item.title.toLowerCase().includes(q) || item.id.toLowerCase().includes(q)) return true;
-    return item.aliases.some(alias => q.includes(alias.toLowerCase()) || alias.toLowerCase().includes(q));
-  });
-
-  // 2. 若未命中具体电影，智能推导电影视听原型
+  const hit = matchCuratedFilm(query);
+  const match = hit.film || (genericFallback ? CINEMA_DATABASE.find(m => m.id === 'black-hawk-down') : null);
   if (!match) {
-    if (/无人机|蜂群|巡飞|激光|定向能|电磁|高超音速|网络战|现代战争|高科技|机器人|无人作战|外骨骼|机甲|drone|swarm|laser|hypersonic|cyber|exoskeleton/i.test(q)) {
-      match = CINEMA_DATABASE.find(m => m.id === 'modern-drone-warfare');
-    } else if (/太空|空间站|星际|流浪|宇宙|gravity|interstellar|space|三体/i.test(q)) {
-      match = CINEMA_DATABASE.find(m => m.id === 'gravity');
-    } else if (/空战|战机|飞机|飞行员|top gun|dogfight|歼|战斗机/i.test(q)) {
-      match = CINEMA_DATABASE.find(m => m.id === 'top-gun-maverick');
-    } else if (/夜战|特战|突袭|暗夜|夜视|sicario|潜入|狙击/i.test(q)) {
-      match = CINEMA_DATABASE.find(m => m.id === 'sicario');
-    } else if (/诺曼底|二战|登陆|拯救|ryan|海滩/i.test(q)) {
-      match = CINEMA_DATABASE.find(m => m.id === 'saving-private-ryan');
-    } else if (/流浪|地球|重工|发动机/i.test(q)) {
-      match = CINEMA_DATABASE.find(m => m.id === 'the-wandering-earth');
-    } else if (/撤退|海峡|敦刻尔克|诺兰/i.test(q)) {
-      match = CINEMA_DATABASE.find(m => m.id === 'dunkirk');
-    } else {
-      match = CINEMA_DATABASE.find(m => m.id === 'black-hawk-down'); // 通用硬派军事兜底
-    }
+    // 未命中且调用方要求不要兜底：如实返回，让上层改用生成引擎
+    return { error: 'NO_CURATED_MATCH', matchedMovie: null, matchKind: 'none', shots: [] };
   }
 
   const count = Math.max(1, Math.min(150, Number(requestedShots) || 4));
@@ -820,6 +853,9 @@ export function transpileMovieToLego(query, requestedShots = 4, registry = null)
   return {
     matchedMovie: match.title,
     movieId: match.id,
+    matchKind: hit.kind,
+    // 内容是**手写复刻**还是**生成**：UI 必须能如实区分并告知用户
+    contentKind: 'curated',
     era: match.era,
     director: match.director,
     year: match.year,

@@ -49,15 +49,52 @@ function isSeaEnv(env) {
 }
 
 /**
+ * 从名册里取出「正文里可能出现的人名」。
+ *
+ * 正文里角色写作 `【代号】人名`（`aliasLabel` 的产物），人名取 `persona || name || nameZh`。
+ * 骨架归一必须先知道这份名单，理由见 `skeletonOf`。
+ *
+ * @param {Array|object|null} roster `plan.roster`（rosterToJSON 的产物）
+ * @returns {string[]} 长度 ≥2 的人名，去重
+ */
+export function rosterNames(roster) {
+  const list = Array.isArray(roster) ? roster : (Array.isArray(roster?.all) ? roster.all : []);
+  const out = new Set();
+  for (const e of list) {
+    for (const n of [e?.persona, e?.name, e?.nameZh]) {
+      const s = String(n || '').trim();
+      if (s.length >= 2) out.add(s);
+    }
+  }
+  return [...out];
+}
+
+/**
  * 句子骨架化：用于骨架多样性与跨方案去重。
  *
  * **`【代号】人名` 必须整段归一成一个 `P`。** 6.8.0 实测：不归一的话，
  * 「【PHANTOM】邓肯把照片塞回胸袋」与「【OBSIDIAN】哈里森把照片塞回胸袋」
  * 是两个不同骨架 —— 于是**只换了人名**的两部片被算成「完全不同」，
  * 重合率 0% 这个数字是假的。骨架要衡量的是**发生了什么**，不是**谁**。
+ *
+ * **6.8.1 修正：人名不能靠正则猜长度。** 原先写 `【[^】]*】[\u4e00-\u9fa5]{2,4}`，
+ * 贪心的 `{2,4}` 会按「后面还有多少汉字」吃掉 4 个字：
+ *   · `【TANGO】米勒从胸袋里…`  → 吃掉「米勒从胸」→ `P袋里摸出…`
+ *   · `【LANTERN】伊万诺夫从胸袋里…` → 只能吃 4 字「伊万诺夫」→ `P从胸袋里摸出…`
+ *   · `【OVERSEER】施密特从胸袋里…` → 吃掉「施密特从」→ `P胸袋里摸出…`
+ * **同一个节拍、只换了人名，被算成三个不同骨架**，重复率因此被系统性低估。
+ * 度量不准比没有度量更危险，所以改成「先按名册人名整段替换，再兜底」。
+ *
+ * @param {string} action 正文句子
+ * @param {string[]} [names] `rosterNames(plan.roster)`；缺省时退化为正则猜测（仅供无名册的调用方）
  */
-function skeletonOf(action) {
-  return String(action || '')
+export function skeletonOf(action, names = []) {
+  let s = String(action || '');
+  // 长名优先，避免「伊万诺夫」被更短的「伊万」抢先切掉
+  for (const n of [...names].sort((a, b) => b.length - a.length)) {
+    if (n && s.includes(n)) s = s.split(n).join('N');
+  }
+  return s
     .replace(/「[^」]*」/g, 'Q')
     .replace(/【[^】]*】[\u4e00-\u9fa5]{2,4}/g, 'P')
     .replace(/（[A-Z][A-Z0-9-]*）/g, 'X')
@@ -123,7 +160,9 @@ export function scoreCandidate(plan, r) {
   const dialogueFit = dialogueRatio < 0.35 ? dialogueRatio / 0.35 : (dialogueRatio > 0.8 ? Math.max(0, (1 - dialogueRatio) / 0.2) : 1);
 
   // ── 6. 骨架多样（片内）───────────────────────────────────────────
-  const skels = shots.map(s => skeletonOf(s.action));
+  // 必须带名册人名：否则「只换了人名」的重复句会被算成不同骨架（见 skeletonOf）
+  const skelNames = rosterNames(plan.roster);
+  const skels = shots.map(s => skeletonOf(s.action, skelNames));
   const diversity = new Set(skels).size / n;
 
   // ── 7. 切题度：主题实词有多少出现在成片正文里 ───────────────────
@@ -159,11 +198,22 @@ export function scoreCandidate(plan, r) {
  * **骨架重合率 > 60% 或环境与原型都相同且骨架重合 > 40%**，按重合率折减分数。
  */
 export function diversify(candidates) {
-  const ordered = [...candidates].sort((a, b) => (b.score - a.score) || (a.index - b.index));
+  // 原始分：扣分只在原始分上算一次。
+  // 早期直接改 `score`，重复调用会把惩罚**叠加**（第二次再砍 40%），
+  // 于是「同一批候选，换个调用顺序分数就不同」——同一个候选集必须给出同一个答案。
+  const baseOf = c => {
+    const b = c?.detail?.baseScore;
+    return Number.isFinite(b) ? b : (Number.isFinite(c?.score) ? c.score : 0);
+  };
+  const ordered = [...candidates].sort((a, b) => (baseOf(b) - baseOf(a)) || (a.index - b.index));
   // `film` 是 planFilm 的返回值（{ intent, plan, … }），镜头与故事原型都在 `plan` 里。
   // 早期写成 `c.film.shots` 恒为 undefined，整个去重加罚被静默跳过 ——
   // 「4 个方案里 3 个是同一部片」因此一次都没被抓到过。
-  const skelOf = c => (c?.film?.plan?.shots || []).map(s => skeletonOf(s.action));
+  // 骨架必须带名册人名：不带的话「只换了角色」会被算成不同骨架（见 skeletonOf）。
+  const skelOf = c => {
+    const names = rosterNames(c?.film?.plan?.roster);
+    return (c?.film?.plan?.shots || []).map(s => skeletonOf(s.action, names));
+  };
   const keyOf = c => `${c?.film?.plan?.shots?.[0]?.environment || ''}|${c?.film?.plan?.story?.arc || c?.film?.story?.arc || ''}`;
 
   for (let i = 1; i < ordered.length; i++) {
@@ -182,14 +232,15 @@ export function diversify(candidates) {
       if (dupRatio > 0.4) {
         // 按重合率线性折减，最多砍掉 40% 的分数
         const penalty = Math.min(0.4, (dupRatio - 0.4) * 1.6);
-        cur.score = Math.round((cur.score || 0) * (1 - penalty) * 100) / 100;
         cur.detail = cur.detail || {};
+        cur.detail.baseScore = baseOf(cur);
+        cur.score = Math.round(cur.detail.baseScore * (1 - penalty) * 100) / 100;
         cur.detail.diversityPenalty = Math.round(penalty * 100) / 100;
         break;
       }
     }
   }
-  return ordered;
+  // 扣分之后**必须重排**：否则排在最前面的可能正是那个被判为「换皮」的方案，
+  // 前端会把它当作「最优方案」展示 —— 择优器于是把重复品推到了台前。
+  return [...ordered].sort((a, b) => (b.score - a.score) || (a.index - b.index));
 }
-
-export { skeletonOf };

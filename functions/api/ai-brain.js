@@ -6,7 +6,8 @@
  * 3. 严格审计与速率限制保护
  */
 
-import { transpileMovieToLego } from '../../src/domain/cinema-homage.js';
+import { transpileMovieToLego, matchCuratedFilm } from '../../src/domain/cinema-homage.js';
+import { generateLocally, OFFLINE_ENGINES } from '../../src/domain/local-engine.js';
 import { alignShotsToLego } from '../../src/domain/lego-aligner.js';
 import { checkContentGovernance } from '../../src/domain/governance.js';
 import { parseIntent } from '../../src/domain/intent.js';
@@ -477,29 +478,111 @@ export async function onRequest({ request, env = {} }) {
     }
   }
 
-  // 4. 若无云端 Key 或调用均异常，自动由本地高保真引擎无缝兜底
+  // 4. 若无云端 Key 或调用均异常，自动由本地引擎无缝兜底。
+  //
+  //    本地引擎有**两套性质完全不同**的东西，必须分开走（6.8.1 修复）：
+  //      · 命中 9 部策展影片 → 手写分镜复刻，如实标注「非 AI 生成」；
+  //      · 未命中任何策展影片 → 交给自主想象引擎真的按题材写一部，输入决定输出。
+  //    旧实现只有第一条路，且把未命中一律静默退回《黑鹰坠落》——
+  //    于是「换了两次内容，第一个脚本永远是同一句直升机索降」。
   if (!result) {
-    // 兜底路径同样要把真实注册表传进去：否则本地引擎挑不出真实资产、也就没有代号
-    const local = transpileMovieToLego(query, requestedShots, REGISTRY);
     const latencyMs = Date.now() - startTime;
+    const curated = matchCuratedFilm(query);
+
+    // 4a. 命中策展影片：交付手写复刻（内容固定，如实告知）
+    if (curated.film) {
+      const local = transpileMovieToLego(query, requestedShots, REGISTRY);
+      const responseBody = {
+        ok: true,
+        matchedMovie: local.matchedMovie,
+        movieId: local.movieId,
+        matchKind: local.matchKind,
+        contentKind: 'curated',
+        director: local.director,
+        year: local.year,
+        genre: local.genre,
+        dramaticConflict: local.dramaticConflict,
+        visualGrammar: local.visualGrammar,
+        legoAdaptation: local.legoAdaptation,
+        creatorTips: local.creatorTips,
+        themeZh: local.themeZh,
+        shots: local.shots,
+        originality: local.originality || null,
+        roster: Array.isArray(local.roster) ? local.roster : [],
+        repetitionFixed: local.repetitionFixed || 0,
+        isAiGenerated: false,
+        engine: OFFLINE_ENGINES.curated,
+        era: local.era || intent.era,
+        assetUsage: { catalogSize: validIds.size, matched: 0, unknown: [] },
+        proposedAssets: [],
+        latencyMs
+      };
+      const governed = governResponse(responseBody, inputGovernance);
+      return json(governed.body, governed.status, headers);
+    }
+
+    // 4b. 未命中：改用自主想象引擎真的生成一部（含 4 方案择优），输入真正参与生成
+    const generated = generateLocally({
+      theme: query,
+      requestedShots,
+      registry: REGISTRY
+    });
+    if (generated) {
+      const responseBody = {
+        ok: true,
+        matchedMovie: null,
+        movieId: null,
+        matchKind: 'none',
+        contentKind: 'generated',
+        director: null,
+        year: null,
+        genre: generated.genre,
+        dramaticConflict: null,
+        visualGrammar: null,
+        legoAdaptation: null,
+        creatorTips: null,
+        themeZh: generated.themeZh,
+        shots: generated.shots,
+        originality: generated.originality || null,
+        roster: Array.isArray(generated.roster) ? generated.roster : [],
+        variant: generated.variant || null,
+        variants: generated.variants || [],
+        score: generated.score || null,
+        repetitionFixed: 0,
+        isAiGenerated: false,
+        engine: OFFLINE_ENGINES.generated,
+        era: generated.era || intent.era,
+        assetUsage: { catalogSize: validIds.size, matched: 0, unknown: [] },
+        proposedAssets: [],
+        latencyMs
+      };
+      const governed = governResponse(responseBody, inputGovernance);
+      return json(governed.body, governed.status, headers);
+    }
+
+    // 4c. 生成也失败（极端情况）才退回策展兜底，但仍然如实标注，绝不冒充 AI
+    const fallback = transpileMovieToLego(query, requestedShots, REGISTRY, { genericFallback: true });
     const responseBody = {
       ok: true,
-      matchedMovie: local.matchedMovie,
-      director: local.director,
-      year: local.year,
-      genre: local.genre,
-      dramaticConflict: local.dramaticConflict,
-      visualGrammar: local.visualGrammar,
-      legoAdaptation: local.legoAdaptation,
-      creatorTips: local.creatorTips,
-      themeZh: local.themeZh,
-      shots: local.shots,
-      originality: local.originality || null,
-      roster: Array.isArray(local.roster) ? local.roster : [],
-      repetitionFixed: local.repetitionFixed || 0,
+      matchedMovie: fallback.matchedMovie,
+      movieId: fallback.movieId,
+      matchKind: fallback.matchKind,
+      contentKind: 'curated',
+      director: fallback.director,
+      year: fallback.year,
+      genre: fallback.genre,
+      dramaticConflict: fallback.dramaticConflict,
+      visualGrammar: fallback.visualGrammar,
+      legoAdaptation: fallback.legoAdaptation,
+      creatorTips: fallback.creatorTips,
+      themeZh: fallback.themeZh,
+      shots: fallback.shots,
+      originality: fallback.originality || null,
+      roster: Array.isArray(fallback.roster) ? fallback.roster : [],
+      repetitionFixed: fallback.repetitionFixed || 0,
       isAiGenerated: false,
-      engine: 'Built-in Cinema Engine (本地高保真离线引擎)',
-      era: local.era || intent.era,
+      engine: `${OFFLINE_ENGINES.curated} · 生成引擎不可用，已退回通用军事分镜`,
+      era: fallback.era || intent.era,
       assetUsage: { catalogSize: validIds.size, matched: 0, unknown: [] },
       proposedAssets: [],
       latencyMs

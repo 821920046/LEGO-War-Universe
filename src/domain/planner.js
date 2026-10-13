@@ -386,7 +386,7 @@ export function planFilm({ theme, requestedShots = 4, profileId, era: eraOverrid
   //   与题材无关，镜头之间也没有因果关系 —— 8 个镜头读起来是一叠并置的卡片。
   //   现在正文改由骨架提供：按题材写死的「这一镜发生什么」，并且承接上一镜的结果
   //   （{link} 因果连接词）。结构骨架仍然保留，因此既有的不变式全部不受影响。
-  const story = buildStory({ theme, intent, cast, env, gates });
+  const story = buildStory({ theme, intent, cast, env, gates: { ...gates, seed } });
 
   // 场景氛围词：按**战场域**取词池，域内按题材哈希确定性轮转。
   // 此前是「雪 / 雨 / 夜，否则尘雾」，实测 20 个题材里 19 个都是尘雾，

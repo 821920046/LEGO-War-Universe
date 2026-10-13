@@ -1,9 +1,8 @@
 import { createRegistry } from '../domain/registry.js';
-import { planVariants } from '../domain/variants.js';
+import { planVariants, ANGLES, EMPHASES, TONES } from '../domain/variants.js';
 import { scoreCandidate, diversify } from '../domain/variant-score.js';
 import { compileShot } from '../domain/compiler.js';
 import { validateFilmPlan } from '../domain/shot-spec.js';
-import { transpileMovieToLego, CINEMA_DATABASE } from '../domain/cinema-homage.js';
 import { callAiBrain } from '../domain/ai-brain.js';
 import { buildRoster, rosterToJSON, rosterFromJSON, displayNameOf, nationLabelOf } from '../domain/roster.js';
 import { FUNCTION_LABELS } from '../domain/narrative.js';
@@ -358,6 +357,92 @@ function renderDirectorNotesPanel(movieName, data) {
 }
 
 /**
+ * 原创生成内容的看板（6.8.1）。
+ *
+ * 与 `renderDirectorNotesPanel` 的区别：那一块是「解构某部经典影片」的拉片面版，
+ * 会写「导演：xxx · 上映年份：xxx」；但**原创生成的片子根本没有被解构的导演**，
+ * 拿它去显示等于凭空捏造。
+ *
+ * 这里改为如实呈现：这是本地自主想象引擎按题材原创的，并说明它选了哪个视角 /
+ * 重心 / 基调，以及故事内核是什么。用户因此能一眼看出「这一版和上一版为什么不同」。
+ */
+function renderGeneratedPanel(themeText, data) {
+  const panel = $('director-notes-panel');
+  if (!panel || !data) return;
+
+  panel.replaceChildren();
+  panel.style.display = 'block';
+
+  const variant = data.variant || {};
+  const angle = ANGLES[variant.angle] || null;
+  const emphasis = EMPHASES[variant.emphasis] || null;
+  const tone = TONES[variant.tone] || null;
+  const story = data.story || {};
+  const originality = data.originality || {};
+  const variants = Array.isArray(data.variants) ? data.variants : [];
+
+  const card = createEl('div', { class: 'card card--accent' },
+    createEl('div', { class: 'card__head' },
+      createEl('div', {},
+        createEl('div', { class: 'card__title', style: { fontSize: '19px' } },
+          createEl('span', { style: { fontSize: '22px' } }, '🎬'),
+          createEl('span', {}, themeText || '原创战争短片'),
+          createEl('span', { class: 'badge badge--info' }, '原创生成'),
+          createEl('span', { class: 'badge badge--warn' }, data.engine || '本地引擎')
+        ),
+        createEl('p', { class: 'card__sub' },
+          `未命中策展影片，已由本地自主想象引擎按题材原创 —— 视角 × 重心 × 基调 共构思 ${variants.length || 1} 部，默认展示综合质量最高的一部。`)
+      ),
+      createEl('div', { class: 'card__actions' },
+        createEl('button', {
+          class: 'btn btn--ghost btn--sm',
+          onClick: () => { panel.style.display = 'none'; }
+        }, '收起创作看板')
+      )
+    ),
+
+    createEl('div', { class: 'card__body' },
+      // 故事内核（原创 logline / 前提）
+      createEl('div', { class: 'alert alert--danger', style: { marginBottom: '16px' } },
+        createEl('span', { class: 'alert__icon' }, '💥'),
+        createEl('span', {},
+          createEl('strong', {}, '原创故事内核：'),
+          document.createTextNode(` ${story.premise || originality.logline || '在极限压力下执行关键突破任务。'}`))
+      ),
+
+      // 三列：这一版选的三个旋钮
+      createEl('div', { class: 'grid grid--3', style: { marginBottom: '16px' } },
+        createEl('div', { class: 'panel' },
+          createEl('div', { class: 'field__label', style: { color: 'var(--info)', marginBottom: '8px' } }, '🎥 叙事视角'),
+          createEl('div', { style: { color: 'var(--text)', lineHeight: '1.55', fontSize: '12.5px' } },
+            angle ? `${angle.label} —— ${angle.hint}` : '指挥官视角 —— 镜头跟着决断走')
+        ),
+        createEl('div', { class: 'panel' },
+          createEl('div', { class: 'field__label', style: { color: 'var(--info)', marginBottom: '8px' } }, '🎭 戏剧重心'),
+          createEl('div', { style: { color: 'var(--text)', lineHeight: '1.55', fontSize: '12.5px' } },
+            emphasis ? `${emphasis.label} —— ${emphasis.hint}` : '动作重心 —— 接触与交锋优先')
+        ),
+        createEl('div', { class: 'panel' },
+          createEl('div', { class: 'field__label', style: { color: 'var(--accent-hi)', marginBottom: '8px' } }, '🎨 影调基调'),
+          createEl('div', { style: { color: 'var(--text)', lineHeight: '1.55', fontSize: '12.5px' } },
+            tone ? `${tone.label} —— ${tone.hint}` : '纪实 —— 手持、自然光、纪录片调色')
+        )
+      ),
+
+      // 诚实说明底栏：把「非云端 AI 生成」这件事讲清楚
+      createEl('div', { class: 'alert alert--warn' },
+        createEl('span', { class: 'alert__icon' }, '💡'),
+        createEl('span', {},
+          createEl('strong', {}, '关于生成方式：'),
+          document.createTextNode(' 当前未连接云端大模型，这一版由本地确定性引擎原创（不是云端 AI 产出，也不是对某部影片的复刻）。下方「切换方案」可查看另外几部不同的构思。'))
+      )
+    )
+  );
+
+  panel.appendChild(card);
+}
+
+/**
  * 渲染单个阵营的角色卡片网格
  * 极致防御性设计：确保 chars 为空或非数组时安全退出，绝不抛错
  * @param {HTMLElement} container 容器元素
@@ -648,10 +733,39 @@ async function executeMovieTranspile(movieQuery) {
     ensureRoster();
     await persist();
 
-    renderDirectorNotesPanel(result.matchedMovie, result);
+    // ── 两种产出必须分开呈现（6.8.1）────────────────────────────────────
+    //   · contentKind === 'curated'  → 命中策展影片，交付手写复刻的拉片面版；
+    //   · contentKind === 'generated' → 未命中，本地自主想象引擎按题材原创。
+    // 旧实现把两者都当成「解构《xxx》」渲染，于是未命中时会显示一个并不存在的
+    // 导演 / 年份，并且标题永远是《黑鹰坠落》——正是用户截图里看到的现象。
+    const isGenerated = result.contentKind === 'generated' || (!result.matchedMovie && result.contentKind !== 'curated');
 
-    text($('intent'), `🎬 已成功解构并转译《${result.matchedMovie}》！${result.shots.length} 镜好莱坞视听分镜已生成 [${result.engine || 'AI'}]。`);
-    $('intent').className = 'ok';
+    if (isGenerated) {
+      // 原创片：把多方案择优结果挂到界面，用户可切换查看另外几部构思
+      variantCandidates = Array.isArray(result.variants) ? result.variants.filter(c => c?.film) : [];
+      variantEvolution = evolution;
+      activeVariantIndex = 0;
+      const top = variantCandidates[0] || null;
+      currentProject.variant = top
+        ? { ...top.spec, theme: result.themeZh, score: Number.isFinite(top.score) ? top.score : null, rank: 1, total: variantCandidates.length }
+        : null;
+      currentProject.matchedMovie = null;
+      currentProject.directorNotes = null;
+      renderVariantPicker();
+      renderGeneratedPanel(result.themeZh, { ...result, variants: variantCandidates });
+      text($('intent'), `🎬 未命中策展影片，已按你的题材原创生成《${result.themeZh}》！${result.shots.length} 镜分镜已生成 [${result.engine || '本地引擎'}]。`);
+      $('intent').className = 'ok';
+    } else {
+      variantCandidates = [];
+      variantEvolution = null;
+      activeVariantIndex = 0;
+      currentProject.variant = null;
+      renderVariantPicker();
+      renderDirectorNotesPanel(result.matchedMovie, result);
+      text($('intent'), `🎬 已成功解构并转译《${result.matchedMovie}》！${result.shots.length} 镜好莱坞视听分镜已生成 [${result.engine || 'AI'}]。`);
+      $('intent').className = 'ok';
+    }
+
     reportEvolution(evolution, $('intent'));
 
     refreshOutputs();
