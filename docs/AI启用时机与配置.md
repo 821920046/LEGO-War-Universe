@@ -1,4 +1,4 @@
-# AI 启用时机与配置（6.8.6 实况）
+# AI 启用时机与配置（6.8.7 实况）
 
 > 这份文档描述的是**代码里的真实行为**，逐条对得上 `functions/api/ai-brain.js` 与
 > `src/domain/ai-brain.js`。如果你之前照着 `06_Deploy/README.md` 配过，那份文档
@@ -53,6 +53,10 @@ https://你的站点/api/ai-brain?probe=1
 > 但 `POST` 返回 `ALL_PROVIDERS_FAILED`：
 > `groq → Groq HTTP 403`（Key 被 Groq 拒绝）、`gemini → Gemini HTTP 404`（模型名退役）。
 > **两个 Key 都在，两个都失败了 —— 而在 6.8.4 之前，这个真相在界面上完全看不见。**
+>
+> **下一个案例（6.8.6/6.8.7 实测）**：模型名修好之后云端 AI 真的通了，
+> 但 `gemini-3.8-flash` 两次采样都返回 **HTTP 503**（上游过载，从未成功）。
+> 这仍然不是本项目能修的 —— 它只是让「换下一个候选」这个机制每天都在起作用。
 
 ---
 
@@ -70,18 +74,20 @@ https://你的站点/api/ai-brain?probe=1
 | 环境变量 | 作用 | 默认候选 |
 | --- | --- | --- |
 | `GROQ_MODEL` | 覆盖 Groq 模型名 | `llama-3.3-70b-versatile` |
-| `OPENROUTER_MODEL` | 覆盖 OpenRouter 模型名 | `meta-llama/llama-3.3-70b-instruct:free` |
-| `GEMINI_MODEL` | 覆盖 Gemini 模型名 | `gemini-3.8-flash` → `gemini-3.5-flash-lite` → `gemini-2.5-flash` |
+| `OPENROUTER_MODEL` | 覆盖 OpenRouter 模型名 | 8 个免费档候选（见「一」节表格） |
+| `GEMINI_MODEL` | 覆盖 Gemini 模型名 | `gemini-2.5-flash` → `gemini-3.5-flash-lite` → `gemini-3.8-flash` |
 
 - 不配这些变量时，会用**内置候选列表**逐个尝试 —— 第一个 404 就自动换下一个，
   **单个模型退役不会让整条路哑掉**。
 - 要指定模型，用**逗号 / 分号 / 空格**分隔可以写多个，按顺序尝试：
 
   ```
-  GEMINI_MODEL=gemini-3.8-flash,gemini-3.5-flash-lite
+  GEMINI_MODEL=gemini-2.5-flash,gemini-3.5-flash-lite
   ```
 
 - **换模型不需要改代码**，改环境变量 + 重新部署即可。
+- ⚠️ 环境变量覆盖**只给模型名**。`response_format`（JSON 模式）是否发送由内置条目决定，
+  覆盖时沿用该 provider 的默认 —— 不允许「换个模型名」这个动作静默改变请求语义。
 
 ---
 
@@ -123,11 +129,16 @@ https://你的站点/api/ai-brain?probe=1
 
 ```jsonc
 "calls": [
-  { "model": "gemini-3.8-flash",      "ok": false, "ms": 812,   "error": "Gemini HTTP 429", "timedOut": false, "skipped": false },
-  { "model": "gemini-3.5-flash-lite", "ok": true,  "ms": 57341, "error": null,              "timedOut": false, "skipped": false },
-  { "model": "gemini-2.5-flash",      "ok": false, "ms": 0,     "error": "跳过：整次请求总预算已耗尽", "skipped": true }
+  { "model": "gemini-3.8-flash",      "ok": false, "ms": 1835,  "error": "Gemini HTTP 503", "timedOut": false, "skipped": false },
+  { "model": "gemini-3.5-flash-lite", "ok": true,  "ms": 41350, "error": null,              "timedOut": false, "skipped": false }
 ]
 ```
+
+以上是 6.8.6 上线后的一次**真实采样**（2026-10-14）。它当场回答了两个此前答不了的问题：
+
+- **`gemini-3.8-flash` 是 HTTP 503**（上游过载），不是 429 也不是 404 —— 而且失败得很快（1.8s）；
+- 另一次采样里 `gemini-3.5-flash-lite` 返回的也是 503，**却耗了 40.5 秒**。
+  所以「几十秒没反应」不只是「成功得慢」，也包括「连『我不可用」都要想 40 秒才说出口」。
 
 - `ms` = 这一次真实花了多久；`timedOut` = 是不是超时（与 404/403 区分开）；
 - `skipped` = 因为总预算耗尽**没有尝试**（而不是试了没成）；
@@ -157,14 +168,66 @@ https://你的站点/api/ai-brain?probe=1
 | 顺序 | 环境变量 | 模型（候选列表，逐个尝试） |
 | --- | --- | --- |
 | 1 | `GROQ_API_KEY` | `llama-3.3-70b-versatile` |
-| 2 | `OPENROUTER_API_KEY` | `meta-llama/llama-3.3-70b-instruct:free` |
-| 3 | `GEMINI_API_KEY` | `gemini-3.8-flash` → `gemini-3.5-flash-lite` → `gemini-2.5-flash` |
+| 2 | `OPENROUTER_API_KEY` | 8 个免费档候选（见下） |
+| 3 | `GEMINI_API_KEY` | `gemini-2.5-flash` → `gemini-3.5-flash-lite` → `gemini-3.8-flash` |
+
+> **Gemini 的顺序是 6.8.7 按实测重排的**：两次真实采样里 `gemini-3.8-flash`
+> 两次都返回 **HTTP 503（从未成功）**，因此从首位挪到末位 —— 它失败虽快（约 1.8s），
+> 但没必要每次请求都拿它开头赌。样本只有两次，判断方向明确但证据量不足。
 
 每个 provider 内部还会**按候选模型列表逐个尝试**（6.8.5 起），
 单个模型退役 / 限流只会让它换下一个，不会让整条路哑掉。
 
 三个都没有 / 三个都失败 → 自动回退本地引擎，**不报错**，
 但响应体里的 `aiStatus` 会如实说明原因（6.8.4 起），徽章也会用**黄色**而非绿色显示。
+
+### OpenRouter 免费档候选（6.8.7）
+
+来源：实拉 OpenRouter 公开模型接口 `GET /api/v1/models`（**不需要 Key**）。
+2026-10-14 共 **462 个模型**，其中 `:free` 后缀 **14 个**、纯文本输出 **14 个**。
+
+按用途排除掉 4 类不适合做「分镜剧本生成」的：
+coding agent（`poolside/laguna-*`、`cohere/north-mini-code`）、
+内容安全分类器（`nvidia/nemotron-3.5-content-safety` —— 它是判别器不是生成器）、
+多模态感知（`nvidia/nemotron-3-nano-omni`）。**剩下 8 个进入候选：**
+
+| 候选模型 | 规模 | JSON 模式 | 说明 |
+| --- | --- | --- | --- |
+| `nvidia/nemotron-3-ultra-550b-a55b:free` | 550B MoE（55B active） | ❌ | 推理/编排型 |
+| `nvidia/nemotron-3-super-120b-a12b:free` | 120B MoE（12B active） | ✅ | |
+| `google/gemma-4-31b-it:free` | 31B dense | ✅ | 多模态但可只用文本 |
+| `thinkingmachines/inkling:free` | MoE（41B active） | ❌ | |
+| `google/gemma-4-26b-a4b-it:free` | 26B MoE | ✅ | |
+| `dots-studio/dots-3-note-preview:free` | MoE（16B active） | ✅ | |
+| `nvidia/nemotron-3.5-lightning:free` | MoE（3B active） | ❌ | |
+| `liquid/lfm-2.5-2.6b:free` | 2.6B | ✅ | 上下文仅 64k |
+
+**「JSON 模式」这一列是逐个模型从接口的 `supported_parameters` 读出来的实测事实，不是猜的。**
+它很重要：`response_format: {type:'json_object'}` 能大幅提高模型吐出合法 JSON 的概率，
+但**对不支持的模型发这个参数，上游直接 4xx** —— 而 OpenRouter 免费档里支持与不支持的模型
+混在同一家，所以 6.8.7 起它从「provider 级」下沉为「模型级」，未显式声明的才沿用 provider 默认。
+
+> ⚠️ **上表的顺序是按参数量排的暂定先验，尚未经过本项目实测。**
+> 用 `scripts/bench-openrouter.mjs` 跑完基准测试后，会按真实质量数据**裁剪为 4 个**。
+
+想自己跑基准测试（**需要你自己的 OpenRouter Key，脚本不会把它写到任何文件里**）：
+
+```bash
+cd 项目根目录
+OR_KEY=sk-or-v1-你的Key node scripts/bench-openrouter.mjs
+```
+
+它会用 8 个候选 × 3 个不同题材（现代战争 / 中世纪攻城 / 科幻创意）真实调用，
+评分口径用的是**本项目自己的判定标准**，而不是通用跑分：
+
+| 指标 | 含义 |
+| --- | --- |
+| 未知资产 ID 数 | 模型编造了多少个清单外的 ID（幻觉） |
+| 被迫复读修正数 | 有多少镜头因为文案重复而被确定性引擎强制变奏 |
+| 戏剧功能重标数 | 有多少镜头因为「8 个镜头全在对轰」而被强制补齐功能 |
+| 单次耗时 | 这个模型到底有多慢 |
+
+**一个好模型的标志是让确定性兜底少干活。**
 
 ### 怎么判断「这一次到底用的是不是 AI」
 
