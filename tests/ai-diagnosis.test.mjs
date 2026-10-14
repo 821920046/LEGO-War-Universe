@@ -184,7 +184,8 @@ test('AI 诊断：单个模型退役时自动换下一个，整条路不会哑�
   globalThis.fetch = async (url, options) => {
     const model = JSON.parse(options.body).model;
     tried.push(model);
-    if (model === 'gemini-3.8-flash') return new Response('model not found', { status: 404 });
+    // 6.8.7：名单重排后第一个候选已换成 gemini-2.5-flash
+    if (model === 'gemini-2.5-flash') return new Response('model not found', { status: 404 });
     return new Response(JSON.stringify({
       choices: [{ message: { content: JSON.stringify({
         matchedMovie: '测试片',
@@ -196,7 +197,7 @@ test('AI 诊断：单个模型退役时自动换下一个，整条路不会哑�
     const res = await call({ query: '现代特战城市巷战', requestedShots: 1 }, 'POST', {}, { GEMINI_API_KEY: 'k' });
     const data = await res.json();
     assert.deepEqual(
-      tried.slice(0, 2), ['gemini-3.8-flash', 'gemini-3.5-flash-lite'],
+      tried.slice(0, 2), ['gemini-2.5-flash', 'gemini-3.5-flash-lite'],
       '必须按候选顺序逐个尝试，第一个 404 后要自动换下一个'
     );
     assert.equal(data.isAiGenerated, true);
@@ -281,7 +282,7 @@ test('AI 诊断：单次模型调用超时必须被中断，而不是无限等�
     const gemini = data.aiStatus.providers.find(p => p.id === 'gemini');
     assert.ok(gemini.calls.length >= 1, '必须留下逐次调用记录');
     const first = gemini.calls[0];
-    assert.equal(first.model, 'gemini-3.8-flash');
+    assert.equal(first.model, 'gemini-2.5-flash');
     assert.equal(first.ok, false);
     assert.equal(first.timedOut, true, '超时必须被单独标出来，否则与 404/403 混为一谈');
     assert.ok(first.ms >= 40, `必须记录真实耗时，实际 ${first.ms}ms`);
@@ -299,8 +300,11 @@ test('AI 诊断：必须逐模型记录耗时，才能测出到底哪个模型�
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (url, options) => {
     const model = JSON.parse(options.body).model;
-    await new Promise(r => setTimeout(r, model === 'gemini-3.8-flash' ? 60 : 10));
-    if (model !== 'gemini-2.5-flash') return new Response('not found', { status: 404 });
+    // 6.8.7 重排后第一个候选是 gemini-2.5-flash：让它慢且失败，
+    // 第二个（3.5-flash-lite）快且也失败，第三个（3.8-flash）快且成功 ——
+    // 这样「慢模型与快模型必须能区分开」才有可区分的一对。
+    await new Promise(r => setTimeout(r, model === 'gemini-2.5-flash' ? 60 : 10));
+    if (model !== 'gemini-3.8-flash') return new Response('not found', { status: 404 });
     return new Response(JSON.stringify({
       choices: [{ message: { content: JSON.stringify({
         matchedMovie: '测试片',
@@ -318,7 +322,9 @@ test('AI 诊断：必须逐模型记录耗时，才能测出到底哪个模型�
 
     assert.deepEqual(
       gemini.calls.map(c => c.model),
-      ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash'],
+      // 6.8.7 按发布后实测重排：gemini-3.8-flash 两次采样都 503（从未成功），
+      // 因此从首位挪到末位；2.5-flash 与 3.5-flash-lite 各有一次成功记录。
+      ['gemini-2.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.8-flash'],
       '必须逐个候选模型留下记录，顺序与实际尝试一致'
     );
     assert.deepEqual(gemini.calls.map(c => c.ok), [false, false, true]);
@@ -429,4 +435,101 @@ test('6.8.6 · 源码门禁：所有 fetch 都必须带超时（防「慢」与�
   const frontend = readFileSync(new URL('../src/domain/ai-brain.js', import.meta.url), 'utf8');
   assert.ok(!/await\s+fetch\(/.test(frontend), '前端 fetch 必须走 Promise.race 超时，否则后端挂住时界面会一直等');
   assert.match(frontend, /FRONTEND_TIMEOUT_MS/);
+});
+
+// ── 6.8.7：JSON 模式按模型生效，不再按 provider 一把切 ──────────────────
+//
+// 起因：OpenRouter 免费档里，「支持 response_format」与「不支持」的模型混在同一家。
+// 对不支持的模型发这个参数，上游直接 4xx —— 于是「配了 Key 却整个 provider 都不通」。
+// 这里立门禁：声明了 jsonMode 的模型必须按声明发；没声明的沿用 provider 默认。
+
+const OK_BODY = JSON.stringify({
+  matchedMovie: '测试片',
+  shots: [{
+    phase: 'establish',
+    fn: 'goal',
+    action: '乐高特战小队在雷达站外沿低温推进。',
+    assets: { subjects: ['CHR-401'], environment: 'ENV-401', camera: 'CAM-401', lighting: 'LGT-001', colorGrade: 'CLR-001' }
+  }]
+});
+
+test('6.8.7 · JSON 模式必须按模型生效：声明的以模型为准，未声明的沿用 provider 默认', async () => {
+  const originalFetch = globalThis.fetch;
+  const seen = [];
+  globalThis.fetch = async (url, opts) => {
+    const u = String(url);
+    if (!u.includes('openrouter.ai')) throw new Error('非预期调用：' + u);
+    const body = opts && opts.body ? JSON.parse(opts.body) : null;
+    seen.push({ model: body && body.model, hasJson: Boolean(body && body.response_format) });
+    // 只让名单里第二个模型成功，好让第一个（jsonMode: false）也被真实调用到
+    if (body && body.model === 'nvidia/nemotron-3-super-120b-a12b:free') {
+      return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: OK_BODY } }] }) };
+    }
+    return { ok: false, status: 400, json: async () => ({}) };
+  };
+
+  try {
+    const data = await (await call(
+      { query: '北极冰原上的雷达站遭遇突袭', requestedShots: 1 },
+      'POST', {}, { OPENROUTER_API_KEY: 'k' }
+    )).json();
+
+    // 第一个候选（nemotron-3-ultra-550b，实测不支持 response_format）不得带该参数
+    const first = seen.find(s => s.model === 'nvidia/nemotron-3-ultra-550b-a55b:free');
+    assert.ok(first, '必须真的调用到第一个候选模型');
+    assert.equal(first.hasJson, false,
+      '对不支持 response_format 的模型发这个参数会让上游 4xx，整个 provider 都会失败');
+
+    // 第二个候选（nemotron-3-super-120b，实测支持）必须带上该参数
+    const second = seen.find(s => s.model === 'nvidia/nemotron-3-super-120b-a12b:free');
+    assert.ok(second, '第一个失败后必须继续试第二个候选');
+    assert.equal(second.hasJson, true,
+      '模型声明了支持 JSON 模式，就必须真的发 response_format');
+
+    assert.equal(data.isAiGenerated, true, '第二个候选成功后本次应由云端 AI 生成');
+    assert.equal(data.aiStatus.activeProvider, 'openrouter');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('6.8.7 · 环境变量覆盖的模型名沿用 provider 默认（不允许因为覆盖而静默改语义）', async () => {
+  const originalFetch = globalThis.fetch;
+  const seen = [];
+  globalThis.fetch = async (url, opts) => {
+    const u = String(url);
+    if (!u.includes('openrouter.ai')) throw new Error('非预期调用：' + u);
+    const body = opts && opts.body ? JSON.parse(opts.body) : null;
+    seen.push({ model: body && body.model, hasJson: Boolean(body && body.response_format) });
+    return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: OK_BODY } }] }) };
+  };
+
+  try {
+    await (await call(
+      { query: '北极冰原上的雷达站遭遇突袭', requestedShots: 1 },
+      'POST', {},
+      { OPENROUTER_API_KEY: 'k', OPENROUTER_MODEL: 'google/gemma-4-31b-it:free' }
+    )).json();
+
+    assert.equal(seen.length, 1, '环境变量覆盖后只应尝试指定的那一个模型');
+    assert.equal(seen[0].model, 'google/gemma-4-31b-it:free');
+    // provider 默认是 false，覆盖名没有显式声明 → 沿用默认
+    assert.equal(seen[0].hasJson, false,
+      '环境变量覆盖只给模型名，JSON 模式应沿用 provider 默认，不能凭空改变语义');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('6.8.7 · 自检必须报出每个模型是否要求 JSON 模式，便于运维核对上游支持情况', async () => {
+  const res = await probe({ OPENROUTER_API_KEY: 'k' });
+  const d = await res.json();
+  const or = d.providers.find(p => p.id === 'openrouter');
+
+  assert.equal(or.models[0], 'nvidia/nemotron-3-ultra-550b-a55b:free');
+  assert.equal(or.jsonModes[0], false, '550b 实测不支持 response_format，必须如实报 false');
+  assert.equal(or.models[1], 'nvidia/nemotron-3-super-120b-a12b:free');
+  assert.equal(or.jsonModes[1], true, '120b 实测支持 response_format，必须如实报 true');
+  assert.equal(or.models.length, or.jsonModes.length, '两个数组必须等长、一一对应');
+  assert.ok(or.models.every(m => !/gemini|llama-3\.3/.test(m)), '不得混入其他 provider 的模型');
 });

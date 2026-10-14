@@ -138,7 +138,30 @@ const PROVIDERS = [
     label: 'OpenRouter',
     envVar: 'OPENROUTER_API_KEY',
     modelEnvVar: 'OPENROUTER_MODEL',
-    models: ['meta-llama/llama-3.3-70b-instruct:free'],
+    // 免费档候选（6.8.7）。
+    //
+    // 名单来源：OpenRouter 公开模型接口 /api/v1/models 实拉，
+    // 2026-10-14 共 462 个模型，其中 `:free` 后缀 14 个、纯文本输出 14 个。
+    // 按用途排除：coding agent（poolside/laguna-*、cohere/north-mini-code）、
+    // 内容安全分类器（nemotron-3.5-content-safety，它是判别器不是生成器）、
+    // 多模态感知（nemotron-3-nano-omni）。剩下 8 个进入候选。
+    //
+    // jsonMode 是**逐个模型**从接口的 supported_parameters 读出来的实测事实，
+    // 不是猜的：对不支持 response_format 的模型发这个参数，上游直接 4xx ——
+    // 同一家 provider 里混着支持与不支持，所以不能再按 provider 一把切。
+    //
+    // ⚠️ 当前顺序是**按参数量排的暂定先验，未经本项目实测**。
+    // 实测基准（_bench_openrouter.mjs，8 模型 × 3 题材）跑完后按数据裁剪为 4 个。
+    models: [
+      { id: 'nvidia/nemotron-3-ultra-550b-a55b:free', jsonMode: false }, // 550B MoE 推理型
+      { id: 'nvidia/nemotron-3-super-120b-a12b:free', jsonMode: true },  // 120B MoE
+      { id: 'google/gemma-4-31b-it:free', jsonMode: true },              // 31B dense
+      { id: 'thinkingmachines/inkling:free', jsonMode: false },          // 41B active MoE
+      { id: 'google/gemma-4-26b-a4b-it:free', jsonMode: true },          // 26B MoE
+      { id: 'dots-studio/dots-3-note-preview:free', jsonMode: true },    // 16B active MoE
+      { id: 'nvidia/nemotron-3.5-lightning:free', jsonMode: false },     // 3B active
+      { id: 'liquid/lfm-2.5-2.6b:free', jsonMode: true }                 // 2.6B，64k 上下文
+    ],
     url: 'https://openrouter.ai/api/v1/chat/completions',
     extraHeaders: { 'HTTP-Referer': 'https://legowaruniverse.pages.dev', 'X-Title': 'LEGO War Universe' },
     jsonMode: false
@@ -148,9 +171,13 @@ const PROVIDERS = [
     label: 'Gemini',
     envVar: 'GEMINI_API_KEY',
     modelEnvVar: 'GEMINI_MODEL',
-    // 按 Google 官方退役表，2026-10 仍可用的免费档为 3.5 Flash-Lite / 3.8 Flash。
-    // 依次尝试，任一模型退役都不会让整条路彻底哑掉。
-    models: ['gemini-3.8-flash', 'gemini-3.5-flash-lite', 'gemini-2.5-flash'],
+    // 顺序按 6.8.6 发布后实测（2026-10-14，两次真实采样）重排：
+    //   · gemini-3.8-flash          两次都 HTTP 503（1.8s / 0.7s 快速失败）
+    //   · gemini-3.5-flash-lite     一次成功（41.4s）、一次 503 但耗了 40.5s 才失败
+    //   · gemini-2.5-flash          一次成功（36.8s）
+    // 把「从未成功过」的挪到最后：它失败虽快（约 1.8s），但没必要拿它开头赌。
+    // 任一模型退役/过载都不会让整条路彻底哑掉，只是退化成「换下一个」。
+    models: ['gemini-2.5-flash', 'gemini-3.5-flash-lite', 'gemini-3.8-flash'],
     url: 'https://generativelanguage.googleapis.com/v1beta/openai/chat/completions',
     extraHeaders: {},
     jsonMode: true
@@ -162,10 +189,31 @@ const PROVIDERS = [
  * 环境变量（逗号 / 分号 / 空白分隔）优先，否则用内置候选。
  * 这让「模型名退役」可以在不改代码的前提下由运维直接修掉。
  */
+/**
+ * 归一化模型候选条目。
+ *
+ * 6.8.7 起因：`jsonMode`（是否要求模型强制输出 JSON）原本是 **provider 级** 的，
+ * 但 OpenRouter 上各免费模型**支持情况不一致** —— 同一家 provider 里有的模型支持
+ * `response_format: json_object`，有的不支持。对不支持的模型发这个参数，
+ * 上游直接 4xx，于是「明明配了 Key 却整个 provider 都跑不通」。
+ * 因此把它下沉到 **模型级**：provider 级只作为未显式声明时的默认值。
+ *
+ * @param {string|{id:string, jsonMode?:boolean}} entry
+ * @returns {{id: string, jsonMode: boolean|null}} jsonMode 为 null 表示沿用 provider 默认
+ */
+function normalizeModelEntry(entry) {
+  if (typeof entry === 'string') return { id: entry, jsonMode: null };
+  const jsonMode = entry && typeof entry.jsonMode === 'boolean' ? entry.jsonMode : null;
+  return { id: String(entry && entry.id), jsonMode };
+}
+
 function modelsFor(provider, env = {}) {
   const raw = String(env[provider.modelEnvVar] == null ? '' : env[provider.modelEnvVar]).trim();
-  if (raw) return raw.split(/[,;\s]+/).map(s => s.trim()).filter(Boolean);
-  return provider.models.slice();
+  if (raw) {
+    // 环境变量覆盖只给模型名，JSON 模式沿用 provider 默认值
+    return raw.split(/[,;\s]+/).map(s => s.trim()).filter(Boolean).map(normalizeModelEntry);
+  }
+  return provider.models.map(normalizeModelEntry);
 }
 
 // ── 超时与总预算（6.8.6）────────────────────────────────────────────────
@@ -274,7 +322,10 @@ function providerReport(env = {}) {
     id: p.id,
     envVar: p.envVar,
     modelEnvVar: p.modelEnvVar,
-    models: modelsFor(p, env),
+    // 自检只报模型名（保持对外契约稳定）；每个模型是否要求 JSON 模式
+    // 从条目里解析出来一并带出，方便运维核对上游支持情况。
+    models: modelsFor(p, env).map(m => m.id),
+    jsonModes: modelsFor(p, env).map(m => (m.jsonMode === null ? Boolean(p.jsonMode) : m.jsonMode)),
     configured: Boolean(env[p.envVar]),
     keyHint: maskKey(env[p.envVar])
   }));
@@ -565,7 +616,7 @@ function cleanAndParseJson(text) {
  * 6.8.6 起**每一次网络等待都有上限**：响应头、响应体分别计时，
  * 超时既 abort 底层连接、也抛出可读的错误（否则「慢」与「挂死」行为一致）。
  */
-async function callProviderModel(provider, model, systemPrompt, userPrompt, apiKey, timeoutMs) {
+async function callProviderModel(provider, model, systemPrompt, userPrompt, apiKey, timeoutMs, jsonMode) {
   const body = {
     model,
     messages: [
@@ -574,7 +625,10 @@ async function callProviderModel(provider, model, systemPrompt, userPrompt, apiK
     ],
     temperature: 0.7
   };
-  if (provider.jsonMode) body.response_format = { type: 'json_object' };
+  // 6.8.7：jsonMode 由**模型级**条目解析后传入，不再读 provider.jsonMode ——
+  // OpenRouter 的免费模型对这个参数支持不一致，provider 级一把切会让
+  // 「不支持的模型」整个 provider 都失败。
+  if (jsonMode) body.response_format = { type: 'json_object' };
 
   const controller = new AbortController();
   const abort = () => { try { controller.abort(); } catch { /* abort 失败不影响超时语义 */ } };
@@ -740,10 +794,13 @@ export async function onRequest({ request, env = {} }) {
 
     const models = modelsFor(provider, env);
     record.tried = true;
-    record.attemptedModels = models;
+    record.attemptedModels = models.map(m => m.id);
     let lastError = null;
 
-    for (const model of models) {
+    for (const entry of models) {
+      const model = entry.id;
+      // 6.8.7：JSON 模式按模型解析 —— 模型没显式声明就沿用 provider 默认。
+      const jsonMode = entry.jsonMode === null ? Boolean(provider.jsonMode) : entry.jsonMode;
       // 开始下一次调用之前先看预算：剩余时间不够就不要再发起，
       // 否则「总预算」只是装饰 —— 一次 60s 的调用就能把 120s 的预算吃掉一半以上。
       const remaining = deadline - Date.now();
@@ -757,7 +814,7 @@ export async function onRequest({ request, env = {} }) {
       const callStart = Date.now();
 
       try {
-        result = await callProviderModel(provider, model, systemPrompt, userPrompt, env[provider.envVar], callTimeout);
+        result = await callProviderModel(provider, model, systemPrompt, userPrompt, env[provider.envVar], callTimeout, jsonMode);
         const ms = Date.now() - callStart;
         record.calls.push({ model, ok: true, ms, error: null, timedOut: false, skipped: false });
         usedEngine = `${provider.label} (${model})`;
@@ -785,7 +842,7 @@ export async function onRequest({ request, env = {} }) {
       record.error = lastError.message;
       // 把 HTTP 状态码 / 超时翻译成「人话 + 下一步怎么办」——
       // 光有 `Groq HTTP 403` 用户仍然不知道该干什么。
-      record.advice = adviseProviderError(provider, models[models.length - 1], lastError.message);
+      record.advice = adviseProviderError(provider, models[models.length - 1].id, lastError.message);
     }
   }
 
