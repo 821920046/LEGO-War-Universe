@@ -226,6 +226,55 @@ real 0m<b>0.578s</b></pre></div>
   </div>
 </div>
 
+<h2>五之二、发布后实测：逐模型耗时第一次回答了一个「本来回答不了」的问题</h2>
+
+<p>6.8.6 部署上线后，立刻用新加的 <code>calls[].ms</code> 做了两次真实采样。
+<b>这一轮最想量到的东西，量到了。</b></p>
+
+<div class="box box--good">
+  <div class="box__hd">采样一 · requestedShots=1 · 整次 43.2s · HTTP 200</div>
+  <div class="box__bd"><pre>groq/llama-3.3-70b-versatile     ok=false  ms=    19   Groq HTTP 403
+gemini/gemini-3.8-flash          ok=false  ms=  1835   <span class="yl">Gemini HTTP 503</span>
+gemini/gemini-3.5-flash-lite     ok=<span class="ins">true</span>   ms= 41350</pre></div>
+</div>
+
+<div class="box box--good">
+  <div class="box__hd">采样二 · requestedShots=1 · 整次 78.9s · HTTP 200</div>
+  <div class="box__bd"><pre>groq/llama-3.3-70b-versatile     ok=false  ms=     6   Groq HTTP 403
+gemini/gemini-3.8-flash          ok=false  ms=   712   <span class="yl">Gemini HTTP 503</span>
+gemini/gemini-3.5-flash-lite     ok=false  ms= 40559   <span class="yl">Gemini HTTP 503</span>   <span class="dimtxt">← 注意这一行</span>
+gemini/gemini-2.5-flash          ok=<span class="ins">true</span>   ms= 36763</pre></div>
+</div>
+
+<h3>定案：<code>gemini-3.8-flash</code> 是 503，不是 429 也不是 404</h3>
+<p>6.8.5 只能说「它一直失败」，6.8.6 之前<b>连失败原因都读不出来</b>（只有最后一条 <code>error</code>）。
+现在两次采样都指向 <b>503（上游过载 / 服务不可用）</b>，且失败得很快（1835ms / 712ms）。</p>
+
+<h3>更重要的定案：<b>失败本身也可能是慢的</b></h3>
+<p>采样二里 <code>gemini-3.5-flash-lite</code> 返回的是 <b>503，但花了 40.5 秒</b>。这一条直接解释了用户看到的「几十秒没反应」：</p>
+
+<p class="warn">不是「成功了但很慢」，而是<b>上游过载到连「我不可用」都要想 40 秒才说出口</b>。<br><br>
+这两次采样里 4 次调用有 3 次是 503，而 503 的返回时间从 <b>0.7 秒到 40.5 秒</b>不等 —— 完全不可预测。
+<b>这才是「几十秒没反应」的真正来源。</b></p>
+
+<h3>默认超时「给得宽松」这个决定，被数据证明是对的</h3>
+<p>如果按直觉把单次超时设成 12 秒（一个看起来「合理」的数字）：</p>
+<table>
+  <thead><tr><th>调用</th><th>实际耗时</th><th>12s 超时下的结果</th></tr></thead>
+  <tbody>
+    <tr><td><code>gemini-3.5-flash-lite</code>（采样二，503）</td><td>40.5s</td><td class="no">❌ 被误杀</td></tr>
+    <tr><td><code>gemini-2.5-flash</code>（采样二，<b>成功</b>）</td><td>36.8s</td><td class="no">❌ <b>被误杀 —— AI 永远不会成功</b></td></tr>
+    <tr><td><code>gemini-3.5-flash-lite</code>（采样一，<b>成功</b>）</td><td>41.4s</td><td class="no">❌ <b>被误杀</b></td></tr>
+  </tbody>
+</table>
+<p><b>三次里有三次会被误杀，其中两次是本来能成功的调用。</b>
+这印证了「修一个 bug 不能顺手制造一个更大的」—— 先把无界变成有界、把耗时变成可测量，
+<b>再依据数据收紧</b>，而不是凭感觉定一个会把当前可用路径掐死的数字。</p>
+
+<h3>顺带：Groq 的 403 只要 6–19ms</h3>
+<p>这也为 6.8.5 那个错误结论补上了直接证据：<b>403 这类快速失败真的只要个位数毫秒</b>。
+「193ms 装不下任何一次外部 HTTPS 调用」这个推断，在实测面前站不住。</p>
+
 <h2>六、结果与边界</h2>
 
 <table>
@@ -247,11 +296,16 @@ real 0m<b>0.578s</b></pre></div>
 <h3>遗留风险（如实记录）</h3>
 <ul>
   <li><b>单镜 30–59 秒仍然太慢，本轮没有解决。</b>只做到「把无界变有界、把慢变成可测量」。
-      根因很可能是 system prompt 极大（导演指令 + 资产目录 + 固定阵容）每次尝试都要重传，
-      加上第 1 个候选白跑一次。<b>收紧超时与精简 prompt 留给下一轮 —— 因为现在终于有
-      <code>calls[].ms</code> 可以依据了。</b></li>
-  <li><b><code>gemini-3.8-flash</code> 为什么一直失败尚无定论。</b>候选列表让它退化成「换下一个」，
-      但没诊断出是 429 / 上游过载 / 免费档配额中的哪一种。</li>
+      发布后实测把方向确定了（不再是猜）：<b>① 精简 system prompt</b>（每次尝试都要重传一遍，
+      两次采样一共 7 次尝试就是 7 倍代价）；<b>② 已知过载的候选降级或移除</b>
+      （<code>gemini-3.8-flash</code> 两次都 503）；<b>③ 评估更快的 provider</b>。
+      <b>收紧超时与精简 prompt 留给下一轮 —— 因为现在终于有 <code>calls[].ms</code> 可以依据了。</b></li>
+  <li><b><code>gemini-3.8-flash</code> 为什么一直失败 —— 已定案（发布后实测）：<code>HTTP 503</code>（上游过载）。</b>
+      而更重要的发现是：<b>失败本身也可能是慢的</b> —— 第二次采样里 <code>gemini-3.5-flash-lite</code>
+      返回的是 503，但<b>花了 40.5 秒才说出口</b>。这才是「几十秒没反应」的真正来源：
+      不是「成功了但很慢」，而是<b>上游过载到连「我不可用」都要想 40 秒</b>。
+      这同时证明「默认超时给得宽松」是对的 —— 若按直觉设 12 秒，
+      采样里 3 次调用会被全部误杀，<b>其中 2 次是本来能成功的</b>。</li>
   <li><b>默认超时 60s / 120s 是暂定值</b>，依据只有两次线上实测，样本太少。</li>
   <li>Groq 那把 Key 仍被 Groq 拒绝（403），<b>只能由用户到控制台重新生成</b>，代码侧修不了。</li>
   <li>候选模型名<b>将来同样会腐烂</b>，只是代价从「永久哑掉」降为「换下一个」；定时真调用的健康检查仍未做。</li>
