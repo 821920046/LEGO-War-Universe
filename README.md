@@ -1,4 +1,4 @@
-# LEGO War Universe · Trusted Production Workbench
+# LEGO War Universe ·  Trusted Production Workbench
 
 LEGO War Universe (LWU) 是一套面向 Google Flow (Veo) 的工业级乐高微缩定格动画战争电影分镜生成与提示词编译工作台。系统依托唯一版本化的乐高强资产库、确定性中英双语意图解析、类型化镜头规范（ShotSpec）、深度连续性状态机以及内容安全治理引擎，将电影主题转化为高度自洽、可直接投产的电影级分镜板与提示词序列。
 
