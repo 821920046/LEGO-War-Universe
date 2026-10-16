@@ -1,6 +1,75 @@
 # Changelog — LEGO War Universe Production System
 ---
 
+## 2026-10-16 · 6.9.0 本地打底 + AI 润色——把「AI 与本地二选一」改造成协同
+
+用户诉求：「依靠本地加 AI，使得脚本内容更真实，更完美，当 AI 模型不可用时
+自动切回本地」。旧架构是 **AI 优先、失败才整部落本地**，两个后果都是结构
+决定的：① AI 自由生成整部分镜，幻觉面覆盖整部电影（6.8.8 资产幻觉、
+6.8.9 导演幻觉同源）；② 模型 503 风暴时每次请求把所有候选再撞一遍，
+用户白等几十秒，拿到本地引擎毫秒级就能给的东西。
+
+### 新架构：基底先行 + 结构冻结
+
+分镜结构（phase / fn / shotType / subjects 资产 ID / 环境 / 机位 / 灯光 /
+调色 / 连续性 / duration / story / beatId / 代号）**永远来自本地确定性引擎**
+（`planVariants` / `transpileMovieToLego`）；AI 只能改写三个文本字段
+`action / audioCue / radioVoice`。幻觉面从「整部电影」塌缩到「三句文案」。
+合并层 `mergePolish`（src/domain/polish-contract.js，前端后台共用同一份）
+四条不变式：① 结构永不由 AI 提供（AI 响应里的 subjects/phase/fn 静默丢弃）；
+② 未提供/空字段保留基底原文；③ 代号守卫——名册外【代号】整字段拒绝
+（下游 script-callsign 契约要求台词代号必须来自名册）；④ 一切拒绝记账
+（merged/kept/rejected 进响应体）。混合数组无 ID 条目一律拒绝不猜位置
+（猜错会把 B 镜文案贴到 A 镜）。
+
+### 熔断器：让失败路径也快
+
+每 provider 连续失败 3 次开闸、60s 冷却、半开放行一次、成功归零，
+`now` 时钟探针注入。实测 503 风暴：第 1 次请求 3 次调用后开闸，
+第 2 次起 **0 次云调用、约 200ms 出完整片**，reason=CIRCUIT_OPEN。
+熔断跳过不记失败（不拿自己的跳过延续熔断），如实进 `breakerSkipped`。
+
+### 两处靠测量才定得下来的设计
+
+- **敌方登场守卫前移到 AI 之前**：实测本地规划器对「现代特战城市巷战」
+  名册敌方为 0 —— 结构冻结后 AI 没机会补，`ensureOpposingPresence`
+  必须作用在基底上（已导出供单元门禁）。
+- **润色路径绝不走 `alignShotsToLego`**：实测它剥掉基底富结构字段
+  （beatId/fn/focus/duration/fx/audio/story），只走 `diversifyShots` +
+  `tagDramaticFunctions`（spread 保字段）。
+
+### 元数据与识别语义
+
+策展影片元数据只来自手写库自身事实（绝不问 AI）；原创影片
+recognized:true 才用模型元数据。**recognized:false 的语义从「作废调用」
+变为「元数据留空、润色照常」**：local 基底已在手，此时 reason=OK +
+unrecognized 透明标记（前端提示「未识别为已知影片」）。新 reason：
+`CIRCUIT_OPEN`、`POLISH_REJECTED`（云端返回了但一字段没过守卫——
+与「润色成功」「全部失败」都区分开）。
+
+### 自由模式同样接入
+
+前端 `mode:'plan'` 把本地基底发来，后端只润色；换方案/重发用
+Map 缓存零等待重放；润色状态行（本地写的还是云端润的）在界面上有答案。
+
+### 门禁与反向验证
+
+测试 329 → **363/363**（新增 polish-contract 14 / circuit-breaker 7 /
+polish-integration 12；迁移 movie-recognition 5 / backend-ai-brain 14 /
+ai-diagnosis 24）。反向验证：破坏代号守卫 → 2 条红；破坏结构冻结 →
+1 条红；破坏熔断跳过 → 1 条红；还原后恢复全绿。连跑 3 次全量全绿。
+期间抓到两个测试自身的 bug（均与 6.8.8 同型）：① 熔断器模块级状态
+造成跨用例污染（ai-diagnosis 三条单跑过、整文件跑全红 → afterEach
+重置）；② `ui-contract` 门禁抓到 `#variant-polish-note` 悬空 id
+（改为在 `#variant-picker` 内部按 class 查询）。
+
+**待兑现**：发布后线上复测（自编片名应走「本地基底 + 润色」并带未识别
+标注；503/断 Key 验证熔断与快速回退）。遗留运维项：OpenRouter 变量
+线上 `configured=false`（需重新保存 + Redeploy）；Groq Key 403；
+OpenRouter 8 候选裁 4。
+
+---
+
 ## 2026-10-16 · 6.8.9 治「为不存在的电影编造导演」——想象力留下，幻觉根除
 
 用户截图触发：输入自编片名「热带雨林狙击手生死对决」，系统交付

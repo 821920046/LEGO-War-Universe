@@ -2,21 +2,41 @@
  * LEGO War Universe - 后台免费大模型统一调度中枢 (/api/ai-brain)
  * 功能：
  * 1. 后端集中托管 Groq / OpenRouter / Gemini 等免费大模型 API Key，前端免配置开箱即用
- * 2. 具备多通道自动故障转移 (Failover Engine)：Groq -> OpenRouter -> Gemini -> 本地离线引擎
- * 3. 严格审计与速率限制保护
+ * 2. 本地打底 + AI 润色（6.9.0）：结构永远来自确定性本地引擎，AI 只改写三个文本字段
+ * 3. 多通道自动故障转移（Groq -> OpenRouter -> Gemini）+ 熔断器：模型过载时跳过空等
+ * 4. 严格审计与速率限制保护
+ *
+ * **6.9.0 架构变更：AI 从「生成整部电影」退位到「润色三句文案」**
+ *
+ * 旧模式：AI 可用时，整部分镜（含资产 ID / 结构 / 台词）由模型自由生成；
+ * AI 不可用时，才整部落回本地引擎。两个后果：模型的幻觉面覆盖整部电影
+ * （6.8.8 的资产幻觉、6.8.9 的导演幻觉都源于此）；模型过载时（线上实测
+ * 503 风暴）用户每次白等几十秒才拿到本来毫秒级就能给出的本地基底。
+ *
+ * 新模式：**基底先行** —— 每次请求先用确定性本地引擎产出完整分镜（真实资产、
+ * 固定代号、节拍弧、连续性，全过校验），再把基底交给 AI 做文本润色。
+ * AI 不可用（无 Key / 全失败 / 熔断中）时基底已在手，回退零等待；
+ * AI 可用时，合并层（mergePolish）只放行三个文本字段，结构零改动。
+ * 详见 src/domain/polish-contract.js 的契约说明。
  */
 
 import { transpileMovieToLego, matchCuratedFilm } from '../../src/domain/cinema-homage.js';
 import { generateLocally, OFFLINE_ENGINES } from '../../src/domain/local-engine.js';
-import { alignShotsToLego } from '../../src/domain/lego-aligner.js';
 import { checkContentGovernance } from '../../src/domain/governance.js';
 import { parseIntent } from '../../src/domain/intent.js';
 import { hasHostileFraming } from '../../src/domain/shot-spec.js';
-import { buildAssetCatalog, formatCatalogForPrompt, collectValidIds, resolveShotAssets } from '../../src/domain/asset-catalog.js';
+import { buildAssetCatalog, formatCatalogForPrompt, collectValidIds } from '../../src/domain/asset-catalog.js';
 import { assets as ASSET_REGISTRY } from '../../src/domain/assets-data.js';
 import { createRegistry } from '../../src/domain/registry.js';
-import { selectCast, buildRoster, rosterToJSON, rosterPromptLines } from '../../src/domain/roster.js';
+import { selectCast, buildRoster, rosterToJSON, rosterPromptLines, rosterFromJSON } from '../../src/domain/roster.js';
 import { diversifyShots, tagDramaticFunctions } from '../../src/domain/narrative.js';
+import {
+  POLISHABLE_FIELDS,
+  buildPolishSystemPrompt,
+  buildPolishUserPrompt,
+  mergePolish,
+  callsignSetOfRoster
+} from '../../src/domain/polish-contract.js';
 
 /**
  * 后端侧的资产注册表。
@@ -81,6 +101,69 @@ export function checkRateLimit(clientId, now = Date.now()) {
     return { limited: true, retryAfterMs };
   }
   return { limited: false };
+}
+
+// ── 熔断器（6.9.0）────────────────────────────────────────────────────────
+// 起因（线上实测 2026-10-16）：Gemini 免费档 503 风暴，一次请求里三个候选模型
+// 全挂（0.4s / 12.3s / 27.5s），而本地基底是毫秒级就能给出的。没有熔断时，
+// **模型过载期间每一次请求都要按顺序把所有候选再撞一遍** —— 用户等了半天，
+// 拿到的却正是第一毫秒就能拿到的东西。熔断器的意义只有一个：**让失败路径也快**。
+//
+// 语义（每个 provider 独立计数）：
+//   · 连续失败 FAILURE_THRESHOLD 次 → 开闸，冷却期内直接跳过该 provider（不再发起调用）；
+//   · 冷却结束 → 自动半开：放行一次尝试，成功即关闸、失败即以新冷却期重新开闸；
+//   · 任何一次成功 → 计数归零、关闸。
+//
+// Workers 的模块级状态只在单个 isolate 内有效且随时可能被回收，因此熔断是
+// **优化而不是正确性依赖**：状态丢失的最坏结果只是「多试一次本来会失败的调用」，
+// 绝不影响「AI 不可用时基底照常交付」这条主线。也因此它不需要持久化。
+const CIRCUIT_FAILURE_THRESHOLD = 3;
+const CIRCUIT_COOLDOWN_MS = 60 * 1000;
+/** providerId -> { failures, openedAt }。openedAt 非空即处于「已开闸」状态。 */
+const circuitState = new Map();
+
+/**
+ * 查询某 provider 的熔断状态。
+ * @param {string} providerId
+ * @param {number} now 时钟探针（测试注入；窗口轮转不可能真等 60 秒）
+ * @returns {{ open: boolean, failures: number, retryAfterMs: number, halfOpen: boolean }}
+ */
+export function circuitStatus(providerId, now = Date.now()) {
+  const state = circuitState.get(providerId);
+  if (!state) return { open: false, failures: 0, retryAfterMs: 0, halfOpen: false };
+  if (state.openedAt == null) {
+    return { open: false, failures: state.failures, retryAfterMs: 0, halfOpen: false };
+  }
+  const elapsed = now - state.openedAt;
+  if (elapsed >= CIRCUIT_COOLDOWN_MS) {
+    // 冷却已过：半开放行（返回 open:false，调用方会真的去试一次）
+    return { open: false, failures: state.failures, retryAfterMs: 0, halfOpen: true };
+  }
+  return { open: true, failures: state.failures, retryAfterMs: CIRCUIT_COOLDOWN_MS - elapsed, halfOpen: false };
+}
+
+/**
+ * 记录一次 provider 调用的结果，驱动熔断状态机。
+ *
+ * 半开失败必须**重开冷却期**（而不是沿用旧 openedAt 无限期半开）——
+ * 否则「到期放行一次 → 失败 → 又立刻放行」会把熔断退化成定时重试。
+ */
+export function recordCircuitOutcome(providerId, ok, now = Date.now()) {
+  if (ok) {
+    circuitState.delete(providerId);
+    return;
+  }
+  const state = circuitState.get(providerId) || { failures: 0, openedAt: null };
+  state.failures += 1;
+  if (state.openedAt != null || state.failures >= CIRCUIT_FAILURE_THRESHOLD) {
+    state.openedAt = now;
+  }
+  circuitState.set(providerId, state);
+}
+
+/** 测试专用：清空熔断状态（否则用例之间会互相开门）。 */
+export function resetCircuitForTests() {
+  circuitState.clear();
 }
 
 const json = (body, status = 200, headers = {}) => new Response(JSON.stringify(body), {
@@ -336,17 +419,27 @@ function providerReport(env = {}) {
  * 汇总本次请求的 AI 使用结论。
  * @param {Array} attempts 逐个 provider 的尝试记录（含各自的 calls 逐次耗时）
  * @param {object} env 运行时环境变量
- * @param {object} meta 本次请求的预算与耗时信息
+ * @param {object} meta 本次请求的预算 / 耗时 / 熔断 / 润色信息
  */
 function buildAiStatus(attempts, env = {}, meta = {}) {
   const configured = PROVIDERS.filter(p => env[p.envVar]).length;
   const won = attempts.find(a => a.ok) || null;
-  // 6.8.9：云端如实回答「查无此片」——这是防幻觉的预期路径，不是故障，
-  // 必须与「全部失败」在 reason / hint 上明确区分开。
+  // 6.8.9 → 6.9.0：模型如实回答「查无此片」不再是故障路径，而是「元数据留空、
+  // 润色照常」的结论。unrecognized 作为透明标记回传，不再单独构成 reason。
   const unrecognized = attempts.find(a => a.unrecognized) || null;
-  const reason = won ? 'OK'
-    : unrecognized ? 'UNRECOGNIZED_INPUT'
-    : (configured === 0 ? 'NO_KEYS_CONFIGURED' : 'ALL_PROVIDERS_FAILED');
+  const breakerSkipped = Array.isArray(meta.breakerSkipped) ? meta.breakerSkipped : [];
+  const polish = meta.polish || null;
+  // 云端返回了、但没有任何一字段通过合并守卫：必须与「润色成功」和
+  // 「全部失败」都区分开 —— 否则「AI 没润成」会显示成「润色成功」。
+  const polishRejected = Boolean(won) && Boolean(polish) && polish.merged === 0;
+  const allBreakerSkipped = breakerSkipped.length > 0
+    && attempts.filter(a => a.configured).length > 0
+    && attempts.filter(a => a.configured).every(a => breakerSkipped.includes(a.id));
+
+  const reason = polishRejected ? 'POLISH_REJECTED'
+    : won ? 'OK'
+      : allBreakerSkipped ? 'CIRCUIT_OPEN'
+        : (configured === 0 ? 'NO_KEYS_CONFIGURED' : 'ALL_PROVIDERS_FAILED');
 
   // 「哪个模型慢、哪个模型挂」必须能从响应里直接读出来 ——
   // 这正是 6.8.6 之前读不出来的东西：attemptedModels 只记了名字，
@@ -356,14 +449,16 @@ function buildAiStatus(attempts, env = {}, meta = {}) {
   const budgetExhausted = Boolean(meta.budgetExhausted);
 
   let hint;
-  if (won) {
+  if (polishRejected) {
+    hint = '云端模型返回了内容，但没有任何一个字段通过润色合并守卫（未知角色代号 / 文本超长 / 镜头对不上，明细见响应体 polish.rejected）。本次交付未润色的本地基底，内容完全可用。';
+  } else if (won) {
     hint = null;
   } else if (configured === 0) {
     hint = '后台未配置任何模型 Key，本次由本地引擎生成。启用云端 AI：Cloudflare Pages → Settings → Environment variables → Production 配置 GROQ_API_KEY（类型选 Secret），然后重新部署。';
-  } else if (unrecognized) {
-    hint = `模型无法将「该输入」识别为已知真实影片（防幻觉路径）：已按题材转本地原创引擎生成，分镜仍完全可用。这是预期行为而不是故障 —— 真实影片的解构不受影响；只有当输入确实是你不认识的片名时才会走这条路径。涉及 provider：${unrecognized.id}。`;
+  } else if (allBreakerSkipped) {
+    hint = '模型通道连续失败，已进入熔断冷却期，本次跳过云端调用、直接交付本地基底（毫秒级出片，不再空等）。冷却结束后会自动重试；若持续失败，请按各 provider 的 advice 检查 Key 与模型可用性。';
   } else {
-    hint = '后台已配置模型 Key，但本次调用全部失败 —— 请看 providers 里每个 provider 的 advice 字段（已把 HTTP 状态码翻译成具体怎么办：401/403=Key 被拒绝，404=模型名可能已退役，429=额度或限流）。';
+    hint = '后台已配置模型 Key，但本次调用全部失败 —— 请看 providers 里每个 provider 的 advice 字段（已把 HTTP 状态码翻译成具体怎么办：401/403=Key 被拒绝，404=模型名可能已退役，429=额度或限流）。本地基底分镜不受影响。';
     if (timedOutCalls.length) {
       hint += ` 另有 ${timedOutCalls.length} 次是**超时**（${timedOutCalls.map(c => `${c.provider}/${c.model}`).join('、')}）：说明该模型排队严重或上游卡住，可换更快的模型或调大 AI_PROVIDER_TIMEOUT_MS。`;
     }
@@ -376,10 +471,14 @@ function buildAiStatus(attempts, env = {}, meta = {}) {
     aiAvailable: Boolean(won),
     reason,
     activeProvider: won ? won.id : null,
-    // 6.8.9：输入未被模型识别为真实影片时，如实标记（防幻觉路径，非故障）
+    // 6.8.9：输入未被模型识别为真实影片时如实标记（防幻觉标记，非故障信号）
     unrecognized: Boolean(unrecognized),
     configuredCount: configured,
     providers: attempts,
+    // 6.9.0：熔断跳过与润色账本也必须可见 —— 否则「跳过了几个模型」
+    // 「润色到底进没进」这两个用户最关心的问题又只能靠猜。
+    breakerSkipped,
+    polish: polish ? { merged: polish.merged, kept: polish.kept, rejectedTotal: polish.rejectedTotal ?? 0 } : null,
     // ── 6.8.6：让「慢」可测量 ────────────────────────────────────────
     // 有了逐次耗时，才能回答「到底是哪个模型慢/挂」，
     // 而不是像 6.8.4 那样拿总耗时（latencyMs=193）去反推结论、反推出错。
@@ -405,6 +504,9 @@ function buildProbeReport(env = {}) {
     configuredCount: providers.filter(p => p.configured).length,
     providerOrder: PROVIDERS.map(p => p.id),
     providers,
+    // 6.9.0：熔断状态必须能在自检里直接看到 —— 否则「为什么这次没试 Gemini」
+    // 只能靠猜。状态是 isolate 内尽力而为，丢了最坏只是多试一次。
+    circuit: Object.fromEntries(PROVIDERS.map(p => [p.id, circuitStatus(p.id)])),
     // 6.8.6：超时与预算是「为什么慢/为什么没反应」的直接答案，必须能一眼看到当前生效值。
     timeouts: {
       perModelMs,
@@ -457,121 +559,6 @@ function governResponse(responseBody, inputGovernance) {
   return { status: 200, body: responseBody };
 }
 
-const DIRECTOR_SYSTEM_PROMPT_HEADER = `你是一位好莱坞顶级电影摄影指导与微缩定格动画导演（擅长诺兰、雷德利·斯科特、丹尼斯·维伦纽瓦的视听语言，精通乐高定格微缩物理美学）。
-用户的输入可能是一部电影名称（如《长津湖》《阿凡达》《星际穿越》《狂怒》《黑客帝国》等），或者任意战术/科幻创意大纲。
-你的任务是将该内容深度解构并转译为一部乐高微缩定格大片分镜剧本。
-
-【最高优先级零：真实性与署名纪律（先于以下所有规则）】
-· 只解构你**确切知道**的真实电影。若输入并不是你确知的真实影片（查无此片、片名陌生、
-  或明显是用户自编的题材），绝不允许现编 matchedMovie / director / year / genre ——
-  必须输出 "recognized": false，且这四个字段一律给空字符串 ""。
-  系统会据此转交本地原创引擎，并如实告知用户「未识别该影片，已按该题材原创」。
-  这不是失败，是正确行为：用户自编的片名是珍贵的原创题材，不是待背诵的电影资料。
-· director 字段只允许填**该真实影片的真实导演**（事实陈述，如《狂怒》→ 大卫·阿耶）。
-  本片的原创情节（originality）不得挂到任何导演名下；致敬意向只写在 homageNote 里，
-  用「诺兰式实拍质感」「斯科特式科幻史诗感」这类风格化表述，绝不允许写成导演署名。
-· 绝不允许把影片归到真实在世导演名下 —— 尤其是把不存在 / 用户自编的影片
-  说成某某在世导演的作品（2026-10-16 线上实测到该行为：对自编片名
-  「热带雨林狙击手生死对决」输出「导演：丹尼斯·维伦纽瓦」，属于必须根除的幻觉）。
-
-【最高优先级一：必须使用真实资产 ID】
-下方是 LEGO War Universe 资产库中与本片题材最相关的真实资产清单（格式：ID=名称(时代)）。
-每一个镜头都必须从清单中挑选真实存在的 ID 填入 assets 字段，严禁编造清单以外的 ID。
-- subjects：1–3 个角色或载具 ID（从【角色人仔】【载具】里选）
-- environment / camera / lighting / colorGrade：各 1 个对应分组的 ID
-- fx / audio：各 0–3 / 0–2 个 ID（可选）
-如果题材所需的现代/未来战争装备在清单中确实不存在，请照常发挥想象力描写动作，并在顶层 proposedAssets 数组里给出建议新增的资产（含 name / nameZh / group / lines），但镜头里仍必须使用清单内最接近的真实 ID 兜底。
-
-【最高优先级二：原创性，不许照着原作抄】
-参考片只贡献**视听语言与戏剧母题**，绝不贡献情节。你必须给出独立于原作的立意：
-- originality.logline：一句话立意（谁、在哪、要做什么、赌注是什么）
-- originality.twist：一个能翻转局势的转折（例如情报是诱饵、撤离窗口提前关闭、通讯已被敌方接管、敌方指挥官是主角的教官）
-- originality.hook：前 3 秒抓人的开场钩子
-禁止复述原作的经典桥段；允许在视听语法上致敬，但情节必须自己长出来。
-
-【最高优先级三：禁止复读】
-每个镜头的 action 必须**彼此明显不同**：主体、机位、动作、环境互动都要变化。
-严禁把同一句话复制到多个镜头，严禁只改几个字充数。系统会对重复文本做去重惩罚。
-
-【最高优先级四：敌对双方都要出场】
-若下方【本片固定阵容】中存在对立阵营角色，则至少有两个镜头必须让敌方实际出场并产生对抗；
-同时，每个镜头的 subjects 必须与 action 里实际描写的角色保持一致，不得出现「写的是敌人、填的是友军」。
-
-【最高优先级五：每镜必须有各自不同的戏剧功能（这是「能不能构成电影」的生死线）】
-一部电影不是把「开火」拍 N 遍。逐镜检查：这一镜在故事里**做了一件什么事**？
-你必须为每个镜头在 fn 字段里声明它的戏剧功能，取值只能从下面这 17 个里选：
-  goal(交代目标) world(铺陈规模) character(人物时刻) approach(接近) observe(观察等待)
-  plan(临场计划) contact(首次接触) escalate(压力升级) reveal(情报有变) decision(抉择)
-  reversal(反转) cost(代价) clash(正面交锋) quiet(静默) aftermath(残局) reaction(反应) close(收束)
-硬约束（系统会逐条校验，违反即判定不合格）：
-- **相邻两镜的 fn 必须不同**：绝不允许连续两个镜头都在干同一件戏剧上的事。
-- **clash（正面交锋）最多占全片 1/3**：全片若有一半以上镜头是 clash，就直接判定为「蒙太奇、不成电影」。
-- **必须包含非战斗功能**：全片至少要有 goal / character / observe / quiet / decision / cost / reaction / close 中的 3 种。
-- 每个阶段各自的长相：
-  · establish（铺垫）：先让人知道「要干什么、赌注是什么、人是谁」，再谈打。
-  · build（展开）：制造意外（reveal）、让压力加码（escalate）、逼出计划（plan）。
-  · climax（决战）：升级到正面交锋，但**必须**在交锋之间插入抉择(decision)/反转(reversal)/代价(cost)/静默(quiet)。
-  · resolve（尾声）：打完之后的残局(aftermath)、反应(reaction)、收束(close)——而不是继续开火。
-- 允许并且鼓励「不开枪的镜头」：观察、等待、静默、一个反应特写，往往比又一场交火更有力量。
-
-【角色代号纪律】
-阵容里给出的代号是该角色在全片的唯一身份，action / radioVoice 中必须用【代号】称呼角色，
-且同一角色全片同名，绝不换称呼。镜头间保持同一套外观与损伤状态。
-
-你必须严格以合法的 JSON 格式输出，不要包含任何多余的开场白或解释。JSON 结构必须符合以下格式：
-{
-  "recognized": true,
-  "matchedMovie": "电影中文全名 (英文原名)",
-  "director": "导演姓名",
-  "year": "上映年份",
-  "genre": "电影流派题材",
-  "dramaticConflict": "一句话核心危机与戏剧生死矛盾",
-  "visualGrammar": {
-    "cameraMotion": "标志性摄影机运动与景别法则",
-    "lightingTone": "色彩影调与明暗反差设计",
-    "soundDesign": "声音设计与配乐灵魂"
-  },
-  "legoAdaptation": "如何用乐高微缩积木、微距景深、特技烟雾与真实塑料材质进行定格微缩还原的专业建议",
-  "creatorTips": "给自媒体创作者提升前3秒完播率与声画对齐的实战拉片教学秘籍",
-  "originality": {
-    "logline": "独立原创的一句话立意",
-    "twist": "能翻转局势的原创转折",
-    "hook": "前3秒开场钩子",
-    "homageNote": "说明本片在视听语言上致敬了谁，但情节为独立原创"
-  },
-  "proposedAssets": [],
-  "shots": [
-    {
-      "phase": "establish",
-      "fn": "本镜戏剧功能，只能取以下 17 值之一：goal/world/character/approach/observe/plan/contact/escalate/reveal/decision/reversal/cost/clash/quiet/aftermath/reaction/close（相邻两镜不得相同）",
-      "shotType": "景别类型（如：超低空掠地全景 / 驾驶舱微型特写）",
-      "action": "详细的乐高微缩动作描述，必须指明乐高人仔、载具、建筑积木细节，并用【代号】称呼角色",
-      "screenDirection": "towards-camera",
-      "damageState": "clean",
-      "audioCue": "环境音效与伴随音乐描述",
-      "radioVoice": "【台词/无线电】核心角色对白或战术呼叫",
-      "assets": {
-        "subjects": ["CHR-401"],
-        "environment": "ENV-001",
-        "camera": "CAM-001",
-        "lighting": "LGT-001",
-        "colorGrade": "CLR-001",
-        "fx": [],
-        "audio": []
-      }
-    }
-  ]
-}`;
-
-function buildDirectorSystemPrompt(catalogText, era, castText = '') {
-  return `${DIRECTOR_SYSTEM_PROMPT_HEADER}
-
-【本片时代判定】${era || '未明确（默认 Modern 现代）'}
-${castText}
-【可用真实资产清单】
-${catalogText || '（资产库目录为空，请使用 CHR-401 / ENV-001 / CAM-001 / LGT-001 / CLR-001 作为兜底）'}`;
-}
-
 /** 把确定性阵容渲染成 Prompt 片段（真实资产 + 固定代号） */
 function buildCastSection(castRoster) {
   const lines = castRoster ? rosterPromptLines(castRoster) : [];
@@ -582,23 +569,23 @@ ${lines.join('\n')}
 `;
 }
 
-function buildUserPrompt(query, requestedShots) {
-  return `请深度解构并转译：${query}。输出正好 ${requestedShots} 个镜头的完整分镜（四阶段叙事：铺垫 establish -> 展开 build -> 决战 climax -> 尾声 resolve）。每个镜头的 assets 字段必须使用上方清单中的真实 ID。若上方【本片固定阵容】给了代号，请在 action 与 radioVoice 中始终用【代号】称呼角色，并确保 ${requestedShots} 个镜头的 action 描述各不相同。
-【识别判定】若 ${query} 不是你确切知道的真实电影，输出 "recognized": false 且 matchedMovie / director / year / genre 全部留空字符串 ""；只有确知真实影片时才允许 recognized: true 并给出该片的真实元数据。`;
-}
-
-/** 判定一段动作描述是否已包含交战语义（用于安全地补入敌方角色） */
 /**
- * 确保敌方阵营确实上镜。
+ * 确保敌方阵营真的上镜。
  *
- * 大模型常常「只在台词里提敌人，subjects 里却全是友军」。这里做一次保守修补：
- * 只在「build / climax 阶段 + 动作已含交战语义 + 主体不足 3 个」的镜头上补入敌军，
+ * 6.9.0 起作用点前移：**AI 调用之前**先修基底，再把修好的基底交给 AI 润色。
+ * 为什么必须保留这道守卫：实测本地规划器对部分题材（如「现代特战城市巷战」）
+ * 产出的名册里敌方为 0 —— 结构冻结之后，AI 也没有机会再补。若删掉它，
+ * 「敌对双方都要出场」这条产品不变式会直接回归。
+ *
+ * 大模型（旧模式）常常「只在台词里提敌人，subjects 里却全是友军」；
+ * 本地规划器则是「名册里就没挑敌方」。两种病、同一味药：只在
+ * 「build / climax 阶段 + 动作已含交战语义 + 主体不足 3 个」的镜头上补入敌军，
  * 既不触发阵营冲突校验（对立阵营同框必须有对抗动作），也不会挤掉已有主体。
  *
  * 交战语义必须复用 shot-spec 的 hasHostileFraming，绝不能自己再写一份正则：
  * 两份判定不一致时，补进去的镜头会直接在校验阶段报 FACTION_CONFLICT_INVALID。
  */
-function ensureOpposingPresence(shots = [], opposingIds = []) {
+export function ensureOpposingPresence(shots = [], opposingIds = []) {
   if (!opposingIds.length) return { shots, injected: 0 };
   const hasFoe = shots.some(s => (s.subjects || []).some(id => opposingIds.includes(id)));
   if (hasFoe) return { shots, injected: 0 };
@@ -694,6 +681,139 @@ async function callProviderModel(provider, model, systemPrompt, userPrompt, apiK
   return cleanAndParseJson(content);
 }
 
+/**
+ * 跑一次「云端润色」尝试（转译模式与计划模式共用同一条多通道故障转移链）。
+ *
+ * 与 6.8.x 的内联循环的差别：
+ *   1. 抽成函数 —— 两个模式（/api/ai-brain 转译、mode:'plan' 自由模式）共用，
+ *      否则同一套熔断 + 候选 + 预算逻辑会写两份然后漂移；
+ *   2. 熔断开闸的 provider 直接跳过，不再发起调用（线上 503 风暴时每次请求
+ *      原本要把所有候选再撞一遍，用户白等几十秒拿到毫秒级就能给的东西）；
+ *   3. recognized:false 不再把成功调用作废 —— 6.9.0 起它只意味着「元数据留空」，
+ *      润色照常进行（详见 polish-contract 的识别判定段）。
+ *
+ * @returns {{ result: object|null, usedEngine: string|null, attempts: Array, budgetExhausted: boolean, breakerSkipped: string[] }}
+ */
+async function attemptCloudPolish({ systemPrompt, userPrompt, env = {}, perModelMs, totalMs }) {
+  const deadline = Date.now() + totalMs;
+  let result = null;
+  let usedEngine = null;
+  let budgetExhausted = false;
+  const breakerSkipped = [];
+
+  // 逐个 provider 的尝试记录 —— 这是「为什么没用上 AI」的唯一证据来源。
+  const attempts = PROVIDERS.map(p => ({
+    id: p.id,
+    envVar: p.envVar,
+    modelEnvVar: p.modelEnvVar,
+    configured: Boolean(env[p.envVar]),
+    tried: false,
+    skipped: false,
+    ok: false,
+    model: null,
+    ms: null,
+    attemptedModels: [],
+    calls: [],
+    totalMs: 0,
+    error: null,
+    advice: null
+  }));
+
+  for (const provider of PROVIDERS) {
+    if (result || budgetExhausted) break;
+    const record = attempts.find(a => a.id === provider.id);
+    if (!record.configured) continue;
+
+    // 熔断开闸期内直接跳过：不再发起注定失败的调用。
+    // 跳过本身不记失败（不能拿熔断自己的跳过延续熔断），只如实记账。
+    const circuit = circuitStatus(provider.id);
+    if (circuit.open) {
+      record.skipped = true;
+      record.error = `熔断中：连续失败 ${circuit.failures} 次，${Math.ceil(circuit.retryAfterMs / 1000)} 秒后自动重试`;
+      record.advice = '该模型通道连续失败，已进入熔断冷却期，本次直接跳过（不再空等）；本地基底分镜照常交付。';
+      breakerSkipped.push(provider.id);
+      continue;
+    }
+
+    const models = modelsFor(provider, env);
+    record.tried = true;
+    record.attemptedModels = models.map(m => m.id);
+    let lastError = null;
+
+    for (const entry of models) {
+      const model = entry.id;
+      // 6.8.7：JSON 模式按模型解析 —— 模型没显式声明就沿用 provider 默认。
+      const jsonMode = entry.jsonMode === null ? Boolean(provider.jsonMode) : entry.jsonMode;
+      // 开始下一次调用之前先看预算：剩余时间不够就不要再发起，
+      // 否则「总预算」只是装饰 —— 一次 60s 的调用就能把 120s 的预算吃掉一半以上。
+      const remaining = deadline - Date.now();
+      if (remaining <= 0) {
+        budgetExhausted = true;
+        record.calls.push({ model, ok: false, ms: 0, error: '跳过：整次请求总预算已耗尽', timedOut: false, skipped: true });
+        break;
+      }
+      // 单次上限再被剩余预算夹一次，保证「总时长有界」是硬保证。
+      const callTimeout = Math.min(perModelMs, remaining);
+      const callStart = Date.now();
+
+      try {
+        result = await callProviderModel(provider, model, systemPrompt, userPrompt, env[provider.envVar], callTimeout, jsonMode);
+        const ms = Date.now() - callStart;
+        record.calls.push({ model, ok: true, ms, error: null, timedOut: false, skipped: false });
+        recordCircuitOutcome(provider.id, true);
+        // 6.8.9 → 6.9.0：模型如实回答「查无此片」不再是「作废这次调用」，
+        // 而是「元数据留空、润色照常」的结论。unrecognized 只作为透明标记随
+        // aiStatus 回传，前端据此提示「未识别为已知影片」。
+        if (result && result.recognized === false) record.unrecognized = true;
+        usedEngine = `${provider.label} (${model})`;
+        record.ok = true;
+        record.model = model;
+        record.ms = ms;
+        break;
+      } catch (e) {
+        const ms = Date.now() - callStart;
+        lastError = e;
+        recordCircuitOutcome(provider.id, false);
+        record.calls.push({
+          model,
+          ok: false,
+          ms,
+          error: e.message,
+          timedOut: /超时/.test(e.message),
+          skipped: false
+        });
+        console.warn(`${provider.id}/${model} 调度失败（${ms}ms）:`, e.message);
+      }
+    }
+
+    record.totalMs = record.calls.reduce((sum, c) => sum + (c.ms || 0), 0);
+    if (!record.ok && !record.skipped && lastError) {
+      record.error = lastError.message;
+      // 把 HTTP 状态码 / 超时翻译成「人话 + 下一步怎么办」——
+      // 光有 `Groq HTTP 403` 用户仍然不知道该干什么。
+      record.advice = adviseProviderError(provider, models[models.length - 1].id, lastError.message);
+    }
+  }
+
+  return { result, usedEngine, attempts, budgetExhausted, breakerSkipped };
+}
+
+/** 把一次润色合并的结果整理成响应体里的「如实账本」 */
+function polishStats(merged, diversified, functioned, usedEngine) {
+  return {
+    model: usedEngine,
+    merged: merged.merged,
+    kept: merged.kept,
+    applied: merged.applied,
+    rejected: merged.rejected.slice(0, 8),
+    rejectedTotal: merged.rejected.length,
+    callsignGuard: merged.callsignGuard,
+    repetitionFixed: diversified.fixed,
+    functionRetagged: functioned.retagged,
+    monotoneGuard: functioned.monotone
+  };
+}
+
 export async function onRequest({ request, env = {} }) {
   const startTime = Date.now();
   const headers = cors(request, env);
@@ -763,192 +883,118 @@ export async function onRequest({ request, env = {} }) {
     }, 403, headers);
   }
 
-  // 依据题材解析时代，构建「与题材相关」的真实资产目录，注入 Prompt。
-  // 这是「AI 优先且必须使用资产库」的关键：模型拿到的是真实 ID，而不是空白想象。
+  // ── 6.9.0：基底先行 ────────────────────────────────────────────────────
+  // 无论 AI 是否可用，先用确定性本地引擎产出完整分镜：真实资产、固定代号、
+  // 节拍弧、连续性、戏剧功能，全部已过校验。AI 的职责从「生成整部电影」
+  // 收缩为「润色三个文本字段」—— 结构冻结，幻觉面随之塌缩。
+  // 详见 src/domain/polish-contract.js 的契约说明。
   const intent = parseIntent(query);
   const catalog = buildAssetCatalog(ASSET_REGISTRY, { era: intent.era, keywords: query });
   const catalogText = formatCatalogForPrompt(catalog);
   const validIds = collectValidIds(ASSET_REGISTRY);
+  const { perModelMs, totalMs } = timeoutsFor(env);
 
-  // 确定性阵容：后台先按时代从资产库里挑出正反双方 + 载具，并分配固定代号，
-  // 再把这份「演员表」交给大模型 —— 模型因此无法凭空发明角色，只能按代号排戏。
+  // ── mode:'plan'：自由战术分镜（前端本地出基底，云端只润色文案）────────
+  // 前端拿 planVariants 的四方案是毫秒级、可离线的；把当前方案的基底发来，
+  // 后端只做「AI 润色」这一件事。两边都不重复实现对方的核心能力。
+  if (body.mode === 'plan') {
+    const baseShots = Array.isArray(body.base?.shots) ? body.base.shots : [];
+    if (baseShots.length < 1 || baseShots.length > 12) {
+      return json({ error: 'INVALID_BASE', message: 'base.shots 必须是 1–12 个镜头的数组' }, 400, headers);
+    }
+    const baseRoster = Array.isArray(body.base?.roster) ? body.base.roster : [];
+    const allowedCallsigns = callsignSetOfRoster(baseRoster);
+    const castText = baseRoster.length ? buildCastSection(rosterFromJSON(baseRoster)) : '';
+    const systemPrompt = buildPolishSystemPrompt({
+      catalogText, era: intent.era, castText, recognize: false
+    });
+    const userPrompt = buildPolishUserPrompt({
+      query, requestedShots: baseShots.length, baseShots, recognize: false
+    });
+
+    const planAttempt = await attemptCloudPolish({ systemPrompt, userPrompt, env, perModelMs, totalMs });
+
+    let planShots = baseShots;
+    let planPolish = null;
+    if (planAttempt.result) {
+      const merged = mergePolish(baseShots, planAttempt.result, { allowedCallsigns });
+      const diversified = diversifyShots(merged.shots);
+      const functioned = tagDramaticFunctions(diversified.shots);
+      planShots = functioned.shots;
+      planPolish = polishStats(merged, diversified, functioned, planAttempt.usedEngine);
+    }
+    // 合并后再回填一次状态：润色全部被守卫拒绝时，reason 必须是 POLISH_REJECTED
+    // 而不是 OK —— 否则「云端返回了但一字段都没进来」会显示成润色成功。
+    const planStatusFinal = buildAiStatus(planAttempt.attempts, env, {
+      budgetExhausted: planAttempt.budgetExhausted,
+      budgetMs: totalMs,
+      perModelMs,
+      elapsedMs: Date.now() - startTime,
+      breakerSkipped: planAttempt.breakerSkipped,
+      polish: planPolish
+    });
+
+    const planBody = {
+      ok: true,
+      mode: 'plan',
+      shots: planShots,
+      polish: planPolish,
+      latencyMs: Date.now() - startTime,
+      aiStatus: planStatusFinal
+    };
+    const governedPlan = governResponse(planBody, inputGovernance);
+    return json(governedPlan.body, governedPlan.status, headers);
+  }
+
+  // 确定性阵容：只为「敌方登场守卫」提供对立阵营 ID。
+  // 注意 prompt 里的固定阵容**不**用它 —— 那必须来自基底自己的名册，
+  // 否则会告诉模型一套基底里并不存在的代号。
   const cast = REGISTRY ? selectCast(REGISTRY, { era: intent.era || 'Modern', task: 'combat', theme: query }) : null;
   const castIds = cast ? [...cast.heroes, ...cast.enemies, ...cast.vehicles].map(a => a.id) : [];
   const castRoster = REGISTRY && castIds.length ? buildRoster([{ subjects: castIds }], REGISTRY) : null;
   const opposingIds = castRoster ? castRoster.opposing.map(e => e.id) : [];
 
-  const systemPrompt = buildDirectorSystemPrompt(catalogText, intent.era, buildCastSection(castRoster));
-  const userPrompt = buildUserPrompt(query, requestedShots);
-
-  let result = null;
-  let usedEngine = 'None';
-
-  // 本次请求的超时与总预算（6.8.6）。deadline 用绝对时间，
-  // 这样「还要不要开始下一次调用」是一个可以算出来的问题，而不是凭感觉。
-  const { perModelMs, totalMs } = timeoutsFor(env);
-  const deadline = startTime + totalMs;
-  let budgetExhausted = false;
-
-  // 逐个 provider 的尝试记录 —— 这是「为什么没用上 AI」的唯一证据来源。
-  // 此前这些失败只写进 console.warn（用户在页面上永远看不到），
-  // 于是「配了 Key 却一直跑本地」没有任何可观测的线索。
-  const attempts = PROVIDERS.map(p => ({
-    id: p.id,
-    envVar: p.envVar,
-    modelEnvVar: p.modelEnvVar,
-    configured: Boolean(env[p.envVar]),
-    tried: false,
-    ok: false,
-    model: null,
-    ms: null,
-    attemptedModels: [],
-    // 6.8.6：逐次调用记录。attemptedModels 只记名字，答不了
-    // 「哪个名字失败了、失败在哪、花了多久」—— 而那才是排查要的东西。
-    calls: [],
-    totalMs: 0,
-    error: null,
-    advice: null
-  }));
-
-  // 按顺序尝试，一个成功就停；每个 provider 内部还会按候选模型列表逐个试。
-  // 6.8.5 之前这里是三段写死的 if + 三个写死模型的函数，模型一退役就整条路哑掉。
-  for (const provider of PROVIDERS) {
-    if (result || budgetExhausted) break;
-    const record = attempts.find(a => a.id === provider.id);
-    if (!record.configured) continue;
-
-    const models = modelsFor(provider, env);
-    record.tried = true;
-    record.attemptedModels = models.map(m => m.id);
-    let lastError = null;
-
-    for (const entry of models) {
-      const model = entry.id;
-      // 6.8.7：JSON 模式按模型解析 —— 模型没显式声明就沿用 provider 默认。
-      const jsonMode = entry.jsonMode === null ? Boolean(provider.jsonMode) : entry.jsonMode;
-      // 开始下一次调用之前先看预算：剩余时间不够就不要再发起，
-      // 否则「总预算」只是装饰 —— 一次 60s 的调用就能把 120s 的预算吃掉一半以上。
-      const remaining = deadline - Date.now();
-      if (remaining <= 0) {
-        budgetExhausted = true;
-        record.calls.push({ model, ok: false, ms: 0, error: '跳过：整次请求总预算已耗尽', timedOut: false, skipped: true });
-        break;
-      }
-      // 单次上限再被剩余预算夹一次，保证「总时长有界」是硬保证。
-      const callTimeout = Math.min(perModelMs, remaining);
-      const callStart = Date.now();
-
-      try {
-        result = await callProviderModel(provider, model, systemPrompt, userPrompt, env[provider.envVar], callTimeout, jsonMode);
-        const ms = Date.now() - callStart;
-        record.calls.push({ model, ok: true, ms, error: null, timedOut: false, skipped: false });
-        // 6.8.9：云端如实回答「查无此片」时，这次成功必须记成「未识别」而不是一次有效解构 ——
-        // 否则 aiStatus 显示调用成功、用户拿到的却是一部挂着真实导演的虚构电影。
-        // 这不是失败，是结论：result 置空，落入下方 local 原创路径。
-        if (result && result.recognized === false) {
-          record.unrecognized = true;
-          record.ok = false;
-          record.model = model;
-          record.ms = ms;
-          record.error = '模型如实报告：无法将该输入识别为已知真实影片，已转本地原创引擎';
-          usedEngine = null;
-          result = null;
-          break;
-        }
-        usedEngine = `${provider.label} (${model})`;
-        record.ok = true;
-        record.model = model;
-        record.ms = ms;
-        break;
-      } catch (e) {
-        const ms = Date.now() - callStart;
-        lastError = e;
-        record.calls.push({
-          model,
-          ok: false,
-          ms,
-          error: e.message,
-          timedOut: /超时/.test(e.message),
-          skipped: false
-        });
-        console.warn(`${provider.id}/${model} 调度失败（${ms}ms）:`, e.message);
-      }
-    }
-
-    record.totalMs = record.calls.reduce((sum, c) => sum + (c.ms || 0), 0);
-    if (!record.ok && lastError) {
-      record.error = lastError.message;
-      // 把 HTTP 状态码 / 超时翻译成「人话 + 下一步怎么办」——
-      // 光有 `Groq HTTP 403` 用户仍然不知道该干什么。
-      record.advice = adviseProviderError(provider, models[models.length - 1].id, lastError.message);
-    }
-  }
-
-  // 本次请求的 AI 结论：无论走云端还是回退本地，都如实带在响应里。
-  const aiStatus = buildAiStatus(attempts, env, {
-    budgetExhausted,
-    budgetMs: totalMs,
-    perModelMs,
-    elapsedMs: Date.now() - startTime
-  });
-
-  // 4. 若无云端 Key 或调用均异常，自动由本地引擎无缝兜底。
-  //
-  //    本地引擎有**两套性质完全不同**的东西，必须分开走（6.8.1 修复）：
-  //      · 命中 9 部策展影片 → 手写分镜复刻，如实标注「非 AI 生成」；
-  //      · 未命中任何策展影片 → 交给自主想象引擎真的按题材写一部，输入决定输出。
-  //    旧实现只有第一条路，且把未命中一律静默退回《黑鹰坠落》——
-  //    于是「换了两次内容，第一个脚本永远是同一句直升机索降」。
-  if (!result) {
-    const latencyMs = Date.now() - startTime;
-    const curated = matchCuratedFilm(query);
-
-    // 4a. 命中策展影片：交付手写复刻（内容固定，如实告知）
-    if (curated.film) {
-      const local = transpileMovieToLego(query, requestedShots, REGISTRY);
-      const responseBody = {
-        ok: true,
-        matchedMovie: local.matchedMovie,
-        movieId: local.movieId,
-        matchKind: local.matchKind,
-        contentKind: 'curated',
-        director: local.director,
-        year: local.year,
-        genre: local.genre,
-        dramaticConflict: local.dramaticConflict,
-        visualGrammar: local.visualGrammar,
-        legoAdaptation: local.legoAdaptation,
-        creatorTips: local.creatorTips,
-        themeZh: local.themeZh,
-        shots: local.shots,
-        originality: local.originality || null,
-        roster: Array.isArray(local.roster) ? local.roster : [],
-        repetitionFixed: local.repetitionFixed || 0,
-        isAiGenerated: false,
-        engine: OFFLINE_ENGINES.curated,
-        era: local.era || intent.era,
-        assetUsage: { catalogSize: validIds.size, matched: 0, unknown: [] },
-        proposedAssets: [],
-        latencyMs,
-        aiStatus
-      };
-      const governed = governResponse(responseBody, inputGovernance);
-      return json(governed.body, governed.status, headers);
-    }
-
-    // 4b. 未命中：改用自主想象引擎真的生成一部（含 4 方案择优），输入真正参与生成
-    const generated = generateLocally({
-      theme: query,
-      requestedShots,
-      registry: REGISTRY
-    });
+  // ── 基底：策展复刻（手写、事实元数据）或自主想象（按题材原创）──────────
+  const curated = matchCuratedFilm(query);
+  let base = null;
+  if (curated.film) {
+    const local = transpileMovieToLego(query, requestedShots, REGISTRY);
+    base = {
+      kind: 'curated',
+      shots: local.shots,
+      roster: Array.isArray(local.roster) ? local.roster : [],
+      matchedMovie: local.matchedMovie,
+      movieId: local.movieId,
+      matchKind: local.matchKind,
+      director: local.director,
+      year: local.year,
+      genre: local.genre,
+      dramaticConflict: local.dramaticConflict,
+      visualGrammar: local.visualGrammar,
+      legoAdaptation: local.legoAdaptation,
+      creatorTips: local.creatorTips,
+      themeZh: local.themeZh,
+      originality: local.originality || null,
+      era: local.era || intent.era,
+      // 手写库的元数据是影片自身的事实，绝不拿去问 AI —— 问就等于把
+      // 「事实陈述」降级成「模型回忆」，平白制造幻觉面。
+      recognize: false,
+      engineOffline: OFFLINE_ENGINES.curated,
+      enginePolished: '润色策展复刻'
+    };
+  } else {
+    const generated = generateLocally({ theme: query, requestedShots, registry: REGISTRY });
     if (generated) {
-      const responseBody = {
-        ok: true,
+      // 敌方登场守卫必须作用在**AI 之前**：实测本地规划器对「现代特战城市巷战」
+      // 这类题材产出的名册里敌方为 0。结构冻结之后 AI 没机会补，所以这里补。
+      const foeFixed = ensureOpposingPresence(generated.shots, opposingIds);
+      base = {
+        kind: 'generated',
+        shots: foeFixed.shots,
+        roster: Array.isArray(generated.roster) ? generated.roster : [],
         matchedMovie: null,
         movieId: null,
         matchKind: 'none',
-        contentKind: 'generated',
         director: null,
         year: null,
         genre: generated.genre,
@@ -957,33 +1003,28 @@ export async function onRequest({ request, env = {} }) {
         legoAdaptation: null,
         creatorTips: null,
         themeZh: generated.themeZh,
-        shots: generated.shots,
         originality: generated.originality || null,
-        roster: Array.isArray(generated.roster) ? generated.roster : [],
-        variant: generated.variant || null,
-        variants: generated.variants || [],
-        score: generated.score || null,
-        repetitionFixed: 0,
-        isAiGenerated: false,
-        engine: OFFLINE_ENGINES.generated,
         era: generated.era || intent.era,
-        assetUsage: { catalogSize: validIds.size, matched: 0, unknown: [] },
-        proposedAssets: [],
-        latencyMs,
-        aiStatus
+        variants: generated.variants || [],
+        variant: generated.variant || null,
+        score: generated.score || null,
+        recognize: true,
+        engineOffline: OFFLINE_ENGINES.generated,
+        enginePolished: '润色本地基底'
       };
-      const governed = governResponse(responseBody, inputGovernance);
-      return json(governed.body, governed.status, headers);
     }
+  }
 
-    // 4c. 生成也失败（极端情况）才退回策展兜底，但仍然如实标注，绝不冒充 AI
+  // 极端兜底：连基底都产不出来（注册表缺失等），仍要出片，且如实标注
+  if (!base) {
     const fallback = transpileMovieToLego(query, requestedShots, REGISTRY, { genericFallback: true });
-    const responseBody = {
-      ok: true,
+    base = {
+      kind: 'curated',
+      shots: fallback.shots,
+      roster: Array.isArray(fallback.roster) ? fallback.roster : [],
       matchedMovie: fallback.matchedMovie,
       movieId: fallback.movieId,
       matchKind: fallback.matchKind,
-      contentKind: 'curated',
       director: fallback.director,
       year: fallback.year,
       genre: fallback.genre,
@@ -992,93 +1033,116 @@ export async function onRequest({ request, env = {} }) {
       legoAdaptation: fallback.legoAdaptation,
       creatorTips: fallback.creatorTips,
       themeZh: fallback.themeZh,
-      shots: fallback.shots,
       originality: fallback.originality || null,
-      roster: Array.isArray(fallback.roster) ? fallback.roster : [],
-      repetitionFixed: fallback.repetitionFixed || 0,
-      isAiGenerated: false,
-      engine: `${OFFLINE_ENGINES.curated} · 生成引擎不可用，已退回通用军事分镜`,
       era: fallback.era || intent.era,
-      assetUsage: { catalogSize: validIds.size, matched: 0, unknown: [] },
-      proposedAssets: [],
-      latencyMs,
-      aiStatus
+      recognize: false,
+      engineOffline: `${OFFLINE_ENGINES.curated} · 生成引擎不可用，已退回通用军事分镜`,
+      enginePolished: '润色策展复刻'
     };
-    const governed = governResponse(responseBody, inputGovernance);
-    return json(governed.body, governed.status, headers);
   }
 
-  // 5. 校验大模型返回的资产引用：只保留真实存在的 ID，非法 ID 降级为默认资产。
-  const rawShots = Array.isArray(result.shots) ? result.shots : [];
-  const unknownIds = new Set();
-  let matchedRefs = 0;
-  const sanitizedShots = rawShots.map(shot => {
-    const { refs, unknown } = resolveShotAssets(shot, validIds);
-    unknown.forEach(id => unknownIds.add(id));
-    matchedRefs += refs.subjects.length
-      + ['environment', 'camera', 'lighting', 'colorGrade'].filter(k => refs[k]).length
-      + refs.fx.length + refs.audio.length;
-    return {
-      ...shot,
-      subjects: refs.subjects.length ? refs.subjects : undefined,
-      environment: refs.environment || undefined,
-      camera: refs.camera || undefined,
-      lighting: refs.lighting || undefined,
-      colorGrade: refs.colorGrade || undefined,
-      fx: refs.fx,
-      audio: refs.audio
-    };
+  // ── 云端润色尝试（熔断 + 多通道故障转移）──────────────────────────────
+  const castText = base.roster.length ? buildCastSection(rosterFromJSON(base.roster)) : '';
+  const systemPrompt = buildPolishSystemPrompt({
+    catalogText, era: base.era || intent.era, castText, recognize: base.recognize
+  });
+  const userPrompt = buildPolishUserPrompt({
+    query, requestedShots: base.shots.length, baseShots: base.shots, recognize: base.recognize
   });
 
-  // 5b. 保证敌方阵营真的上镜（只在含交战语义的镜头里保守补入，绝不制造阵营冲突）
-  const foeFixed = ensureOpposingPresence(sanitizedShots, opposingIds);
+  const attempt = await attemptCloudPolish({ systemPrompt, userPrompt, env, perModelMs, totalMs });
 
-  // 6. 与乐高资产规范对齐（含连续性链条强制注入）
-  const alignedShots = alignShotsToLego(foeFixed.shots, {}, intent.era || 'Modern');
+  // ── 合并：结构冻结，只放行三个文本字段 ────────────────────────────────
+  const allowedCallsigns = callsignSetOfRoster(base.roster);
+  let shots = base.shots;
+  let polish = null;
+  if (attempt.result) {
+    const merged = mergePolish(base.shots, attempt.result, { allowedCallsigns });
+    const diversified = diversifyShots(merged.shots);
+    const functioned = tagDramaticFunctions(diversified.shots);
+    shots = functioned.shots;
+    polish = polishStats(merged, diversified, functioned, attempt.usedEngine);
+  }
 
-  // 6b. 反重复兜底：大模型最爱偷懒复制同一句话，这里对撞车的 action 做确定性变奏
-  const diversified = diversifyShots(alignedShots);
+  // 6.8.9 防幻觉的最终形态：元数据只可能来自两个可信来源 ——
+  //   ① 手写策展库的影片事实；② 模型对「它确切知道的真实影片」的回答。
+  // recognized:false 或 AI 不可用时，director/year 一律留空，绝不现编。
+  const recognized = Boolean(attempt.result) && attempt.result.recognized !== false;
+  const aiResult = recognized ? attempt.result : null;
+  const metadata = base.kind === 'curated'
+    ? {
+      matchedMovie: base.matchedMovie, movieId: base.movieId, matchKind: base.matchKind,
+      director: base.director, year: base.year, genre: base.genre,
+      dramaticConflict: base.dramaticConflict, visualGrammar: base.visualGrammar,
+      legoAdaptation: base.legoAdaptation, creatorTips: base.creatorTips
+    }
+    : {
+      matchedMovie: aiResult?.matchedMovie || null,
+      movieId: null,
+      matchKind: 'none',
+      director: aiResult?.director || null,
+      year: aiResult?.year || null,
+      genre: aiResult?.genre || base.genre,
+      dramaticConflict: aiResult?.dramaticConflict || null,
+      visualGrammar: aiResult?.visualGrammar || null,
+      legoAdaptation: aiResult?.legoAdaptation || null,
+      creatorTips: aiResult?.creatorTips || null
+    };
 
-  // 6c. 戏剧功能兜底：大模型最爱的另一种偷懒是「8 个镜头全是对轰」——
-  //     文字各不相同，但每一镜在故事里干的是同一件事，观感仍是蒙太奇而非电影。
-  //     这里给每镜补/规整 fn（戏剧功能），保证相邻两镜不同功能、整片长出戏剧弧线。
-  const functioned = tagDramaticFunctions(diversified.shots);
-
-  // 6d. 以「最终真正上镜的镜头」为准聚合名册，并继承 Prompt 阶段已分配的代号，
-  //     保证「模型脚本里的称呼」与「前端定妆表 / 编译 Prompt」完全一致。
-  const finalRoster = REGISTRY
-    ? buildRoster(functioned.shots, REGISTRY, { prior: castRoster })
-    : null;
+  // 名册以基底代号为准重建（prior）：老 ID 沿用旧代号，守卫补入的敌军拿到新代号。
+  // 绝不能用 selectCast 的名册做 prior —— 那会改写基底台词里的称呼。
+  const finalRoster = REGISTRY ? buildRoster(shots, REGISTRY, { prior: base.roster }) : null;
 
   const latencyMs = Date.now() - startTime;
+  const polished = Boolean(polish) && polish.merged > 0;
+  const engine = polished
+    ? `Cloud Free AI (${attempt.usedEngine}) · ${base.enginePolished}`
+    : base.engineOffline;
 
+  const aiStatus = buildAiStatus(attempt.attempts, env, {
+    budgetExhausted: attempt.budgetExhausted,
+    budgetMs: totalMs,
+    perModelMs,
+    elapsedMs: latencyMs,
+    breakerSkipped: attempt.breakerSkipped,
+    polish
+  });
+
+  // 资产引用全部来自基底（真实 ID），这里如实统计而不是假装匹配过
+  const usedIds = shots.flatMap(s => [
+    ...(Array.isArray(s.subjects) ? s.subjects : []),
+    s.environment, s.camera, s.lighting, s.colorGrade,
+    ...(Array.isArray(s.fx) ? s.fx : []), ...(Array.isArray(s.audio) ? s.audio : [])
+  ]).filter(Boolean);
+
+  const engineNote = polished ? base.enginePolished : '本地引擎';
+  const titleSource = base.kind === 'curated' ? base.matchedMovie : (metadata.matchedMovie || query);
   const responseBody = {
     ok: true,
-    matchedMovie: result.matchedMovie || query,
-    director: result.director || 'AI 导演中枢',
-    year: result.year || '2026',
-    genre: result.genre || '好莱坞大片',
-    dramaticConflict: result.dramaticConflict || '高危战术突破与终极对决',
-    visualGrammar: result.visualGrammar || {},
-    legoAdaptation: result.legoAdaptation || '高精度乐高微缩定格美学',
-    creatorTips: result.creatorTips || '把握前3秒视听钩子',
-    themeZh: `【${result.matchedMovie || query} · AI 大脑转译】${(functioned.shots[0]?.action || '').slice(0, 35)}…`,
-    shots: functioned.shots,
-    originality: result.originality || null,
-    roster: finalRoster ? rosterToJSON(finalRoster) : [],
-    repetitionFixed: diversified.fixed,
-    functionRetagged: functioned.retagged,
-    monotoneGuard: functioned.monotone,
-    isAiGenerated: true,
-    engine: `Cloud Free AI (${usedEngine})`,
-    era: intent.era,
+    ...metadata,
+    contentKind: base.kind === 'curated' ? 'curated' : 'generated',
+    themeZh: `【${titleSource || query} · ${engineNote}】${(shots[0]?.action || '').slice(0, 35)}…`,
+    shots,
+    originality: (base.kind === 'generated' && aiResult?.originality) || base.originality || null,
+    roster: finalRoster ? rosterToJSON(finalRoster) : base.roster,
+    variant: base.variant || null,
+    variants: base.variants || [],
+    score: base.score ?? null,
+    // 6.9.0：润色过程的如实账本（合并了几镜、拒绝了几字段、为什么）
+    polish,
+    repetitionFixed: polish?.repetitionFixed || 0,
+    functionRetagged: polish?.functionRetagged || 0,
+    monotoneGuard: polish?.monotoneGuard || false,
+    isAiGenerated: polished,
+    engine,
+    era: base.era || intent.era,
     assetUsage: {
       catalogSize: validIds.size,
-      matched: matchedRefs,
-      unknown: [...unknownIds]
+      matched: usedIds.filter(id => validIds.has(id)).length,
+      unknown: [...new Set(usedIds.filter(id => !validIds.has(id)))]
     },
     // 模型建议新增、但资产库暂缺的现代/未来战争装备 —— 交给前端进化引擎锻造落地
-    proposedAssets: Array.isArray(result.proposedAssets) ? result.proposedAssets.slice(0, 8) : [],
+    proposedAssets: Array.isArray(attempt.result?.proposedAssets) ? attempt.result.proposedAssets.slice(0, 8) : [],
     latencyMs,
     aiStatus
   };

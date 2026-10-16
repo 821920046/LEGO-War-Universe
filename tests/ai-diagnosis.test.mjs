@@ -21,10 +21,10 @@
  *   因此这里立三条门禁：单次调用超时、整次请求总预算、逐模型耗时可见。
  */
 
-import test from 'node:test';
+import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { onRequest } from '../functions/api/ai-brain.js';
+import { onRequest, resetCircuitForTests } from '../functions/api/ai-brain.js';
 import { callAiBrain } from '../src/domain/ai-brain.js';
 
 // 每次调用都带**唯一**的 cf-connecting-ip。
@@ -52,6 +52,15 @@ const call = (body, method = 'POST', headers = {}, env = {}, url = 'https://lwu.
 
 const probe = (env = {}) =>
   call(null, 'GET', {}, env, 'https://lwu.example/api/ai-brain?probe=1');
+
+// 6.9.0：熔断器是**模块级状态**（每个 isolate 内尽力而为）。本套件有多个用例
+// 会让同一 provider 连续失败 ≥3 次（403/404/挂死 fetch），如果不重置，
+// 后面的用例拿到的就是「开闸跳过、零云调用」—— 超时/预算/逐模型耗时的断言
+// 会全部变成与被测行为无关的失败。这与 6.8.8 的共享限流桶是同一型污染。
+// 重置只动测试状态，不改生产行为（熔断自身由 circuit-breaker.test.mjs 守）。
+afterEach(() => {
+  resetCircuitForTests();
+});
 
 const FAKE_SECRET = 'gsk_THIS_IS_A_FAKE_SECRET_KEY_abcd1234';
 

@@ -3,7 +3,7 @@ import { planVariants, ANGLES, EMPHASES, TONES } from '../domain/variants.js';
 import { scoreCandidate, diversify } from '../domain/variant-score.js';
 import { compileShot } from '../domain/compiler.js';
 import { validateFilmPlan } from '../domain/shot-spec.js';
-import { callAiBrain } from '../domain/ai-brain.js';
+import { callAiBrain, polishVariantPlan } from '../domain/ai-brain.js';
 import { buildRoster, rosterToJSON, rosterFromJSON, displayNameOf, nationLabelOf } from '../domain/roster.js';
 import { FUNCTION_LABELS } from '../domain/narrative.js';
 import { extractCharacterLineup, generateLineupPrompt } from '../domain/character-lineup.js';
@@ -42,6 +42,22 @@ let variantCandidates = [];
 let activeVariantIndex = 0;
 /** 最优方案的进化成果，切换备选时复用同一批锻造资产，避免重复记录学习账本 */
 let variantEvolution = null;
+
+/**
+ * 6.9.0 自由模式混合增强：每个方案的「云端润色成果」缓存。
+ *
+ * 设计要点：
+ *   · 基底永远来自本地 planVariants（毫秒级、可离线），润色只是锦上添花 ——
+ *     所以这里缓存的是「润色后的三句文案」，切方案时按 shotId 贴回去，
+ *     绝不替换结构；
+ *   · 只缓存「成功合并过至少一镜」的结果，失败不缓存（云端可能下一分钟就恢复）；
+ *   · 同样只活在内存里：刷新后回到本地基底，想润色再点一次。
+ */
+const variantPolish = new Map(); // variantIndex -> { shots, polish }
+/** 正在润色中的方案下标（防重复请求；同一方案连切两次只发一次） */
+const variantPolishInflight = new Set();
+/** 润色状态行的一句话（null = 尚未触发） */
+let variantPolishNote = null;
 
 /**
  * 统一渲染进化面板（含重置交互），避免在 boot / 切换 / 生成后重复实现。
@@ -688,8 +704,22 @@ function describeAiFallback(status) {
   }
   // 6.8.9：模型如实回答「查无此片」——这是防幻觉的预期路径，必须把它与故障区分开，
   // 否则用户会以为云端坏了；同时这句本身就是「为什么没有导演/年份」的解释。
+  // （6.9.0 起后端不再产出这个 reason —— 未识别时润色照常、元数据留空；
+  //   保留分支是为了让升级过渡期里的旧响应也能被解释。）
   if (status.reason === 'UNRECOGNIZED_INPUT') {
     return '（未能将该输入识别为已知真实影片，已按题材原创生成 —— 防幻觉路径，非故障）';
+  }
+  // 6.9.0：熔断冷却期跳过云端 —— 这是「让失败路径也快」的设计，不是故障。
+  if (status.reason === 'CIRCUIT_OPEN') {
+    const skipped = (status.breakerSkipped || []).join('、');
+    return skipped
+      ? `（${skipped} 连续失败已进入熔断冷却，本次直接交付本地基底，稍后自动重试）`
+      : '（模型通道连续失败已进入熔断冷却，本次直接交付本地基底）';
+  }
+  // 6.9.0：云端返回了但没有任何一字段通过润色守卫 —— 与「润色成功」「全部失败」
+  // 都是不同的状态，混同任何一个都会误导用户。
+  if (status.reason === 'POLISH_REJECTED') {
+    return '（云端返回的内容未通过润色校验，本次交付未润色的本地基底）';
   }
   return '';
 }
@@ -766,8 +796,18 @@ async function executeMovieTranspile(movieQuery) {
       // 6.8.6：把真实耗时也写进徽章。云端 AI 单镜就要几十秒，
       // 用户有权利知道「这次生效了、但它有多慢」——否则只会觉得界面卡了。
       const secs = Number.isFinite(result.latencyMs) ? ` · ${(result.latencyMs / 1000).toFixed(1)}s` : '';
+      // 6.9.0：润色账本也进徽章 —— 「润了几镜 / 保留了几镜原文」是用户
+      // 看得见的质量证据，也是「AI 到底改了什么」的唯一现场答案。
+      const polishNote = usedAi && result.polish && result.polish.merged > 0
+        ? `（润色 ${result.polish.merged} 镜${result.polish.kept > 0 ? `，${result.polish.kept} 镜保留本地原文` : ''}）`
+        : '';
+      // 6.8.9 → 6.9.0：未识别为已知影片时元数据一律留空（防幻觉）。这句话必须
+      // 出现在徽章上 —— 否则「没有导演」与「识别失败」在用户眼里又混为一谈。
+      const unrecognizedNote = usedAi && result.aiStatus && result.aiStatus.unrecognized
+        ? ' · 未识别为已知影片，元数据已留空'
+        : '';
       $('ai-brain-status').textContent = usedAi
-        ? `🧠 云端 AI 已生效：${result.engine || '未知'}${secs}`
+        ? `🧠 云端 AI 已生效：${result.engine || '未知'}${secs}${polishNote}${unrecognizedNote}`
         : `🧠 未使用云端 AI：${result.engine || '未知'}${describeAiFallback(result.aiStatus)}`;
       $('ai-brain-status').className = usedAi ? 'badge badge--ok' : 'badge badge--warn';
 
@@ -1124,12 +1164,21 @@ function bindGlobalEvents() {
     // 候选集只进内存（见上方声明），最优方案才是要落库的那一份。
     variantCandidates = ranked;
     variantEvolution = null;
+    // 6.9.0：换了一批方案，上一轮的润色缓存与状态行全部作废
+    variantPolish.clear();
+    variantPolishInflight.clear();
+    variantPolishNote = null;
     activeVariantIndex = 0;
     applyVariantCandidate(ranked[0], true);
     renderVariantPicker();
 
     await persist();
     renderCurrentProject();
+
+    // 6.9.0：本地基底已完整上屏，再请云端润色台词/动作文案。
+    // 注意顺序 —— 基底先行意味着「有东西可看」与「润色」解耦：
+    // 云端慢、熔断、没配 Key，都不影响上面已经渲染出来的这一部。
+    requestPolishForActiveVariant(themeText, requestedShots);
   };
 
   // 8. 导出工程 JSON
@@ -1304,6 +1353,14 @@ function renderVariantPicker() {
     createEl('span', { class: 'variant-picker__sub' }, '按综合质量（时代/光质/物理自洽 · 戏剧覆盖 · 对白密度 · 骨架多样性 · 切题度）择优')
   );
 
+  // 6.9.0：润色状态行。它存在的意义是让「这一部的文案是本地写的还是云端润的」
+  // 在界面上有答案 —— 静默润色与静默回退一样，都是把状态藏起来。
+  // 注意：这个节点是切换器的子节点（随切换器一起创建/销毁），所以查找必须
+  // 限定在 #variant-picker 内部，而不是全局 id —— 全局 id 会在切换器未渲染
+  // 时成为悬空锚点（6.8.0 门禁正是防这个），也会和 index.html 静态结构脱节。
+  const note = createEl('div', { class: 'variant-picker__polish' },
+    variantPolishNoteText());
+
   const row = createEl('div', { class: 'variant-picker__chips' });
   variantCandidates.forEach((c, i) => {
     const best = i === 0;
@@ -1322,6 +1379,9 @@ function renderVariantPicker() {
         await persist();
         renderCurrentProject();
         toast(best ? '已切换到最优方案' : `已切换到备选方案 ${i + 1}`, 'info', 2500);
+        // 6.9.0：切到还没润色过的方案时按需请求（只看自己看的，不预付全部四份）；
+        // 已润色过的直接从缓存贴回，零等待。
+        requestPolishForActiveVariant($('theme').value.trim(), Number($('shots').value) || 4);
       }
     },
       createEl('span', { class: 'variant-chip__rank' }, String(i + 1)),
@@ -1336,7 +1396,93 @@ function renderVariantPicker() {
   });
 
   box.appendChild(head);
+  box.appendChild(note);
   box.appendChild(row);
+}
+
+/** 6.9.0：润色状态行的一句话。null = 本轮还没触发过润色。 */
+function variantPolishNoteText() {
+  return variantPolishNote || '本地基底已就绪 · 结构 / 资产 / 代号均为本地确定性生成';
+}
+
+/** 更新润色状态行（变量 + DOM 双写，避免只改其一导致界面与状态分裂） */
+function updateVariantPolishNote(text) {
+  variantPolishNote = text;
+  // 切换器未渲染时（单方案 / 尚未生成）节点不存在 —— 状态先存变量，
+  // 下次渲染时由 variantPolishNoteText() 带上
+  const el = $('variant-picker')?.querySelector('.variant-picker__polish');
+  if (el) el.textContent = text;
+}
+
+/**
+ * 把某方案的润色结果贴回当前工程。
+ *
+ * 只贴三个文本字段（action / audioCue / radioVoice）—— 与后端 mergePolish
+ * 同一份白名单。润色是「换文案」，不是「换电影」：结构、资产、代号、连续性
+ * 一律以本地基底为准，AI 无权碰。
+ */
+function applyPolishedShots(idx) {
+  if (idx !== activeVariantIndex) return;
+  const entry = variantPolish.get(idx);
+  if (!entry) return;
+  const byShotId = new Map((entry.shots || []).map(s => [s.shotId, s]));
+  currentProject.shots = (currentProject.shots || []).map(shot => {
+    const polished = byShotId.get(shot.shotId);
+    if (!polished) return shot;
+    return {
+      ...shot,
+      action: polished.action,
+      audioCue: polished.audioCue,
+      radioVoice: polished.radioVoice
+    };
+  });
+  renderCurrentProject();
+  persist();
+}
+
+/**
+ * 为当前展示中的方案请求云端润色（已润色过则直接从缓存贴回，零等待）。
+ *
+ * 前置不变量：调用前本地基底**已经完整上屏**。所以这个函数的任何失败分支
+ * 都只需要更新一句状态行 —— 不存在「润色失败导致没东西可看」的可能。
+ * 这正是 6.9.0「本地打底」要的结构：AI 是增强项，不是生死线。
+ */
+async function requestPolishForActiveVariant(themeText, requestedShots) {
+  const idx = activeVariantIndex;
+  const plan = variantCandidates[idx]?.film?.plan;
+  if (!plan || !Array.isArray(plan.shots) || !plan.shots.length) return;
+  if (!themeText) return;
+
+  if (variantPolish.has(idx)) {
+    applyPolishedShots(idx);
+    return;
+  }
+  if (variantPolishInflight.has(idx)) return;
+
+  variantPolishInflight.add(idx);
+  updateVariantPolishNote(`🧠 正在连接云端 AI 润色第 ${idx + 1} 方案…`);
+  try {
+    const res = await polishVariantPlan({
+      query: themeText,
+      base: { shots: plan.shots, roster: plan.roster || [] }
+    });
+    // 润色期间用户可能已经切到别的方案：状态行只描述「当前正在看的这一部」
+    if (idx !== activeVariantIndex) return;
+    if (res.ok) {
+      variantPolish.set(idx, { shots: res.shots, polish: res.polish });
+      applyPolishedShots(idx);
+      const kept = res.polish.kept > 0 ? `（${res.polish.kept} 镜保留本地原文）` : '';
+      updateVariantPolishNote(`🧠 第 ${idx + 1} 方案已由 ${res.polish.model || '云端 AI'} 润色 ${res.polish.merged} 镜${kept}`);
+    } else {
+      updateVariantPolishNote(`🧠 云端润色未生效：${res.message || res.reason} —— 本地基底照常可用`);
+    }
+  } catch (err) {
+    if (idx === activeVariantIndex) {
+      updateVariantPolishNote(`🧠 云端润色请求异常：${err?.message || err} —— 本地基底照常可用`);
+    }
+  } finally {
+    variantPolishInflight.delete(idx);
+  }
 }
 
 function refreshOutputs() {
