@@ -49,10 +49,17 @@ const FREE_THEMES = [
   '火车站台争夺战'
 ];
 
+// 每次调用都带**唯一**的 cf-connecting-ip：否则本套件的调用全部落进
+// 同一个 'anonymous' 限流桶（30 次/60s），打爆后拿到 429，而 429 响应体
+// 没有 shots/roster，下游断言会变成与被测行为无关的 TypeError。
+// 详见 tests/ai-diagnosis.test.mjs 顶部注释与 tests/rate-limit-contract.test.mjs。
+let clientSeq = 0;
+const freshClientIp = () => `test-client-${process.pid}-${++clientSeq}`;
+
 const call = (body, env = {}) => onRequest({
   request: new Request('https://lwu.example/api/ai-brain', {
     method: 'POST',
-    headers: { 'content-type': 'application/json' },
+    headers: { 'content-type': 'application/json', 'cf-connecting-ip': freshClientIp() },
     body: JSON.stringify(body)
   }),
   env

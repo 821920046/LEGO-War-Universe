@@ -27,10 +27,24 @@ import { readFileSync } from 'node:fs';
 import { onRequest } from '../functions/api/ai-brain.js';
 import { callAiBrain } from '../src/domain/ai-brain.js';
 
+// 每次调用都带**唯一**的 cf-connecting-ip。
+//
+// 6.8.8 起因：本套件的调用原先全都不带这个头，于是统统落进同一个
+// 'anonymous' 限流桶（30 次/60s，滑动窗口）。实测 35 次连续调用，
+// 第 31 次起全部 429 RATE_LIMITED —— 而 429 的响应体里**没有
+// aiStatus / roster**，下游断言就变成
+// "Cannot read properties of undefined (reading 'providers')" 这种
+// 跟真正被测行为毫无关系的 TypeError；且是否撞上取决于调用与 60s
+// 窗口的相对时序，于是表现为随机失败（6 次连跑挂了 3 次）。
+// 这不是把限流关掉：每个测试调用仍然是一个独立客户端，独立计数。
+// 限流本身的契约由 tests/rate-limit-contract.test.mjs 专门守。
+let clientSeq = 0;
+const freshClientIp = () => `test-client-${process.pid}-${++clientSeq}`;
+
 const call = (body, method = 'POST', headers = {}, env = {}, url = 'https://lwu.example/api/ai-brain') => {
   const req = new Request(url, {
     method,
-    headers: { 'content-type': 'application/json', ...headers },
+    headers: { 'content-type': 'application/json', 'cf-connecting-ip': freshClientIp(), ...headers },
     body: method === 'POST' ? JSON.stringify(body) : undefined
   });
   return onRequest({ request: req, env });
@@ -270,12 +284,20 @@ test('AI 诊断：单次模型调用超时必须被中断，而不是无限等�
     const res = await call({ query: '现代特战城市巷战', requestedShots: 1 }, 'POST', {}, {
       GEMINI_API_KEY: 'k',
       AI_PROVIDER_TIMEOUT_MS: '40',
-      AI_REQUEST_BUDGET_MS: '200'
+      // 6.8.8：这个预算原先只有 200ms。实测（8 路并行负载）从请求启动到
+      // 第一次模型调用之间的本地工作（治理/意图/资产目录组装）空闲时约 63ms，
+      // 负载下会超过 200ms —— 于是预算在第一次调用前就被耗尽，三个候选模型
+      // 全部 skipped、一次都没真的发出去，timedOut 恒为 false。
+      // 8 路并行下 200ms 预算 5/8 复现该失败，5000ms 预算 8/8 通过。
+      // 预算的职责是「兜住整次请求」，不是「比本地准备工作还快」。
+      AI_REQUEST_BUDGET_MS: '5000'
     });
     const elapsed = Date.now() - t0;
     const data = await res.json();
 
-    assert.ok(elapsed < 5000, `超时没有被真正执行，请求耗时 ${elapsed}ms`);
+    // 上界取「总预算 + 一次在途超时 + 本地兜底与响应组装」的余量：
+    // 5000 + 40 + ~200，给到 15000 仍能在真挂死时立刻区分出来。
+    assert.ok(elapsed < 15000, `超时没有被真正执行，请求耗时 ${elapsed}ms`);
     assert.equal(data.isAiGenerated, false);
     assert.equal(data.aiStatus.timedOut, true, 'aiStatus 必须标记出发生过超时');
 
@@ -532,4 +554,39 @@ test('6.8.7 · 自检必须报出每个模型是否要求 JSON 模式，便于�
   assert.equal(or.jsonModes[1], true, '120b 实测支持 response_format，必须如实报 true');
   assert.equal(or.models.length, or.jsonModes.length, '两个数组必须等长、一一对应');
   assert.ok(or.models.every(m => !/gemini|llama-3\.3/.test(m)), '不得混入其他 provider 的模型');
+});
+
+// ── 6.8.8：限流按客户端隔离，且超限响应必须如实可辨 ──────────────────────
+//
+// 这个门禁的起因就是本套件自己：所有调用都不带 cf-connecting-ip，
+// 一起挤在 'anonymous' 桶里，第 31 次起全部 429，而 429 响应体没有
+// aiStatus —— 下游测试于是随机报 "Cannot read properties of undefined"。
+// 上面各 helper 已改为每次调用换一个独立 IP；这里守的是限流器本身：
+// 同一客户端超限必须 429，别的客户端不受牵连，且超限响应里不会凭空冒出 aiStatus。
+test('6.8.8 · 同一客户端超限必须 429 RATE_LIMITED，且不同客户端互不影响', async () => {
+  const originalFetch = globalThis.fetch;
+  // 桩掉 fetch：只求快速走完整条「provider 全失败 → 本地兜底」链路，绝不外网。
+  globalThis.fetch = async () => new Response('Forbidden', { status: 403 });
+  try {
+    const hammer = { 'cf-connecting-ip': 'hammer-client-6.8.8' };
+    let limited = null;
+    for (let i = 1; i <= 31; i++) {
+      const res = await call({ query: '现代特战城市巷战', requestedShots: 1 }, 'POST', hammer, { GROQ_API_KEY: 'k' });
+      if (res.status === 429) { limited = res; break; }
+      assert.equal(res.status, 200, `第 ${i} 次调用应放行（限流阈值是 30 次/60s）`);
+    }
+    assert.ok(limited, '同一客户端第 31 次调用必须被限流，否则限流形同虚设');
+
+    const body = await limited.json();
+    assert.equal(body.error, 'RATE_LIMITED');
+    assert.ok(body.retryAfterMs > 0 && body.retryAfterMs <= 60000, '必须告诉客户端多久后可以重试');
+    assert.equal(body.aiStatus, undefined,
+      '限流短路发生在诊断之前，响应体不带 aiStatus —— 这正是测试 helper 必须每次换 IP 的原因');
+
+    // 换一个客户端立刻恢复：限流必须按客户端隔离
+    const other = await call({ query: '现代特战城市巷战', requestedShots: 1 }, 'POST', {}, { GROQ_API_KEY: 'k' });
+    assert.equal(other.status, 200, '一个客户端超限不能连累其他客户端');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
 });
