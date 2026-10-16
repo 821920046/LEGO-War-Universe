@@ -44,6 +44,78 @@ export { generateLocally, OFFLINE_ENGINES };
 export const FRONTEND_TIMEOUT_MS = 100000;
 
 /**
+ * 请求云端润色一份**本地基底**分镜（6.9.0 自由模式混合增强）。
+ *
+ * 与 callAiBrain 的分工：基底由前端 planVariants 毫秒级产出（可离线），
+ * 这个函数只负责「把基底送到后台换回润色文案」。因此它**永远不是生死线** ——
+ * 失败时前端手里的基底原样可用，调用方拿到的只是 ok:false 与一句人话原因。
+ *
+ * @param {{ query: string, base: { shots: Array, roster: Array }, timeoutMs?: number, onProgress?: (msg: string) => void }} params
+ * @returns {Promise<{ ok: true, shots: Array, polish: object } | { ok: false, reason: string, message: string, aiStatus?: object }>}
+ */
+export async function polishVariantPlan({
+  query,
+  base,
+  timeoutMs = FRONTEND_TIMEOUT_MS,
+  onProgress = null
+}) {
+  const fail = (reason, message, aiStatus = null) => ({ ok: false, reason, message, aiStatus });
+  if (!base || !Array.isArray(base.shots) || !base.shots.length) {
+    return fail('INVALID_BASE', '本地基底为空，无需润色');
+  }
+
+  const controller = new AbortController();
+  let timer = null;
+  const guard = new Promise((_, reject) => {
+    timer = setTimeout(() => {
+      try { controller.abort(); } catch { /* abort 失败不影响超时语义 */ }
+      reject(new Error('FRONTEND_TIMEOUT'));
+    }, timeoutMs);
+  });
+
+  try {
+    if (onProgress) onProgress('🧠 本地基底已就绪，正在连接云端 AI 导演大脑润色台词与动作描写…');
+    const pending = fetch('/api/ai-brain', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ mode: 'plan', query, base: { shots: base.shots, roster: base.roster || [] } }),
+      signal: controller.signal
+    });
+    pending.catch(() => {});
+    const res = await Promise.race([pending, guard]);
+
+    if (!res.ok) {
+      let detail = '';
+      try {
+        const errBody = await res.json();
+        if (errBody && errBody.error) detail = `（${errBody.error}）`;
+      } catch { /* 非 JSON 响应体，状态码已够用 */ }
+      return fail('HTTP_' + res.status, `后台返回 HTTP ${res.status}${detail}，本地基底照常可用`);
+    }
+
+    const data = await res.json();
+    if (!data || !Array.isArray(data.shots)) {
+      return fail('MALFORMED_RESPONSE', '后台响应缺少分镜字段，本地基底照常可用');
+    }
+    // 合并守卫一字段都没放行时，后台会原样带回基底 —— 那种情况对前端等同于
+    // 「没润成」，必须如实走失败分支，而不是把未润色的基底显示成润色成果。
+    if (!data.polish || data.polish.merged < 1) {
+      const reason = data.aiStatus?.reason || 'POLISH_REJECTED';
+      const message = data.aiStatus?.hint || '云端未产出可用的润色文案';
+      return fail(reason, message, data.aiStatus);
+    }
+    return { ok: true, shots: data.shots, polish: data.polish, aiStatus: data.aiStatus };
+  } catch (err) {
+    if (err && err.message === 'FRONTEND_TIMEOUT') {
+      return fail('FRONTEND_TIMEOUT', `等待超过 ${Math.round(timeoutMs / 1000)} 秒，本地基底照常可用`, null);
+    }
+    return fail('FRONTEND_UNREACHABLE', '后台接口不可达（离线 / 网络中断），本地基底照常可用', null);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
  * 调度 AI 大脑（优先后台免费大模型服务，无缝自动容灾降级）
  * @param {{ query: string, requestedShots?: number, registry?: object|null, onProgress?: (msg: string) => void, timeoutMs?: number, progressIntervalMs?: number }} params
  */

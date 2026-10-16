@@ -1,10 +1,11 @@
-import test from 'node:test';
+import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { onRequest } from '../functions/api/ai-brain.js';
+import { onRequest, ensureOpposingPresence, resetCircuitForTests } from '../functions/api/ai-brain.js';
 import assets from '../02_Assets/assets.json' with { type: 'json' };
 import profiles from '../02_Assets/model-profiles.json' with { type: 'json' };
 import { createRegistry } from '../src/domain/registry.js';
 import { validateShotSpec } from '../src/domain/shot-spec.js';
+import { collectValidIds } from '../src/domain/asset-catalog.js';
 
 const registry = createRegistry(assets, profiles, { references: [] });
 
@@ -14,6 +15,11 @@ const registry = createRegistry(assets, profiles, { references: [] });
 // 详见 tests/ai-diagnosis.test.mjs 顶部注释与 tests/rate-limit-contract.test.mjs。
 let clientSeq = 0;
 const freshClientIp = () => `test-client-${process.pid}-${++clientSeq}`;
+
+// 6.9.0：熔断器是模块级状态 —— 与限流桶同型的跨用例污染源（见 ai-diagnosis.test.mjs）。
+afterEach(() => {
+  resetCircuitForTests();
+});
 
 const call = (body, method = 'POST', headers = {}, env = {}) => {
   const req = new Request('https://lwu.example/api/ai-brain', {
@@ -117,10 +123,17 @@ test('Backend AI Brain: injects the real asset catalog into the provider prompt'
     const body = JSON.parse(options.body);
     sentSystem = body.messages.find(m => m.role === 'system')?.content || '';
     sentUser = body.messages.find(m => m.role === 'user')?.content || '';
+    // 6.9.0 润色形状：一镜一条、shotId 与基底一致、只回三个文本字段
+    const ids = [...sentUser.matchAll(/"shotId":"(shot_\d+)"/g)].map(m => m[1]);
     return new Response(JSON.stringify({
       choices: [{ message: { content: JSON.stringify({
-        matchedMovie: '无人机战争',
-        shots: [{ phase: 'establish', action: '乐高无人机蜂群升空。', assets: { subjects: ['CHR-401'], environment: 'ENV-401', camera: 'CAM-401', lighting: 'LGT-001', colorGrade: 'CLR-001' } }]
+        recognized: false,
+        shots: ids.map((id, i) => ({
+          shotId: id,
+          action: `乐高无人机蜂群第 ${i + 1} 波次升空，旋翼切开晨雾。`,
+          audioCue: `电机蜂鸣 ${i}`,
+          radioVoice: ''
+        }))
       }) } }]
     }), { status: 200, headers: { 'content-type': 'application/json' } });
   };
@@ -131,44 +144,85 @@ test('Backend AI Brain: injects the real asset catalog into the provider prompt'
     assert.match(sentSystem, /CHR-\d{3}=/);
     assert.match(sentSystem, /【角色人仔】/);
     assert.match(sentSystem, /可用真实资产清单/);
-    assert.match(sentUser, /assets 字段必须使用上方清单中的真实 ID/);
+    // 6.9.0：润色契约的核心指令必须真的在 prompt 里（不是只写在注释里）
+    assert.match(sentSystem, /润色，不是重写/);
+    assert.match(sentSystem, /结构冻结/);
+    assert.match(sentSystem, /只输出三个文本字段/);
+    assert.match(sentUser, /分镜基底（结构已锁定，供润色）/);
+    assert.match(sentUser, /shotId 与基底逐字一致/);
   } finally {
     globalThis.fetch = originalFetch;
   }
 });
 
 test('Backend AI Brain: drops hallucinated asset IDs and reports them', async () => {
+  // 6.9.0 契约迁移：AI 再也**没有机会**提供资产 ID —— subjects/phase/assets
+  // 一律来自本地基底。本门禁的形态从「事后清洗」变成「结构性不可能」：
+  // 即使模型在润色条目里夹带 subjects / 资产 ID，合并层也只认三个文本字段。
+  const baseRes = await call({ query: '现代高科技无人机作战', requestedShots: 2 });
+  const baseData = await baseRes.json();
+  const baseStructure = baseData.shots.map(s => JSON.stringify({
+    shotId: s.shotId, phase: s.phase, fn: s.fn, shotType: s.shotType,
+    subjects: s.subjects, environment: s.environment, camera: s.camera,
+    lighting: s.lighting, colorGrade: s.colorGrade, fx: s.fx, audio: s.audio
+  }));
+
   const originalFetch = globalThis.fetch;
-  globalThis.fetch = async () => new Response(JSON.stringify({
-    choices: [{ message: { content: JSON.stringify({
-      matchedMovie: '测试片',
-      shots: [
-        { phase: 'establish', action: '乐高特战小队推进。', assets: { subjects: ['CHR-401'], environment: 'ENV-401', camera: 'CAM-401', lighting: 'LGT-001', colorGrade: 'CLR-001' } },
-        { phase: 'climax', action: '敌方防空火力压制我方无人机群，双方在电磁黑域中交战。', assets: { subjects: ['CHR-630', 'ZZZ-999'], environment: 'ENV-640', camera: 'CAM-801', lighting: 'LGT-001', colorGrade: 'CLR-001', fx: ['FX-801'], audio: ['AUD-801'] } }
-      ],
-      proposedAssets: [{ name: 'Sonic Disruptor', nameZh: '声波压制器', group: 'weapons' }]
-    }) } }]
-  }), { status: 200, headers: { 'content-type': 'application/json' } });
+  globalThis.fetch = async (url, options) => {
+    const body = JSON.parse(options.body);
+    const user = body.messages.find(m => m.role === 'user')?.content || '';
+    const ids = [...user.matchAll(/"shotId":"(shot_\d+)"/g)].map(m => m[1]);
+    return new Response(JSON.stringify({
+      choices: [{ message: { content: JSON.stringify({
+        // 模型试图夹带：资产字段 + 幻觉 ID + 自创镜头
+        shots: ids.map((id, i) => ({
+          shotId: id,
+          action: `乐高无人机群第 ${i + 1} 波次俯冲，蜂群锁定目标。`,
+          audioCue: `旋翼蜂鸣 ${i}`,
+          radioVoice: '',
+          subjects: ['CHR-401', 'ZZZ-999'],
+          environment: 'ENV-999',
+          camera: 'CAM-999',
+          phase: 'climax',
+          fn: 'goal',
+          assets: { subjects: ['ZZZ-999'], environment: 'ENV-999', camera: 'CAM-999', lighting: 'LGT-999', colorGrade: 'CLR-999', fx: ['FX-999'], audio: ['AUD-999'] }
+        })).concat([{ shotId: 'shot_99', action: '自创的幻觉镜头' }]),
+        proposedAssets: [{ name: 'Sonic Disruptor', nameZh: '声波压制器', group: 'weapons' }]
+      }) } }]
+    }), { status: 200, headers: { 'content-type': 'application/json' } });
+  };
   try {
     const res = await call({ query: '现代高科技无人机作战', requestedShots: 2 }, 'POST', {}, { GROQ_API_KEY: 'k' });
     assert.equal(res.status, 200);
     const data = await res.json();
     assert.equal(data.isAiGenerated, true);
-    assert.ok(data.assetUsage.matched > 0);
-    assert.ok(data.assetUsage.unknown.includes('ZZZ-999'));
-    // 幻觉 ID 绝不能进入最终分镜
-    for (const shot of data.shots) {
-      assert.ok(!(shot.subjects || []).includes('ZZZ-999'));
+
+    // 结构逐字段冻结：AI 夹带的资产 ID / phase / fn / 自创镜头全部无效
+    const finalStructure = data.shots.map(s => JSON.stringify({
+      shotId: s.shotId, phase: s.phase, fn: s.fn, shotType: s.shotType,
+      subjects: s.subjects, environment: s.environment, camera: s.camera,
+      lighting: s.lighting, colorGrade: s.colorGrade, fx: s.fx, audio: s.audio
+    }));
+    assert.deepEqual(finalStructure, baseStructure, '润色后结构必须与本地基底完全一致');
+
+    // 幻觉 ID 绝不能进入最终分镜（任何字段）
+    const allIds = data.shots.flatMap(s => [
+      ...(Array.isArray(s.subjects) ? s.subjects : []),
+      s.environment, s.camera, s.lighting, s.colorGrade,
+      ...(Array.isArray(s.fx) ? s.fx : []), ...(Array.isArray(s.audio) ? s.audio : [])
+    ]).filter(Boolean);
+    const validIds = collectValidIds(assets);
+    for (const id of allIds) {
+      assert.ok(validIds.has(id), `最终分镜出现资产库之外的 ID：${id}`);
     }
-    // 真实 ID 必须保留
-    assert.ok(data.shots[1].subjects.includes('CHR-630'));
-    // 模型只写了友军时，后端必须在含交战语义的镜头里补上敌方，保证「敌对双方都出场」
-    const opposingIds = data.roster.filter(r => r.side === 'opposing').map(r => r.id);
-    assert.ok(opposingIds.length > 0, 'expected a deterministic opposing cast for this era');
-    assert.ok(
-      data.shots.some(s => (s.subjects || []).some(id => opposingIds.includes(id))),
-      'expected at least one shot to actually feature an opposing-faction asset'
-    );
+    // 资产统计必须如实：基底全部来自真实资产库
+    assert.deepEqual(data.assetUsage.unknown, [], '结构冻结后不存在未知 ID');
+    assert.ok(data.assetUsage.matched > 0);
+    // 自创镜头被记账拒绝，而不是偷偷混进来
+    assert.ok(data.polish.rejected.some(x => x.reason === 'UNMATCHED_SHOT' || x.shotId === 'shot_99'),
+      `自创镜头必须被记账拒绝，实际：${JSON.stringify(data.polish.rejected)}`);
+
+    // 模型建议的新资产仍然透传给前端进化引擎
     assert.equal(data.proposedAssets.length, 1);
     assert.equal(data.proposedAssets[0].nameZh, '声波压制器');
 
@@ -183,48 +237,33 @@ test('Backend AI Brain: drops hallucinated asset IDs and reports them', async ()
   }
 });
 
-test('Backend AI Brain: 仅在合法对抗语义的镜头补入敌人（非战斗/协同镜头绝不硬塞）', async () => {
-  const originalFetch = globalThis.fetch;
-  // 对抗审查用例：四个镜头中只有 S4 具备合法对抗语义，
-  // 因此必须满足「S4 补入了敌人（证明补入逻辑没被整体关掉）」且「S1~S3 一个敌人都没有」。
-  globalThis.fetch = async () => new Response(JSON.stringify({
-    choices: [{ message: { content: JSON.stringify({
-      matchedMovie: '测试片',
-      shots: [
-        // S1 静默潜行：无战斗语义
-        { phase: 'build', action: '小队在雨夜中静默潜行，全程保持无线电静默。', assets: { subjects: ['CHR-401'], environment: 'ENV-401', camera: 'CAM-401', lighting: 'LGT-001', colorGrade: 'CLR-001' } },
-        // S2 集结待命：无战斗语义
-        { phase: 'climax', action: '队员在废墟中默默集结待命，等待撤离窗口。', assets: { subjects: ['CHR-401'], environment: 'ENV-401', camera: 'CAM-401', lighting: 'LGT-001', colorGrade: 'CLR-001' } },
-        // S3 并肩交战：含「交战」但同时是协同语义，必须排除
-        { phase: 'climax', action: '小队与友军并肩交战，掩护彼此推进。', assets: { subjects: ['CHR-401'], environment: 'ENV-401', camera: 'CAM-401', lighting: 'LGT-001', colorGrade: 'CLR-001' } },
-        // S4 正面交战：合法对抗语义，应被补入敌人
-        { phase: 'climax', action: '正面开火交战，重机枪压制敌方火力点。', assets: { subjects: ['CHR-401'], environment: 'ENV-401', camera: 'CAM-401', lighting: 'LGT-001', colorGrade: 'CLR-001' } }
-      ]
-    }) } }]
-  }), { status: 200, headers: { 'content-type': 'application/json' } });
-  try {
-    const res = await call({ query: '现代特战城市巷战', requestedShots: 4 }, 'POST', {}, { GROQ_API_KEY: 'k' });
-    const data = await res.json();
-    const opposingIds = data.roster.filter(r => r.side === 'opposing').map(r => r.id);
-    assert.ok(opposingIds.length > 0, '合法对抗镜头存在时，名册里必须有敌方角色（否则本用例是空断言）');
+test('Backend AI Brain: 仅在合法对抗语义的镜头补入敌人（非战斗/协同镜头绝不硬塞）', () => {
+  // 6.9.0：守卫作用点前移到 AI 之前，于是这道门禁可以直接单元测试守卫本身
+  // （不再需要 mock 模型去控制哪些镜头有交战语义）。
+  const opposing = ['CHR-914', 'CHR-630'];
+  const craft = (phase, action) => ({
+    shotId: `s_${action.length}`, phase, action, subjects: ['CHR-401']
+  });
+  const out = ensureOpposingPresence([
+    craft('build', '小队在雨夜中静默潜行，全程保持无线电静默。'),      // 无战斗语义
+    craft('climax', '队员在废墟中默默集结待命，等待撤离窗口。'),        // 无战斗语义
+    craft('climax', '小队与友军并肩交战，掩护彼此推进。'),              // 协同语义，必须排除
+    craft('climax', '正面开火交战，重机枪压制敌方火力点。'),            // 合法对抗语义
+    craft('establish', '黎明前的阵地全景，旗帜在风中静止。')            // 非 build/climax
+  ], opposing);
 
-    const hasFoe = shot => (shot.subjects || []).some(id => opposingIds.includes(id));
-    // S1~S3：无对抗语义 / 协同语义，绝不补入敌人
-    for (const shot of data.shots.slice(0, 3)) {
-      assert.ok(!hasFoe(shot), `无合法对抗语义的镜头不得被补入敌方角色: ${shot.action}`);
-    }
-    // S4：具备合法对抗语义，必须真的补入敌人，证明补入逻辑本身有效
-    assert.ok(hasFoe(data.shots[3]), `具备合法对抗语义的镜头应补入敌方角色: ${data.shots[3].action}`);
-
-    // 且每个镜头都必须能通过校验，绝不能因为补入敌人而触发阵营冲突
-    for (const shot of data.shots) {
-      const check = validateShotSpec(shot, registry, { era: data.era });
-      const conflict = (check.violations || []).filter(v => v.code === 'FACTION_CONFLICT_INVALID');
-      assert.equal(conflict.length, 0, `S${shot.shotId} 触发阵营冲突: ${JSON.stringify(conflict)}`);
-    }
-  } finally {
-    globalThis.fetch = originalFetch;
-  }
+  const hasFoe = s => (s.subjects || []).some(id => opposing.includes(id));
+  assert.equal(hasFoe(out.shots[0]), false, '无合法对抗语义的镜头不得被补入敌方角色');
+  assert.equal(hasFoe(out.shots[1]), false, '无合法对抗语义的镜头不得被补入敌方角色');
+  assert.equal(hasFoe(out.shots[2]), false, '协同语义（并肩交战）不得被补入敌方角色');
+  assert.equal(hasFoe(out.shots[3]), true, '具备合法对抗语义的镜头应补入敌方角色');
+  assert.equal(hasFoe(out.shots[4]), false, '非 build/climax 阶段不得补入');
+  // 已有敌军的基底不做任何补入（守卫是幂等的）
+  const already = ensureOpposingPresence([{ ...craft('climax', '正面开火交战，压制敌方火力点。'), subjects: ['CHR-401', 'CHR-914'] }], opposing);
+  assert.deepEqual(already.shots[0].subjects, ['CHR-401', 'CHR-914']);
+  assert.equal(already.injected, 0);
+  // 没有敌方 ID 可用时必须原样返回，绝不能崩
+  assert.deepEqual(ensureOpposingPresence([craft('climax', '正面开火交战。')], []).shots[0].subjects, ['CHR-401']);
 });
 
 test('Backend AI Brain: returns a frozen cast roster with unique callsigns', async () => {
@@ -262,21 +301,32 @@ test('Backend AI Brain: injects a deterministic cast with callsigns into the pro
   globalThis.fetch = async (url, options) => {
     const body = JSON.parse(options.body);
     sentSystem = body.messages.find(m => m.role === 'system')?.content || '';
+    const user = body.messages.find(m => m.role === 'user')?.content || '';
+    const ids = [...user.matchAll(/"shotId":"(shot_\d+)"/g)].map(m => m[1]);
     return new Response(JSON.stringify({
       choices: [{ message: { content: JSON.stringify({
-        matchedMovie: '测试片',
-        shots: [{ phase: 'establish', action: '特战小队推进。', assets: { subjects: ['CHR-401'], environment: 'ENV-401', camera: 'CAM-401', lighting: 'LGT-001', colorGrade: 'CLR-001' } }]
+        recognized: false,
+        shots: ids.map((id, i) => ({ shotId: id, action: `特战小队第 ${i + 1} 镜推进。`, audioCue: '', radioVoice: '' }))
       }) } }]
     }), { status: 200, headers: { 'content-type': 'application/json' } });
   };
   try {
-    await call({ query: '现代特战城市巷战', requestedShots: 1 }, 'POST', {}, { GROQ_API_KEY: 'k' });
-    // 模型必须拿到「固定阵容 + 代号」与原创性/反复读纪律，否则它会凭空发明角色并复制粘贴分镜
+    // 4 镜：本地基底名册会同时含敌我两侧（1 镜基底实测只有敌方，
+    // 那是规划器的事，与 prompt 注入无关）
+    await call({ query: '现代特战城市巷战', requestedShots: 4 }, 'POST', {}, { GROQ_API_KEY: 'k' });
+    // 模型必须拿到「固定阵容 + 代号」：否则润色台词时会发明新称呼，
+    // 与下游 script-callsign 契约（台词代号必须来自名册）直接冲突
     assert.match(sentSystem, /本片固定阵容/);
     assert.match(sentSystem, /COALITION CAST:/);
+    assert.match(sentSystem, /OPPOSING CAST:/);
+    assert.match(sentSystem, /角色称呼沿用基底里的【代号】/);
+    assert.match(sentSystem, /绝不允许发明新代号/);
+    // 反复读纪律：0 个镜头也要各不相同（6.8.x 实测模型爱把一句话复制到多镜）
+    assert.match(sentSystem, /每镜 action 必须彼此明显不同/);
+    assert.match(sentSystem, /严禁把同一句话复制到多个镜头/);
+    // 原创性纪律
     assert.match(sentSystem, /原创性/);
-    assert.match(sentSystem, /禁止复读/);
-    assert.match(sentSystem, /敌对双方都要出场/);
+    assert.match(sentSystem, /禁止复述任何原作的经典桥段/);
   } finally {
     globalThis.fetch = originalFetch;
   }

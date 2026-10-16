@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGO War Universe · 6.9.0 本地打底 + AI 润色 · 架构记录</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c222b; --line:#272e38;
+    --fg:#e8ecf1; --muted:#98a3b2; --dim:#6f7a89;
+    --bad:#ff5f5f; --good:#35d07f; --accent:#ffb454; --warn:#e3b341;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:29px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0;font-size:14px}
+  .quote{margin:20px 0 0;padding:14px 18px;border-left:3px solid var(--accent);
+    background:#1a1710;color:#e8dfd0;border-radius:0 8px 8px 0;font-size:13.5px}
+  .note{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--accent);
+    background:#1a1710;color:#e8dfd0;border-radius:0 8px 8px 0;font-size:13.5px}
+  h2{margin:46px 0 14px;font-size:20px;border-left:3px solid var(--accent);padding-left:12px}
+  h3{margin:26px 0 10px;font-size:15.5px;color:#cfd7e2}
+  p{margin:0 0 12px}
+  code{background:#0b0e12;padding:1px 6px;border-radius:4px;color:var(--accent);font-size:12.5px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{margin:0 0 8px;font-size:14px;color:var(--good)}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:14px 0}
+  .box__hd{padding:9px 14px;font-size:12.5px;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  .box--bad .box__hd{background:#1d1618;color:var(--bad);border-color:#5c2b2b}
+  .box--good .box__hd{background:#131e18;color:var(--good);border-color:#264d38}
+  .box--warn .box__hd{background:#1a1710;color:var(--warn);border-color:#4d3f16}
+  .box__bd{padding:14px}
+  pre{margin:0;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
+    line-height:1.75;white-space:pre-wrap;color:#cfd7e2}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;background:var(--panel)}
+  td code{font-size:12px}
+  .ok{color:var(--good)} .no{color:var(--bad)}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px}
+  @media(max-width:880px){.wrap{padding:24px 16px 60px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">6.9.0 · 架构记录</p>
+  <h1>本地打底 + AI 润色 —— 把「AI 与本地二选一」改造成协同</h1>
+  <p class="sub">LEGO War Universe · 2026-10-16 · 用户诉求「依靠本地加 AI，AI 不可用时自动切回本地」→ 架构重构（基底先行 + 结构冻结 + 熔断快速回退）→ 363/363 测试、五道门禁全绿、新门禁全部反向验证</p>
+  <p class="quote">"我需要有智能功能，依靠本地加AI，使得脚本内容更真实，更完美，当AI模型不可用时自动切回本地。"</p>
+</header>
+
+<h2>〇、旧架构：AI 优先，失败才整部落本地</h2>
+<p>6.9.0 之前，云端 AI 与本地引擎是<strong>二选一</strong>：AI 可用时，整部分镜——包括资产 ID、镜头结构、台词——都由模型自由生成；AI 不可用时才整部落回本地。这个架构有两个后果，都不是「偶发失误」，是结构决定的：</p>
+<div class="cards">
+  <div class="card"><h4>后果 ① 幻觉面覆盖整部电影</h4><p>模型自由生成结构，于是资产 ID 会编（6.8.8 治过）、导演会编（6.8.9 治过）。两轮治的都是同一棵树上结的果：<strong>AI 同时拥有「写什么」和「怎么写」的权力</strong>。</p></div>
+  <div class="card"><h4>后果 ② 模型过载时用户白等</h4><p>线上实测过 503 风暴：三个 Gemini 候选全挂。旧路径下每次请求把所有候选再撞一遍，用户等几十秒，拿到的是本地引擎毫秒级就能给出的东西——<strong>基底本来就在本地手里，却要先问过云端才给</strong>。</p></div>
+</div>
+
+<h2>一、新架构：基底先行，AI 只润色三句文案</h2>
+<div class="box box--good"><div class="box__hd">数据流（转译模式与自由模式共用同一条链）</div><div class="box__bd"><pre>用户输入
+   │
+   ▼
+┌─────────────────────────────────────────────┐
+│ 本地确定性引擎（毫秒级、离线、免费）            │
+│  planVariants / transpileMovieToLego         │
+│  产出**完整分镜基底**：                        │
+│  phase / fn / shotType / subjects(真实资产ID) │
+│  环境 / 机位 / 灯光 / 调色 / 连续性 / duration │
+│  代号名册 / story / beatId                    │
+└─────────────────────────────────────────────┘
+   │  基底已在手 —— 此刻起，任何时候中断都有完整成片可交付
+   ▼
+┌─────────────────────────────────────────────┐
+│ 云端润色尝试（熔断 + 多通道故障转移）           │
+│  AI 只能改写三个文本字段：                     │
+│  action / audioCue / radioVoice              │
+└─────────────────────────────────────────────┘
+   │
+   ▼
+┌─────────────────────────────────────────────┐
+│ 合并层 mergePolish：结构冻结                   │
+│  AI 响应里除白名单外的任何东西被静默丢弃         │
+└─────────────────────────────────────────────┘
+   │
+   ▼
+diversifyShots → tagDramaticFunctions → buildRoster(prior=基底名册)</pre></div></div>
+<p>于是<strong>幻觉面从「整部电影」塌缩到「三句文案」</strong>，而这三句再被代号守卫与字段白名单焊死。AI 的创造力全部释放在「这句话怎么写才有电影感」，而不是「这一镜用什么资产」——后者本地有 810 项真实资产和时代门控，本来就比模型稳。</p>
+<p>自由战术分镜模式同样接入：前端本地出基底（<code>mode:'plan'</code> 发来），后端只做润色这一件事，两边不重复实现对方的核心能力。</p>
+
+<h2>二、合并层的四条不变式</h2>
+<table>
+  <tr><th>不变式</th><th>实现</th><th>防住什么</th></tr>
+  <tr><td>① 结构永不由 AI 提供</td><td>合并以「展开基底对象再覆盖三个文本字段」实现，其余字段静默丢弃</td><td>模型自创镜头、自改 phase/subjects/资产 ID</td></tr>
+  <tr><td>② 未提供/空字段保留基底原文</td><td>没提这个字段 = 不算拒绝、不动基底</td><td>「润色失败一镜」被误读成「这一镜没了」</td></tr>
+  <tr><td>③ 代号守卫</td><td>润色文本出现名册外【代号】→ <strong>整字段</strong>拒绝并记账</td><td>台词称呼与定妆表漂移（下游 script-callsign 契约要求台词代号必须来自名册）</td></tr>
+  <tr><td>④ 一切拒绝都记账</td><td>merged / kept / rejected 进响应体，不是内部日志</td><td>静默吞掉拒绝 = 把「AI 没润成」显示成「润色成功」</td></tr>
+</table>
+<p>混合数组的位置落地禁令：AI 条目有的带 shotId、有的不带时，<strong>无 ID 条目一律拒绝、不猜位置</strong>——猜错会把 B 镜文案贴到 A 镜上（文本错镜比不润色更糟）；只有整数组都不带 ID 时才按数组位置落地。</p>
+
+<h2>三、熔断器：让失败路径也快</h2>
+<p>每 provider 连续失败 3 次开闸、60 秒冷却、到期半开放行一次、成功即关闸归零；<code>now</code> 时钟探针注入，窗口轮转不必真等。冒烟实测（mock 503 风暴）：</p>
+<div class="box box--warn"><div class="box__hd">503 风暴下的两次请求（实测）</div><div class="box__bd"><pre>第 1 次请求：3 个 gemini 候选全试（=3 次连续失败）→ 开闸
+  reason=ALL_PROVIDERS_FAILED，交付本地基底
+
+第 2 次请求：云端调用 0 次，约 200ms 出完整片
+  reason=CIRCUIT_OPEN，breakerSkipped=['gemini']</pre></div></div>
+<p>熔断跳过本身不记失败（不能拿熔断自己的跳过延续熔断），只如实记账进 <code>aiStatus.breakerSkipped</code>。Workers 的模块级状态是 isolate 内尽力而为——是优化，不是正确性依赖：丢了最坏只是多试一次。</p>
+
+<h2>四、两处靠测量才定得下来的设计</h2>
+<div class="cards">
+  <div class="card"><h4>敌方登场守卫必须前移到 AI 之前</h4><p>实测本地规划器对「现代特战城市巷战」产出的名册<strong>敌方为 0</strong>。结构冻结之后 AI 没机会补——所以 <code>ensureOpposingPresence</code> 作用在基底上。测完之后才把守卫写进基底阶段，顺序反了就会 silently 回归。</p></div>
+  <div class="card"><h4>润色路径绝不走 alignShotsToLego</h4><p>实测它会剥掉基底的富结构字段（beatId/fn/focus/duration/fx/audio/story）。润色链只走 <code>diversifyShots</code> + <code>tagDramaticFunctions</code>（两者 spread 保字段）——否则「结构冻结」会在合并后被自己人破坏。</p></div>
+</div>
+
+<h2>五、元数据：双可信来源，recognized:false 换了语义</h2>
+<p>影片元数据只可能来自两个地方：<strong>① 手写策展库的影片事实</strong>（Strategy：绝不拿手写库的事实去问 AI——问就等于把事实陈述降级成模型回忆，平白制造幻觉面）；<strong>② 模型对「它确切知道的真实影片」的回答</strong>。</p>
+<p>6.9.0 起 <code>recognized:false</code> 的语义从「作废这次调用」变为「<strong>元数据留空、润色照常</strong>」：本地基底已在手，模型只改三句文案，没有理由把一次成功的润色扔掉。此时 <code>aiStatus.reason=OK</code> + <code>unrecognized:true</code> 透明标记（前端提示「未识别为已知影片，元数据已留空」）。新增 reason：<code>CIRCUIT_OPEN</code>、<code>POLISH_REJECTED</code>（云端返回了但一字段都没过守卫——必须与「润色成功」和「全部失败」都区分开）。</p>
+
+<h2>六、门禁：363/363，新门禁全部反向验证</h2>
+<table>
+  <tr><th>测试文件</th><th>条数</th><th>守什么</th></tr>
+  <tr><td><code>tests/polish-contract.test.mjs</code></td><td>14</td><td>四条不变式、两种落地语义、超长/坏类型/幻觉镜头、prompt 文本、三字段白名单</td></tr>
+  <tr><td><code>tests/circuit-breaker.test.mjs</code></td><td>7</td><td>开闸阈值/倒计时/半开/半开失败重开/成功归零/provider 独立</td></tr>
+  <tr><td><code>tests/polish-integration.test.mjs</code></td><td>12</td><td>端到端四路径 + 结构逐字段冻结 + 熔断零云调用 + 策展元数据不喂模型 + 静态防回归</td></tr>
+  <tr><td>迁移：movie-recognition / backend-ai-brain / ai-diagnosis</td><td>5 / 14 / 24</td><td>旧契约→新契约：润色形状 mock、结构冻结不变式、recognized:false 新语义、prompt 纪律仍在</td></tr>
+</table>
+<p><strong>反向验证</strong>（临时破坏 → 确认门禁红 → 还原 → 确认恢复全绿）：</p>
+<div class="box box--bad"><div class="box__hd">三处破坏，四处门禁精确变红</div><div class="box__bd"><pre>破坏 A：代号守卫失效
+  → ❌ 契约 · 名册外【代号】整字段拒绝并记账
+  → ❌ 集成 · 策展影片名册外代号一律拒绝（本投影射代号 TANGO/SIERRA 实测）
+
+破坏 B：结构不再冻结（整条 AI 条目 spread 进基底）
+  → ❌ 契约 · AI 响应里的结构字段被静默丢弃
+
+破坏 C：熔断开闸不再跳过
+  → ❌ 集成 · 第 2 次请求起云端零调用</pre></div></div>
+<p>连跑 3 次全量 363/363（间歇性修复的验证纪律）。期间还抓到两个<strong>测试自身的 bug</strong>，都与 6.8.8 同型：</p>
+<div class="cards">
+  <div class="card"><h4>熔断器是模块级状态 → 跨用例污染</h4><p><code>ai-diagnosis</code> 三条用例单跑全过、整文件跑全红：先前用例让同一 provider 连续失败 ≥3 次把闸打开，后面的超时/预算/逐模型耗时断言拿到的是「开闸跳过、零云调用」。修法：afterEach 重置（与 6.8.8 共享限流桶同型）。</p></div>
+  <div class="card"><h4>悬空 DOM id</h4><p><code>ui-contract</code> 门禁抓到 <code>#variant-polish-note</code> 在 index.html 里不存在（它是切换器的动态子节点）。改为在 <code>#variant-picker</code> 内部按 class 查询——门禁又一次在用户之前抓到问题。</p></div>
+</div>
+
+<h2>七、边界与未竟事项</h2>
+<p>· 幻觉面只是塌缩到三句文案，没有归零：action 里仍可能出现与现实世界不符的描写（治理引擎继续兜底）；模型是否持续听话只能靠线上复测维持，措辞保持「本次未复现」而非「已根除」。<br>
+· 熔断状态是 isolate 内尽力而为，Workers 多 isolate 不共享——最坏多试一次，不影响正确性。<br>
+· <strong>发布后线上复测承诺</strong>（与 6.8.9 同样的纪律）：自编片名应走「本地基底 + 润色」、徽章含润色与未识别标注；503/断 Key 场景验证熔断与快速回退。<br>
+· 遗留运维项（需用户操作）：OpenRouter 变量线上 <code>configured=false</code>（重新保存 + Redeploy）；Groq Key 403（控制台重生）；OpenRouter 8 候选裁 4（等本地基准）。<br>
+· 本项目产出文本 prompt，<strong>从未调用 Veo 3 / Flow</strong>——这条边界不变。</p>
+
+<footer>
+  LEGO War Universe · 6.9.0 · 本地打底 + AI 润色 · 测试 329 → 363/363 · 五道门禁全绿（资产 810 / 签名 e1515357a93c 未变，纯代码轮）· 契约实现 src/domain/polish-contract.js，编排 functions/api/ai-brain.js
+</footer>
+
+</div>
+</body>
+</html>
