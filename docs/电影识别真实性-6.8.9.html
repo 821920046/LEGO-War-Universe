@@ -55,7 +55,7 @@
 <header class="top">
   <p class="kicker">6.8.9 · 修复记录</p>
   <h1>治「为不存在的电影编造导演」——想象力留下，幻觉根除</h1>
-  <p class="sub">LEGO War Universe · 2026-10-16 · 用户截图触发 → curl 复测两次稳定复现 → 三层修复 + 4 条门禁（全部反向验证）</p>
+  <p class="sub">LEGO War Universe · 2026-10-16 · 用户截图触发 → curl 复测两次稳定复现 → 三层修复 + 4 条门禁（全部反向验证）→ 线上复测 3/3 自编片名不再编造导演</p>
   <p class="quote">"我要的是这个项目能够持久，要有想象力，才能把这些视频脚本写的更好。"—— 所以修法不是堵死想象力，而是分清素材与谎言。</p>
 </header>
 
@@ -92,11 +92,31 @@
 </table>
 
 <h2>四、验证</h2>
-<p>测试 325 → <strong>329/329</strong>（新增 4 条门禁，全部反向验证会红）；五道门禁全绿；资产 810 / 签名 <code>e1515357a93c</code> 未变；盲测基线 100·100·100·96。</p>
-<p class="note">诚实的边界：门禁钉住的是两件可测的事——「规则确实发给了模型」（断言实际 prompt 文本）与「模型说不认识时后端正确处理」。<strong>模型是否真的听话，要发布后线上复测</strong>：对三个自编片名各发一次，断言 engine 为本地原创、director 为空、reason 为 UNRECOGNIZED_INPUT。</p>
+<p>测试 325 → <strong>329/329</strong>（新增 4 条门禁，全部反向验证会红）；五道门禁全绿；资产 810 / 签名 <code>e1515357a93c</code> 未变；盲测基线 100·100·100·96。连跑 3 次全量 329/329，CI 4 项全过。</p>
+
+<h3>4.1 发布后线上复测（PR #26 承诺的诚实边界，已兑现）</h3>
+<p>6.8.9 部署上线（线上 <code>projectVersion=6.8.9</code>）后，对 <code>https://lego-war-universe.pages.dev/api/ai-brain</code> 实发请求。复测脚本的判据刻意区分「被测对象失败」与「检验过程失败」：网络抖动 / 非 JSON / 非 200 一律标为检验过程失败，不计入结论。</p>
+<div class="box box--good"><div class="box__hd">线上复测：3 个自编片名 + 1 个真实影片对照（全部 200）</div><div class="box__bd"><pre>自编《热带雨林狙击手生死对决》  17.5s → engine=本地自主想象引擎 · 离线生成（非云端 AI）
+                                    isAiGenerated=false · director=null · reason=UNRECOGNIZED_INPUT · 4 分镜
+自编《赛博朋克熊猫特工队大电影》 47.5s → engine=本地自主想象引擎 · 离线生成（非云端 AI）
+                                    isAiGenerated=false · director=null · reason=UNRECOGNIZED_INPUT · 4 分镜
+自编《深海古墓机械龙王》          20.0s → engine=本地自主想象引擎 · 离线生成（非云端 AI）
+                                    isAiGenerated=false · director=null · reason=UNRECOGNIZED_INPUT · 4 分镜
+真实对照《狂怒》                  16.3s → engine=Cloud Free AI (Gemini (gemini-3.5-flash-lite))
+                                    isAiGenerated=true · director=大卫·阿耶 · reason=OK · 4 分镜</pre></div></div>
+<p><strong>结论：三个自编片名全部按设计走「不识别 → 本地原创」，无一编造导演；真实影片未被误伤，仍走云端 AI 并给出真实导演。</strong>《狂怒》2014 年导演大卫·阿耶（David Ayer）为事实正确项。</p>
+<p class="note">样本量的诚实边界：这是 4 次成功调用，只能说「<strong>本次未复现</strong>」，不能说「幻觉已根除」。模型是否继续听话取决于上游模型本身，而候选模型会腐烂（<code>gemini-1.5-flash</code>、<code>gemini-2.0-*</code> 已退役）——门禁钉住的 prompt 规则与处理层不会随模型退役失效，但「模型是否服从」这一层只能靠持续线上复测维持。</p>
+<div class="box box--warn"><div class="box__hd">复测中额外捕获的一次故障样本（不是识别路径的问题）</div><div class="box__bd"><pre>自编《热带雨林狙击手生死对决》第 4 次调用 → reason=ALL_PROVIDERS_FAILED · unrecognized=false
+  groq     llama-3.3-70b-versatile   ok=false  7ms    Groq HTTP 403    ← Key 仍被拒，需控制台重生（6.8.7 已知）
+  gemini   gemini-2.5-flash          ok=false  27461ms Gemini HTTP 503
+  gemini   gemini-3.5-flash-lite     ok=false  410ms   Gemini HTTP 503  ← 免费档过载（6.8.7 已知）
+  gemini   gemini-3.8-flash          ok=false  12265ms Gemini HTTP 503
+  → engine=本地自主想象引擎 · 离线生成（非云端 AI），但 reason 是 ALL_PROVIDERS_FAILED 而非 UNRECOGNIZED_INPUT</pre></div></div>
+<p>这一样本恰好第三次证明设计目标：<strong>「模型说不认识」与「模型根本没到/没回」在前端徽章与 aiStatus 上是两条不同的路</strong>。如果两条路被合并成同一个 engine 字符串，用户在 503 风暴下会看到和「防幻觉成功」完全一样的徽章——那正是 6.8.7 <code>aiStatus</code> 遥测要消灭的混淆。</p>
+<p class="note">复测附带确认的运维现状：线上 probe  <code>configuredCount=2</code>（groq、gemini），<strong><code>openrouter.configured=false</code></strong> —— 6.8.7 中用户已填写的 OpenRouter Key 在运行时仍不可见。变量要么没保存到 Pages 项目级、要么保存后未触发重新部署。这不是代码问题，控制台侧的变量必须重新走一次「保存 → Redeploy」；groq 的 403 同理需要用户到 Groq 控制台重新生成 Key。</p>
 
 <footer>
-  LEGO War Universe · 6.8.9 · 元教训：当系统开始「配合演出」，症状往往不在报错里而在成功里 —— 一次看起来很成功的解构，可以整个是编造的；判据不是「这次调用 ok 了吗」，而是「输出里的每个事实声明有来源吗」。
+  LEGO War Universe · 6.8.9 · 元教训：当系统开始「配合演出」，症状往往不在报错里而在成功里 —— 一次看起来很成功的解构，可以整个是编造的；判据不是「这次调用 ok 了吗」，而是「输出里的每个事实声明有来源吗」。线上复测 3/3 未复现后仍只写「本次未复现」而不写「已根除」—— 模型会腐烂，服从性无法被一次测试永久证毕。
 </footer>
 
 </div>
