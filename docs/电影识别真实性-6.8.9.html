@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LEGO War Universe · 6.8.9 电影识别真实性 · 修复记录</title>
+<style>
+  :root{
+    --bg:#0e1116; --panel:#161b22; --panel2:#1c222b; --line:#272e38;
+    --fg:#e8ecf1; --muted:#98a3b2; --dim:#6f7a89;
+    --bad:#ff5f5f; --good:#35d07f; --accent:#ffb454; --warn:#e3b341;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--fg);
+    font-family:"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+    line-height:1.68;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1280px;margin:0 auto;padding:40px 28px 80px}
+  header.top{border-bottom:1px solid var(--line);padding-bottom:22px;margin-bottom:30px}
+  .kicker{color:var(--accent);font-size:12px;letter-spacing:.22em;text-transform:uppercase;margin:0 0 10px}
+  h1{margin:0 0 8px;font-size:29px;letter-spacing:-.01em}
+  .sub{color:var(--muted);margin:0;font-size:14px}
+  .quote{margin:20px 0 0;padding:14px 18px;border-left:3px solid var(--bad);
+    background:#1d1618;color:#f2dcdc;border-radius:0 8px 8px 0;font-size:13.5px}
+  .note{margin:22px 0 0;padding:14px 18px;border-left:3px solid var(--accent);
+    background:#1a1710;color:#e8dfd0;border-radius:0 8px 8px 0;font-size:13.5px}
+  h2{margin:46px 0 14px;font-size:20px;border-left:3px solid var(--accent);padding-left:12px}
+  h3{margin:26px 0 10px;font-size:15.5px;color:#cfd7e2}
+  p{margin:0 0 12px}
+  code{background:#0b0e12;padding:1px 6px;border-radius:4px;color:var(--accent);font-size:12.5px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px 18px}
+  .card h4{margin:0 0 8px;font-size:14px;color:var(--good)}
+  .card p{margin:0;color:var(--muted);font-size:13px}
+  .box{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin:14px 0}
+  .box__hd{padding:9px 14px;font-size:12.5px;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+  .box--bad .box__hd{background:#1d1618;color:var(--bad);border-color:#5c2b2b}
+  .box--good .box__hd{background:#131e18;color:var(--good);border-color:#264d38}
+  .box--warn .box__hd{background:#1a1710;color:var(--warn);border-color:#4d3f16}
+  .box__bd{padding:14px}
+  pre{margin:0;font-family:"Cascadia Mono",Consolas,monospace;font-size:12.5px;
+    line-height:1.75;white-space:pre-wrap;color:#cfd7e2}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:13.5px}
+  th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{color:var(--muted);font-weight:500;font-size:12.5px;letter-spacing:.04em;background:var(--panel)}
+  td code{font-size:12px}
+  .ok{color:var(--good)} .no{color:var(--bad)}
+  footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);
+    color:var(--dim);font-size:12.5px}
+  @media(max-width:880px){.wrap{padding:24px 16px 60px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <p class="kicker">6.8.9 · 修复记录</p>
+  <h1>治「为不存在的电影编造导演」——想象力留下，幻觉根除</h1>
+  <p class="sub">LEGO War Universe · 2026-10-16 · 用户截图触发 → curl 复测两次稳定复现 → 三层修复 + 4 条门禁（全部反向验证）</p>
+  <p class="quote">"我要的是这个项目能够持久，要有想象力，才能把这些视频脚本写的更好。"—— 所以修法不是堵死想象力，而是分清素材与谎言。</p>
+</header>
+
+<h2>〇、现象：一次用户截图</h2>
+<p>用户在影院模式输入自编片名，得到一份看起来完全正常的「解构结果」——问题全在细节里：</p>
+<div class="box box--bad"><div class="box__hd">用户截图与两次 curl 复测（输入均非真实电影）</div><div class="box__bd"><pre>输入「热带雨林狙击手生死对决」
+  → 《热带雨林狙击手生死对决》导演：丹尼斯·维伦纽瓦 · 2025（截图）
+  → 同一输入复测：导演：丹尼斯·维伦纽瓦 · 2024   ← 连编的年份都不稳定
+
+输入「赛博朋克熊猫特工队大电影」
+  → 导演：诺兰、雷德利·斯科特、丹尼斯·维伦纽瓦 · 2077
+    （模型自己给年份标了"(虚构)"，却照挂三位真实在世导演的真名）</pre></div></div>
+<p>三个事实：① 对不存在的片名，模型不报「查无此片」，而是<strong>配合演出现编</strong>全套元数据；② 作品被挂到<strong>真实在世导演</strong>名下（治理黑名单只拦政治人物，这条路径完全不在拦截面内）；③ UI 照常显示「乐高适配度高：已完成认证资产」，编造的结果看起来像一次成功的真实解构。</p>
+
+<h2>一、定性：这不是 bug 级失误，是稳定行为</h2>
+<p>根因在 system prompt：它只说「用户的输入可能是一部电影名称……你的任务是解构并转译」，没有任何一句告诉模型<strong>「不认识就必须承认」</strong>。训练有素的模型面对一个像片名的字符串，默认行为是配合演出——片名越像真的，它演得越认真。</p>
+<p>危险在于它<strong>不可分辨</strong>：用户无法从界面区分「这是解构《狂怒》」和「这是现编的」。而「为不存在的电影挂真实导演名」是可以被截图外传的假消息。</p>
+
+<h2>二、修法：三层，想象力一分不少</h2>
+<div class="cards">
+  <div class="card"><h4>① prompt：最高优先级零</h4><p>「真实性与署名纪律」置于所有既有规则之前：只解构确切知道的真实电影；不认识必须输出 <code>recognized:false</code> 且四个元数据字段留空；director 只允许填**该真实影片的真实导演**；致敬只能写成「诺兰式实拍质感」这类风格化表述，绝不可作为署名。</p></div>
+  <div class="card"><h4>② 处理层：如实记账 + 转原创</h4><p>云端返回 <code>recognized:false</code> 时，这次成功如实记为 <code>unrecognized</code>，<code>aiStatus.reason=UNRECOGNIZED_INPUT</code>，result 置空落入本地原创引擎：用户自编的片名作为题材参与原创生成（输入不被浪费），engine / isAiGenerated 如实标注。</p></div>
+  <div class="card"><h4>③ 门禁：4 条全绿 + 全反向</h4><p>处理层转原创 / 正常路径不误伤 / 实际发出的 prompt 必须含规则（直接断言 prompt 文本）/ 静态防回归。反向验证：删后端处理→门禁 1 红；删 prompt 规则段→门禁 3/4 红。</p></div>
+</div>
+<p class="note">可见性纪律：新 reason 有专属 hint（「防幻觉路径，非故障」）与前端徽章文案——否则用户会以为云端坏了；「未识别 → 已按题材原创」这句话本身就是「为什么没有导演和年份」的解释。</p>
+
+<h2>三、边界（不改的与原因）</h2>
+<table>
+  <tr><th>对象</th><th>处置</th><th>原因</th></tr>
+  <tr><td>策展库 9 部手写影片的导演（科辛斯基、雷德利·斯科特…）</td><td class="ok">不动</td><td>真实影片的真实导演，事实陈述</td></tr>
+  <tr><td>本地原创引擎 director</td><td class="ok">不动</td><td>本来就是 null，本就干净</td></tr>
+  <tr><td>真实影片的解构（用户输入《狂怒》→ 真实导演）</td><td class="ok">照常</td><td>门禁 2 专门守「不误伤」</td></tr>
+  <tr><td>用户自编片名的原创生成</td><td class="good">增强</td><td>片名作为题材喂给本地引擎，想象力保留</td></tr>
+</table>
+
+<h2>四、验证</h2>
+<p>测试 325 → <strong>329/329</strong>（新增 4 条门禁，全部反向验证会红）；五道门禁全绿；资产 810 / 签名 <code>e1515357a93c</code> 未变；盲测基线 100·100·100·96。</p>
+<p class="note">诚实的边界：门禁钉住的是两件可测的事——「规则确实发给了模型」（断言实际 prompt 文本）与「模型说不认识时后端正确处理」。<strong>模型是否真的听话，要发布后线上复测</strong>：对三个自编片名各发一次，断言 engine 为本地原创、director 为空、reason 为 UNRECOGNIZED_INPUT。</p>
+
+<footer>
+  LEGO War Universe · 6.8.9 · 元教训：当系统开始「配合演出」，症状往往不在报错里而在成功里 —— 一次看起来很成功的解构，可以整个是编造的；判据不是「这次调用 ok 了吗」，而是「输出里的每个事实声明有来源吗」。
+</footer>
+
+</div>
+</body>
+</html>

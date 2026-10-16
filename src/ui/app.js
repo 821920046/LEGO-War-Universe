@@ -686,6 +686,11 @@ function describeAiFallback(status) {
       .map(p => `${p.id} ${p.error}`);
     return errs.length ? `（云端调用失败 → ${errs.join('；')}）` : '（云端调用失败）';
   }
+  // 6.8.9：模型如实回答「查无此片」——这是防幻觉的预期路径，必须把它与故障区分开，
+  // 否则用户会以为云端坏了；同时这句本身就是「为什么没有导演/年份」的解释。
+  if (status.reason === 'UNRECOGNIZED_INPUT') {
+    return '（未能将该输入识别为已知真实影片，已按题材原创生成 —— 防幻觉路径，非故障）';
+  }
   return '';
 }
 

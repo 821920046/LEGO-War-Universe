@@ -341,7 +341,12 @@ function providerReport(env = {}) {
 function buildAiStatus(attempts, env = {}, meta = {}) {
   const configured = PROVIDERS.filter(p => env[p.envVar]).length;
   const won = attempts.find(a => a.ok) || null;
-  const reason = won ? 'OK' : (configured === 0 ? 'NO_KEYS_CONFIGURED' : 'ALL_PROVIDERS_FAILED');
+  // 6.8.9：云端如实回答「查无此片」——这是防幻觉的预期路径，不是故障，
+  // 必须与「全部失败」在 reason / hint 上明确区分开。
+  const unrecognized = attempts.find(a => a.unrecognized) || null;
+  const reason = won ? 'OK'
+    : unrecognized ? 'UNRECOGNIZED_INPUT'
+    : (configured === 0 ? 'NO_KEYS_CONFIGURED' : 'ALL_PROVIDERS_FAILED');
 
   // 「哪个模型慢、哪个模型挂」必须能从响应里直接读出来 ——
   // 这正是 6.8.6 之前读不出来的东西：attemptedModels 只记了名字，
@@ -355,6 +360,8 @@ function buildAiStatus(attempts, env = {}, meta = {}) {
     hint = null;
   } else if (configured === 0) {
     hint = '后台未配置任何模型 Key，本次由本地引擎生成。启用云端 AI：Cloudflare Pages → Settings → Environment variables → Production 配置 GROQ_API_KEY（类型选 Secret），然后重新部署。';
+  } else if (unrecognized) {
+    hint = `模型无法将「该输入」识别为已知真实影片（防幻觉路径）：已按题材转本地原创引擎生成，分镜仍完全可用。这是预期行为而不是故障 —— 真实影片的解构不受影响；只有当输入确实是你不认识的片名时才会走这条路径。涉及 provider：${unrecognized.id}。`;
   } else {
     hint = '后台已配置模型 Key，但本次调用全部失败 —— 请看 providers 里每个 provider 的 advice 字段（已把 HTTP 状态码翻译成具体怎么办：401/403=Key 被拒绝，404=模型名可能已退役，429=额度或限流）。';
     if (timedOutCalls.length) {
@@ -369,6 +376,8 @@ function buildAiStatus(attempts, env = {}, meta = {}) {
     aiAvailable: Boolean(won),
     reason,
     activeProvider: won ? won.id : null,
+    // 6.8.9：输入未被模型识别为真实影片时，如实标记（防幻觉路径，非故障）
+    unrecognized: Boolean(unrecognized),
     configuredCount: configured,
     providers: attempts,
     // ── 6.8.6：让「慢」可测量 ────────────────────────────────────────
@@ -452,6 +461,19 @@ const DIRECTOR_SYSTEM_PROMPT_HEADER = `你是一位好莱坞顶级电影摄影�
 用户的输入可能是一部电影名称（如《长津湖》《阿凡达》《星际穿越》《狂怒》《黑客帝国》等），或者任意战术/科幻创意大纲。
 你的任务是将该内容深度解构并转译为一部乐高微缩定格大片分镜剧本。
 
+【最高优先级零：真实性与署名纪律（先于以下所有规则）】
+· 只解构你**确切知道**的真实电影。若输入并不是你确知的真实影片（查无此片、片名陌生、
+  或明显是用户自编的题材），绝不允许现编 matchedMovie / director / year / genre ——
+  必须输出 "recognized": false，且这四个字段一律给空字符串 ""。
+  系统会据此转交本地原创引擎，并如实告知用户「未识别该影片，已按该题材原创」。
+  这不是失败，是正确行为：用户自编的片名是珍贵的原创题材，不是待背诵的电影资料。
+· director 字段只允许填**该真实影片的真实导演**（事实陈述，如《狂怒》→ 大卫·阿耶）。
+  本片的原创情节（originality）不得挂到任何导演名下；致敬意向只写在 homageNote 里，
+  用「诺兰式实拍质感」「斯科特式科幻史诗感」这类风格化表述，绝不允许写成导演署名。
+· 绝不允许把影片归到真实在世导演名下 —— 尤其是把不存在 / 用户自编的影片
+  说成某某在世导演的作品（2026-10-16 线上实测到该行为：对自编片名
+  「热带雨林狙击手生死对决」输出「导演：丹尼斯·维伦纽瓦」，属于必须根除的幻觉）。
+
 【最高优先级一：必须使用真实资产 ID】
 下方是 LEGO War Universe 资产库中与本片题材最相关的真实资产清单（格式：ID=名称(时代)）。
 每一个镜头都必须从清单中挑选真实存在的 ID 填入 assets 字段，严禁编造清单以外的 ID。
@@ -498,6 +520,7 @@ const DIRECTOR_SYSTEM_PROMPT_HEADER = `你是一位好莱坞顶级电影摄影�
 
 你必须严格以合法的 JSON 格式输出，不要包含任何多余的开场白或解释。JSON 结构必须符合以下格式：
 {
+  "recognized": true,
   "matchedMovie": "电影中文全名 (英文原名)",
   "director": "导演姓名",
   "year": "上映年份",
@@ -560,7 +583,8 @@ ${lines.join('\n')}
 }
 
 function buildUserPrompt(query, requestedShots) {
-  return `请深度解构并转译：${query}。输出正好 ${requestedShots} 个镜头的完整分镜（四阶段叙事：铺垫 establish -> 展开 build -> 决战 climax -> 尾声 resolve）。每个镜头的 assets 字段必须使用上方清单中的真实 ID。若上方【本片固定阵容】给了代号，请在 action 与 radioVoice 中始终用【代号】称呼角色，并确保 ${requestedShots} 个镜头的 action 描述各不相同。`;
+  return `请深度解构并转译：${query}。输出正好 ${requestedShots} 个镜头的完整分镜（四阶段叙事：铺垫 establish -> 展开 build -> 决战 climax -> 尾声 resolve）。每个镜头的 assets 字段必须使用上方清单中的真实 ID。若上方【本片固定阵容】给了代号，请在 action 与 radioVoice 中始终用【代号】称呼角色，并确保 ${requestedShots} 个镜头的 action 描述各不相同。
+【识别判定】若 ${query} 不是你确切知道的真实电影，输出 "recognized": false 且 matchedMovie / director / year / genre 全部留空字符串 ""；只有确知真实影片时才允许 recognized: true 并给出该片的真实元数据。`;
 }
 
 /** 判定一段动作描述是否已包含交战语义（用于安全地补入敌方角色） */
@@ -818,6 +842,19 @@ export async function onRequest({ request, env = {} }) {
         result = await callProviderModel(provider, model, systemPrompt, userPrompt, env[provider.envVar], callTimeout, jsonMode);
         const ms = Date.now() - callStart;
         record.calls.push({ model, ok: true, ms, error: null, timedOut: false, skipped: false });
+        // 6.8.9：云端如实回答「查无此片」时，这次成功必须记成「未识别」而不是一次有效解构 ——
+        // 否则 aiStatus 显示调用成功、用户拿到的却是一部挂着真实导演的虚构电影。
+        // 这不是失败，是结论：result 置空，落入下方 local 原创路径。
+        if (result && result.recognized === false) {
+          record.unrecognized = true;
+          record.ok = false;
+          record.model = model;
+          record.ms = ms;
+          record.error = '模型如实报告：无法将该输入识别为已知真实影片，已转本地原创引擎';
+          usedEngine = null;
+          result = null;
+          break;
+        }
         usedEngine = `${provider.label} (${model})`;
         record.ok = true;
         record.model = model;
