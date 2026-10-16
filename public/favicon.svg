@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!--
+    LEGO War Universe 站点图标
+    识别元素取自主界面设计系统：深色剪辑台底 (--bg #0B0D10 / --bg-elev #0F1216)
+    + 单一强调色琥珀 (--accent #E8A33D / --accent-hi #F2B85C)。
+    图形用最简的乐高砖块剪影：深色方砖 + 琥珀色砖体 + 三颗圆柱凸点，
+    缩到 16px 也能读出「乐高」。
+  -->
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#14181D"/>
+      <stop offset="1" stop-color="#0B0D10"/>
+    </linearGradient>
+    <linearGradient id="brick" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#F2B85C"/>
+      <stop offset="1" stop-color="#E8A33D"/>
+    </linearGradient>
+  </defs>
+
+  <!-- 深色圆角底 -->
+  <rect width="64" height="64" rx="13" fill="url(#tile)"/>
+
+  <!-- 三颗圆柱凸点 -->
+  <g fill="url(#brick)">
+    <rect x="17" y="16" width="10" height="11" rx="3.5"/>
+    <rect x="27" y="16" width="10" height="11" rx="3.5"/>
+    <rect x="37" y="16" width="10" height="11" rx="3.5"/>
+  </g>
+
+  <!-- 砖体 -->
+  <rect x="12" y="26" width="40" height="26" rx="4.5" fill="url(#brick)"/>
+
+  <!-- 顶部高光，让砖体有一点体积感 -->
+  <rect x="12" y="26" width="40" height="4" rx="2" fill="#F2B85C" opacity=".5"/>
+</svg>

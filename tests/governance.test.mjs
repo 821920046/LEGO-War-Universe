@@ -150,3 +150,38 @@ test('Governance does not fire on legitimate asset descriptions (误伤面回归
         assert.equal(r.status, 'passed', '误伤合法描述: ' + text + ' -> ' + r.status + ' / ' + r.flags.join(','));
     }
 });
+
+// ---------------------------------------------------------------------------
+// 6.8.8：LEET 归一化不得把**纯数字遥测字段**误判成敏感词。
+//
+// 线上级 bug：LEET_MAP 把 '1'->i / '5'->s / '0'->o，而治理扫描的是整个响应体
+// JSON（含 latencyMs / calls[].ms / elapsedMs）。实测扫描 1..99999，
+// 16 个合法毫秒值被整条响应判成 EXTREMISM_AND_TERROR 而 502 拦截
+// （GENERATED_CONTENT_BLOCKED）：149/150/151、1511-1515、15133-15135、15151-15155。
+// 用户视角：「同样的输入，有时莫名其妙被拦截」；测试视角：随机红。
+// 修法：纯数字词元跳过 LEET 归一化；混合形态仍抓（见下一条）。
+test('Governance does not leet-misfire on pure numeric telemetry fields', () => {
+    // 用响应体的真实形态：数字与毫秒字段混排在 JSON 里
+    for (let n = 1; n <= 99999; n++) {
+        const text = JSON.stringify({ latencyMs: n, elapsedMs: n + 1, calls: [{ ms: n + 2 }] });
+        const r = checkContentGovernance(text);
+        assert.equal(
+            r.status,
+            'passed',
+            `遥测数字 ${n} 被误判: ${r.flags.join(',')} —— 毫秒数不是内容，不得参与敏感词归一`
+        );
+    }
+});
+
+test('Governance still blocks mixed-form leet after the numeric fix (治理强度不降)', () => {
+    // 修复只跳过「纯数字」词元；字母数字混合的混淆形态必须继续被抓到，
+    // 否则就是用一个误伤修出十个漏检。
+    const evasions = ['i5i5', '1s1s', 'i5i5s', 'put1n', '1515 and i5i5'];
+    for (const text of evasions) {
+        assert.equal(
+            checkContentGovernance(text).status,
+            'blocked',
+            '混合形态绕过必须仍被拦截: ' + JSON.stringify(text)
+        );
+    }
+});

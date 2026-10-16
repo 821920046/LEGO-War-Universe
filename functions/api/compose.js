@@ -24,8 +24,9 @@ function sweepExpired(now) {
     lastSweep = now;
 }
 
-function checkRateLimit(clientId) {
-    const now = Date.now();
+// now 参数是给测试用的时钟探针：窗口轮转（60s）不可能在测试里真的等，
+// 没有这个探针，「过期后计数重置」这条行为就是不可测的。
+export function checkRateLimit(clientId, now = Date.now()) {
 
     // 周期性清理 + 容量硬上限，双重保证 Map 不会无界增长
     if (now - lastSweep > RATE_LIMIT_WINDOW_MS) sweepExpired(now);

@@ -88,14 +88,25 @@ function stemWord(word) {
  * 第 2 层要求命中的词元被完整覆盖，因此不会再把两个长单词的碎片误拼成敏感词。
  */
 function normalizeTokens(value) {
-  return String(value || '')
+  const rawTokens = String(value || '')
     .normalize('NFKC')
     .toLowerCase()
     .replace(/[\u200B-\u200D\u2060\uFEFF]/g, '')
     .replace(/[аерсхуктвнміјαορικτν]/gu, char => LOOKALIKE_MAP[char] || char)
-    .replace(/[013457@$]/g, char => LEET_MAP[char] || char)
     .split(/[\s\p{P}\p{S}]+/u)
     .filter(Boolean);
+  // LEET 归一化只作用于**非纯数字**词元。
+  //
+  // 6.8.8：此前对整串文本无差别替换，于是响应体里的**毫秒遥测数字**
+  // （latencyMs / calls[].ms / elapsedMs）也被 LEET 化：1515 → "isis"。
+  // 实测扫描 1..99999，有 16 个值会被整条响应判成 EXTREMISM_AND_TERROR
+  // 而 502 拦截（GENERATED_CONTENT_BLOCKED）：149/150/151、1511-1515、
+  // 15133-15135、15151-15155 —— 全是**合法生成的常见耗时**。
+  // 用户视角就是「同样的输入，有时莫名其妙被拦截」，全量测试也会随机红。
+  // 跳过的只有纯数字词元：混合形态（i5i5 / 1s1s）不是纯数字，仍会被抓。
+  return rawTokens.map(tok => (
+    /^\d+$/.test(tok) ? tok : tok.replace(/[013457@$]/g, char => LEET_MAP[char] || char)
+  ));
 }
 
 /** 预归一化一份可复用的匹配视图，避免对同一段文本反复分词 */

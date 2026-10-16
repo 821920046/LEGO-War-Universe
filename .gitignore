@@ -19,3 +19,6 @@ __pycache__/
 *.pyc
 .DS_Store
 Thumbs.db
+# scripts/build-assets.mjs 原子写的中间文件（rename 前若进程被强杀会残留）。
+# 6.8.8：不清掉的话 `git add -A` 会把它们当新文件提交。
+*.tmp-*
