@@ -42,6 +42,14 @@ matchedMovie / director / year / genre，并**把作品挂到真实在世导演�
 - 模型是否真的听话，要发布后线上复测（门禁钉住的是「规则确实发给了模型」与
   「模型说不认识时后端正确处理」两件可测的事）。
 
+**发布后线上复测（已兑现）**：线上 `projectVersion=6.8.9` 确认后，对三个自编片名
++《狂怒》对照实发请求 —— 3/3 自编片名全部 `engine=本地自主想象引擎 · 离线生成`、
+`director=null`、`reason=UNRECOGNIZED_INPUT`、分镜 4 条；《狂怒》仍走
+`Cloud Free AI (Gemini (gemini-3.5-flash-lite))`、`director=大卫·阿耶`、`reason=OK`。
+另捕获一次 503 风暴样本（`reason=ALL_PROVIDERS_FAILED`，与防幻觉路径明确区分）。
+措辞按纪律保持为「本次未复现」而非「已根除」——模型会腐烂，服从性只能靠持续复测维持。
+复测附带确认：`openrouter.configured=false` 仍未解决（运行时不可见，需重新保存 + Redeploy）。
+
 测试 325 → **329/329**，版本 **6.8.8 → 6.8.9**。
 
 ---
