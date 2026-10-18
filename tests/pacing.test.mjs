@@ -32,8 +32,8 @@ import assets from '../02_Assets/assets.json' with { type: 'json' };
 import profiles from '../02_Assets/model-profiles.json' with { type: 'json' };
 import { createRegistry } from '../src/domain/registry.js';
 import { planFilm, contentSeconds, FIT_TOLERANCE } from '../src/domain/planner.js';
-import { BEATS, FUNCTION_DURATION, PHASES } from '../src/domain/narrative.js';
-import { SLOTS } from '../src/domain/story.js';
+import { BEATS, FUNCTION_DURATION, PHASES, renderTemplate } from '../src/domain/narrative.js';
+import { SLOTS, expandVocab, vocabFor } from '../src/domain/story.js';
 
 const registry = createRegistry(assets, profiles, { references: [] });
 const PROFILE = [...registry.profileById.keys()][0];
@@ -215,4 +215,129 @@ test('6.7.4 · 4 秒快切档必须真的被用到，且短切不能空转', () 
   const four = hist.get(4) || 0;
   assert.ok(four / shots >= 0.1,
     `4 秒档只占 ${(four / shots * 100).toFixed(1)}%（${four}/${shots}），快切几乎没被用上`);
+});
+
+/* ══════════════════════════════════════════════════════════════════════ *
+ * F. 内容预算（6.9.1）—— 快切节拍的文本量必须配得上它的档位
+ *
+ * 症状（用户视角）：最短的镜头塞最多内容。修好前实测 4 秒镜平均 64 字 /
+ * 3.6 分句、6 秒镜 55 字、8 秒镜 55 字 —— 最短的桶反而最满。
+ *
+ * 机制：`fitDuration` 取 `max(声明时长, 内容需要)`，内容一超档位就升格，
+ * 于是声明 4 秒的快切（contact / clash / cost / reaction）被静默拱成
+ * 6–8 秒长镜，节奏曲线倒挂。上行是**静默**的：没有任何报错，
+ * 只是「这一镜变慢了」——这正是它必须被门禁守死的原因。
+ *
+ * 红线口径（与 FIT_TOLERANCE 同源）：
+ *     contentSeconds(text).total ≤ duration × (1 + 0.15)
+ *   4s 档接受 ≤4.71s · 6s 档 ≤7.06s · 8s 档 ≤9.41s。
+ *
+ * 口径注意（探针踩过的坑，与 6.8.8「验证工具自身要干净」同型）：
+ *   SLOTS 的文本含 `{vocab.xxx}` 点路径，而 `renderTemplate` 的
+ *   `fillTemplate` 只认 `\{\w+\}` —— 必须先用 story.js 的 `expandVocab`
+ *   按 era 展开（与 storySteps 装配时同一份口径），否则 `{vocab.armorRound}`
+ *   的 20 个 ASCII 字符会被 clauseSeconds 当成内容秒，测出根本不存在的超预算。
+ *
+ * 分句预算只进报告、不设硬红线的理由：pacing 轮刻意保留的短分句顿挫
+ * （如「拐角。两米。」11 字 3 分句仅 2.83s 内容）是节奏资产不是负债，
+ * 内容秒已经证明它装得下；硬分句线会把这些全部误判。
+ * ══════════════════════════════════════════════════════════════════════ */
+
+/** 中文字符数（代号【】、标点、ASCII 均不计） */
+const cjkLen = s => String(s ?? '').replace(/[^\u4e00-\u9fff]/g, '').length;
+
+/** 字数宽松上限：4s ≤40 / 6s ≤60 / 8s ≤90（任务口径） */
+const BUDGET_CHARS = { 4: 40, 6: 60, 8: 90 };
+
+/** SLOTS 节拍的档位：原型不写 duration，按戏剧功能语法表走 */
+const slotDuration = fn => FUNCTION_DURATION[fn] || 6;
+
+/**
+ * 全量原型库节拍（BEATS 通用原型 + SLOTS 题材槽位）。
+ * SLOTS 先按各 era 词表展开 vocab —— 每个 era 的词长不同（高射炮火网 →
+ * 定向能拦截），都要过一遍预算线。
+ */
+function budgetCorpus() {
+  const ctx = {
+    heroCallsign: '【ROMEO】', supportCallsign: '【LANTERN】', enemyCallsign: '【SPECTRE】',
+    vehicle: 'F-22 猛禽战斗机', place: '城区断桥', env: '城郊工业区', weather: '暴雨',
+    deadline: '九十秒', objective: '拿下桥头', stake: '整个小队都会埋在这里', link: '紧接着，'
+  };
+  const eras = ['ww2', 'coldwar', 'modern', 'future'];
+  const out = [];
+  for (const b of BEATS) {
+    if (!b.action) continue;
+    out.push({ id: b.id, fn: b.fn, duration: b.duration, src: 'BEATS', text: b.action });
+  }
+  for (const [slot, kernel] of Object.entries(SLOTS)) {
+    for (const [group, beats] of Object.entries(kernel)) {
+      for (const b of beats) {
+        if (!b.action) continue;
+        for (const era of eras) {
+          const vocab = vocabFor(era);
+          const text = expandVocab(b.action, vocab);
+          out.push({
+            id: `${slot}:${group}`, fn: b.fn, duration: slotDuration(b.fn),
+            src: `SLOTS@${era}`, text, vocab
+          });
+        }
+      }
+    }
+  }
+  // BEATS 也可能引用点路径（防御未来新增），同样展开
+  for (const b of BEATS) {
+    if (!/\{vocab\./.test(b.action)) continue;
+    for (const era of eras) {
+      out.push({
+        id: b.id, fn: b.fn, duration: b.duration, src: `BEATS@${era}`,
+        text: expandVocab(b.action, vocabFor(era))
+      });
+    }
+  }
+  return { out, ctx };
+}
+
+test('6.9.1 · 内容预算：原型库节拍的内容秒数不许顶掉自己声明的档位', () => {
+  const { out, ctx } = budgetCorpus();
+  const violations = out.map(b => {
+    // 装配序与 storySteps 一致：先 expandVocab（budgetCorpus 已做）再 renderTemplate 渲染代号等占位符
+    const text = renderTemplate(b.text, ctx);
+    const need = contentSeconds(text).total;
+    const cap = b.duration * (1 + FIT_TOLERANCE);
+    return need > cap ? `${b.id} [${b.src}] need=${need.toFixed(2)}s > ${b.duration}s×1.15=${cap.toFixed(2)}s\n    ${text.slice(0, 60)}` : null;
+  }).filter(Boolean);
+  assert.equal(violations.length, 0,
+    `${violations.length} 条节拍超内容预算（fitDuration 会静默升档、快切被拱成长镜）：\n  ${violations.join('\n  ')}`);
+  assert.ok(out.length >= 200, `语料覆盖不足：${out.length} 条`);
+});
+
+test('6.9.1 · 内容预算：字数宽松上限（4s ≤40 / 6s ≤60 / 8s ≤90 中文字）', () => {
+  const { out, ctx } = budgetCorpus();
+  const over = out.map(b => {
+    const text = renderTemplate(b.text, ctx);
+    const chars = cjkLen(text);
+    const cap = BUDGET_CHARS[b.duration];
+    if (cap === undefined) return null; // 未登记的档位由 A 节语法表门禁负责
+    return chars > cap ? `${b.id} [${b.src}] ${chars}字 > ${b.duration}s 档上限 ${cap} 字\n    ${text.slice(0, 60)}` : null;
+  }).filter(Boolean);
+  assert.equal(over.length, 0,
+    `${over.length} 条节拍超过字数上限（长段落塞进短镜头，观众来不及看）：\n  ${over.join('\n  ')}`);
+});
+
+test('6.9.1 · 反向验证：预算判据本身对超长节拍必须会红（门禁不是恒绿）', () => {
+  // 构造一条**故意**超载的 4 秒接触镜：分句数远超、内容秒远超 4.71s。
+  // 若判据失效（比如 FIT_TOLERANCE 被改成 10），这条会先红 ——
+  // 证明上面两条门禁的「绿」是真的量过，而不是永远放行。
+  const overlong = {
+    id: 'SYNTH-OVERLONG', fn: 'contact', duration: 4,
+    action: '【ROMEO】贴着掩体推进，交替掩护，火力压制，烟雾弥漫，弹壳纷飞，伤员后送，无人机临空侦察，电台里指令纷杂，敌方增援正在集结，局势一触即发，每一秒都关乎成败。'
+  };
+  const text = renderTemplate(overlong.action, {});
+  const need = contentSeconds(text).total;
+  const cap = overlong.duration * (1 + FIT_TOLERANCE);
+  assert.ok(need > cap,
+    `构造的超载节拍竟然没超预算（need=${need.toFixed(2)}s ≤ cap=${cap.toFixed(2)}s）—— ` +
+    '内容秒模型或容差被改动，上面两条预算门禁的基线已失效，必须重校');
+  assert.ok(cjkLen(text) > BUDGET_CHARS[4],
+    `构造的超载节拍字数没超上限（${cjkLen(text)} 字）—— 字数判据基线失效`);
 });
