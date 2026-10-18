@@ -815,11 +815,11 @@ export const SLOTS = {
       audioCue: '告警音由低到高 · 发电机转速上扬',
       radioVoice: '【无线电】全阵地进入反无人机状态，非必要人员进掩体。' }],
     plan: [{ fn: 'plan', phase: 'build', focus: 'hero',
-      action: '{link}「把{vocab.counterDrone}架到最外圈，放近了再打。」{heroCallsign}在沙盘上画出一个漏斗。',
+      action: '{link}「{vocab.counterDrone}架到最外圈，放近了再打。」{heroCallsign}在沙盘上画出漏斗。',
       audioCue: '沙盘推杆 · 装填手拉开电源柜',
       radioVoice: '【无线电】漏斗部署，放近了再打。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}第一波蜂群从低云下面钻出来，{vocab.counterDrone}同时开火。',
+      action: '蜂群从低云下面钻出来，{vocab.counterDrone}同时开火。',
       audioCue: '定向能充能的啸叫 · 小型旋翼的密集嗡鸣',
       radioVoice: '【无线电】接触！低空，数量三十以上！' }],
     escalate: [
@@ -935,7 +935,7 @@ export const SLOTS = {
       audioCue: '弹道图推演音 · 口令交替',
       radioVoice: '【无线电】弹道已装订，滑翔段规避中段拦截。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}{enemyCallsign}的{vocab.interceptor}从三个方向同时爬升，双方进入拦截窗口。',
+      action: '{enemyCallsign}的{vocab.interceptor}从三个方向同时爬升，双方交战。',
       audioCue: '拦截弹上升的呼啸 · 告警音连响',
       radioVoice: '【无线电】被拦截弹跟踪！准备机动！' }],
     escalate: [
@@ -1469,7 +1469,7 @@ export const SLOTS = {
       audioCue: '铅笔划图 · 装填手检查弹药',
       radioVoice: '【无线电】进入伏击位，发动机熄火待机。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}{vocab.armorRound}在{heroCallsign}的炮塔边上炸开，两车交战。',
+      action: '{vocab.armorRound}在{heroCallsign}的炮塔边上炸开，两车交战。',
       audioCue: '穿甲弹命中 · 车内金属回响',
       radioVoice: '【无线电】中弹！右侧！倒车！' }],
     escalate: [
@@ -1809,8 +1809,15 @@ export function shotTypeFor(step) {
  * 6. 装配
  * ================================================================== */
 
-/** 把 {vocab.xxx} 展开为时代词汇；未知键原样保留以便排查 */
-function expandVocab(text, vocab) {
+/**
+ * 把 {vocab.xxx} 展开为时代词汇；未知键原样保留以便排查。
+ *
+ * 导出它（6.9.1）是为了让预算门禁测试复用**同一份口径** —— `renderTemplate`
+ * 的 `fillTemplate` 只认 `\{\w+\}`，点路径必须在这里先展开，
+ * 否则测试自己用 renderTemplate 渲染会把 `{vocab.counterDrone}` 20 个 ASCII
+ * 字符当成内容秒数，测出根本不存在的「超预算」（探针踩过，与 6.8.8 同型）。
+ */
+export function expandVocab(text, vocab) {
   return String(text ?? '').replace(/\{vocab\.(\w+)\}/g, (m, key) => (
     vocab[key] !== undefined ? String(vocab[key]) : m
   ));
