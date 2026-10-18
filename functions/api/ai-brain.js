@@ -26,7 +26,7 @@ import { checkContentGovernance } from '../../src/domain/governance.js';
 import { parseIntent } from '../../src/domain/intent.js';
 import { hasHostileFraming } from '../../src/domain/shot-spec.js';
 import { buildAssetCatalog, formatCatalogForPrompt, collectValidIds } from '../../src/domain/asset-catalog.js';
-import { assets as ASSET_REGISTRY } from '../../src/domain/assets-data.js';
+import { assets as ASSET_REGISTRY, profiles as ASSET_PROFILES } from '../../src/domain/assets-data.js';
 import { createRegistry } from '../../src/domain/registry.js';
 import { selectCast, buildRoster, rosterToJSON, rosterPromptLines, rosterFromJSON } from '../../src/domain/roster.js';
 import { diversifyShots, tagDramaticFunctions } from '../../src/domain/narrative.js';
@@ -43,11 +43,18 @@ import {
  *
  * 存在的意义：后台必须和前端用**同一套算法**从资产库里挑演员并分配代号，
  * 否则「大模型脚本里的角色」与「前端定妆表里的角色」会对不上。
- * 这里只依赖 byId / byKind，因此用一个占位 profile 即可。
+ *
+ * **6.9.2 修正**：这里曾用一个 `durations: [8]` 的占位 profile（当时只依赖
+ * byId / byKind 挑演员，档位用不上）。但 6.9.0 起后端会真的跑
+ * `generateLocally` —— `planFilm` 用 `profile.durations` 落档，
+ * 占位 profile 于是把**每一镜都压成 8 秒**：前端本地规划出来的 4 秒快切
+ * 在服务端全部消失，节奏设计（6.7.4 的档位语法 + 6.9.1 的内容预算）
+ * 对线上产出完全无效。线上实测 8 镜全 8s，本地同一题材是 [8,6,6,4,6,4,6,4]。
+ * 现在改为直接使用资产包里的**真实** model profiles（assets-data.js）。
  */
 const REGISTRY = (() => {
   try {
-    return createRegistry(ASSET_REGISTRY, { profiles: [{ id: '__backend__', durations: [8], aspectRatios: ['9:16'] }] });
+    return createRegistry(ASSET_REGISTRY, ASSET_PROFILES);
   } catch (err) {
     console.warn('后端资产注册表构建失败，将退化为无阵容模式:', err?.message);
     return null;

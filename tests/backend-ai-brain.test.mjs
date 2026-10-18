@@ -331,3 +331,22 @@ test('Backend AI Brain: injects a deterministic cast with callsigns into the pro
     globalThis.fetch = originalFetch;
   }
 });
+
+test('Backend AI Brain: 后端基底必须保留节奏档位（6.9.2 · 不许把每镜压成 8 秒）', async () => {
+  // 回归靶心：后端注册表曾用一个 `durations: [8]` 的占位 profile（当时只用来
+  // 挑演员）。6.9.0 起后端真的跑 generateLocally，planFilm 用
+  // profile.durations 落档 —— 占位 profile 于是把**每一镜都压成 8 秒**：
+  // 前端本地规划出的 4 秒快切在服务端全部消失，节奏设计对线上产出完全无效。
+  // 线上实测 8 镜全 8s，本地同一题材是 [8,6,6,4,6,4,6,4]。
+  const res = await call({ query: '热带雨林狙击手生死对决', requestedShots: 8 }, 'POST', {}, {});
+  assert.equal(res.status, 200);
+  const data = await res.json();
+  const durs = data.shots.map(s => s.duration);
+
+  assert.ok(durs.every(d => [4, 6, 8].includes(d)),
+    `后端产出的时长必须落在模型支持的 4/6/8 档位：${durs.join(',')}`);
+  assert.ok(new Set(durs).size >= 2,
+    `后端把节奏档位压平了（全是 ${durs[0]}s）：${durs.join(',')}`);
+  assert.ok(durs.includes(4),
+    `后端基底必须保留 4 秒快切档（contact/clash/cost/reaction）：${durs.join(',')}`);
+});
