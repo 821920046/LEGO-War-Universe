@@ -55,7 +55,7 @@
 <header class="top">
   <p class="kicker">6.9.0 · 架构记录</p>
   <h1>本地打底 + AI 润色 —— 把「AI 与本地二选一」改造成协同</h1>
-  <p class="sub">LEGO War Universe · 2026-10-16 · 用户诉求「依靠本地加 AI，AI 不可用时自动切回本地」→ 架构重构（基底先行 + 结构冻结 + 熔断快速回退）→ 363/363 测试、五道门禁全绿、新门禁全部反向验证</p>
+  <p class="sub">LEGO War Universe · 2026-10-16 · 用户诉求「依靠本地加 AI，AI 不可用时自动切回本地」→ 架构重构（基底先行 + 结构冻结 + 熔断快速回退）→ 363/363 测试、五道门禁全绿、新门禁全部反向验证 → 线上复测 3/3 自编片名走「本地基底 + 润色」且零编造元数据，熔断器生产环境真实触发</p>
   <p class="quote">"我需要有智能功能，依靠本地加AI，使得脚本内容更真实，更完美，当AI模型不可用时自动切回本地。"</p>
 </header>
 
@@ -150,15 +150,24 @@ diversifyShots → tagDramaticFunctions → buildRoster(prior=基底名册)</pre
   <div class="card"><h4>悬空 DOM id</h4><p><code>ui-contract</code> 门禁抓到 <code>#variant-polish-note</code> 在 index.html 里不存在（它是切换器的动态子节点）。改为在 <code>#variant-picker</code> 内部按 class 查询——门禁又一次在用户之前抓到问题。</p></div>
 </div>
 
-<h2>七、边界与未竟事项</h2>
-<p>· 幻觉面只是塌缩到三句文案，没有归零：action 里仍可能出现与现实世界不符的描写（治理引擎继续兜底）；模型是否持续听话只能靠线上复测维持，措辞保持「本次未复现」而非「已根除」。<br>
-· 熔断状态是 isolate 内尽力而为，Workers 多 isolate 不共享——最坏多试一次，不影响正确性。<br>
-· <strong>发布后线上复测承诺</strong>（与 6.8.9 同样的纪律）：自编片名应走「本地基底 + 润色」、徽章含润色与未识别标注；503/断 Key 场景验证熔断与快速回退。<br>
-· 遗留运维项（需用户操作）：OpenRouter 变量线上 <code>configured=false</code>（重新保存 + Redeploy）；Groq Key 403（控制台重生）；OpenRouter 8 候选裁 4（等本地基准）。<br>
-· 本项目产出文本 prompt，<strong>从未调用 Veo 3 / Flow</strong>——这条边界不变。</p>
+<h2>七、线上复测：承诺已兑现（含一次熔断生产触发）</h2>
+<div class="box box--good"><div class="box__hd">线上实测（projectVersion=6.9.0，2026-10-16）</div><div class="box__bd"><pre>自编片名 ×3（热带雨林狙击手生死对决 / 赛博朋克熊猫特工队大电影 / 深海古墓机械龙王）
+  → engine = Cloud Free AI (Gemini (gemini-2.5-flash)) · 润色本地基底
+  → isAiGenerated=true · polish.merged=4/4 · director=null · matchedMovie=null
+  → reason=OK · unrecognized=true        ← 本地基底 + 云端润色协同，且无一编造元数据
+
+《狂怒》对照
+  → 同为润色链路 · director=大卫·阿耶 (David Ayer) · matchedMovie=狂怒 (Fury)
+  → unrecognized=false                  ← 真实影片未被误伤
+
+第 4 次请求（熔断生产触发）
+  → breakerSkipped=["groq"] · 跳过原因「熔断中：连续失败 3 次，33 秒后自动重试」
+    （三次自编片名请求中 groq 各 403 一次，10–27ms 快速失败，累计开闸）
+  → 用户侧无感：最终仍拿到 gemini 润色结果</pre></div></div>
+<p><strong>边界与未竟事项</strong>：幻觉面只是塌缩到三句文案，没有归零——action 里仍可能出现与现实世界不符的描写（治理引擎继续兜底）；模型是否持续听话只能靠持续复测维持，措辞保持「本次实测」而非「已根除」，模型会腐烂。熔断状态是 isolate 内尽力而为，多 isolate 不共享，最坏多试一次。云端全挂（503 风暴）时的毫秒级回退在本地 mock 风暴下实测（第 2 次请求起 0 云调用），线上无法强制制造，以本地实测与本次熔断真实触发共同佐证。遗留运维项（需用户操作）：OpenRouter 变量线上 <code>configured=false</code>（重新保存 + Redeploy）；Groq Key 403（控制台重生，本轮三次 403 再次确认仍未换）；OpenRouter 8 候选裁 4（等本地基准）。本项目产出文本 prompt，<strong>从未调用 Veo 3 / Flow</strong>——这条边界不变。</p>
 
 <footer>
-  LEGO War Universe · 6.9.0 · 本地打底 + AI 润色 · 测试 329 → 363/363 · 五道门禁全绿（资产 810 / 签名 e1515357a93c 未变，纯代码轮）· 契约实现 src/domain/polish-contract.js，编排 functions/api/ai-brain.js
+  LEGO War Universe · 6.9.0 · 本地打底 + AI 润色 · 测试 329 → 363/363 · 五道门禁全绿（资产 810 / 签名 e1515357a93c 未变，纯代码轮）· 契约实现 src/domain/polish-contract.js，编排 functions/api/ai-brain.js · 线上复测已兑现（projectVersion=6.9.0）
 </footer>
 
 </div>

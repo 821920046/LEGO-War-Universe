@@ -63,10 +63,20 @@ ai-diagnosis 24）。反向验证：破坏代号守卫 → 2 条红；破坏结�
 重置）；② `ui-contract` 门禁抓到 `#variant-polish-note` 悬空 id
 （改为在 `#variant-picker` 内部按 class 查询）。
 
-**待兑现**：发布后线上复测（自编片名应走「本地基底 + 润色」并带未识别
-标注；503/断 Key 验证熔断与快速回退）。遗留运维项：OpenRouter 变量
-线上 `configured=false`（需重新保存 + Redeploy）；Groq Key 403；
-OpenRouter 8 候选裁 4。
+**发布后线上复测（已兑现，`projectVersion=6.9.0`）**：3/3 自编片名（热带雨林狙击手
+生死对决 / 赛博朋克熊猫特工队大电影 / 深海古墓机械龙王）→ 全部
+`engine=Cloud Free AI (Gemini (gemini-2.5-flash)) · 润色本地基底`、
+`isAiGenerated=true`、`polish.merged=4/4`、`director=null`、`matchedMovie=null`、
+`reason=OK` + `unrecognized=true` —— **本地基底 + 云端润色协同生效，且无一编造
+元数据**（润色的是三句文案，元数据该空的就是空的）。《狂怒》对照 →
+同为润色链路，`director=大卫·阿耶 (David Ayer)`、`matchedMovie=狂怒 (Fury)`、
+`unrecognized=false`，真实影片未被误伤。**熔断器在生产环境真实触发并被观测到**：
+三次自编片名请求中 groq 各失败一次（403，10–27ms 快速失败，累计 3 次开闸），
+第 4 次请求（《狂怒》）`breakerSkipped=["groq"]`、跳过原因如实记账
+「熔断中：连续失败 3 次，33 秒后自动重试」—— 用户侧无感，最终仍拿到 gemini
+润色结果。措辞纪律保持「本次未复现/本次已实测」：模型会腐烂，服从性靠持续复测维持。
+遗留运维项不变：OpenRouter 变量线上 `configured=false`（需重新保存 + Redeploy）；
+Groq Key 403（控制台重生，本轮三次 403 再次确认仍未换）；OpenRouter 8 候选裁 4。
 
 ---
 
