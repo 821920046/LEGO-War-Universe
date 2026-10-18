@@ -213,7 +213,7 @@ function cors(request, env = {}) {
 // 单点硬编码一个模型名 = 一次退役就永久失效；
 // 候选列表 + 环境变量覆盖，才能让「模型下线」退化成「换下一个」，
 // 而不是「整条路哑掉、还没人知道」。
-const PROVIDERS = [
+export const PROVIDERS = [
   {
     id: 'groq',
     label: 'Groq',
@@ -242,7 +242,9 @@ const PROVIDERS = [
     // 同一家 provider 里混着支持与不支持，所以不能再按 provider 一把切。
     //
     // ⚠️ 当前顺序是**按参数量排的暂定先验，未经本项目实测**。
-    // 实测基准（_bench_openrouter.mjs，8 模型 × 3 题材）跑完后按数据裁剪为 4 个。
+    // 实测基准：`node scripts/bench-openrouter.mjs`（6.8.7 建、6.9.3 升级口径；
+    // 走 onRequest 端到端，候选名单直读本 PROVIDERS，密钥支持 --key / .dev.vars）。
+    // 跑完后按「可用率 → 过守卫镜数 → 速度」裁剪为 4 个，改动走 PR。
     models: [
       { id: 'nvidia/nemotron-3-ultra-550b-a55b:free', jsonMode: false }, // 550B MoE 推理型
       { id: 'nvidia/nemotron-3-super-120b-a12b:free', jsonMode: true },  // 120B MoE
@@ -635,7 +637,7 @@ function cleanAndParseJson(text) {
  * 6.8.6 起**每一次网络等待都有上限**：响应头、响应体分别计时，
  * 超时既 abort 底层连接、也抛出可读的错误（否则「慢」与「挂死」行为一致）。
  */
-async function callProviderModel(provider, model, systemPrompt, userPrompt, apiKey, timeoutMs, jsonMode) {
+export async function callProviderModel(provider, model, systemPrompt, userPrompt, apiKey, timeoutMs, jsonMode) {
   const body = {
     model,
     messages: [
