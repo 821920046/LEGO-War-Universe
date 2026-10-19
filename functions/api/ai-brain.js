@@ -229,31 +229,36 @@ export const PROVIDERS = [
     label: 'OpenRouter',
     envVar: 'OPENROUTER_API_KEY',
     modelEnvVar: 'OPENROUTER_MODEL',
-    // 免费档候选（6.8.7）。
+    // 免费档候选（6.8.7 建 8 个 → 6.9.3 实测裁为 4 个）。
     //
     // 名单来源：OpenRouter 公开模型接口 /api/v1/models 实拉，
     // 2026-10-14 共 462 个模型，其中 `:free` 后缀 14 个、纯文本输出 14 个。
     // 按用途排除：coding agent（poolside/laguna-*、cohere/north-mini-code）、
     // 内容安全分类器（nemotron-3.5-content-safety，它是判别器不是生成器）、
-    // 多模态感知（nemotron-3-nano-omni）。剩下 8 个进入候选。
+    // 多模态感知（nemotron-3-nano-omni）。
     //
     // jsonMode 是**逐个模型**从接口的 supported_parameters 读出来的实测事实，
     // 不是猜的：对不支持 response_format 的模型发这个参数，上游直接 4xx ——
     // 同一家 provider 里混着支持与不支持，所以不能再按 provider 一把切。
     //
-    // ⚠️ 当前顺序是**按参数量排的暂定先验，未经本项目实测**。
-    // 实测基准：`node scripts/bench-openrouter.mjs`（6.8.7 建、6.9.3 升级口径；
-    // 走 onRequest 端到端，候选名单直读本 PROVIDERS，密钥支持 --key / .dev.vars）。
-    // 跑完后按「可用率 → 过守卫镜数 → 速度」裁剪为 4 个，改动走 PR。
+    // 顺序按 6.9.3 端到端基准排序（2026-10-19，8 候选 × 4 题材，
+    // 走 onRequest 真实链路、每候选前重置熔断防测量污染）：
+    //   · lfm-2.5-2.6b        4/4 可用，均 12.3s，16/16 镜过润色守卫
+    //   · nemotron-3-super-120b 4/4 可用，均 41.5s，16/16 镜
+    //   · dots-3-note-preview 4/4 可用，均 44.7s，16/16 镜
+    //   · nemotron-3-ultra-550b 2/4 可用（两次 90s 超时未测到），均 21.0s，
+    //     8/8 镜过守卫 —— 快但抖，放最后兜底
+    // 本轮出局（0 次成功，各 3 轮全败）：gemma-4-31b / gemma-4-26b 三次
+    // HTTP 429（免费配额）、inkling 三次 HTTP 403、nemotron-3.5-lightning
+    // 三次 90s 超时未读完响应体（本就超生产 60s 单次上限，留也无用）。
+    // 措辞纪律：这是「本次实测」，模型会腐烂；429 疑为账号级配额而非模型
+    // 本身，出局可逆 —— 重跑 `node scripts/bench-openrouter.mjs` 即可重新入列。
+    // 线上通过 OPENROUTER_MODEL 环境变量可强制单模型（基准同款变量）。
     models: [
-      { id: 'nvidia/nemotron-3-ultra-550b-a55b:free', jsonMode: false }, // 550B MoE 推理型
-      { id: 'nvidia/nemotron-3-super-120b-a12b:free', jsonMode: true },  // 120B MoE
-      { id: 'google/gemma-4-31b-it:free', jsonMode: true },              // 31B dense
-      { id: 'thinkingmachines/inkling:free', jsonMode: false },          // 41B active MoE
-      { id: 'google/gemma-4-26b-a4b-it:free', jsonMode: true },          // 26B MoE
-      { id: 'dots-studio/dots-3-note-preview:free', jsonMode: true },    // 16B active MoE
-      { id: 'nvidia/nemotron-3.5-lightning:free', jsonMode: false },     // 3B active
-      { id: 'liquid/lfm-2.5-2.6b:free', jsonMode: true }                 // 2.6B，64k 上下文
+      { id: 'liquid/lfm-2.5-2.6b:free', jsonMode: true },              // 4/4 · 均 12.3s · 最快
+      { id: 'nvidia/nemotron-3-super-120b-a12b:free', jsonMode: true }, // 4/4 · 均 41.5s
+      { id: 'dots-studio/dots-3-note-preview:free', jsonMode: true },    // 4/4 · 均 44.7s
+      { id: 'nvidia/nemotron-3-ultra-550b-a55b:free', jsonMode: false }  // 2/4 · 均 21.0s · 兜底
     ],
     url: 'https://openrouter.ai/api/v1/chat/completions',
     extraHeaders: { 'HTTP-Referer': 'https://legowaruniverse.pages.dev', 'X-Title': 'LEGO War Universe' },

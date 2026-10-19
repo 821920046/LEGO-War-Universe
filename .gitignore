@@ -25,3 +25,4 @@ Thumbs.db
 
 # OpenRouter 基准测试的原始输出（scripts/bench-openrouter.mjs）
 _bench_result.json
+_bench_result_*.json

@@ -24,7 +24,7 @@
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { onRequest, resetCircuitForTests } from '../functions/api/ai-brain.js';
+import { onRequest, resetCircuitForTests, PROVIDERS, callProviderModel } from '../functions/api/ai-brain.js';
 import { callAiBrain } from '../src/domain/ai-brain.js';
 
 // 每次调用都带**唯一**的 cf-connecting-ip。
@@ -492,7 +492,9 @@ test('6.8.7 · JSON 模式必须按模型生效：声明的以模型为准，未
     if (!u.includes('openrouter.ai')) throw new Error('非预期调用：' + u);
     const body = opts && opts.body ? JSON.parse(opts.body) : null;
     seen.push({ model: body && body.model, hasJson: Boolean(body && body.response_format) });
-    // 只让名单里第二个模型成功，好让第一个（jsonMode: false）也被真实调用到
+    // 只让第二个候选（super-120b，声明支持）成功，好让第一个（lfm-2.5-2.6b）
+    // 也被真实调用到。注意只放行 1 次失败：熔断器连败 3 次会开闸，
+    // 后面的候选会被 CIRCUIT_OPEN 跳过，测的就成了熔断而不是 JSON 模式。
     if (body && body.model === 'nvidia/nemotron-3-super-120b-a12b:free') {
       return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: OK_BODY } }] }) };
     }
@@ -505,13 +507,13 @@ test('6.8.7 · JSON 模式必须按模型生效：声明的以模型为准，未
       'POST', {}, { OPENROUTER_API_KEY: 'k' }
     )).json();
 
-    // 第一个候选（nemotron-3-ultra-550b，实测不支持 response_format）不得带该参数
-    const first = seen.find(s => s.model === 'nvidia/nemotron-3-ultra-550b-a55b:free');
+    // 第一个候选（lfm-2.5-2.6b，6.9.3 基准 4/4 最快）必须带上该参数
+    const first = seen.find(s => s.model === 'liquid/lfm-2.5-2.6b:free');
     assert.ok(first, '必须真的调用到第一个候选模型');
-    assert.equal(first.hasJson, false,
-      '对不支持 response_format 的模型发这个参数会让上游 4xx，整个 provider 都会失败');
+    assert.equal(first.hasJson, true,
+      '模型声明了支持 JSON 模式，就必须真的发 response_format');
 
-    // 第二个候选（nemotron-3-super-120b，实测支持）必须带上该参数
+    // 第二个候选（super-120b，同样声明支持）必须带上该参数
     const second = seen.find(s => s.model === 'nvidia/nemotron-3-super-120b-a12b:free');
     assert.ok(second, '第一个失败后必须继续试第二个候选');
     assert.equal(second.hasJson, true,
@@ -522,6 +524,42 @@ test('6.8.7 · JSON 模式必须按模型生效：声明的以模型为准，未
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+// 6.9.3 补：唯一声明 jsonMode:false 的候选（ultra-550b）排在队尾，上面的
+// 端到端用例为避开熔断开闸（连败 3 次）走不到它 —— 这里直接驱动
+// callProviderModel 守「按模型传参」的管道本身：声明 false 就绝不带
+// response_format，声明 true 就必须带。
+test('6.9.3 · response_format 严格按传入的 jsonMode 收发，false 时一个字节都不带', async () => {
+  const originalFetch = globalThis.fetch;
+  const sent = [];
+  globalThis.fetch = async (url, opts) => {
+    const body = opts && opts.body ? JSON.parse(opts.body) : null;
+    sent.push({ model: body && body.model, hasJson: Boolean(body && body.response_format) });
+    return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: '{"action":"x","audioCue":"y","radioVoice":"z"}' } }] }) };
+  };
+
+  const or = PROVIDERS.find(p => p.id === 'openrouter');
+  try {
+    for (const entry of or.models) {
+      const jsonMode = entry.jsonMode === null ? Boolean(or.jsonMode) : entry.jsonMode;
+      await callProviderModel(or, entry.id, 's', 'u', 'k', 5000, jsonMode);
+    }
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+
+  assert.equal(sent.length, or.models.length, '名单里每个候选都应被真实调用到');
+  for (let i = 0; i < or.models.length; i++) {
+    const want = or.models[i].jsonMode === null ? Boolean(or.jsonMode) : or.models[i].jsonMode;
+    assert.equal(sent[i].hasJson, want,
+      `${or.models[i].id} 声明的 jsonMode=${want}，实际 response_format ${sent[i].hasJson ? '带了' : '没带'}`);
+  }
+  // 队尾的 ultra-550b 是名单里唯一声明 false 的，必须真的没带
+  const ultra = sent.find(s => s.model === 'nvidia/nemotron-3-ultra-550b-a55b:free');
+  assert.ok(ultra, '队尾兜底候选 ultra-550b 必须在名单里');
+  assert.equal(ultra.hasJson, false,
+    '对不支持 response_format 的模型发这个参数会让上游 4xx，整个 provider 都会失败');
 });
 
 test('6.8.7 · 环境变量覆盖的模型名沿用 provider 默认（不允许因为覆盖而静默改语义）', async () => {
@@ -539,6 +577,9 @@ test('6.8.7 · 环境变量覆盖的模型名沿用 provider 默认（不允许�
     await (await call(
       { query: '北极冰原上的雷达站遭遇突袭', requestedShots: 1 },
       'POST', {},
+      // 6.9.3 起 gemma-4-31b 已不在默认名单里（本轮基准 3×429 出局）——
+      // 用一个「名单外」的名字，正好证明 OPENROUTER_MODEL 是**替换名单**
+      // 而不是**筛选名单**：运维指定哪个就打哪个，与默认队列无关。
       { OPENROUTER_API_KEY: 'k', OPENROUTER_MODEL: 'google/gemma-4-31b-it:free' }
     )).json();
 
@@ -557,12 +598,20 @@ test('6.8.7 · 自检必须报出每个模型是否要求 JSON 模式，便于�
   const d = await res.json();
   const or = d.providers.find(p => p.id === 'openrouter');
 
-  assert.equal(or.models[0], 'nvidia/nemotron-3-ultra-550b-a55b:free');
-  assert.equal(or.jsonModes[0], false, '550b 实测不支持 response_format，必须如实报 false');
+  // 6.9.3 基准后队列裁剪为 4 个，顺序 = 按「可用率 → 过守卫镜数 → 速度」实测排序。
+  // 这条断言同时守两件事：名单别悄悄涨回 8 个（裁剪回归）、顺序别回到参数量先验。
+  assert.equal(or.models.length, 4, 'OpenRouter 候选应为 6.9.3 基准裁出的 4 个');
+  assert.equal(or.models[0], 'liquid/lfm-2.5-2.6b:free');
+  assert.equal(or.jsonModes[0], true, 'lfm-2.5-2.6b 实测支持 response_format，必须如实报 true');
   assert.equal(or.models[1], 'nvidia/nemotron-3-super-120b-a12b:free');
   assert.equal(or.jsonModes[1], true, '120b 实测支持 response_format，必须如实报 true');
+  assert.equal(or.models[2], 'dots-studio/dots-3-note-preview:free');
+  assert.equal(or.jsonModes[2], true, 'dots-3-note 实测支持 response_format，必须如实报 true');
+  assert.equal(or.models[3], 'nvidia/nemotron-3-ultra-550b-a55b:free');
+  assert.equal(or.jsonModes[3], false, '550b 实测不支持 response_format，必须如实报 false');
   assert.equal(or.models.length, or.jsonModes.length, '两个数组必须等长、一一对应');
-  assert.ok(or.models.every(m => !/gemini|llama-3\.3/.test(m)), '不得混入其他 provider 的模型');
+  assert.ok(or.models.every(m => !/gemini|llama-3\.3|gemma-4|inkling|lightning/.test(m)),
+    '6.9.3 基准出局的候选（gemma-4-* / inkling / lightning）不得混回名单');
 });
 
 // ── 6.8.8：限流按客户端隔离，且超限响应必须如实可辨 ──────────────────────
