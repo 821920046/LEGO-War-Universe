@@ -34,7 +34,7 @@
  */
 import { writeFileSync } from 'node:fs';
 import { existsSync, readFileSync } from 'node:fs';
-import { onRequest, PROVIDERS } from '../functions/api/ai-brain.js';
+import { onRequest, PROVIDERS, resetCircuitForTests } from '../functions/api/ai-brain.js';
 
 /* ────────────────────────── 参数 ────────────────────────── */
 
@@ -89,6 +89,12 @@ const TIMEOUT = flag('timeout', '90000');
 const rows = [];
 
 for (const model of CANDIDATES) {
+  // **每个被测模型前重置熔断状态（6.9.3 实测教训）**：熔断器是模块级、且按
+  // **provider**（不是按模型）计数 —— gemma-4-31b 连吃 3 个 429 后 openrouter
+  // 的闸开了，后面 5 个候选全部被 ~500ms 的 CIRCUIT_OPEN 跳过，一次都没真调。
+  // 首轮跑的「0/4」有 5 个纯属这个测量污染，不是模型不行。与 6.8.8「共享单例
+  // 污染测试」同型：测量工具自己的模块状态会伪造被测对象的结果。
+  resetCircuitForTests();
   for (const theme of THEMES) {
     const query = QUERIES[theme] || theme;
     const env = {
@@ -131,6 +137,8 @@ for (const model of CANDIDATES) {
       model, query: query.slice(0, 18), theme, wall,
       usedAi,
       reason: d?.aiStatus?.reason ?? null,
+      // 熔断跳过 = 本工具自己的模块状态导致没测到，与被测模型无关，必须能筛出来
+      circuitSkipped: (d?.aiStatus?.breakerSkipped?.length || 0) > 0 || d?.aiStatus?.reason === 'CIRCUIT_OPEN',
       engine: d?.engine ?? null,
       callMs: lastCall ? lastCall.ms : null,
       callError: lastCall ? lastCall.error : null,
@@ -158,9 +166,11 @@ for (const model of CANDIDATES) {
 
 const byModel = {};
 for (const r of rows) {
-  if (!byModel[r.model]) byModel[r.model] = { n: 0, ok: 0, ms: [], calls: [], merged: [], tiers: [] };
+  if (!byModel[r.model]) byModel[r.model] = { n: 0, ok: 0, skipped: 0, ms: [], calls: [], merged: [], tiers: [] };
   const b = byModel[r.model];
   b.n++;
+  // 未测到（被熔断跳过）不进分母：0/4 里混着「没测」会把没测到读成模型不行
+  if (!r.usedAi && r.circuitSkipped && !r.callError) b.skipped++;
   if (r.usedAi) { b.ok++; if (r.callMs != null) b.ms.push(r.callMs); }
   if (r.merged != null) { b.calls.push(r.merged); b.merged.push(r.merged); }
   if (r.durationTiers != null) b.tiers.push(r.durationTiers);
@@ -168,14 +178,18 @@ for (const r of rows) {
 const avg = a => (a.length ? Math.round(a.reduce((x, y) => x + y, 0) / a.length) : null);
 
 const ranked = Object.entries(byModel)
-  .map(([model, b]) => ({
-    model,
-    success: `${b.ok}/${b.n}`,
-    avgMs: avg(b.ms),
-    avgMerged: avg(b.merged),
-    avgTiers: avg(b.tiers),
-    mergedTotal: b.merged.reduce((x, y) => x + y, 0)
-  }))
+  .map(([model, b]) => {
+    const measured = b.n - b.skipped; // 分母剔除未测到的轮次
+    return {
+      model,
+      success: `${b.ok}/${measured}`,
+      measured: `${measured}/${b.n}`,
+      avgMs: avg(b.ms),
+      avgMerged: avg(b.merged),
+      avgTiers: avg(b.tiers),
+      mergedTotal: b.merged.reduce((x, y) => x + y, 0)
+    };
+  })
   .sort((a, b) => {
     const sa = parseInt(a.success), sb = parseInt(b.success);
     if (sb !== sa) return sb - sa;                       // 先可用率
@@ -191,14 +205,24 @@ console.log(`\n建议保留的 4 个（按上述优先级）：`);
 if (usable.length >= 4) {
   usable.slice(0, 4).forEach((r, i) => console.log(`  ${i + 1}. ${r.model}（可用 ${r.success}，平均 ${r.avgMs ?? '—'}ms，平均润色 ${r.avgMerged ?? '—'}/${SHOTS} 镜）`));
 } else {
-  console.log(`  ⚠ 可用候选不足 4（当前 ${usable.length}）——保持现有队列，不要为凑数塞不可用的`);
+  console.log(`  ⚠ 实测可用的候选不足 4（当前 ${usable.length}，且已剔除被熔断跳过的未测轮次）——保持现有队列，不要为凑数塞不可用的`);
 }
 
 // 「未测到」必须单列：失败与没测到是两件事，混在一起会得出错误结论。
-const notMeasured = rows.filter(r => r.callError && !r.usedAi);
+// 两类未测到：① 有调用错误（429 / 网络 / 5xx）；② 被熔断闸跳过（本工具的
+// provider 级熔断状态，重置前属于测量污染，重置后仍出现说明 provider 真的在连败）。
+const notMeasured = rows.filter(r => !r.usedAi && (r.callError || r.circuitSkipped));
 if (notMeasured.length) {
-  console.log(`\n未测到（有调用错误，不计入可用率，需人工分辨是限流/网络还是模型问题）：`);
-  for (const r of notMeasured) console.log(`  - ${r.model} · ${r.query} · ${String(r.callError).slice(0, 80)}`);
+  const byErr = notMeasured.filter(r => r.callError);
+  const byCircuit = notMeasured.filter(r => !r.callError && r.circuitSkipped);
+  if (byErr.length) {
+    console.log(`\n未测到 · 有调用错误（需人工分辨是限流/网络还是模型问题）：`);
+    for (const r of byErr) console.log(`  - ${r.model} · ${r.query} · ${String(r.callError).slice(0, 80)}`);
+  }
+  if (byCircuit.length) {
+    console.log(`\n未测到 · 被熔断跳过（provider 级连续失败开闸，非模型本身结论）：`);
+    for (const r of byCircuit) console.log(`  - ${r.model} · ${r.query}`);
+  }
 }
 
 writeFileSync(OUT, JSON.stringify({ rows, ranked, keyHint: KEY.slice(0, 7) + '…', at: new Date().toISOString() }, null, 2));
