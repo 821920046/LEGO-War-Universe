@@ -64,32 +64,11 @@
 
 ---
 
-## 四、备选：独立 Cloudflare Worker（**只支持 2 个 provider**）
-
-`worker.js` + `wrangler.toml` 是早期方案，**不含多模型轮询**：
-
-- 只支持 `PROVIDER=gemini`（`GEMINI_API_KEY`，默认 `gemini-2.0-flash`）
-  与 `PROVIDER=openai`（`OPENAI_API_KEY`，默认 `gpt-4o-mini`）
-- `GET /` 自检返回 `{ "ok": true, "service": "LWU AI Compose", "provider": "gemini" }`
-
-```bash
-npm i -g wrangler
-wrangler login
-cd 06_Deploy
-wrangler deploy
-wrangler secret put GEMINI_API_KEY
-```
-
-**但不推荐走这条**：前端写死调用同源 `/api/ai-brain`，用独立 Worker 必须自己改前端。
-需要 AI 就用上面的 Pages Function 方案。
-
----
-
-## 五、安全注意
+## 四、安全注意
 
 - **`.dev.vars` 装的是真 Key，必须留在 `.gitignore` 里。** 6.8.3 之前它**没有被忽略** ——
   按标准流程建 `.dev.vars` 会被 git 提交，等于把 Key 推到远端。已修，
   同时补上了 `.dev.vars.*` 和 `.wrangler/`。
 - 环境变量类型一律选 **Secret（加密）**，不要选 Text。
-- 密钥不要写进任何会进仓库的文件；`worker.js` 用的是 `wrangler secret put`，
-  `wrangler.toml` 里只放非敏感的 `vars`。
+- 密钥不要写进任何会进仓库的文件；本地用 `.dev.vars`（已忽略），
+  生产用 Cloudflare Pages 后台的 Environment variables。
