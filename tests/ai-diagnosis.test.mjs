@@ -201,6 +201,28 @@ test('AI 诊断：自检必须报告候选模型列表与可覆盖的环境变�
   );
 });
 
+// 6.9.5：Groq 把 llama-3.3-70b-versatile 关了（公告 2026-06-17 / 关停
+// 2026-08-16，免费与开发者档），退役后请求返回 404 model_not_found。
+// 这条路的 Key 长期 403，404 被叠在 403 后面藏了两个月 —— 候选名单里
+// 挂死模型名而没人知道，因为整条路从没成功过。
+test('6.9.5 · Groq 候选必须是官方替代，任何 provider 不得挂已退役模型', async () => {
+  const res = await probe({ GROQ_API_KEY: FAKE_SECRET });
+  const data = await res.json();
+  const groq = data.providers.find(p => p.id === 'groq');
+  assert.deepEqual(
+    groq.models,
+    ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'],
+    'Groq 候选应为官方首选替代 + 同档备选（均 Production 档、支持 JSON Object Mode）'
+  );
+  // 已退役模型黑名单（来源：Groq 官方 deprecations 页）
+  const retired = ['llama-3.3-70b-versatile', 'llama-3.1-8b-instant', 'qwen/qwen3.6-27b'];
+  for (const p of data.providers) {
+    for (const m of p.models) {
+      assert.ok(!retired.includes(m), `${p.id} 候选名单里还有已退役模型 ${m}`);
+    }
+  }
+});
+
 test('AI 诊断：单个模型退役时自动换下一个，整条路不会哑掉', async () => {
   const originalFetch = globalThis.fetch;
   const tried = [];
@@ -272,6 +294,10 @@ test('AI 诊断：源码里不得再硬编码已退役的模型名（防模型�
   const src = readFileSync(new URL('../functions/api/ai-brain.js', import.meta.url), 'utf8');
   assert.ok(!/['"]gemini-1\.5-flash['"]/.test(src), 'gemini-1.5-flash 早已退役，不得再硬编码');
   assert.ok(!/['"]gemini-2\.0-flash/.test(src), 'gemini-2.0 系列已于 2026-06-01 关停，不得再硬编码');
+  // 6.9.5：Groq llama-3.3-70b-versatile 公告 2026-06-17 / 关停 2026-08-16
+  // （免费与开发者档），退役后 404 model_not_found。
+  assert.ok(!/['"]llama-3\.3-70b-versatile['"]/.test(src), 'llama-3.3-70b-versatile 已于 2026-08-16 在 Groq 关停，不得再硬编码');
+  assert.ok(!/['"]llama-3\.1-8b-instant['"]/.test(src), 'llama-3.1-8b-instant 已于 2026-08-16 在 Groq 关停，不得再硬编码');
 });
 
 // ── 6.8.6：把「慢」与「挂死」分开 ──────────────────────────────────────

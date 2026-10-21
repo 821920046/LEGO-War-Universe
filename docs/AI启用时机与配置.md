@@ -69,11 +69,22 @@ https://你的站点/api/ai-brain?probe=1
 于是 Gemini 这条路**长期静默 404** —— 而失败只写进 `console.warn`，
 徽章又无条件显示绿色，**没有任何人知道它坏了**。
 
+**第二个例子（6.9.5，更隐蔽）**：Groq 的 `llama-3.3-70b-versatile`
+公告 2026-06-17、**2026-08-16 关停**（免费/开发者档；企业合同客户除外，
+所以 Groq 模型文档页至今还挂着它、标 Enterprise）。我们代码里的候选
+从那天起就是死的，请求返回 `404 model_not_found`。但它**藏了两个月**：
+因为这条路的 Key 长期是坏的（403），「Key 被拒」叠在「模型已死」前面，
+整条路从没成功过一次，于是没人往下看。直到用户换了一把有效 Key，
+才在 Groq 控制台日志里看到 404。**教训：「从没成功过的链路」会把下一层
+故障藏得严严实实 —— 第一层修好之前，你永远不知道第二层已经坏了。**
+现已换成 Groq 官方首选替代 `openai/gpt-oss-120b`（备选 `openai/gpt-oss-20b`，
+均 Production 档、支持 JSON Object Mode、免费档 30 RPM / 1K RPD）。
+
 **现在的做法：候选列表 + 环境变量覆盖。**
 
 | 环境变量 | 作用 | 默认候选 |
 | --- | --- | --- |
-| `GROQ_MODEL` | 覆盖 Groq 模型名 | `llama-3.3-70b-versatile` |
+| `GROQ_MODEL` | 覆盖 Groq 模型名 | `openai/gpt-oss-120b` → `openai/gpt-oss-20b`（6.9.5 起，原 `llama-3.3-70b-versatile` 已退役） |
 | `OPENROUTER_MODEL` | 覆盖 OpenRouter 模型名 | 4 个免费档候选（6.9.3 基准裁出，见「一」节表格） |
 | `GEMINI_MODEL` | 覆盖 Gemini 模型名 | `gemini-2.5-flash` → `gemini-3.5-flash-lite` → `gemini-3.8-flash` |
 
@@ -167,7 +178,7 @@ https://你的站点/api/ai-brain?probe=1
 
 | 顺序 | 环境变量 | 模型（候选列表，逐个尝试） |
 | --- | --- | --- |
-| 1 | `GROQ_API_KEY` | `llama-3.3-70b-versatile` |
+| 1 | `GROQ_API_KEY` | `openai/gpt-oss-120b` → `openai/gpt-oss-20b`（6.9.5 起） |
 | 2 | `OPENROUTER_API_KEY` | 4 个免费档候选（见下，6.9.3 基准裁出） |
 | 3 | `GEMINI_API_KEY` | `gemini-2.5-flash` → `gemini-3.5-flash-lite` → `gemini-3.8-flash` |
 
@@ -243,7 +254,7 @@ OR_KEY=sk-or-v1-你的Key node scripts/bench-openrouter.mjs
 
 | `engine` 文案 | 含义 |
 | --- | --- |
-| `Cloud Free AI (Groq (llama-3.3-70b-versatile))` | ✅ 云端 AI 生效 |
+| `Cloud Free AI (Groq (openai/gpt-oss-120b))` | ✅ 云端 AI 生效 |
 | `本地自主想象引擎 · 离线生成（非云端 AI）` | 本地按题材原创（未配 Key 或接口不可达） |
 | `策展致敬库 · 离线复刻（手写分镜，非 AI 生成）` | 命中 9 部策展影片，交付手写复刻 |
 | `策展致敬库 · 离线复刻… · 生成引擎不可用，已退回通用军事分镜` | 极端兜底 |

@@ -219,7 +219,20 @@ export const PROVIDERS = [
     label: 'Groq',
     envVar: 'GROQ_API_KEY',
     modelEnvVar: 'GROQ_MODEL',
-    models: ['llama-3.3-70b-versatile'],
+    // 6.9.5：llama-3.3-70b-versatile 已退役 —— Groq 官方 deprecations 页：
+    // 公告 2026-06-17、关停 2026-08-16，适用范围为免费/开发者档（企业合同
+    // 客户除外，所以模型文档页仍挂着、标 Enterprise）。退役后对该 ID 的请求
+    // 返回 404 model_not_found —— 2026-10-21 在用户的 Groq 控制台日志里
+    // 实测到（Key 有效、请求进日志，但模型找不到）。
+    //
+    // 教训：这条路的 Key 长期 403，404 被叠在 403 后面藏了两个月没人发现 ——
+    // 「从没成功过的 provider」会把下一层故障藏得严严实实，第一次真实调用
+    // 才暴露模型已死。
+    //
+    // 替代：官方首选 openai/gpt-oss-120b，备选 openai/gpt-oss-20b ——
+    // 同属 Production 档、均实测支持 JSON Object Mode；免费档 30 RPM /
+    // 1K RPD / 8K TPM / 200K TPD（Groq rate-limits 页 Free Plan 表）。
+    models: ['openai/gpt-oss-120b', 'openai/gpt-oss-20b'],
     url: 'https://api.groq.com/openai/v1/chat/completions',
     extraHeaders: {},
     jsonMode: true
