@@ -24,7 +24,7 @@
 import test, { afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
-import { onRequest, resetCircuitForTests, PROVIDERS, callProviderModel } from '../functions/api/ai-brain.js';
+import { onRequest, resetCircuitForTests, PROVIDERS, callProviderModel, resetLiveModelCacheForTests } from '../functions/api/ai-brain.js';
 import { callAiBrain } from '../src/domain/ai-brain.js';
 
 // 每次调用都带**唯一**的 cf-connecting-ip。
@@ -60,6 +60,10 @@ const probe = (env = {}) =>
 // 重置只动测试状态，不改生产行为（熔断自身由 circuit-breaker.test.mjs 守）。
 afterEach(() => {
   resetCircuitForTests();
+  // 6.9.6：活性检查的目录缓存同为模块级单例（TTL 30 分钟）—— 不重置的话，
+  // 第一个用例拉到的目录会被后面所有用例复用，「dropped 过滤」「TTL 只拉
+  // 一次」这些断言会互相污染（与熔断器同型，纪律 17）。
+  resetLiveModelCacheForTests();
 });
 
 const FAKE_SECRET = 'gsk_THIS_IS_A_FAKE_SECRET_KEY_abcd1234';
@@ -220,6 +224,134 @@ test('6.9.5 · Groq 候选必须是官方替代，任何 provider 不得挂已�
     for (const m of p.models) {
       assert.ok(!retired.includes(m), `${p.id} 候选名单里还有已退役模型 ${m}`);
     }
+  }
+});
+
+// ── 6.9.6：候选模型活性检查 ──────────────────────────────────────
+// 诉求：调度前先确认模型还在不在，别调死模型收 404（6.9.5 Groq 事故的直接
+// 对策：llama-3.3-70b-versatile 关停两个月我们还在调）。检查只减不增 ——
+// 死候选出列，新模型进列只能走基准（scripts/bench-openrouter.mjs）。
+
+const OR_POOL = PROVIDERS.find(p => p.id === 'openrouter').models.map(m => (typeof m === 'string' ? m : m.id));
+
+/** 云端润色成功响应的最小形状（与上方成功用例同型）：content 是 AI 载荷的 JSON 串。 */
+const OR_OK_BODY = JSON.stringify({
+  matchedMovie: '测试片',
+  shots: [{
+    phase: 'establish',
+    action: '乐高特战小队推进。',
+    assets: { subjects: ['CHR-401'], environment: 'ENV-401', camera: 'CAM-401', lighting: 'LGT-001', colorGrade: 'CLR-001' }
+  }]
+});
+
+/** 把「目录请求（/api/v1/models）」与「模型调用（chat/completions）」分开 mock。 */
+function makeLiveCheckFetch({ catalogIds = [], catalogThrows = false, chatOk = true } = {}) {
+  const counters = { catalog: 0, chat: 0 };
+  globalThis.fetch = async (url) => {
+    const u = String(url);
+    const jsonHeaders = { 'content-type': 'application/json' };
+    if (u.includes('/api/v1/models')) {
+      counters.catalog += 1;
+      if (catalogThrows) throw new Error('目录接口网络错误（模拟）');
+      return { ok: true, status: 200, headers: jsonHeaders, json: async () => ({ data: catalogIds.map(id => ({ id })) }) };
+    }
+    counters.chat += 1;
+    if (!chatOk) return { ok: false, status: 400, headers: jsonHeaders, json: async () => ({}) };
+    return { ok: true, status: 200, headers: jsonHeaders, json: async () => ({ choices: [{ message: { content: OR_OK_BODY } }] }) };
+  };
+  return counters;
+}
+
+test('6.9.6 · 活性检查：目录里没有的候选不得再被调用（防「调死模型收 404」）', async () => {
+  const originalFetch = globalThis.fetch;
+  // 目录故意不含第三个候选（dots-3-note-preview，模拟它被下架），其余在线
+  const dead = OR_POOL[2];
+  const counters = makeLiveCheckFetch({ catalogIds: [...OR_POOL.filter(id => id !== dead), 'some/other-model:free'] });
+  try {
+    const data = await (await call(
+      { query: '现代特战城市巷战', requestedShots: 1 },
+      'POST', {}, { OPENROUTER_API_KEY: 'k' }
+    )).json();
+
+    const or = data.aiStatus.providers.find(p => p.id === 'openrouter');
+    assert.ok(or.liveCheck && or.liveCheck.ok, 'openrouter 尝试前必须做活性检查');
+    assert.deepEqual(or.liveCheck.dropped, [dead], '目录里没有的候选必须被出列并记账');
+    assert.ok(!or.attemptedModels.includes(dead), '已下架的候选不得出现在 attemptedModels 里');
+    assert.equal(counters.catalog, 1, '应拉一次公开目录（免 Key、不耗额度）');
+    assert.equal(counters.chat, 1, '只应调用第一个在线候选（成功即停）');
+    assert.equal(data.isAiGenerated, true);
+    assert.equal(or.model, OR_POOL[0]);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('6.9.6 · 活性检查本身永不弄坏请求：目录拉取失败时退回完整静态名单', async () => {
+  const originalFetch = globalThis.fetch;
+  const counters = makeLiveCheckFetch({ catalogThrows: true });
+  try {
+    const data = await (await call(
+      { query: '现代特战城市巷战', requestedShots: 1 },
+      'POST', {}, { OPENROUTER_API_KEY: 'k' }
+    )).json();
+
+    const or = data.aiStatus.providers.find(p => p.id === 'openrouter');
+    assert.equal(or.liveCheck.ok, false, '目录拉取失败必须如实记账');
+    assert.equal(or.liveCheck.reason, 'fetch-failed-fallback-static');
+    assert.equal(or.attemptedModels.length, OR_POOL.length, '拉不到目录时必须退回完整静态名单');
+    assert.equal(data.isAiGenerated, true, '检查失败不能影响本次生成');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('6.9.6 · 目录把候选全部出列时整体退回静态名单（不把目录抖动变成「本次无 AI」）', async () => {
+  const originalFetch = globalThis.fetch;
+  const counters = makeLiveCheckFetch({ catalogIds: ['totally/unrelated:free'] });
+  try {
+    const data = await (await call(
+      { query: '现代特战城市巷战', requestedShots: 1 },
+      'POST', {}, { OPENROUTER_API_KEY: 'k' }
+    )).json();
+
+    const or = data.aiStatus.providers.find(p => p.id === 'openrouter');
+    assert.equal(or.liveCheck.fallbackAll, true, '全部出列必须记 fallbackAll');
+    assert.equal(or.attemptedModels.length, OR_POOL.length, '全部出列时退回完整静态名单');
+    assert.equal(data.isAiGenerated, true);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('6.9.6 · 目录结果按 TTL 缓存：连续请求不重复拉取', async () => {
+  const originalFetch = globalThis.fetch;
+  const counters = makeLiveCheckFetch({ catalogIds: OR_POOL });
+  try {
+    for (let i = 0; i < 3; i++) {
+      const res = await call({ query: '现代特战城市巷战', requestedShots: 1 }, 'POST', {}, { OPENROUTER_API_KEY: 'k' });
+      await res.json();
+    }
+    assert.equal(counters.catalog, 1, 'TTL（默认 30 分钟）内三次请求只应拉一次目录');
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test('6.9.6 · AI_MODEL_LIST_CHECK=off 时完全不拉目录、不做过滤', async () => {
+  const originalFetch = globalThis.fetch;
+  const counters = makeLiveCheckFetch({ catalogIds: [] });
+  try {
+    const data = await (await call(
+      { query: '现代特战城市巷战', requestedShots: 1 },
+      'POST', {}, { OPENROUTER_API_KEY: 'k', AI_MODEL_LIST_CHECK: 'off' }
+    )).json();
+
+    const or = data.aiStatus.providers.find(p => p.id === 'openrouter');
+    assert.equal(counters.catalog, 0, '开关关停时一次目录请求都不该发');
+    assert.equal(or.liveCheck.checked, false, '关停时 liveCheck 必须记 checked=false');
+    assert.equal(data.isAiGenerated, true);
+  } finally {
+    globalThis.fetch = originalFetch;
   }
 });
 
@@ -595,6 +727,11 @@ test('6.8.7 · 环境变量覆盖的模型名沿用 provider 默认（不允许�
   globalThis.fetch = async (url, opts) => {
     const u = String(url);
     if (!u.includes('openrouter.ai')) throw new Error('非预期调用：' + u);
+    // 6.9.6：/api/v1/models 是活性检查拉的公开目录（GET、无 body、不耗额度），
+    // 不是模型调用，不进 seen —— mock 必须跟着真实 API 表面走。
+    if (u.includes('/api/v1/models')) {
+      return { ok: true, status: 200, headers: { 'content-type': 'application/json' }, json: async () => ({ data: [{ id: 'google/gemma-4-31b-it:free' }] }) };
+    }
     const body = opts && opts.body ? JSON.parse(opts.body) : null;
     seen.push({ model: body && body.model, hasJson: Boolean(body && body.response_format) });
     return { ok: true, status: 200, json: async () => ({ choices: [{ message: { content: OK_BODY } }] }) };

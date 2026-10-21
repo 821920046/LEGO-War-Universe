@@ -275,7 +275,12 @@ export const PROVIDERS = [
     ],
     url: 'https://openrouter.ai/api/v1/chat/completions',
     extraHeaders: { 'HTTP-Referer': 'https://legowaruniverse.pages.dev', 'X-Title': 'LEGO War Universe' },
-    jsonMode: false
+    jsonMode: false,
+    // 6.9.6：活性检查地址。OpenRouter 的 /api/v1/models 是**公开接口**
+    // （不需要 Key、不耗额度），调度前拉一次目录、按「候选 ∩ 现存」过滤 ——
+    // 已退役/下架的候选自动出列，从根上消灭「调死模型收 404」这一类报错。
+    // 硬约束见 liveModelList 节：检查永不弄坏请求 / TTL 缓存 / 可用开关关停。
+    liveListUrl: 'https://openrouter.ai/api/v1/models'
   },
   {
     id: 'gemini',
@@ -325,6 +330,91 @@ function modelsFor(provider, env = {}) {
     return raw.split(/[,;\s]+/).map(s => s.trim()).filter(Boolean).map(normalizeModelEntry);
   }
   return provider.models.map(normalizeModelEntry);
+}
+
+// ── 6.9.6：候选模型活性检查（OpenRouter）─────────────────────────
+// 诉求：调度前先确认「这个模型现在还在不在」，别调死模型收 404。
+// 直接动因：6.9.5 的 Groq 事故 —— `llama-3.3-70b-versatile` 关停两个月了
+// 我们还在调它（404 被叠在长期 403 后面，整条路从没成功过所以没人知道）。
+//
+// 做法：GET /api/v1/models 拉全量目录，按「候选 ∩ 现存」过滤。**只减不增**：
+//   · 已退役/下架的候选自动出列（这正是防 404 的那一刀）；
+//   · 目录里没测过的新模型**不会**自动进列 —— 那是跑基准的活
+//     （scripts/bench-openrouter.mjs --discover 看全景，基准定去留）。
+//     热门/参数量/评分都不是本任务的质量证据：6.9.3 实测里 gemma-4-31b
+//     三次 429、inkling 三次 403、lightning 三次超时 —— 全是「看起来该行」
+//     的模型。「对这个项目有用」的唯一证据是本项目端到端基准。
+//
+// 三条硬约束（缺一条就把「检查」变成新故障点）：
+//   1. 永不弄坏请求 —— 网络失败/超时/解析失败/空目录，一律退回完整静态
+//      名单（最坏多试一次，绝不让请求栽在检查上）；
+//   2. TTL 缓存（默认 30 分钟）—— 公开目录变化慢，没必要每个请求都拉
+//      几百 KB；isolate 内尽力而为（丢了最坏是多拉一次，与熔断状态同型）；
+//   3. 可关停 —— `AI_MODEL_LIST_CHECK=off` 整个检查让位静态名单；
+//      `AI_MODEL_LIST_TTL_MS` 可调缓存周期。
+const DEFAULT_LIST_TTL_MS = 30 * 60 * 1000;
+const LIST_FETCH_TIMEOUT_MS = 8000;
+
+/** isolate 级缓存：{ at, ids }。ids=null 表示上次没查到（同样按 TTL 退避）。 */
+let liveModelCache = { at: 0, ids: null };
+
+/** 仅供测试重置模块级缓存（模块单例与共享桶同型污染，见纪律 17）。 */
+export function resetLiveModelCacheForTests() {
+  liveModelCache = { at: 0, ids: null };
+}
+
+/** 拉公开模型目录，返回 id 集合；任何失败都返回 null（调用方退回静态名单）。 */
+async function fetchLiveModelIds(url) {
+  const controller = new AbortController();
+  const abort = () => { try { controller.abort(); } catch { /* abort 失败不影响超时语义 */ } };
+  try {
+    const res = await withTimeout(fetch(url, { signal: controller.signal }), LIST_FETCH_TIMEOUT_MS, abort);
+    if (!res.ok) return null;
+    const data = await res.json();
+    const ids = Array.isArray(data && data.data)
+      ? data.data.map(m => m && m.id).filter(x => typeof x === 'string')
+      : [];
+    return ids.length ? new Set(ids) : null;
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * 按活性过滤候选模型。返回 { models, live }：
+ *   live.checked=false → 没查（无 liveListUrl / 被开关关停），models 原样；
+ *   live.ok=false      → 查了但没查到，models 原样（静态兜底）；
+ *   live.ok=true       → models 只留目录里还存在的，dropped 记下出列者；
+ *                        若全部出列则整体退回静态名单并记 fallbackAll
+ *                        （目录可能瞬时不一致，全出列时不硬撑）。
+ */
+export async function filterLiveAvailable(provider, models, env = {}, now = Date.now()) {
+  if (!provider || !provider.liveListUrl) {
+    return { models, live: { checked: false, ok: false, reason: 'no-live-list-url' } };
+  }
+  const enabled = String(env.AI_MODEL_LIST_CHECK == null ? 'on' : env.AI_MODEL_LIST_CHECK).toLowerCase() !== 'off';
+  if (!enabled) {
+    return { models, live: { checked: false, ok: false, reason: 'disabled-by-env' } };
+  }
+  const ttlMs = Number(env.AI_MODEL_LIST_TTL_MS) > 0 ? Number(env.AI_MODEL_LIST_TTL_MS) : DEFAULT_LIST_TTL_MS;
+  if (!liveModelCache.ids || now - liveModelCache.at > ttlMs) {
+    liveModelCache = { at: now, ids: await fetchLiveModelIds(provider.liveListUrl) };
+  }
+  if (!liveModelCache.ids) {
+    return { models, live: { checked: true, ok: false, reason: 'fetch-failed-fallback-static' } };
+  }
+  const live = { checked: true, ok: true, total: liveModelCache.ids.size, dropped: [] };
+  const kept = [];
+  for (const entry of models) {
+    if (liveModelCache.ids.has(entry.id)) kept.push(entry);
+    else live.dropped.push(entry.id);
+  }
+  if (!kept.length) {
+    // 全部出列：宁可全试一次静态名单，也不要把「目录抖动」变成「本次无 AI」。
+    live.fallbackAll = true;
+    return { models, live };
+  }
+  return { models: kept, live };
 }
 
 // ── 超时与总预算（6.8.6）────────────────────────────────────────────────
@@ -743,7 +833,9 @@ async function attemptCloudPolish({ systemPrompt, userPrompt, env = {}, perModel
     calls: [],
     totalMs: 0,
     error: null,
-    advice: null
+    advice: null,
+    // 6.9.6：活性检查结果（未检查的 provider 恒为 null，契约稳定）
+    liveCheck: null
   }));
 
   for (const provider of PROVIDERS) {
@@ -762,7 +854,15 @@ async function attemptCloudPolish({ systemPrompt, userPrompt, env = {}, perModel
       continue;
     }
 
-    const models = modelsFor(provider, env);
+    let models = modelsFor(provider, env);
+    // 6.9.6：活性过滤 —— 只对声明了 liveListUrl 的 provider 生效（当前是
+    // openrouter：它的目录接口公开、免 Key、不耗额度）。放在熔断判定之后：
+    // 熔断是本地零成本判定，注定被跳过的 provider 没理由先花一次目录请求。
+    if (provider.liveListUrl) {
+      const filtered = await filterLiveAvailable(provider, models, env);
+      models = filtered.models;
+      record.liveCheck = filtered.live;
+    }
     record.tried = true;
     record.attemptedModels = models.map(m => m.id);
     let lastError = null;
