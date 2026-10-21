@@ -80,7 +80,9 @@ export const TONES = {
 /** 各重心下的阶段弧（只改顺序，不改功能集合 —— 不变式因此自动保持） */
 export const EMPHASIS_ARC = {
   action: {
-    establish: ['goal', 'world', 'character', 'approach', 'observe'],
+    // 6.9.8：establish 与默认弧线同调 —— approach（渗透）提到 world/character
+    // 前面。动作重心的 8 镜原本是「简报 → 大远景」双文戏开场，与重心名不符。
+    establish: ['goal', 'approach', 'observe', 'world', 'character'],
     build: ['contact', 'escalate', 'cost', 'reveal', 'plan', 'observe'],
     climax: ['clash', 'escalate', 'reversal', 'cost', 'decision', 'quiet'],
     resolve: ['aftermath', 'reaction', 'cost', 'close', 'quiet']

@@ -237,8 +237,10 @@ test('narrative: 短片的戏剧弧线是完整的（每一镜都在推进故事
   // 这是「能不能构成电影」的核心断言：4/8/12 镜的片子，
   // 每一镜都必须承担**互不相同**的戏剧功能，且功能要落在正确的叙事阶段里。
   const expectations = {
-    4: ['goal', 'plan', 'escalate', 'aftermath'],
-    8: ['goal', 'character', 'plan', 'contact', 'escalate', 'clash', 'aftermath', 'reaction']
+    // 6.9.8：默认弧线动作化。establish 把 approach（渗透/对峙）提到 character 前面，
+    // build 把 contact（拐角遭遇）提到 plan 前面。4 镜短片改善最明显（contact 替代 plan）。
+    4: ['goal', 'contact', 'escalate', 'aftermath'],
+    8: ['goal', 'approach', 'contact', 'reveal', 'escalate', 'clash', 'aftermath', 'reaction']
   };
   for (const [n, expected] of Object.entries(expectations)) {
     const beats = selectBeats({ n: Number(n), seed: seedOf(`arc|${n}`), hasEnemy: true, hasSupport: true, hasVehicle: true });
@@ -293,7 +295,8 @@ test('narrative: 无敌军时弧线自动降级，clash 不会被硬塞', () => 
   assert.ok(beats.every(b => b.focus !== 'clash' && b.focus !== 'enemy'));
   const fns = new Set(beats.map(b => b.fn));
   assert.ok(fns.size >= 5, `降级后功能反而更单调了（${[...fns].join(',')}）`);
-  assert.ok(fns.has('character') || fns.has('quiet'), '降级后应更多依赖非战斗功能');
+  assert.ok(fns.has('goal') || fns.has('character') || fns.has('quiet') || fns.has('observe'),
+    '降级后应保留非战斗功能（goal / character / observe / quiet 至少一个）');
 });
 
 test('narrative: buildOriginality derives an independent logline / twist / hook', () => {
@@ -399,7 +402,7 @@ test('narrative: inferFunction maps combat text to clash and reads phase for fal
   assert.equal(inferFunction({ phase: 'resolve', action: '他摘下耳机，准备收队返航。' }), 'close');
   // 无任何关键词命中时，回退到该阶段弧线首项
   assert.equal(inferFunction({ phase: 'establish', action: '……' }), PHASE_ARC.establish[0]);
-  assert.equal(inferFunction({}), PHASE_ARC.build[0], '缺省阶段按 build 处理');
+  assert.equal(inferFunction({}), PHASE_ARC.build[0], '缺省阶段按 build 处理（6.9.8 默认弧线 build 首位 = contact）');
 });
 
 test('narrative: tagDramaticFunctions respects a model-declared legal fn', () => {

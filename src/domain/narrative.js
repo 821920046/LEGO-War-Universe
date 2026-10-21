@@ -177,7 +177,7 @@ export const BEATS = [
   { id: 'bld-plan-1', phase: 'build', focus: 'hero', fn: 'plan', duration: 6, shotType: '临场改计划中景 (Plan B Medium)',
     action: '「原路线封了。」{heroCallsign} 把地图折起来，指向 {env} 侧面，「走上面。」',
     audioCue: '地图折叠 · 战术口令', radioVoice: '【无线电】改走二号路线，三分钟。' },
-  { id: 'bld-contact-1', phase: 'build', focus: 'clash', fn: 'contact', duration: 4, shotType: '拐角遭遇手持近景 (Contact Handheld)',
+  { id: 'bld-contact-1', phase: 'build', focus: 'clash', fn: 'contact', duration: 6, shotType: '拐角遭遇手持近景 (Contact Handheld)',
     action: '拐角。两米。{heroCallsign} 与 {enemyCallsign} 同时抬枪开火。',
     audioCue: '突击步枪连射 · 弹壳落地脆响', radioVoice: '【无线电】接触！接触！两点钟方向，压制他们！' },
   { id: 'bld-reveal-1', phase: 'build', focus: 'hero', fn: 'reveal', duration: 8, shotType: '揭示推轨镜头 (Reveal Dolly)',
@@ -278,8 +278,19 @@ export const BEATS = [
  * 这样短片的每一镜都在推进故事，而不是把同一个动作做三遍。
  */
 export const PHASE_ARC = {
-  establish: ['goal', 'character', 'world', 'approach', 'observe'],
-  build: ['plan', 'contact', 'reveal', 'escalate', 'cost', 'observe'],
+  // 6.9.8：默认弧线动作化。此前 establish 是「简报 → 看照片」、build 是
+  // 「改计划 → 情报揭示」，8 镜实测只有 contact/escalate/clash 三镜在打、
+  // 文案含战斗词汇的镜头仅 31.3% —— 用户反馈「全是战争片，激战画面却很少」。
+  // 本项目**每一个题材都是战争片**，默认弧线没有理由走剧情片弧线：
+  // approach（低姿渗透 / 交替跃进）与 contact（拐角遭遇）本身就是战术动作，
+  // 把它们提到 character（看照片）与 plan（改计划）前面；climax 不动
+  // （escalate/clash 已优先），resolve 不动（收束段就该收）。
+  // world 保留在第 3 位：9/12/18 镜的 establish 段有 3+ 镜，world（环境铺陈）
+  // 的 weather 占位符是场景氛围词多样性的来源（future-warfare.test.mjs 正则匹配它）。
+  // 约束不变：每阶段仍保留 ≥2 个非战斗功能（narrative.test.mjs 守着），
+  // 「不靠开枪推进故事」的功能一个没少。
+  establish: ['goal', 'approach', 'world', 'observe', 'character'],
+  build: ['contact', 'reveal', 'escalate', 'plan', 'cost', 'observe'],
   climax: ['escalate', 'clash', 'decision', 'reversal', 'cost', 'quiet'],
   resolve: ['aftermath', 'reaction', 'close', 'cost', 'quiet']
 };
@@ -805,7 +816,7 @@ const FN_KEYWORDS = [
  */
 export const FUNCTION_DURATION = {
   goal: 8, world: 8, character: 6, approach: 6, observe: 6, plan: 6,
-  contact: 4, escalate: 6, reveal: 8, decision: 6, reversal: 8, cost: 4,
+  contact: 6, escalate: 6, reveal: 8, decision: 6, reversal: 8, cost: 4,
   clash: 4, quiet: 8, aftermath: 8, reaction: 4, close: 6
 };
 

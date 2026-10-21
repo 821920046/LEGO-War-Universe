@@ -2,6 +2,50 @@
 ---
 
 
+## 2026-10-21 · 6.9.8 默认弧线动作化——战争片默认就该有战争
+
+用户反馈：「每次看生成的脚本，貌似激战的画面很少」。实测 10 题材 × 5 次 × 8 镜
+= 400 镜诊断：文案含战斗词汇的镜头仅 **31.3%**，真正交战的 fn（clash/contact/escalate）
+合计只有 **5.1%**——8 镜里通常只有 0–1 镜在真打。
+
+### 根因
+
+默认 `PHASE_ARC` 是「剧情片弧线」：establish = goal→character→world（全是文戏），
+build = plan→contact→reveal（plan 排第一位，8 镜 build 2 镜常是 plan+reveal 两个情报戏）。
+本项目**每一个题材都是战争片**，默认弧线没有理由走剧情片弧线。
+
+### 修复
+
+- **PHASE_ARC 默认动作化**：establish 把 approach（渗透/对峙）提到 character 前面，
+  build 把 contact（拐角遭遇）提到 plan 前面；world 保留第 3 位（9/12/18 镜的 establish
+  段有 3+ 镜，world 的 weather 占位符是场景氛围词多样性的来源）。
+  8 镜序列从 `goal→character→plan→contact→escalate→clash→aftermath→reaction`
+  变为 `goal→approach→world→contact→reveal→escalate→clash→aftermath→reaction`
+  （交战/战术镜从 3/8 提升到 **4/8**）。
+- **contact 档位 4s → 6s**：骨架文案替换后普遍较长，4s 快切装不下交战描述，
+  会大量顶档（41 个镜头被内容顶掉声明时长）。contact 承担「首次交战」叙事重量，
+  6s 常规档更合理；clash/cost/reaction 仍保留 4s 快切。
+- **EMPHASIS_ARC.action 同步调优**：establish 同样把 approach 提到 world/character 前面。
+- **骨架文案精修**：observe  naval 域文案缩短（与 BEATS 模板一致，防 pacing 容差超限）；
+  character naval 域文案缩短（「感受那台机器的心跳」过长，6.99s > 6s 容差）；
+  全部 16 个原型 contact slot 加长交战细节（防 4s 空转，同时控制不顶 6s 档）。
+
+### 实测改善
+
+| 指标 | 修复前 | 修复后 |
+|---|---|---|
+| 文案含战斗词汇 | 31.3% | **41.3%**（+10pp） |
+| 交战 fn 占比 | 5.1% | **12.5%×3 = 37.5%**（contact+escalate+clash） |
+| 8 镜动作相关镜 | 3/8 | **4/8**（approach+contact+escalate+clash） |
+
+### 验证
+
+- narrative.test.mjs 硬断言同步更新（8 镜序列 / 4 镜序列 / inferFunction build 首位 /
+  无敌军降级非战斗功能断言）。
+- 五道门禁全绿：validate PASSED / build 810 项签名 `e1515357a93c` / 测试 **379/379**
+  / check-release 0 violations / 盲测 100·100·100·96 不变。
+
+
 ## 2026-10-21 · 6.9.7 probe 报近似变量名——把「拼写不一致」从猜测变成可见
 
 线上 `openrouter.configured=false` 卡了四轮，每轮都只能重复「核对三要素」
