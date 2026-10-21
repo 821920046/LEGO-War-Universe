@@ -518,6 +518,33 @@ function maskKey(value) {
 }
 
 /** 每个 provider 的「配置态」报告（不发起任何外部调用）。 */
+/**
+ * 拼写近似变量名检测（6.9.7）。configured=false 时，报告 env 里有哪些
+ * 「看起来是想配这个 provider、但名字不一致」的键名 —— 把「拼写差一个
+ * 字符」这个最高频的坑从猜测变成可见（线上 openrouter 卡了四轮 403/false，
+ * 每轮都只能重复「核对变量名」的话术，而 probe 本来就能直接看见答案）。
+ *
+ * 安全边界：变量**名**不是秘密值，只报键名、绝不报值；只报与该 provider
+ * 相关的近似名，不枚举 env 全部键（避免暴露用户其他服务的变量名）。
+ * 判定：键名归一化（去非字母数字、统一大写）后与正确名相等，或包含品牌段
+ * （OPENROUTER_API_KEY → OPENROUTER）—— 抓住大小写/分隔符/增减词变体，
+ * 例如 OpenRouter_Api_Key、OPEN_ROUTER_API_KEY、OPENROUTERKEY。
+ * （配了 OPENROUTER_MODEL 而漏了 Key 也会被报出来，同样是有用信息。）
+ */
+function nearMissEnvVars(env = {}, envVar) {
+  const norm = s => String(s).toUpperCase().replace(/[^A-Z0-9]/g, '');
+  const want = norm(envVar);
+  const brand = want.replace(/APIKEY$|KEY$/, '');
+  if (!brand) return [];
+  const hits = [];
+  for (const key of Object.keys(env || {})) {
+    if (key === envVar) continue; // 精确名已由 configured 表达
+    const n = norm(key);
+    if (n === want || n.includes(brand)) hits.push(key);
+  }
+  return hits;
+}
+
 function providerReport(env = {}) {
   return PROVIDERS.map(p => ({
     id: p.id,
@@ -528,7 +555,10 @@ function providerReport(env = {}) {
     models: modelsFor(p, env).map(m => m.id),
     jsonModes: modelsFor(p, env).map(m => (m.jsonMode === null ? Boolean(p.jsonMode) : m.jsonMode)),
     configured: Boolean(env[p.envVar]),
-    keyHint: maskKey(env[p.envVar])
+    keyHint: maskKey(env[p.envVar]),
+    // 6.9.7：没配上时给出「你可能配成了什么名字」。空数组 = 没有近似名，
+    // 那就是变量根本没保存（或存到了别的项目/Preview 环境）。
+    nearMisses: env[p.envVar] ? [] : nearMissEnvVars(env, p.envVar)
   }));
 }
 
@@ -634,14 +664,26 @@ function buildProbeReport(env = {}) {
     diagnosis: anyConfigured
       ? '后台至少配置了一个模型 Key。若「深度转译」仍显示本地引擎，请点一次「深度转译」，响应里的 aiStatus.providers[].calls 会逐次给出每个模型的耗时与真实失败原因（401=Key 无效，429=额度或限流，404=模型不可用，超时=该模型排队严重）。'
       : '后台没有配置任何模型 Key（GROQ_API_KEY / OPENROUTER_API_KEY / GEMINI_API_KEY 均为空），因此所有生成都会走本地引擎 —— 功能完整、不联网、不花钱。想启用云端 AI，请按 howToFix 操作。',
-    howToFix: [
-      'Cloudflare 控制台 → 你的 Pages 项目 → Settings → Environment variables → Production',
-      '新增 GROQ_API_KEY，类型必须选 Secret（加密），不要选 Text',
-      '点一次 Redeploy / 重新部署 —— 环境变量改动不重新部署不生效（最高频的坑）',
-      '重新打开本地址，确认对应 provider 的 configured 变成 true'
-    ],
+    howToFix: (() => {
+      const steps = [
+        'Cloudflare 控制台 → 你的 Pages 项目 → Settings → Environment variables → Production',
+        '新增 GROQ_API_KEY，类型必须选 Secret（加密），不要选 Text',
+        '点一次 Redeploy / 重新部署 —— 环境变量改动不重新部署不生效（最高频的坑）',
+        '重新打开本地址，确认对应 provider 的 configured 变成 true'
+      ];
+      // 6.9.7：检测到近似变量名时，把「核对拼写」从话术升级成可执行指令 ——
+      // 直接告诉用户他配成了什么、代码读的是什么。
+      for (const p of providers) {
+        if (p.configured || !p.nearMisses.length) continue;
+        steps.splice(1, 0,
+          `检测到近似变量名 ${p.nearMisses.map(n => JSON.stringify(n)).join(' / ')}，`
+          + `但代码读取的精确名字是 ${p.envVar} —— 大小写、下划线必须完全一致，`
+          + `请改成 ${p.envVar}（或把值挪到这个名字下）`);
+      }
+      return steps;
+    })(),
     docs: 'docs/AI启用时机与配置.md',
-    note: '本接口只报告 Key 是否存在（掩码显示后四位与长度），绝不返回密钥本身，也不会发起任何外部请求、不消耗任何额度。'
+    note: '本接口只报告 Key 是否存在（掩码显示后四位与长度），绝不返回密钥本身；没配上时会顺带报告拼写近似的变量名（只报名字、不报值）。本接口不发起任何外部请求、不消耗任何额度。'
   };
 }
 
