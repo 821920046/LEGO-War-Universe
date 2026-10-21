@@ -403,7 +403,7 @@ function adviseProviderError(provider, model, message) {
     return `${provider.label} 拒绝了这把 Key（401 未授权）：请到控制台重新生成并完整复制（注意别带多余空格），然后更新环境变量 ${provider.envVar} 并重新部署。`;
   }
   if (status === 403) {
-    return `${provider.label} 拒绝了这把 Key（403 禁止访问）：常见原因是 Key 无效 / 已撤销 / 账户受限或未完成验证 / 所在地区不支持。请到控制台确认 Key 状态，或换一把新 Key。`;
+    return `${provider.label} 返回 403 禁止访问。按 ${provider.label} 官方错误码文档，这是**权限限制**（401 才是 Key 无效）——常见原因：账户受限或未完成验证、所在地区不受支持、或该账户没有这个模型的访问权限（例如 6.9.5 实测：有效 Key 调 gpt-oss 系列仍 403）。请到控制台确认账户状态与套餐，或换一把新 Key。`;
   }
   if (status === 404) {
     return `${provider.label} 找不到模型「${model}」（404）：多半是这个模型名已经退役。用环境变量 ${provider.modelEnvVar} 指定一个当前可用的模型名即可，无需改代码。`;
