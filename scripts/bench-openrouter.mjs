@@ -27,6 +27,7 @@
  *   node scripts/bench-openrouter.mjs                       # OR_KEY=… 或 .dev.vars
  *   node scripts/bench-openrouter.mjs --key sk-or-…
  *   node scripts/bench-openrouter.mjs --themes 3 --shots 4 --out _bench_result.json
+ *   node scripts/bench-openrouter.mjs --discover            # 列出当前可用免费模型（不需要 Key）
  *
  * 判据纪律：网络错误 / 429 限流记「未测到」并单列，不静默计成失败 ——
  * 失败与没测到是两件不同的事（6.8.8 同型教训）。输出文件默认写
@@ -53,6 +54,56 @@ function readKeyFromDevVars(varName) {
 
 const provider = PROVIDERS.find(p => p.id === 'openrouter');
 if (!provider) { console.error('PROVIDERS 里找不到 openrouter provider'); process.exit(2); }
+
+// ── --discover：列出当前可用免费模型（公开目录，**不需要 Key**）──────────
+// 存在意义：基准只测名单**内**的模型；名单外新出现的免费模型先进这里人工
+// 过目（规模 / 上下文 / 描述），再决定要不要加进 PROVIDERS 跑基准。
+// 6.9.5 的教训（llama-3.3 死了两个月没人知道）说明候选名单是会腐烂的，
+// 需要一个便宜的手段定期看一眼外面还有什么、里面还剩什么。
+if (argv.includes('--discover')) {
+  await discoverFreeModels(provider);
+  process.exit(0);
+}
+
+/** 拉 OpenRouter 公开目录，打印全部 :free 模型并标注是否已在候选名单。 */
+async function discoverFreeModels(prov) {
+  const url = prov.liveListUrl || 'https://openrouter.ai/api/v1/models';
+  console.log(`拉取公开目录 ${url} （不需要 Key）...`);
+  let data;
+  try {
+    const res = await fetch(url, { headers: { Accept: 'application/json' } });
+    if (!res.ok) { console.error(`目录请求失败：HTTP ${res.status}`); process.exitCode = 2; return; }
+    data = await res.json();
+  } catch (err) {
+    console.error('目录请求异常：' + (err && err.message));
+    process.exitCode = 2;
+    return;
+  }
+  const all = Array.isArray(data.data) ? data.data : [];
+  const free = all.filter(m => m && typeof m.id === 'string' && m.id.endsWith(':free'));
+  const current = new Set(prov.models.map(m => (typeof m === 'string' ? m : m.id)));
+  const fmtCtx = n => (Number(n) > 0 ? Math.round(Number(n) / 1024) + 'k' : '—');
+  const desc = m => {
+    const d = String((m && (m.description || m.name)) || '').replace(/\s+/g, ' ').trim();
+    return d.length > 58 ? d.slice(0, 58) + '…' : (d || '—');
+  };
+  console.log(`\n全目录 ${all.length} 个模型，其中 :free 后缀 ${free.length} 个`
+    + `（候选名单内 ${free.filter(m => current.has(m.id)).length} / 名单外 ${free.filter(m => !current.has(m.id)).length}）\n`);
+  console.log('  #  模型 ID'.padEnd(64) + '上下文   状态');
+  console.log('  ' + '-'.repeat(78));
+  free
+    .slice()
+    .sort((a, b) => (current.has(b.id) ? 1 : 0) - (current.has(a.id) ? 1 : 0)
+      || Number(b.context_length || 0) - Number(a.context_length || 0))
+    .forEach((m, i) => {
+      const mark = current.has(m.id) ? '名单内' : '名单外 ← 可评估';
+      console.log(`  ${String(i + 1).padStart(2)} ${m.id}`.padEnd(64)
+        + `${fmtCtx(m.context_length).padEnd(8)}${mark}`);
+      console.log(`      ${desc(m)}`);
+    });
+  console.log('\n下一步：名单外模型若要评估，把 ID 加进 functions/api/ai-brain.js 的'
+    + ' PROVIDERS.openrouter.models，再跑本脚本（不带 --discover）测可用率。');
+}
 
 // Key：--key > OR_KEY（向后兼容 6.8.7 用法）> OPENROUTER_API_KEY > .dev.vars
 const KEY = flag('key', null)
