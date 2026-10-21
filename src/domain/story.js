@@ -608,7 +608,7 @@ const TEXTURE = {
     // ── 海战域 ────────────────────────────────────────────────────────
     {
       fn: 'character', phase: 'establish', focus: 'squad', domains: ['naval'],
-      action: '{link}{supportCallsign}在声呐屏的余光里看了{heroCallsign}一眼，低声说：「{deadline}，够吗？」{heroCallsign}没回答，只是把手按在冰凉的舱壁上，感受那台机器的心跳。',
+      action: '{link}{supportCallsign}在声呐屏的余光里看了{heroCallsign}一眼，低声说：「{deadline}，够吗？」{heroCallsign}没回答，只是把手按在舱壁上。',
       audioCue: '声呐滴答 · 舱壁传导的机械低鸣',
       radioVoice: '【无线电】（没有按下通话键）'
     },
@@ -617,7 +617,7 @@ const TEXTURE = {
       // 写成 hero 时 subjects 只有主角一人，{supportCallsign} 会塌回主角自己，
       // 渲染成「邓肯把手按在舱壁上……邓肯在声呐屏的余光里看了他一眼」。
       fn: 'character', phase: 'establish', focus: 'squad', domains: ['naval'],
-      action: '{link}{heroCallsign}把手按在冰凉的舱壁上，隔着钢板感受那台机器的心跳。{supportCallsign}在声呐屏的余光里看了他一眼：「{deadline}，够吗？」',
+      action: '{link}{heroCallsign}把手按在舱壁上，隔着钢板感受那台机器的心跳。{supportCallsign}在声呐屏的余光里看了他一眼：「{deadline}，够吗？」',
       audioCue: '声呐滴答 · 舱壁传导的机械低鸣',
       radioVoice: '【无线电】（没有按下通话键）'
     },
@@ -689,7 +689,7 @@ const TEXTURE = {
     },
     {
       fn: 'observe', phase: 'establish', focus: 'enemy',
-      action: '{link}准星里，{enemyCallsign}的巡逻队正从{place}尽头经过。{heroCallsign}没有开火，只是数人数。',
+      action: '{link}准星里，{enemyCallsign}的巡逻队正从{place}尽头经过。{heroCallsign}没有开火。',
       audioCue: '远处口令声 · 风声掩盖脚步',
       radioVoice: '【无线电】目标在动，等他们全部进入杀伤区。'
     },
@@ -819,7 +819,7 @@ export const SLOTS = {
       audioCue: '沙盘推杆 · 装填手拉开电源柜',
       radioVoice: '【无线电】漏斗部署，放近了再打。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '蜂群从低云下面钻出来，{vocab.counterDrone}同时开火。',
+      action: '蜂群从低云下面钻出来，{vocab.counterDrone}同时开火，低空炸成一片火网。',
       audioCue: '定向能充能的啸叫 · 小型旋翼的密集嗡鸣',
       radioVoice: '【无线电】接触！低空，数量三十以上！' }],
     escalate: [
@@ -877,7 +877,7 @@ export const SLOTS = {
       audioCue: '投放图翻动 · 战术口令',
       radioVoice: '【无线电】三股分进，第一股负责诱饵。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}{enemyCallsign}的防空火力把天空切成一块块，双方在低空交火。',
+      action: '{link}{enemyCallsign}的防空火力把天空切成一块块，双方在低空交火，弹片横飞。',
       audioCue: '近防炮连射 · 小型旋翼被撕碎的脆响',
       radioVoice: '【无线电】第一股被打掉了！第二股压到五十米！' }],
     escalate: [
@@ -935,7 +935,7 @@ export const SLOTS = {
       audioCue: '弹道图推演音 · 口令交替',
       radioVoice: '【无线电】弹道已装订，滑翔段规避中段拦截。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{enemyCallsign}的{vocab.interceptor}从三个方向同时爬升，双方交战。',
+      action: '{enemyCallsign}的{vocab.interceptor}从三个方向同时爬升，双方交战，尾焰撕开云层。',
       audioCue: '拦截弹上升的呼啸 · 告警音连响',
       radioVoice: '【无线电】被拦截弹跟踪！准备机动！' }],
     escalate: [
@@ -993,7 +993,7 @@ export const SLOTS = {
       audioCue: '键盘连击 · 频谱波形在屏幕上滚动',
       radioVoice: '【无线电】压制顺序定了，第一段三分钟。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}{enemyCallsign}的反辐射分队顺着辐射源找过来，双方在频谱上对抗。',
+      action: '{link}{enemyCallsign}的反辐射分队顺着辐射源找过来，双方在频谱上对抗，屏幕刷成雪花。',
       audioCue: '干扰噪声铺满 · 反辐射告警连响',
       radioVoice: '【无线电】被反辐射锁定了！天线车撤！' }],
     escalate: [
@@ -1051,7 +1051,7 @@ export const SLOTS = {
       audioCue: '头盔显示器启动音 · 战术口令',
       radioVoice: '【无线电】无人战车先导，人跟车走。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}{enemyCallsign}的反装甲伏击从{place}两侧同时开火。',
+      action: '{link}{enemyCallsign}的反装甲伏击从{place}两侧同时开火，穿甲弹敲出火星。',
       audioCue: '反装甲命中爆响 · 碎石砸在装甲板上',
       radioVoice: '【无线电】伏击！两侧！找掩体！' }],
     escalate: [
@@ -1112,7 +1112,7 @@ export const SLOTS = {
       audioCue: '纸张翻动 · 车门关合的闷响',
       radioVoice: '【无线电】侧门车队三分钟后出发，楼顶待命。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}车队刚出侧门，{enemyCallsign}的武装人群堵住街角开火。',
+      action: '{link}车队刚出侧门，{enemyCallsign}的武装人群堵住街角开火，挡风玻璃炸开蛛网纹。',
       audioCue: '石块砸在装甲上 · 短点射 · 人群的喊声',
       radioVoice: '【无线电】车队被拦住了！就地防御！' }],
     escalate: [
@@ -1173,7 +1173,7 @@ export const SLOTS = {
     // 写成泛称会让观众看到一个无名角色，而定妆表上明明有他。凡有专属角色承担的动作
     // 一律用 {supportCallsign}，泛称只留给真的没有对应资产的群体。
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}{enemyCallsign}的螺旋桨音从盲区压过来，{heroCallsign}转入交战航向。',
+      action: '{link}{enemyCallsign}的螺旋桨音从盲区压过来，{heroCallsign}转入交战航向，鱼雷管开始注水。',
       audioCue: '螺旋桨音由远及近 · 心跳被放大',
       radioVoice: '【无线电】接触！方位零九零，距离三千！' }],
     escalate: [
@@ -1234,7 +1234,7 @@ export const SLOTS = {
       audioCue: '航图翻动 · 战术口令',
       radioVoice: '【无线电】编队变阵，左翼前出。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}{enemyCallsign}的{vocab.antiship}跃出海天线，编队迎头拦截。',
+      action: '{link}{enemyCallsign}的{vocab.antiship}跃出海天线，编队迎头拦截，尾焰在海面烧出一道白线。',
       audioCue: '告警嘶叫 · 防空火力点火 · 水柱爆开',
       radioVoice: '【无线电】来袭！全编队防空机动！' }],
     escalate: [
@@ -1292,7 +1292,7 @@ export const SLOTS = {
       audioCue: '油门推杆 · 呼吸声压重',
       radioVoice: '【无线电】我上高空，你在云下待机。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}{enemyCallsign}的双机编队从太阳方向俯冲下来，双方迎头交战。',
+      action: '{link}{enemyCallsign}的双机编队从太阳方向俯冲下来，双方迎头交战，曳光弹把空域切成碎片。',
       audioCue: '气流爆响 · 雷达锁定单音',
       radioVoice: '【无线电】敌机！两点钟方向，俯冲！' }],
     escalate: [
@@ -1350,7 +1350,7 @@ export const SLOTS = {
       audioCue: '航图翻动 · 战术口令',
       radioVoice: '【无线电】航线已定，低空进场。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}{enemyCallsign}的搜索雷达突然开机，锁住编队并引导拦截。',
+      action: '{link}{enemyCallsign}的搜索雷达突然开机，锁住编队并引导拦截，告警音连成一片。',
       audioCue: '锁定告警尖叫 · 座舱震动',
       radioVoice: '【无线电】被照射了！机动规避！' }],
     escalate: [
@@ -1408,7 +1408,7 @@ export const SLOTS = {
       audioCue: '指北针开合 · 压低的交谈',
       radioVoice: '【无线电】走中间，一分钟后放跳板。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}跳板砸进浅水，{enemyCallsign}的机枪从高处压制滩头。',
+      action: '{link}跳板砸进浅水，{enemyCallsign}的机枪从高处压制滩头，弹着点敲出火星。',
       audioCue: '机枪连射 · 水花与弹壳声混成一片',
       radioVoice: '【无线电】压制点！崖顶！压制点！' }],
     escalate: [
@@ -1469,7 +1469,7 @@ export const SLOTS = {
       audioCue: '铅笔划图 · 装填手检查弹药',
       radioVoice: '【无线电】进入伏击位，发动机熄火待机。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{vocab.armorRound}在{heroCallsign}的炮塔边上炸开，两车交战。',
+      action: '{vocab.armorRound}在{heroCallsign}的炮塔边上炸开，两车交战，穿甲弹敲出火星。',
       audioCue: '穿甲弹命中 · 车内金属回响',
       radioVoice: '【无线电】中弹！右侧！倒车！' }],
     escalate: [
@@ -1527,7 +1527,7 @@ export const SLOTS = {
       audioCue: '系绳卡扣 · 气闸泄压声',
       radioVoice: '【无线电】我出舱，你守住气闸。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}系绳被一块高速碎片削断，{heroCallsign}在旋转中开火反击。',
+      action: '{link}系绳被一块高速碎片削断，{heroCallsign}在旋转中开火反击，弹壳撞出脆响。',
       audioCue: '碎片撞击 · 通讯频段被插入杂音',
       radioVoice: '【无线电】我的系绳断了！有人在我的频道里！' }],
     escalate: [
@@ -1587,7 +1587,7 @@ export const SLOTS = {
       audioCue: '地图折叠 · 旋翼启动的闷响',
       radioVoice: '【无线电】进场路线已定，两分钟窗口。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}{enemyCallsign}的机枪从河谷两侧同时开火。',
+      action: '{link}{enemyCallsign}的机枪从河谷两侧同时开火，弹片在岩壁上敲出火星。',
       audioCue: '机枪连射 · 泥土被掀起',
       radioVoice: '【无线电】两侧都有火力！趴下！' }],
     escalate: [
@@ -1645,7 +1645,7 @@ export const SLOTS = {
       audioCue: '破门器金属碰撞 · 战术口令',
       radioVoice: '【无线电】断电三十秒后动手，收到请回答。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}门被踹开的瞬间，{enemyCallsign}的枪口已经在走廊尽头开火。',
+      action: '{link}门被踹开的瞬间，{enemyCallsign}的枪口已经在走廊尽头开火，弹壳跳成一片。',
       audioCue: '突击步枪连射 · 弹壳落地脆响',
       radioVoice: '【无线电】接触！走廊尽头！' }],
     escalate: [
@@ -1703,7 +1703,7 @@ export const SLOTS = {
       audioCue: '地图折叠 · 战术口令',
       radioVoice: '【无线电】改走二号路线，三分钟。' }],
     contact: [{ fn: 'contact', phase: 'build', focus: 'clash',
-      action: '{link}刚越过出发线，就被{enemyCallsign}的火力压制。',
+      action: '{link}刚越过出发线，就被{enemyCallsign}的火力压制，弹片敲出火星。',
       audioCue: '机枪连射 · 弹壳与碎石声',
       radioVoice: '【无线电】接触！两点钟方向，压制他们！' }],
     escalate: [
