@@ -363,6 +363,15 @@ curl -s "https://你的域名/api/ai-brain?probe=1"
 返回里每个 provider 都有 `configured` 字段——**这里显示 false，就是变量没进
 运行时**，回去按上面三条核对；显示 true 才会在请求时真正被调用。
 
+**probe 还能直接告诉你「配错了什么」（6.9.7）**：没配上时，每个 provider
+会多带一个 `nearMisses` 字段，列出 env 里**拼写近似**的变量名（只报名字、
+绝不报值）。例如配成了 `OpenRouter_Api_Key` 或 `OPEN_ROUTER_API_KEY`
+（大小写 / 分隔符 / 增减词变体都算），probe 会直接点名，`howToFix` 里也会
+插入一条精确指令：「检测到近似变量名 "OpenRouter_Api_Key"，但代码读取的
+精确名字是 OPENROUTER_API_KEY」。**`nearMisses` 为空数组**则说明变量根本
+没保存成功（或存到了别的项目 / Preview 环境）——「拼错了」和「没保存」
+是两种不同的病，现在 probe 能分开报。
+
 ### 本地开发（想用 AI 必须这样起）
 
 README 里写的 `python -m http.server 8080` 或 `npx serve .` **只提供静态文件，

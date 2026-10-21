@@ -812,3 +812,68 @@ test('6.8.8 · 同一客户端超限必须 429 RATE_LIMITED，且不同客户端
     globalThis.fetch = originalFetch;
   }
 });
+
+// ── 6.9.7：近似变量名检测 ──────────────────────────────────────────
+// 线上 openrouter 卡了四轮 configured=false，每轮都只能重复「核对变量名」
+// 的话术 —— 而 probe 本来就能直接看见「用户配成了什么名字」。把拼写不一致
+// 这个最高频的坑从猜测变成可见：只报键名不报值（变量名不是秘密值），
+// 只报与该 provider 相关的近似名，不枚举 env 全部键。
+test('6.9.7 · 拼写近似变量名必须被报出来：大小写 / 分隔符 / 增减词变体都算', async () => {
+  const res = await probe({
+    GROQ_API_KEY: FAKE_SECRET,
+    GEMINI_API_KEY: 'AIzaFAKE',
+    OpenRouter_Api_Key: 'sk-or-v1-fake',        // 大小写变体
+    OPEN_ROUTER_API_KEY: 'sk-or-v1-fake'        // 增减词变体
+  });
+  const data = await res.json();
+  const or = data.providers.find(p => p.id === 'openrouter');
+  assert.equal(or.configured, false, '近似名不算配上——代码只认精确名');
+  assert.deepEqual(
+    or.nearMisses.sort(),
+    ['OpenRouter_Api_Key', 'OPEN_ROUTER_API_KEY'].sort(),
+    '两种拼写变体都必须被报出来，否则这个字段没有存在意义'
+  );
+  // howToFix 必须把「核对拼写」升级成可执行指令：直接说配成了什么、代码读的是什么
+  const fix = data.howToFix.find(s => s.includes('OPENROUTER_API_KEY') && s.includes('近似'));
+  assert.ok(fix, '检测到近似名时 howToFix 必须给出精确指令');
+  assert.match(fix, /OpenRouter_Api_Key/, '指令里必须点名用户实际配成的名字');
+  assert.match(fix, /OPEN_ROUTER_API_KEY/, '指令里必须点名用户实际配成的名字（第二个变体）');
+});
+
+test('6.9.7 · 配了 OPENROUTER_MODEL 却漏了 Key 也算近似命中（漏配 Key 的常见形态）', async () => {
+  const res = await probe({ GROQ_API_KEY: FAKE_SECRET, GEMINI_API_KEY: 'AIzaFAKE', OPENROUTER_MODEL: 'x/y:free' });
+  const data = await res.json();
+  const or = data.providers.find(p => p.id === 'openrouter');
+  assert.equal(or.configured, false);
+  assert.deepEqual(or.nearMisses, ['OPENROUTER_MODEL'],
+    '只配了模型覆盖变量而漏 Key 时必须被点出来');
+});
+
+test('6.9.7 · 精确名配上后 nearMisses 必须为空数组（不报无关信息）', async () => {
+  const res = await probe({ GROQ_API_KEY: FAKE_SECRET, GEMINI_API_KEY: 'AIzaFAKE', OPENROUTER_API_KEY: 'sk-or-v1-fake' });
+  const data = await res.json();
+  for (const p of data.providers) {
+    assert.deepEqual(p.nearMisses, [],
+      `${p.id} 已配上（或没有近似名）时 nearMisses 必须是空数组，不能报无关名字`);
+  }
+});
+
+test('6.9.7 · 没有任何近似名时 nearMisses 为空（区分「拼错了」与「根本没保存」）', async () => {
+  const res = await probe({ GROQ_API_KEY: FAKE_SECRET, GEMINI_API_KEY: 'AIzaFAKE' });
+  const data = await res.json();
+  const or = data.providers.find(p => p.id === 'openrouter');
+  assert.equal(or.configured, false);
+  assert.deepEqual(or.nearMisses, [],
+    '没有近似名 = 变量根本没保存（或存到了别的项目 / Preview 环境），howToFix 不应出现拼写指令');
+  assert.ok(!data.howToFix.some(s => s.includes('近似')),
+    '没有近似名时不得插入拼写指令，否则是把「没保存」误导成「拼错了」');
+});
+
+test('6.9.7 · 近似名只报键名不报值（变量名可见、密钥绝不外泄）', async () => {
+  const res = await probe({ GROQ_API_KEY: FAKE_SECRET, GEMINI_API_KEY: 'AIzaFAKE', OpenRouter_Api_Key: 'sk-or-v1-SUPER_SECRET_VALUE' });
+  const raw = await res.text();
+  assert.ok(raw.includes('OpenRouter_Api_Key'), '键名必须可见');
+  assert.ok(!raw.includes('SUPER_SECRET_VALUE'), '近似名的值一个字都不能出现在响应里');
+  const data = JSON.parse(raw);
+  assert.equal(data.providers.find(p => p.id === 'openrouter').nearMisses.length, 1);
+});
