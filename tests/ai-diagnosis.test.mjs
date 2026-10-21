@@ -275,7 +275,8 @@ test('AI 诊断：失败必须给出可操作的 advice，而不只是一个状�
     let data = await (await call({ query: '现代特战城市巷战', requestedShots: 1 }, 'POST', {}, { GROQ_API_KEY: 'k' })).json();
     const groq = data.aiStatus.providers.find(p => p.id === 'groq');
     assert.equal(groq.error, 'Groq HTTP 403');
-    assert.match(groq.advice, /Key/, '403 的 advice 必须指出这是 Key 的问题');
+    assert.match(groq.advice, /权限/, '403 按官方错误码文档是权限限制，advice 不得笼统说成「Key 无效」');
+    assert.match(groq.advice, /401/, '必须点明 401 才是 Key 无效，否则用户会反复去换 Key（6.9.5 实测教训）');
     assert.match(groq.advice, /GROQ_API_KEY|控制台/, '403 的 advice 必须给出下一步怎么办');
 
     // 404 = 模型名退役，且必须告诉用户用哪个环境变量覆盖
